@@ -1,0 +1,10 @@
+/.qmake.stash
+/Makefile
+*.o
+moc*.*
+*~
+ui*.h
+/qt-test
+/src/cpp/GPATH
+/src/cpp/GRTAGS
+/src/cpp/GTAGS
