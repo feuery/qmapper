@@ -1,16 +1,15 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <QtWidgets/QDialog>
-#include "ui_main.h"
+// #include <QtWidgets/QDialog>
+#include <QDialog>
 
-class MainWindow: public QMainWindow{
+class MainWindow: public QDialog{
   Q_OBJECT
 public:
   MainWindow();
   
 private:
-  Ui::MainWindow ui;
 };
 
 #endif //MAIN_H

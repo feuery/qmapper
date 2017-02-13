@@ -8,3 +8,6 @@ ui*.h
 /src/cpp/GPATH
 /src/cpp/GRTAGS
 /src/cpp/GTAGS
+/GPATH
+/GRTAGS
+/GTAGS
