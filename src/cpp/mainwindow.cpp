@@ -1,3 +1,5 @@
+#include <QDebug>
+#include <renderer.h>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <mainwindow.h>
@@ -5,12 +7,11 @@
 MainWindow::MainWindow() : QDialog()
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
-  QLabel *oikee;
-  
+  qDebug() << "JEEJEE";
+  Renderer* r = new Renderer;
+  qDebug() << "JEEJEE";
   layout->addWidget(new QLabel("Heiterve", this));
-  layout->addWidget(oikee = new QLabel("Heimoi", this));
-
-  oikee->setAlignment(Qt::AlignRight);
+  layout->addWidget(r);
   
   // delete this->layout();
   setLayout(layout);
