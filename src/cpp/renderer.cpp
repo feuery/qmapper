@@ -29,16 +29,17 @@ Renderer::~Renderer()
 void Renderer::initializeGL()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  Point p = {0.3f, -0.3f};
+  Point p = {0.0f, 0.0f};
 
   olio = new immutable_obj(f,
 			   "",
-			   "",
-			   "",
+			   "defaultVertex.glsl",
+			   "defaultFragment.glsl",
 			   p);
   
+  
   if(f)
-    f->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    f->glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
   else qDebug() << "f on roskaa";
 }
 
@@ -55,6 +56,6 @@ void Renderer::paintGL()
 
 void Renderer::resizeGL(int w, int h)
 {
-  qDebug() << "At resizeGL()";
+
 }
 

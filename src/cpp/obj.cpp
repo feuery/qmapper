@@ -12,14 +12,16 @@ immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
 					     shader_loaded(false)
 {
   vao_handle = generateRectangle(f,
-				 {left_up.x + 1.0f, left_up.y}, //oikee ylä
-				 {left_up.x + 1.0f, left_up.y - 1.0f}, //oikee ala
-				 {left_up.x, left_up.y - 1.0f}, // vasen ala
+				 {left_up.x + 0.5f, left_up.y}, //oikee ylä
+				 {left_up.x + 0.5f, left_up.y - 0.5f}, //oikee ala
+				 {left_up.x, left_up.y - 0.5f}, // vasen ala
 				 left_up //vasen ylä
 				 );
 
-  // if(!reload_shaders(f))
-  //   throw "Reloading shaders failed";
+  if(!reload_shaders(f))
+    throw "Reloading shaders failed";
+  else
+    qDebug() << "Loading shaders succeded";
 
   setup_texture(f, texture_path);
 }
@@ -30,6 +32,10 @@ immutable_obj::~immutable_obj() {
 
 void immutable_obj::setup_texture(QOpenGLFunctions_4_3_Core *f, const char* filename)
 {
+  if(strcmp(filename, "") == 0) {
+    qDebug() << "Not loading texture's from an empty string";
+    return;
+  }
   if(!shader_loaded) return;
   
   f->glGenTextures(1, &texture);
@@ -55,7 +61,7 @@ Rect immutable_obj::getSize()
 void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
 {
   // f->glBindTexture(GL_TEXTURE_2D, texture);
-  // f->glUseProgram (shader_handle);
+  f->glUseProgram (shader_handle);
 
   f->glBindVertexArray(vao_handle);
   

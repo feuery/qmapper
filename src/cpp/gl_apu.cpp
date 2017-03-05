@@ -10,6 +10,14 @@ GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Poin
     p4.x, p4.y, 0.0f, 1.0f, 1.0f, 0.0f,   0.0f, 0.0f  // Top Left
   };
 
+  // GLfloat to_print[] = {p1.x, p1.y,
+  // 			p2.x, p2.y,
+  // 			p3.x, p3.y,
+  // 			p4.x, p4.y};
+  // for(int i = 0; i < 8; i += 2) {
+  //   printf("%.6f, %.6f\n", to_print[i], to_print[i+1]);
+  // }
+
   GLuint indices[] = {  // Note that we start from 0!
     0, 1, 3,   // First Triangle
     1, 2, 3    // Second Triangle
@@ -41,8 +49,8 @@ GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Poin
     f->glEnableVertexAttribArray(1);
 
     //Text coords
-    f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-    f->glEnableVertexAttribArray(2);
+    // f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+    // f->glEnableVertexAttribArray(2);
   }
   f->glBindVertexArray(0);
 

@@ -1,11 +1,11 @@
 #version 430 core
-// in vec3 ourColor;
+in vec3 ourColor;
 // in vec2 TexCoord;
 
-out vec4 color;
+out vec3 color;
 
 // uniform sampler2D ourTexture;
 
 void main() {
-  color = vec4(1.0, 0.0, 0.0, 0.0);
+  color = ourColor; // vec4(ourColor, 1.0);
 }

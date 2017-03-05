@@ -4,6 +4,7 @@
 #include <files.h>
 #include <string>
 #include <cstring>
+#include <QtDebug>
 
 using namespace std;
 
@@ -26,6 +27,7 @@ GLuint LoadShaders(QOpenGLFunctions_4_3_Core *f, const char * vertex_file_path, 
     f->glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
     printf("Loading shader %s failed: %s\n", vertex_file_path, infoLog);
   }
+  else qDebug()<<"Compiled shader " << vertex_file_path;
 
   return vertexShader;
 }
