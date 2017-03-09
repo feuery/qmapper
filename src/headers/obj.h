@@ -28,12 +28,15 @@ public:
   Rect getSize();
   void render(QOpenGLFunctions_4_3_Core *f);
 
-  Point3D oldLoc = {0.0f, 0.0f, 0.0f}, newLoc = {0.0f, 0.0f, 0.0f};
+  Point3D GLLoc = {0.0f, 0.0f, 0.0f},
+    newPXLoc = {0.0f, 0.0f, 0.0f},
+    oldPXLoc = {0.0f, 0.0f, 0.0f};
 
   bool reload_shaders(QOpenGLFunctions_4_3_Core *f);
   void setup_texture(QOpenGLFunctions_4_3_Core *f, const char* filename);
-  void setLocation(Point3D point);
-  Point3D getLocation();
+  void setPixelLocation(Point3D point, int container_w, int container_h);
+  Point3D getGLLocation();
+  Point3D getPixelLocation();
   
 };
 

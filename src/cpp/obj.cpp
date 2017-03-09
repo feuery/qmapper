@@ -55,22 +55,32 @@ void immutable_obj::setup_texture(QOpenGLFunctions_4_3_Core *f, const char* file
   f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void immutable_obj::setLocation(Point3D p)
+void immutable_obj::setPixelLocation(Point3D p, int container_w, int container_h)
 {
   // GLfloat v[] = {p.x, p.y, p.z, 1.0f};
   // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
   // f->glUniform4fv(loc_uniform, 4, v);
   // qDebug()<<"New Location is " << p.x << ", " << p.y << ", " << p.z;
-  newLoc = p;
+  newPXLoc = p;
+  float x = p.x,
+    y = p.y;
+  int w = container_w,
+    h = container_h;
+  GLLoc = {(x/w) - 0.5f, -(y/h) + 0.5f, 0.0};
 }
 
-Point3D immutable_obj::getLocation()
+Point3D immutable_obj::getPixelLocation()
 {
-  return newLoc;
+  return newPXLoc;
   // GLfloat v[4];
   // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
   // f->glGetUniformfv(shader_handle, loc_uniform, v);
   // return {v[0], v[1], v[2]};
+}
+
+Point3D immutable_obj::getGLLocation()
+{
+  return GLLoc;
 }
 
 Rect immutable_obj::getSize()
@@ -83,10 +93,9 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
   // f->glBindTexture(GL_TEXTURE_2D, texture);
   f->glUseProgram (shader_handle);
 
-  if(oldLoc != newLoc) {
-    // qDebug()<< "Setting location from " << oldLoc << " to " << newLoc;
-    oldLoc = newLoc;
-    GLfloat v[] = {oldLoc.x, oldLoc.y, oldLoc.z, 0.0f};
+  if(oldPXLoc != newPXLoc) {
+    oldPXLoc = newPXLoc;
+    GLfloat v[] = {GLLoc.x, GLLoc.y, GLLoc.z, 0.0f};
     auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
     f->glUniform4fv(loc_uniform, 1, v);
   }    

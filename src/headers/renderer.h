@@ -25,6 +25,8 @@ private:
   float r = 0.0f;
   QTimer timer;
 
+  immutable_obj* nearestObj(float mouse_x, float mouse_y);
+  
   QVector<immutable_obj*> objects;
 };
 

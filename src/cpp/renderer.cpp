@@ -3,6 +3,7 @@
 #include <QMouseEvent>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
+#include <math.h>
 #include <renderer.h>
 
 Renderer::Renderer()
@@ -25,13 +26,39 @@ Renderer::Renderer()
   timer.start();
 }
 
+float distance(float x1, float y1, float x2, float y2)
+{
+  // TODO sqrtf might be useless here
+  return abs(sqrtf(powf(x2-x1, 2.0f) + powf(y2-y1, 2.0f)));
+}
+
+immutable_obj* Renderer::nearestObj(float mouse_x, float mouse_y)
+{
+  float shortestDistance = 9999.9f;
+  immutable_obj* distance_owner = nullptr;
+
+  for(auto i = objects.begin(); i != objects.end(); ++i) {
+    Point3D pxLoc = (*i)->getPixelLocation();
+    float d = distance(mouse_x, mouse_y,
+		       pxLoc.x, pxLoc.y);
+    if(d < shortestDistance) {
+      shortestDistance = d;
+      distance_owner = *i;
+    }
+  }
+
+  return distance_owner;
+}
+
 void Renderer::mouseMoveEvent(QMouseEvent * event)
 {
   auto p = event->pos();
   float x = p.x(), y = p.y();
   int w = width(), h = height();
-  
-  objects.first()->setLocation({(x/w) - 0.5f, -(y/h) + 0.5f, 0.0});
+
+  immutable_obj* nearest = nearestObj(x, y);
+  if(nearest) nearest->setPixelLocation({x,y, 0.0}, w, h);
+  else qDebug()<<"Finding the nearest object failed";
 }
 
 void Renderer::keyReleaseEvent(QKeyEvent *e)
