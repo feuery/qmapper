@@ -3,6 +3,7 @@
 
 #include <QOpenGLWidget>
 #include <QTimer>
+#include <QVector>
 #include <obj.h>
 
 class Renderer : public QOpenGLWidget {
@@ -13,6 +14,7 @@ public:
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent * event);
+  virtual void keyReleaseEvent(QKeyEvent *e);						  
   
 protected slots:
   virtual void paintGL();
@@ -23,7 +25,7 @@ private:
   float r = 0.0f;
   QTimer timer;
 
-  immutable_obj *olio;
+  QVector<immutable_obj*> objects;
 };
 
 #endif //RENDERER_H

@@ -1,4 +1,5 @@
 #include <QOpenGLFunctions>
+#include <Qt>
 #include <QMouseEvent>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
@@ -6,6 +7,8 @@
 
 Renderer::Renderer()
 {
+  grabKeyboard();
+  
   QSurfaceFormat format;
   format.setDepthBufferSize(24);
   format.setStencilBufferSize(8);
@@ -28,12 +31,35 @@ void Renderer::mouseMoveEvent(QMouseEvent * event)
   float x = p.x(), y = p.y();
   int w = width(), h = height();
   
-  olio->setLocation({(x/w) - 0.5f, -(y/h) + 0.5f, 0.0});
+  objects.first()->setLocation({(x/w) - 0.5f, -(y/h) + 0.5f, 0.0});
+}
+
+void Renderer::keyReleaseEvent(QKeyEvent *e)
+{
+  if(e->key() == Qt::Key_C) {
+    Point p = {0.0f, 0.0f};
+
+    makeCurrent();
+    
+    auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+    if (f) {
+      objects.push_back(new immutable_obj(f,
+					  "",
+					  "defaultVertex.glsl",
+					  "defaultFragment.glsl",
+					  p));
+    }
+    doneCurrent();
+  }
+  else QWidget::keyReleaseEvent(e);    
 }
 
 Renderer::~Renderer()
 {
-  delete olio;
+  for(auto it = objects.begin(); it != objects.end(); ++it) {
+    delete *it;
+  }
+  releaseKeyboard();
 }
 
 void Renderer::initializeGL()
@@ -41,11 +67,11 @@ void Renderer::initializeGL()
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   Point p = {0.0f, 0.0f};
 
-  olio = new immutable_obj(f,
-			   "",
-			   "defaultVertex.glsl",
-			   "defaultFragment.glsl",
-			   p);
+  objects.push_back(new immutable_obj(f,
+				      "",
+				      "defaultVertex.glsl",
+				      "defaultFragment.glsl",
+				      p));
   
   
   if(f)
@@ -58,7 +84,8 @@ void Renderer::paintGL()
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   if(f) {
     f->glClear(GL_COLOR_BUFFER_BIT);
-    olio->render(f);
+    
+    for(auto i = objects.begin(); i != objects.end(); ++i) (*i)->render(f);
   }
   else
     qDebug() << "f on roskaa paintGL()ssä";
