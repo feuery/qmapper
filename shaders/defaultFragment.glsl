@@ -7,5 +7,5 @@ out vec3 color;
 // uniform sampler2D ourTexture;
 
 void main() {
-  color = ourColor; // vec4(ourColor, 1.0);
+  color = ourColor; 
 }

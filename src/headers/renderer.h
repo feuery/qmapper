@@ -10,6 +10,9 @@ class Renderer : public QOpenGLWidget {
 public:
   Renderer();
   ~Renderer();
+
+protected:
+  virtual void mouseMoveEvent(QMouseEvent * event);
   
 protected slots:
   virtual void paintGL();

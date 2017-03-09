@@ -56,3 +56,23 @@ GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Poin
 
   return VAO;
 }
+
+bool operator==(Point const& l, Point const& r)
+{
+  return l.x == r.x && l.y == r.y;
+}
+bool operator!=(Point const& l, Point const& r)
+{
+  return !(l == r);
+}
+bool operator==(Point3D const& l, Point3D const& r)
+{
+  return l.x == r.x && l.y == r.y && l.z == r.z;
+}
+bool operator!=(Point3D const& l, Point3D const& r)
+{
+  return !(l == r);
+}
+
+// inline QDebug operator<<(QDebug g, Point3D const& e)
+

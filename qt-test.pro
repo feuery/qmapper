@@ -4,6 +4,7 @@
 
 TEMPLATE = app
 TARGET = qt-test
+CONFIG += debug
 INCLUDEPATH += .
 INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui

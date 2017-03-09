@@ -1,6 +1,7 @@
 #include <QtDebug>
 #include <obj.h>
 #include <shaders.h>
+#include <gl_apu.h>
 
 
 immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
@@ -23,6 +24,7 @@ immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
   else
     qDebug() << "Loading shaders succeded";
 
+  // setLocation({0.0f, 0.0f, 0.0f});
   setup_texture(f, texture_path);
 }
 
@@ -53,6 +55,24 @@ void immutable_obj::setup_texture(QOpenGLFunctions_4_3_Core *f, const char* file
   f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void immutable_obj::setLocation(Point3D p)
+{
+  // GLfloat v[] = {p.x, p.y, p.z, 1.0f};
+  // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
+  // f->glUniform4fv(loc_uniform, 4, v);
+  // qDebug()<<"New Location is " << p.x << ", " << p.y << ", " << p.z;
+  newLoc = p;
+}
+
+Point3D immutable_obj::getLocation()
+{
+  return newLoc;
+  // GLfloat v[4];
+  // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
+  // f->glGetUniformfv(shader_handle, loc_uniform, v);
+  // return {v[0], v[1], v[2]};
+}
+
 Rect immutable_obj::getSize()
 {
   return {text_w, text_h};
@@ -62,6 +82,14 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
 {
   // f->glBindTexture(GL_TEXTURE_2D, texture);
   f->glUseProgram (shader_handle);
+
+  if(oldLoc != newLoc) {
+    // qDebug()<< "Setting location from " << oldLoc << " to " << newLoc;
+    oldLoc = newLoc;
+    GLfloat v[] = {oldLoc.x, oldLoc.y, oldLoc.z, 0.0f};
+    auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
+    f->glUniform4fv(loc_uniform, 1, v);
+  }    
 
   f->glBindVertexArray(vao_handle);
   

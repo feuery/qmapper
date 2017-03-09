@@ -15,4 +15,5 @@ MainWindow::MainWindow() : QDialog()
   
   // delete this->layout();
   setLayout(layout);
+  
 }

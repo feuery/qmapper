@@ -1,4 +1,5 @@
 #include <QOpenGLFunctions>
+#include <QMouseEvent>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QDebug>
 #include <renderer.h>
@@ -19,6 +20,15 @@ Renderer::Renderer()
   }
   else timer.setInterval(0);
   timer.start();
+}
+
+void Renderer::mouseMoveEvent(QMouseEvent * event)
+{
+  auto p = event->pos();
+  float x = p.x(), y = p.y();
+  int w = width(), h = height();
+  
+  olio->setLocation({(x/w) - 0.5f, -(y/h) + 0.5f, 0.0});
 }
 
 Renderer::~Renderer()

@@ -12,6 +12,7 @@ public:
   GLuint vao_handle;
   GLuint shader_handle;
   Point left_up;
+
   const char* vertex_shader_path;
   const char* fragment_shader_path;
   bool shader_loaded;
@@ -27,8 +28,13 @@ public:
   Rect getSize();
   void render(QOpenGLFunctions_4_3_Core *f);
 
+  Point3D oldLoc = {0.0f, 0.0f, 0.0f}, newLoc = {0.0f, 0.0f, 0.0f};
+
   bool reload_shaders(QOpenGLFunctions_4_3_Core *f);
   void setup_texture(QOpenGLFunctions_4_3_Core *f, const char* filename);
+  void setLocation(Point3D point);
+  Point3D getLocation();
+  
 };
 
 #endif //OBJ_H
