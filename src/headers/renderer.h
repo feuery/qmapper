@@ -12,6 +12,9 @@ public:
   Renderer();
   ~Renderer();
 
+  // At some point we'll separate drawingqueue from the renderer
+  void texturizeDrawingQueue(QString& texture_path);
+
 protected:
   virtual void mouseMoveEvent(QMouseEvent * event);
   virtual void keyReleaseEvent(QKeyEvent *e);						  

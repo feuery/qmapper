@@ -21,8 +21,7 @@ public:
   immutable_obj(QOpenGLFunctions_4_3_Core *f,
 			     const char* texture_path,
 			     const char* vertex_shader_path,
-			     const char* fragment_shader_path,
-			     Point left_up);
+			     const char* fragment_shader_path);
   ~immutable_obj();
 
   Rect getSize();

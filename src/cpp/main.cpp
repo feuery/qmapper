@@ -6,6 +6,7 @@ int main(int argc, char** argv)
 {
   QApplication app(argc, argv);
   MainWindow window;  // = new MainWindow(&app);
-  window.showMaximized();
+  window.setWindowState(window.windowState()|Qt::WindowMaximized);
+  window.show();
   return app.exec();
 }

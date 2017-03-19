@@ -32,6 +32,19 @@ float distance(float x1, float y1, float x2, float y2)
   return abs(sqrtf(powf(x2-x1, 2.0f) + powf(y2-y1, 2.0f)));
 }
 
+void Renderer::texturizeDrawingQueue(QString& texture_path)
+{
+  makeCurrent();
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+  if(f)
+    for(auto i = objects.begin(); i != objects.end(); ++i)
+      (*i)->setup_texture(f, texture_path.toStdString().c_str());
+  else
+    qDebug() << "f is not";
+
+  doneCurrent();
+}
+
 immutable_obj* Renderer::nearestObj(float mouse_x, float mouse_y)
 {
   float shortestDistance = 9999.9f;
@@ -64,8 +77,7 @@ void Renderer::mouseMoveEvent(QMouseEvent * event)
 void Renderer::keyReleaseEvent(QKeyEvent *e)
 {
   if(e->key() == Qt::Key_C) {
-    Point p = {0.0f, 0.0f};
-
+    
     makeCurrent();
     
     auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
@@ -73,8 +85,7 @@ void Renderer::keyReleaseEvent(QKeyEvent *e)
       objects.push_back(new immutable_obj(f,
 					  "",
 					  "defaultVertex.glsl",
-					  "defaultFragment.glsl",
-					  p));
+					  "defaultFragment.glsl"));
     }
     doneCurrent();
   }
@@ -92,13 +103,12 @@ Renderer::~Renderer()
 void Renderer::initializeGL()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  Point p = {0.0f, 0.0f};
-
-  objects.push_back(new immutable_obj(f,
+  auto o = new immutable_obj(f,
 				      "",
 				      "defaultVertex.glsl",
-				      "defaultFragment.glsl",
-				      p));
+			     "defaultFragment.glsl");
+  o->setup_texture(f, "/home/feuer/testitero.jpeg");
+  objects.push_back(o);
   
   
   if(f)

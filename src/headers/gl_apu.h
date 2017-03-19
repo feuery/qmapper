@@ -19,6 +19,6 @@ inline QDebug operator<<(QDebug g, Point3D const& e)
   return g<<"["<<e.x<<","<<e.y<<","<<e.z<<"]";
 }
 
-GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Point p3, Point p4);
+GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f);
   
 #endif //GL_APU_H

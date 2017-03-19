@@ -1,22 +1,14 @@
 #include <gl_apu.h>
 
-GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Point p3, Point p4)
+GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f)
 {
   GLfloat vertices[] = {
-    // Positions      // Colors           //Texture coords 
-    p1.x, p1.y, 0.0f, 1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Top Right
-    p2.x, p2.y, 0.0f, 0.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Bottom right
-    p3.x, p3.y, 0.0f, 0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Bottom left
-    p4.x, p4.y, 0.0f, 1.0f, 1.0f, 0.0f,   0.0f, 0.0f  // Top Left
-  };
-
-  // GLfloat to_print[] = {p1.x, p1.y,
-  // 			p2.x, p2.y,
-  // 			p3.x, p3.y,
-  // 			p4.x, p4.y};
-  // for(int i = 0; i < 8; i += 2) {
-  //   printf("%.6f, %.6f\n", to_print[i], to_print[i+1]);
-  // }
+        // Positions          // Colors           // Texture Coords
+         1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Top Right
+         1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Bottom Right
+        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Bottom Left
+        -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f  // Top Left 
+    };
 
   GLuint indices[] = {  // Note that we start from 0!
     0, 1, 3,   // First Triangle
@@ -26,10 +18,6 @@ GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Poin
   f->glGenBuffers(1, &EBO);
   
   f->glGenBuffers(1, &VBO);
-
-  // glVertexAttribPointer(0,4, GL_FLOAT, GL_FALSE, 4*sizeof(GL_FLOAT), (GLvoid*)0);
-  // glEnableVertexAttribArray(0);
-
   
   f->glGenVertexArrays(1, &VAO);
 
@@ -48,9 +36,9 @@ GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, Point p1, Point p2, Poin
     f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
     f->glEnableVertexAttribArray(1);
 
-    //Text coords
-    // f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
-    // f->glEnableVertexAttribArray(2);
+    // Text coords
+    f->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(6 * sizeof(GLfloat)));
+    f->glEnableVertexAttribArray(2);
   }
   f->glBindVertexArray(0);
 
