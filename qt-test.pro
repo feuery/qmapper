@@ -14,6 +14,9 @@ QT += opengl
 
 LIBS += -L/opt/local/lib
 LIBS += -lSOIL
+LIBS += `guile-config link`
+
+QMAKE_CXXFLAGS += `guile-config compile`
 
 
 # Input
@@ -23,7 +26,8 @@ HEADERS += src/headers/files.h \
            src/headers/obj.h \
            src/headers/renderer.h \
            src/headers/shaders.h \
-           src/headers/texture.h
+           src/headers/texture.h \
+           src/headers/guile_thread.h
 FORMS += src/ui/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
@@ -31,4 +35,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/mainwindow.cpp \
            src/cpp/obj.cpp \
            src/cpp/renderer.cpp \
-           src/cpp/shaders.cpp
+           src/cpp/shaders.cpp \
+           src/cpp/guile_thread.cpp

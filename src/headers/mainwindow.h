@@ -3,17 +3,20 @@
 
 #include <QDialog>
 #include <renderer.h>
+#include <guile_thread.h>
 
 class MainWindow: public QDialog{
   Q_OBJECT
 public:
-  MainWindow();
+  MainWindow(int argc, char** argv);
+  ~MainWindow();
 
 public slots:
   void setTexture_clicked(bool checked);
   
 private:
   Renderer *r;
+  Guile_Thread t;
   
 };
 

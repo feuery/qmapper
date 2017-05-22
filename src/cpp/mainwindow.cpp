@@ -6,7 +6,7 @@
 #include <mainwindow.h>
 #include <QFileDialog>
  
-MainWindow::MainWindow() : QDialog()
+MainWindow::MainWindow(int argc, char** argv) :  QDialog(), t(argc, argv)
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
   QVBoxLayout *toolbox_container = new QVBoxLayout(this);
@@ -25,6 +25,16 @@ MainWindow::MainWindow() : QDialog()
   // delete this->layout();
   setLayout(layout);
   
+  t.start();
+}
+
+MainWindow::~MainWindow()
+{
+  t.running = false;
+  if(!t.wait()) {
+    qDebug()<<"Terminating t";
+    t.terminate();
+  }
 }
 
 void MainWindow::setTexture_clicked(bool checked)
@@ -32,5 +42,4 @@ void MainWindow::setTexture_clicked(bool checked)
   QString texture_path = QFileDialog::getOpenFileName(NULL, "Open a texture file", "~", "Images (*.png *.jpeg *.jpg *.bmp");
   
   r->texturizeDrawingQueue(texture_path);
-}
-  
+}  
