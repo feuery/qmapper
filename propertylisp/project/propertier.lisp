@@ -128,7 +128,7 @@ type name default))))
 			
 
 (defmacro defcppclass (&rest forms)
-  (let* ((class (car forms))
+  (let* ((class (car forms)) 
 	 (forms (cdr forms)))
     ;; (setf propertynames '())
     ;; (setf propertytypes '())
@@ -144,6 +144,19 @@ type name default))))
 (defun headers (forms)
   (eval forms))
 
+(defun source (forms)
+  (let ((classname (cadr forms)))
+    (format t "///////// CPP FILE STARTS HERE ~%")
+    ;; (push `(,name . ,type) property-container)
+    (dolist (x property-container)
+      (let ((name (car x))
+	    (type (cdr x)))
+	(format t "~A ~A::get~A() {~% return ~A_field; ~%};~%"
+		type classname (string-capitalize name) name)
+	(format t "void ~A::set~A(~A val) {~% ~A_field = val; ~%}~%" classname (string-capitalize name) type name)))
+    (format t "//////// CPP FILE ENDS HERE~%")))
+  
+
 ;; (defvar propertynames '())
 ;; (defvar propertytypes '())
 
@@ -151,4 +164,5 @@ type name default))))
 
 (let ((*print-case* :downcase)
       (forms (read-file "./tile.def")))
-  (headers forms))
+  (headers forms)
+  (source forms))
