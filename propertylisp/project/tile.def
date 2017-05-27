@@ -1,0 +1,11 @@
+(defcppclass tile
+    (public
+     (fields
+      (int x 0)
+      (int y 0)))
+  (protected
+   (properties
+    (int tileset 0)
+    (int rotation 0))
+   (functions
+    (const char* to_sexpr (int x) (int y)))))
