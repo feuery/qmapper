@@ -4,7 +4,7 @@
   :description "Describe propertier here"
   :author "feuer <feuer@feuerx.net>"
   :license "Specify license here"
-  :depends-on (#:cl-arrows)
+  :depends-on (#:cl-arrows #:cl-fsnotify)
   :serial t
   :components ((:file "package")
                (:file "propertier")))

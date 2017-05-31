@@ -1,15 +1,20 @@
 ;;;; propertier.lisp
 
+;; (asdf:load-system "propertier")
+
 (in-package #:propertier)
 
 ;; (ql:quickload "cl-arrows")
 ;; (ql:quickload "quickproject")
+;; (ql:quickload "cl-fsnotify")
 ;; (require :quickproject)
 
 ;; (quickproject:make-project "~/Dropbox/qt-test/propertylisp/project/"
 ;; 			   :depends-on '(cl-arrows)
 ;; 			   :name "propertier"
 ;; 			   :author "feuer <feuer@feuerx.net>")
+
+(defvar property-container '())
 
 (defun read-file (file)
   (read-from-string 
@@ -18,6 +23,8 @@
 	     (loop for line = (read-line f nil :eof) 
 		until (eq line :eof)
 		collecting line)))))
+
+;; (open-fsnotify
 
 (defun last-satisfies (pred coll)
   (-> pred
@@ -155,14 +162,32 @@ type name default))))
 		type classname (string-capitalize name) name)
 	(format t "void ~A::set~A(~A val) {~% ~A_field = val; ~%}~%" classname (string-capitalize name) type name)))
     (format t "//////// CPP FILE ENDS HERE~%")))
-  
 
-;; (defvar propertynames '())
-;; (defvar propertytypes '())
+(defvar running? t)
+(defvar compilation-queue '())
 
-(defvar property-container '())
+(defun set-watch-on (dirpath)
+  (setf running? t)
+  (make-thread (lambda () 
+		 (open-fsnotify)
+		 (add-watch dirpath)
+		 (loop while running?
+		    do (let ((e (get-events)))
+			 (dolist (event e)
+			   (let ((path (car event))
+				 (type (cdr event)))
+			     ;; Tästä voisi yrittää tehdä jonkun ikuisen striimin?
+			     ;; Josta sitten filtteröidään vain *.def - tiedostot compilation-queueen
+			     (if (or (eq type :CREATE)
+				     (eq type :MODIFY))
+				 (push path compilation-queue))
+			     (format t "Compilation queue: ~a~%" compilation-queue)))
+			 (sleep 3))))))
+(setf running? nil)
+(set-watch-on "/home/feuer/")
 
-(let ((*print-case* :downcase)
-      (forms (read-file "./tile.def")))
-  (headers forms)
-  (source forms))
+;; (let ((*print-case* :downcase)
+;;       (forms (read-file "./tile.def")))
+;;   (headers forms)
+;;   (source forms))
+
