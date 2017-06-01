@@ -7,6 +7,7 @@
 ;; (ql:quickload "cl-arrows")
 ;; (ql:quickload "quickproject")
 ;; (ql:quickload "cl-fsnotify")
+;; (ql:quickload :lparallel)
 ;; (require :quickproject)
 
 ;; (quickproject:make-project "~/Dropbox/qt-test/propertylisp/project/"
@@ -164,7 +165,11 @@ type name default))))
     (format t "//////// CPP FILE ENDS HERE~%")))
 
 (defvar running? t)
-(defvar compilation-queue '())
+(defvar *compilation-queue* (make-queue))
+;; (pop-queue *compilation-queue*)
+
+;; (dolist (x (range 20))
+;;   (push-queue (format nil "~A" x) *compilation-queue*))					  
 
 (defun set-watch-on (dirpath)
   (setf running? t)
@@ -180,11 +185,11 @@ type name default))))
 			     ;; Josta sitten filtteröidään vain *.def - tiedostot compilation-queueen
 			     (if (or (eq type :CREATE)
 				     (eq type :MODIFY))
-				 (push path compilation-queue))
-			     (format t "Compilation queue: ~a~%" compilation-queue)))
+				 (push-queue path *compilation-queue*))))
 			 (sleep 3))))))
-(setf running? nil)
-(set-watch-on "/home/feuer/")
+
+
+;; (set-watch-on "/home/feuer/")
 
 ;; (let ((*print-case* :downcase)
 ;;       (forms (read-file "./tile.def")))

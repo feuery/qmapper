@@ -4,7 +4,8 @@
   :description "Describe propertier here"
   :author "feuer <feuer@feuerx.net>"
   :license "Specify license here"
-  :depends-on (#:cl-arrows #:cl-fsnotify)
+  :depends-on (#:cl-arrows #:cl-fsnotify :lparallel)
   :serial t
   :components ((:file "package")
+	       (:file "sicp-lazy")
                (:file "propertier")))
