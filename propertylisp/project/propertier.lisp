@@ -183,16 +183,39 @@ type name default))))
 				 (type (cdr event)))
 			     ;; Tästä voisi yrittää tehdä jonkun ikuisen striimin?
 			     ;; Josta sitten filtteröidään vain *.def - tiedostot compilation-queueen
-			     (if (or (eq type :CREATE)
-				     (eq type :MODIFY))
-				 (push-queue path *compilation-queue*))))
+			     (when (or (eq type :CREATE)
+				       (eq type :MODIFY))
+			       (format t "Pushing ~A to compilation queue~%" path)
+			       (push-queue path *compilation-queue*))))
 			 (sleep 3))))))
 
+(defun start-compilation-server (input-dir output-dir)
+  (set-watch-on input-dir)
 
-;; (set-watch-on "/home/feuer/")
+  (make-thread (lambda ()
+		 (loop while running?
+		    do (let* ((to-compile (pop-queue *compilation-queue*))
+			      (file-type (-> to-compile
+					     reverse
+					     (subseq 0 3)
+					     reverse)))
+			 (if (and (string= file-type "def")
+				  (probe-file to-compile))
+			     (let ((*print-case :downcase))
+			       (format t "~%Compiling ~A~%~%" to-compile))
+			     (format t "~A ei täyttänyt vaatimuksia ~%" to-compile))
+
+			 (sleep 2))))))
+
+;; (start-compilation-server "/home/feuer/Dropbox/qt-test/propertylisp/project" "")
+
+;; (setf running? nil)
+
+;; (queue-count *compilation-queue*)
+;; (mapcar (lambda (x)
+;; 	  (pop-queue *compilation-queue*)) (range 14))
 
 ;; (let ((*print-case* :downcase)
 ;;       (forms (read-file "./tile.def")))
 ;;   (headers forms)
 ;;   (source forms))
-
