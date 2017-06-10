@@ -1,11 +1,15 @@
-(defcppclass tile
+;; /home/feuer/Dropbox/qt-test/propertylisp/project    
+;; asdopkad sdkasopdkaoskakodasokd aospd kadop  
+
+(defcppclass olen_janna_luokka  
     (public
-     (fields
+     (fields 
       (int x 0)
       (int y 0)))
+  (private
+   (fields
+    (const char* asdfg "")))
   (protected
-   (properties
-    (int tileset 0)
-    (int rotation 0))
+   (properties)
    (functions
     (const char* to_sexpr (int x) (int y)))))
