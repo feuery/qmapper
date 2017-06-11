@@ -5,11 +5,14 @@
     (public
      (fields 
       (int x 0)
+      (const char* as "PÖÖ")  
       (int y 0)))
   (private
-   (fields
-    (const char* asdfg "")))
+   (fields 
+    (const char* asdfg "aaaa")))
   (protected
-   (properties)
-   (functions
-    (const char* to_sexpr (int x) (int y)))))
+   (properties
+    (const char* trolo "Trolliproperty")
+    (unsigned long int tileset_x -2)) 
+   (functions        
+    (const char* to_sexpr (int x) (int y))))) 

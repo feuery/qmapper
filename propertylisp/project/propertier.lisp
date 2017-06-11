@@ -37,8 +37,7 @@
        (mapcar #'(lambda (ss)
 		   (if (symbolp ss)
 		       (symbol-name ss)
-		       ss)))
-		   
+		       ss)))   
        (cons 'string)
        (apply #'concatenate)))
 
@@ -68,16 +67,29 @@
   (dolist (form forms)
     (eval form)))
 
-(defmacro fields (&rest forms)
+(defun fields* (&rest forms)
   (dolist (l forms)
-    (destructuring-bind (type name default) l
-      (format t "~A ~A = ~A;~%" type name default))))
+    (let* ((rforms (reverse l))
+	   (default (car rforms))
+	   (name (cadr rforms))
+	   (type (->> l
+		       butlast
+		       butlast
+		       (format nil "~{~a ~}"))))
+	(format t "~A ~A = ~A;~%" type name (prin1-to-string default)))))
 
-(defmacro properties (&rest forms)
+(defmacro fields (&rest forms)
+  `(fields* ,@(mapcar (lambda (x) `(quote ,x)) forms)))
+
+(defun properties* (&rest forms)
   (dolist (l forms)
-    (let ((type (car l))
-	  (name (cadr l))
-	  (default (caddr l)))
+    (let* ((rforms (reverse l))
+	   (default (car rforms))
+	   (name (cadr rforms))
+	   (type (->> l
+		      butlast
+		      butlast
+		      (format nil "~{~a ~}"))))
       (push `(,name . ,type) property-container)
       (format t "~A get~A();~%
 void set~A(~A val);~%
@@ -85,6 +97,10 @@ void set~A(~A val);~%
 ~A ~A_field = ~A;~%" type (string-capitalize name)
 (string-capitalize name) type
 type name default))))
+
+(defmacro properties (&rest forms)
+  `(properties* ,@(mapcar (lambda (x) `(quote ,x)) forms)))
+
 
 (defun flatten (l)
   (cond ((null l) nil)
@@ -144,7 +160,6 @@ type name default))))
 			
 
 (defmacro defcppclass (class &rest forms)
-  (setf property-container '())
   (let ((classname (cadr class)))
     (format t "//// generated at ~a~%" (now))
     (format t "#include<cstring>~%")
@@ -213,6 +228,7 @@ type name default))))
 					     reverse
 					     (subseq 0 3)
 					     reverse)))
+			 (setf property-container '())
 			 (if (and (string= file-type "def")
 				  (probe-file to-compile))
 			     (let* ((file-contents (read-file to-compile))
