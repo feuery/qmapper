@@ -1,7 +1,25 @@
 ;;;; propertier.lisp
-
 ;; (asdf:load-system "propertier")
+
+;; Build by invoking sbcl
+;; Making sure this file script is loadable by asdf (`ln -s ${pwd} /usr/share/common-lisp/source/propertier` in my arch box)
+;; And in repl:
+;; (asdf:load-system "propertier")
+;; (propertier:build!)
+
 (in-package #:propertier)
+
+(defun plistify (l)
+  (assert (= 0 (mod (length l) 2) 0))
+  (defun -plistify (l prop?)
+    (if l
+	(cons (if prop?
+		  (read-from-string (car l))
+		  (car l))
+	      (-plistify (cdr l)
+			 (not prop?)))
+	'()))
+  (-plistify l t))
 
 ;; (ql:quickload "cl-arrows")
 ;; (ql:quickload "quickproject")
@@ -216,47 +234,63 @@ type name default))))
        ,@forms)
      (get-output-stream-string ,s))))
 
-(defun start-compilation-server (input-dir output-dir)
-  (set-watch-on input-dir)
+(defun compilation-server-loop ()
+  (loop while running?
+     do (let* ((*print-case* :downcase)
+	       (to-compile (pop-queue *compilation-queue*))
+	       (file-type (-> (format nil "~A" to-compile)					     
+			      reverse
+			      (subseq 0 3)
+			      reverse)))
+	  (setf property-container '())
+	  (if (and (string= file-type "def")
+		   (probe-file to-compile))
+	      (let* ((file-contents (read-file to-compile))
+		     (headd (stdout-str (headers file-contents)))
+		     (cpp (stdout-str (source file-contents)))
+		     (header-filename (str *output-dir* "/" (format nil "~a" (cadr *compiled-class*)) ".h"))
+		     (cpp-filename (str *output-dir* "/" (format nil "~a" (cadr *compiled-class*)) ".cpp")))
+		(format t "Outputting sources to ~A and ~A~%" header-filename cpp-filename)
+		(when *compiled-class*
+		  (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
+		    (write-string headd f))
+		  (with-open-file (f cpp-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
+		    (write-string cpp f))
+		  (setf *compiled-class* nil)
+		  (format t "Wrote files ~a and ~a~%" header-filename cpp-filename))))
+	  (sleep 2))))
 
-  (make-thread (lambda ()
-		 (in-package #:propertier)
-		 (loop while running?
-		    do (let* ((*print-case* :downcase)
-			      (to-compile (pop-queue *compilation-queue*))
-			      (file-type (-> (format nil "~A" to-compile)					     
-					     reverse
-					     (subseq 0 3)
-					     reverse)))
-			 (setf property-container '())
-			 (if (and (string= file-type "def")
-				  (probe-file to-compile))
-			     (let* ((file-contents (read-file to-compile))
-				    (headd (stdout-str (headers file-contents)))
-				    (cpp (stdout-str (source file-contents)))
-				    (header-filename (str output-dir "/" (format nil "~a" (cadr *compiled-class*)) ".h"))
-				    (cpp-filename (str output-dir "/" (format nil "~a" (cadr *compiled-class*)) ".cpp")))
-			       (format t "Outputting sources to ~A and ~A~%" header-filename cpp-filename)
-			       (when *compiled-class*
-				 (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-				   (write-string headd f))
-				 (with-open-file (f cpp-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-				   (write-string cpp f))
-				 (setf *compiled-class* nil)
-				 (format t "Wrote files ~a and ~a~%" header-filename cpp-filename))))))
+(defvar *building?* nil)
 
-		 (sleep 2))))
+(defun start-compilation-server ()
+  (set-watch-on *input-dir*)
 
-(defun reset ()
+  (if *building?*
+      (compilation-server-loop)
+      (make-thread #'compilation-server-loop)))
+
+(defun get-argv (key)
+  (let ((key (if (symbolp key)
+		 key
+		 (read-from-string key))))
+    (assert (= (mod (length (cdr sb-ext:*posix-argv*)) 2) 0))
+    (getf (plistify (cdr sb-ext:*posix-argv*)) key)))
+
+(defvar *input-dir* '())
+(defvar *output-dir* '())
+
+(defun main ()
   (setf running? nil)
-  (sleep 2)
+  (setf *output-dir* (get-argv "--output-dir"))
+  (setf *input-dir* (get-argv "--input-dir"))
   (mapcar (lambda (x)
 	    (pop-queue *compilation-queue*)) (range (queue-count *compilation-queue*)))
-  (start-compilation-server "/home/feuer/Dropbox/qt-test/propertylisp/project" "/home/feuer/Dropbox/qt-test/propertylisp/project"))
 
-;; (let (
-;;       (forms (read-file "./tile.def")))
-;;   (headers forms)
-;;   (source forms))
-(reset)
-(format t "~%Loaded~%")
+  (cond
+    ((not *output-dir*) (format t "You need to set value to *output-dir*. Command line syntax is \"--output-dir path\". Call (main) again after setfing it"))
+    ((not *input-dir*) (format t "You need to set value to *input-dir*. Command line syntax is \"--input-dir path\". Call (main) again after setfing it"))
+    (t (start-compilation-server))))
+
+(defun build! ()
+  (setf *building?* t)
+  (sb-ext:save-lisp-and-die "./image" :toplevel #'main :executable t))

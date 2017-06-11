@@ -1,5 +1,7 @@
 ;; /home/feuer/Dropbox/qt-test/propertylisp/project    
-;; asdopkad sdkasopdkaoskakodasokd aospd kadop  
+;; asdopkad sdkasopdkaoskakodasokd aospd kadop
+
+;; std::string hämmensi häntä parametrina
 
 (defcppclass olen_janna_luokka  
     (public
@@ -7,6 +9,9 @@
       (int x 0)
       (const char* as "PÖÖ")  
       (int y 0)))
+  (protected
+   (functions
+    (customluokka* trolo (const char& moi))))
   (private
    (fields 
     (const char* asdfg "aaaa")))
@@ -14,5 +19,5 @@
    (properties
     (const char* trolo "Trolliproperty")
     (unsigned long int tileset_x -2)) 
-   (functions        
+   (functions       
     (const char* to_sexpr (int x) (int y))))) 
