@@ -122,7 +122,7 @@ type name default))))
 				 (format nil "~{~A~^ ~}"
 					 param-list)))
 		       (format nil "~{~A~^, ~}"))))
-      (format t "~A ~A(~A);~%" type name params))))
+      (format t "virtual ~A ~A(~A) = 0;~%" type name params))))
 
 (defun fill-property-names (classname)
   (format t "~A() {~%" classname)
