@@ -6,18 +6,19 @@
 (defcppclass olen_janna_luokka  
     (public
      (fields 
-      (int x 0)
+      (std__string x 0)
       (const char* as "PÖÖ")  
       (int y 0)))
   (protected
    (functions
-    (customluokka* trolo (const char& moi))))
+    (customluokka* trolo (std__string moi))))  
   (private
    (fields 
     (const char* asdfg "aaaa")))
   (protected
    (properties
-    (const char* trolo "Trolliproperty")
+    (std__string trolo "Trolliproperty") 
     (unsigned long int tileset_x -2)) 
    (functions       
     (const char* to_sexpr (int x) (int y))))) 
+

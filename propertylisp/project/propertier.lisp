@@ -1,5 +1,5 @@
 ;;;; propertier.lisp
-;; (asdf:load-system "propertier")
+;; (progn (asdf:load-system "propertier") (main))
 
 ;; Build by invoking sbcl
 ;; Making sure this file script is loadable by asdf (`ln -s ${pwd} /usr/share/common-lisp/source/propertier` in my arch box)
@@ -26,6 +26,7 @@
 ;; (ql:quickload "cl-fsnotify")
 ;; (ql:quickload :lparallel)
 ;; (ql:quickload :simple-date-time)
+;; (ql:quickload :cl-ppcre)
 ;; (require :quickproject)
 
 ;; (quickproject:make-project "~/Dropbox/qt-test/propertylisp/project/"
@@ -33,6 +34,8 @@
 ;; 			   :name "propertier"
 ;; 			   :author "feuer <feuer@feuerx.net>")
 
+(defvar *input-dir* '())
+(defvar *output-dir* '())
 (defvar property-container '())
 (defvar *compiled-class* nil)
 
@@ -90,10 +93,12 @@
     (let* ((rforms (reverse l))
 	   (default (car rforms))
 	   (name (cadr rforms))
-	   (type (->> l
-		       butlast
-		       butlast
-		       (format nil "~{~a ~}"))))
+	   (type (regex-replace-all "__"
+				    (->> l
+					 butlast
+					 butlast
+					 (format nil "~{~a ~}")
+					 ) "::")))
 	(format t "~A ~A = ~A;~%" type name (prin1-to-string default)))))
 
 (defmacro fields (&rest forms)
@@ -104,10 +109,11 @@
     (let* ((rforms (reverse l))
 	   (default (car rforms))
 	   (name (cadr rforms))
-	   (type (->> l
-		      butlast
-		      butlast
-		      (format nil "~{~a ~}"))))
+	   (type (regex-replace-all "__"
+				    (->> l
+					 butlast
+					 butlast
+					 (format nil "~{~a ~}")) "::")))
       (push `(,name . ,type) property-container)
       (format t "~A get~A();~%
 void set~A(~A val);~%
@@ -126,19 +132,23 @@ type name default))))
         (t (loop for a in l appending (flatten a)))))
 
 (defmacro functions (&rest forms)
+  (declare (optimize (debug 3)))
   (dolist (form forms)
     (let ((name (last-satisfies #'atom form))
-	  (type (->> form
-		     (remove-if-not #'atom)
-		     butlast
-		     (format nil "~{~A~^ ~}")))	    
+	  (type (regex-replace-all "__" (->> form
+					     (remove-if-not #'atom)
+					     butlast
+					     (format nil "~{~A~^ ~}"))
+				   "::"))
 		    
 	  (params (->> forms
 		       car
 		       (remove-if #'atom)
 		       (mapcar (lambda (param-list)
 				 (format nil "~{~A~^ ~}"
-					 param-list)))
+					 (mapcar (lambda (param)
+						   (regex-replace-all "__" (format nil "~a" param) "::"))
+						 param-list))))
 		       (format nil "~{~A~^, ~}"))))
       (format t "virtual ~A ~A(~A) = 0;~%" type name params))))
 
@@ -158,7 +168,9 @@ type name default))))
   (->> property-container
        (mapcar (lambda (x)
 		 (let ((name (car x))
-		       (type (cdr x)))
+		       (type (regex-replace-all "__"
+					    (format nil "~a" (cdr x))
+					    "::")))
 		   (format t "if (strcmp(propertyname, \"~A\") == 0) return \"~A\";~%" name type)))))
   (format t "return \"\";~%}~% template<typename T>~% void set(const char* propertyname, T value) { ~%")
   (->> property-container
@@ -202,7 +214,9 @@ type name default))))
     (format t "///////// CPP FILE STARTS HERE, generated at ~a~%" (now))
     (dolist (x property-container)
       (let ((name (car x))
-	    (type (cdr x)))
+	    (type (regex-replace-all "__"
+				     (format nil "~a" (cdr x))
+				     "::")))
 	(format t "~A ~A::get~A() {~% return ~A_field; ~%};~%"
 		type classname (-> name symbol-name string-capitalize) name)
 	(format t "void ~A::set~A(~A val) {~% ~A_field = val; ~%}~%" classname (-> name symbol-name string-capitalize) type name)))))
@@ -261,7 +275,6 @@ type name default))))
 	  (sleep 2))))
 
 (defvar *building?* nil)
-
 (defun start-compilation-server ()
   (set-watch-on *input-dir*)
 
@@ -276,13 +289,12 @@ type name default))))
     (assert (= (mod (length (cdr sb-ext:*posix-argv*)) 2) 0))
     (getf (plistify (cdr sb-ext:*posix-argv*)) key)))
 
-(defvar *input-dir* '())
-(defvar *output-dir* '())
-
 (defun main ()
   (setf running? nil)
-  (setf *output-dir* (get-argv "--output-dir"))
-  (setf *input-dir* (get-argv "--input-dir"))
+  (unless *output-dir*
+    (setf *output-dir* (get-argv "--output-dir")))
+  (unless *input-dir*
+      (setf *input-dir* (get-argv "--input-dir")))
   (mapcar (lambda (x)
 	    (pop-queue *compilation-queue*)) (range (queue-count *compilation-queue*)))
 
@@ -294,3 +306,4 @@ type name default))))
 (defun build! ()
   (setf *building?* t)
   (sb-ext:save-lisp-and-die "./image" :toplevel #'main :executable t))
+
