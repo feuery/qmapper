@@ -187,15 +187,29 @@ type name default))))
   (format t "/////~%")
   (format t "const char* r[~D];~%" (length property-container)))
 
+(defmacro inherits (&rest classes)
+  (format t ": public ")
+  (format t "~{~a~^,~}~%{~%" (mapcar (lambda (class)
+				    (regex-replace-all "__"
+						       (format nil "~a" class)
+						       "::"))
+				    classes)))
+
 (defmacro defcppclass (class include-list &rest forms)
-  (let ((classname (cadr class)))
+  (let ((classname (cadr class))
+	(contains-inherit? (> (->> forms
+				(remove-if-not (lambda (f)
+						 (eq (car f) 'inherits)))
+				length) 0)))
     (format t "#ifndef ~a~%#define ~a~%" classname classname)
     (format t "//// generated at ~a~%" (now))
     (format t "#include<cstring>~%")
     (dolist (file include-list)
       (format t "#include~a~%" file))
-    
-    (format t "class ~A {~%" classname)
+
+    (if contains-inherit?
+	(format t "class ~A ~%" classname)
+	(format t "class ~A {~%" classname))
     (dolist (form forms)
       (eval form))
     (format t "public: ~%")
