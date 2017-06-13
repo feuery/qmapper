@@ -186,20 +186,23 @@ type name default))))
   (format t "T t;~% *success = false; ~% return t; ~%}~%")
   (format t "/////~%")
   (format t "const char* r[~D];~%" (length property-container)))
-			
-			
 
-(defmacro defcppclass (class &rest forms)
+(defmacro defcppclass (class include-list &rest forms)
   (let ((classname (cadr class)))
+    (format t "#ifndef ~a~%#define ~a~%" classname classname)
     (format t "//// generated at ~a~%" (now))
     (format t "#include<cstring>~%")
+    (dolist (file include-list)
+      (format t "#include~a~%" file))
+    
     (format t "class ~A {~%" classname)
     (dolist (form forms)
       (eval form))
     (format t "public: ~%")
     (fill-property-names classname)
     (format t "};~%")
-    (setf *compiled-class* class)))
+    (setf *compiled-class* class)
+    (format t "#endif")))
 
 (defun headers (forms)
   (let ((*print-case* :downcase))

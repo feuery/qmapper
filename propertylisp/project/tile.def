@@ -1,9 +1,4 @@
-;; /home/feuer/Dropbox/qt-test/propertylisp/project    
-;; asdopkad sdkasopdkaoskakodasokd aospd kadop
-
-;; std::string hämmensi häntä parametrina
-
-(defcppclass olen_janna_luokka  
+(defcppclass olen_janna_luokka ("<string>" "<iostream>")    
     (public
      (fields 
       (std__string x 0)
@@ -20,5 +15,5 @@
     (std__string trolo "Trolliproperty") 
     (unsigned long int tileset_x -2)) 
    (functions       
-    (const char* to_sexpr (int x) (int y))))) 
+    (const char* to_sexpr (int x) (int y))))))     
 
