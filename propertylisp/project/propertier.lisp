@@ -172,7 +172,12 @@ type name (prin1-to-string default)))))
 					    (format nil "~a" (cdr x))
 					    "::")))
 		   (format t "if (strcmp(propertyname, \"~A\") == 0) return \"~A\";~%" name type)))))
-  (format t "return \"\";~%}~% template<typename T>~% void set(const char* propertyname, T value) { ~%")
+  (format t "return \"\";~%}~%")
+
+  (format t "const char** names() { return r; }~%")
+  (format t "int property_count = ~a;~%" (length property-container))
+
+  (format t "template<typename T>~% void set(const char* propertyname, T value) { ~%")
   (->> property-container
        (mapcar (lambda (x)
 		 (let ((name (car x)))
