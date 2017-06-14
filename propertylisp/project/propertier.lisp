@@ -120,7 +120,7 @@ void set~A(~A val);~%
 
 ~A ~A_field = ~A;~%" type (string-capitalize name)
 (string-capitalize name) type
-type name default))))
+type name (prin1-to-string default)))))
 
 (defmacro properties (&rest forms)
   `(properties* ,@(mapcar (lambda (x) `(quote ,x)) forms)))
