@@ -113,7 +113,7 @@
 				    (->> l
 					 butlast
 					 butlast
-					 (format nil "~{~a ~}")) "::")))
+					 (format nil "~{~a~^ ~}")) "::")))
       (push `(,name . ,type) property-container)
       (format t "~A get~A();~%
 void set~A(~A val);~%
@@ -230,6 +230,7 @@ type name (prin1-to-string default)))))
 	eval)))
 
 (defun source (forms)
+  (declare (optimize (debug 3)))
   (let ((*print-case* :downcase)
 	(classname (cadadr forms)))
     (format t "#include <~a.h>~%" classname)
