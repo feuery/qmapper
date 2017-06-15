@@ -212,7 +212,7 @@ sudo ln -s $(pwd) /usr/share/common-lisp/source/propertier-testi
 Then start the repl again. Load propertier-system by invoking (asdf:load-system "propertier") in repl. When building, call next (propertier:build!), which dumps sbcl's state into an executable image in path ./image. When developing, set \*input-dir\* and \*output-dir\* to real directories, call (main) and input test data to the dir marked by \*input-dir\*.
 
 ## How to use
-I assume you've built the image from the sources. Image is callable from shell, and takes two parameters --input-dir where you put the lisp files that need compiling and --output-dir where the resulting cpp files will be put.
+I assume you've built the image from the sources. Image is callable from shell, and takes two parameters --input-dir where you put the lisp files that need compiling and --output-dir where the resulting cpp files will be put. Output directory should contain only output spit out by this tool to make cleaning them easier. Inputfiles need to have the *.def - file extension and follow these rules:
 
 ## The language
 There's an example in the [repo](https://github.com/feuery/qmapper/blob/master/propertylisp/project/tile.def). The general grammar is this:
@@ -249,3 +249,7 @@ Yet. It will be, though. As soon as I get this documentation task out of the way
 - There's practically no error handling currently. If you get to error repl, it's easiest to just restart the server
 - sbcl is a bit dumb and doesn't die on ^C or ^D. The correct way kill the image is command (sb-ext:exit)
 - or if you're not in the error repl, ^C and then (sb-ext:exit)
+
+## if it breaks
+- If there's an error thrown, (sb-ext:exit) or ^C (sb-ext:exit) and restart should fix the problem
+- If the server starts generating invalid/rubbish c++, invoke `rm *.cpp *.h` in the output-dir and restart the server.
