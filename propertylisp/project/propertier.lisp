@@ -193,7 +193,6 @@ type name (prin1-to-string default)))))
   (format t "const char* r[~D];~%" (length property-container)))
 
 (defmacro inherits (&rest classes)
-  (format t ": public ")
   (format t "~{~a~^,~}~%{~%" (mapcar (lambda (class)
 				    (regex-replace-all "__"
 						       (format nil "~a" class)
@@ -209,12 +208,16 @@ type name (prin1-to-string default)))))
     (format t "#ifndef ~a~%#define ~a~%" classname classname)
     (format t "//// generated at ~a~%" (now))
     (format t "#include<cstring>~%")
+    (format t "#include<propertierbase.h>~%")
     (dolist (file include-list)
       (format t "#include~a~%" file))
 
+    (format t "class ~A: public propertierbase ~%" classname)
+
     (if contains-inherit?
-	(format t "class ~A ~%" classname)
-	(format t "class ~A {~%" classname))
+	(format t ", ")
+	(format t " { ~%"))
+    
     (dolist (form forms)
       (eval form))
     (format t "public: ~%")
@@ -223,11 +226,40 @@ type name (prin1-to-string default)))))
     (setf *compiled-class* class)
     (format t "#endif")))
 
+(defvar *baseclass-header*
+  "#ifndef propertierbase
+#define propertierbase
+//// generated at #<date-time 2017-06-17 18:44:10.914 {10067809C3}>
+
+class propertierbase
+{
+public:
+  propertierbase() {}
+  ~propertierbase() {}
+  virtual const char* type_name(const char* propertyname) = 0;
+  const char** names();
+  template<typename T>
+  virtual void set(const char* propertyname, T value);
+  
+  template<typename T>
+  virtual T get(const char* propertyname, bool* success);
+};
+#endif
+")
+
+(defun handle-base-class ()
+  (let ((header-filename (str *output-dir* "/propertierbase.h")))
+    (unless (probe-file header-filename)
+      (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
+	(write-string *baseclass-header* f)))))
+
 (defun headers (forms)
   (let ((*print-case* :downcase))
+    (handle-base-class)
     (setf *compiled-class* nil)
     (-> forms
 	eval)))
+
 
 (defun source (forms)
   (declare (optimize (debug 3)))
