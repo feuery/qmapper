@@ -11,8 +11,9 @@
 
 (defvar *input-dir* '())
 (defvar *output-dir* '())
-(setf *input-dir* "/home/feuer/qmapper/propertylisp/project")
-(setf *output-dir* "/home/feuer/cpp-uloste")
+(defvar running? t)
+(defvar *compilation-queue* (make-queue))
+(defvar *building?* nil)
 
 (defclass propertyclass ()
   ((classname
@@ -180,17 +181,88 @@ type name (prin1-to-string default)))))
     (setf (src-filename obj) cpp-filename)
     obj))
 
-    ;; (format t "Outputting sources to ~A and ~A~%" header-filename cpp-filename)
-    ;; 		(when (classname obj)
-    ;; 		  (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-    ;; 		    (write-string headd f))
-    ;; 		  (with-open-file (f cpp-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-    ;; 		    (write-string cpp f))
-    ;; 		  (setf *compiled-class* nil)
-    ;; 		  (format t "Wrote files ~a and ~a~%" header-filename cpp-filename))))
-    ;; 	  (sleep 2))))
+(defun set-watch-on (dirpath)
+  (setf running? t)
+  (make-thread (lambda ()
+		 (in-package #:propertier)
+		 (open-fsnotify)
+		 (add-watch dirpath)
+		 (loop while running?
+		    do (let ((e (get-events)))
+			 (dolist (event e)
+			   (let ((path (car event))
+				 (type (cdr event)))
+			     (when (or (eq type :CREATE)
+				       (eq type :MODIFY))
+			       (push-queue path *compilation-queue*))))
+			 (sleep 3))))))
 
-    
+(defvar *baseclass-header-start*
+  "#ifndef propertierbase
+#define propertierbase
+//// generated at #<date-time 2017-06-17 18:44:10.914 {10067809C3}>
+
+class propertierbase
+{
+public:
+  propertierbase() {}
+  ~propertierbase() {}
+  virtual const char* type_name(const char* propertyname) = 0;
+  const char** names();
+")
+
+(defvar *baseclass-header-stop* 
+"
+};
+#endif
+")
+
+(defun handle-base-class (property-types)
+  (let ((header-filename (str *output-dir* "/propertierbase.h")))
+    (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
+      (write-string *baseclass-header-start* f)
+      (write-string
+       (->> property-types
+	    remove-duplicates
+	    (mapcar #'(lambda (type)
+			(str
+			 (format nil "virtual void set(const char* propertyname, ~a value) = 0;~%" type)
+			 (format nil "virtual ~a get(const char* propertyname, bool *success) = 0;~%" type)))))
+       f)		       
+      (write-string *baseclass-header-stop* f))))
+
+(defun compilation-server-loop ()
+  (loop while running?
+     do (let* ((*print-case* :downcase)
+	       (file-to-compile (pop-queue *compilation-queue*))
+	       (file-type (-> (format nil "~A" file-to-compile)					     
+			      reverse
+			      (subseq 0 3)
+			      reverse)))
+	  (if (and (string= file-type "def")
+		   (probe-file file-to-compile))
+	      (let* ((compilation-objs (->> (list-directory ".")
+					    (remove-if-not #'(lambda (x)
+							       (string= (pathname-type x) "def")))
+					    (mapcar #'load-def-file)))
+		     (property-types (->> compilation-objs
+					  (mapcar #'propertylist)
+					  (mapcar #'cdr))))
+		(handle-base-class property-types)
+		(dolist (obj compilation-objs)
+		  (with-open-file (f (header-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
+		    (write-string (header-str obj) f))
+		  (with-open-file (f (src-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
+		    (write-string (src-str obj) f)))))
+	  (sleep 2))))
+
+(defun start-compilation-server ()
+  (set-watch-on *input-dir*)
+  (if *building?*
+      (compilation-server-loop)
+      (make-thread #'compilation-server-loop)))
+
+
   
 ;; ;; (ql:quickload "cl-arrows")
 ;; ;; (ql:quickload "quickproject")
@@ -198,6 +270,7 @@ type name (prin1-to-string default)))))
 ;; ;; (ql:quickload :lparallel)
 ;; ;; (ql:quickload :simple-date-time)
 ;; ;; (ql:quickload :cl-ppcre)
+;; (ql:quickload :cl-fad)
 ;; ;; (require :quickproject)
 
 ;; (defun range (start &optional end)
@@ -285,88 +358,6 @@ type name (prin1-to-string default)))))
 ;;     (format t "};~%")
 ;;     (setf *compiled-class* class)
 ;;     (format t "#endif")))
-
-;; (defvar *baseclass-header*
-;;   "#ifndef propertierbase
-;; #define propertierbase
-;; //// generated at #<date-time 2017-06-17 18:44:10.914 {10067809C3}>
-
-;; class propertierbase
-;; {
-;; public:
-;;   propertierbase() {}
-;;   ~propertierbase() {}
-;;   virtual const char* type_name(const char* propertyname) = 0;
-;;   const char** names();
-;;   template<typename T>
-;;   virtual void set(const char* propertyname, T value);
-  
-;;   template<typename T>
-;;   virtual T get(const char* propertyname, bool* success);
-;; };
-;; #endif
-;; ")
-
-;; (defun handle-base-class ()
-;;   (let ((header-filename (str *output-dir* "/propertierbase.h")))
-;;     (unless (probe-file header-filename)
-;;       (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-;; 	(write-string *baseclass-header* f)))))
-
-
-
-;; (defvar running? t)
-;; (defvar *compilation-queue* (make-queue))
-
-;; (defun set-watch-on (dirpath)
-;;   (setf running? t)
-;;   (make-thread (lambda ()
-;; 		 (in-package #:propertier)
-;; 		 (open-fsnotify)
-;; 		 (add-watch dirpath)
-;; 		 (loop while running?
-;; 		    do (let ((e (get-events)))
-;; 			 (dolist (event e)
-;; 			   (let ((path (car event))
-;; 				 (type (cdr event)))
-;; 			     (when (or (eq type :CREATE)
-;; 				       (eq type :MODIFY))
-;; 			       (push-queue path *compilation-queue*))))
-;; 			 (sleep 3))))))
-
-;; (defun compilation-server-loop ()
-;;   (loop while running?
-;;      do (let* ((*print-case* :downcase)
-;; 	       (to-compile (pop-queue *compilation-queue*))
-;; 	       (file-type (-> (format nil "~A" to-compile)					     
-;; 			      reverse
-;; 			      (subseq 0 3)
-;; 			      reverse)))
-;; 	  (setf property-container '())
-;; 	  (if (and (string= file-type "def")
-;; 		   (probe-file to-compile))
-;; 	      (let* ((file-contents (read-file to-compile))
-;; 		     (headd (stdout-str (headers file-contents)))
-;; 		     (cpp (stdout-str (source file-contents)))
-;; 		     (header-filename (str *output-dir* "/" (format nil "~a" (cadr *compiled-class*)) ".h"))
-;; 		     (cpp-filename (str *output-dir* "/" (format nil "~a" (cadr *compiled-class*)) ".cpp")))
-;; 		(format t "Outputting sources to ~A and ~A~%" header-filename cpp-filename)
-;; 		(when *compiled-class*
-;; 		  (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-;; 		    (write-string headd f))
-;; 		  (with-open-file (f cpp-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
-;; 		    (write-string cpp f))
-;; 		  (setf *compiled-class* nil)
-;; 		  (format t "Wrote files ~a and ~a~%" header-filename cpp-filename))))
-;; 	  (sleep 2))))
-
-;; (defvar *building?* nil)
-;; (defun start-compilation-server ()
-;;   (set-watch-on *input-dir*)
-
-;;   (if *building?*
-;;       (compilation-server-loop)
-;;       (make-thread #'compilation-server-loop)))
 
 ;; (defun get-argv (key)
 ;;   (let ((key (if (symbolp key)
