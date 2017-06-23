@@ -1,9 +1,9 @@
-(defcppclass olen_janna_luokka ("<string>" "<iostream>")
-  (inherits std__string std__vector)
+(defcppclass olen_janna_luokka ("<string>" "<iostream>")   
+;;  (inherits std__string std__vector)  
   (public
    (fields 
     (std__string x 0)
-    (const char* as "PÖÖ")  
+    (const char* as "Poo")    
     (int y 0)))
   (protected
    (functions
@@ -17,3 +17,5 @@
     (unsigned long int tileset_x -2)) 
    (functions       
     (const char* to_sexpr (int x) (int y)))))     
+
+ 
