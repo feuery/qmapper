@@ -1,5 +1,5 @@
 (defcppclass olen_janna_luokka ("<string>" "<iostream>")   
-;;  (inherits std__string std__vector)  
+  (inherits std__string std__vector)  
   (public
    (fields 
     (std__string x 0)
@@ -14,8 +14,8 @@
   (protected
    (properties
     (std__string trolo "Trolliproperty") 
-    (unsigned long int tileset_x -2)) 
+    (unsigned long int tileset_x -2)
+    (std__aa poo 33)) 
    (functions       
-    (const char* to_sexpr (int x) (int y)))))     
-
- 
+    (const char* to_sexpr (int x) (int y))))))     
+              
