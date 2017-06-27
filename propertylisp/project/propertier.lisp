@@ -172,6 +172,20 @@ type name (prin1-to-string default)))))
 		       (format nil "~{~A~^, ~}"))))
       (format t "virtual ~A ~A(~A) = 0;~%" type name params))))
 
+(defun group-properties-by-type (obj)
+  (declare (optimize (debug 3)))
+  (let ((types (remove-duplicates (->> (propertylist obj)
+				       (mapcar #'cdr))
+				  :test #'equal))
+	(alist '()))
+    (dolist (type types)
+      (let ((l `(,type . ,(->> (propertylist obj)
+			       (remove-if-not #'(lambda (prop)
+						  (equal (cdr prop) type)))
+			       (mapcar #'car)))))
+	(push l alist)))
+    alist))   
+
 (defun fill-property-names (obj)
   (let ((class-name (classname obj))
 	(property-container (propertylist obj)))
@@ -199,19 +213,28 @@ type name (prin1-to-string default)))))
     (format t "const char** names() { return r; }~%")
     (format t "int property_count = ~a;~%" (length property-container))
 
-    (format t "template<typename T>~% void set(const char* propertyname, T value) { ~%")
-    (->> property-container
-	 (mapcar (lambda (x)
-		   (let ((name (car x)))
-		     (format t "if(strcmp(propertyname, \"~A\") == 0) ~A_field = value;~%" name name)))))
-    (format t "}~% template<typename T>~% T get(const char* propertyname, bool* success) {~%")
-    (->> property-container
-	 (mapcar (lambda (x)
-		   (let ((name (car x)))
-		     (format t "if(strcmp(propertyname, \"~A\") == 0) {~%*success = true; ~% return ~A_field; ~%}~%" name name)))))
-    (format t "/////~%")
-    (format t "T t;~% *success = false; ~% return t; ~%}~%")
-    (format t "/////~%")
+    (dolist (type-group (group-properties-by-type obj))
+      (let ((type (car type-group))
+	    (properties (cdr type-group)))
+	(format t "virtual void set(const char* propertyname, ~A value) {~%" type)
+	(format t "if(strcmp(propertyname, \"~A\") == 0) ~A = value;~%" (car properties) (car properties))
+	(dolist (property (cdr properties))
+	  (format t "else if(strcmp(propertyname, \"~A\") == 0) ~A = value;~%" property property))
+	(format t "}~%~%")
+
+	(format t "virtual ~A get(const char* propertyname, bool *success, ~A* type_helper) {~%" type type)
+	(format t "if(strcmp(propertyname, \"~A\") == 0) {~%
+*success = true;
+return ~A;
+}" (car properties) (car properties))
+	
+	(dolist (property (cdr properties))
+	  (format t "else if(strcmp(propertyname, \"~A\") == 0) {~%
+*success = true;
+return ~A;
+}" property property))
+	(format t "*success = false; ~A a; return a;~%}~%" type)))    
+
     (format t "const char* r[~D];~%" (length property-container))))
 
 (defmacro inherits (&rest classes)
@@ -331,8 +354,8 @@ public:
 	    remove-duplicates
 	    (mapcar #'(lambda (type)
 			(str
-			 (format nil "virtual void set(const char* propertyname, ~a value) = 0;~%" type)
-			 (format nil "virtual ~a get(const char* propertyname, bool *success) = 0;~%" type))))
+			 (format nil "virtual void set(const char* propertyname, ~a value) { };~%" type)
+			 (format nil "virtual ~a get(const char* propertyname, bool *success, ~A* type_helper) { *success = false; ~a A; return A; };~%" type type type))))
 	    (apply #'str))
        f)		       
       (write-string *baseclass-header-stop* f))
