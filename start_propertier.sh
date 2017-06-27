@@ -1,6 +1,4 @@
-input=./src/lisp-defs
-output=./src/generated
-
+source ./propertier.cfg
 mkdir $output
 
 echo Starting propertier-compiler that reads data from $input to $output
