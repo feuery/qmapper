@@ -1,7 +1,7 @@
 ;;;; package.lisp
 
 (defpackage #:propertier
-  (:use #:cl #:cl-arrows #:cl-fsnotify #:lparallel.queue #:sb-thread #:simple-date-time #:cl-ppcre)
+  (:use #:cl #:cl-arrows #:cl-fsnotify #:lparallel.queue #:sb-thread #:simple-date-time #:cl-ppcre #:cl-fad)
   (:import-from #:sb-posix :getcwd)
   (:export :defcppclass
 	   :build!
