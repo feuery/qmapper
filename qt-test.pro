@@ -8,6 +8,7 @@ CONFIG += debug
 INCLUDEPATH += .
 INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui
+INCLUDEPATH += ./src/generated
 INCLUDEPATH += /opt/local/include
 QT += widgets
 QT += opengl
@@ -27,7 +28,9 @@ HEADERS += src/headers/files.h \
            src/headers/renderer.h \
            src/headers/shaders.h \
            src/headers/texture.h \
-           src/headers/guile_thread.h
+           src/headers/guile_thread.h \
+           src/generated/propertierbase.h \
+           src/generated/Tile.h
 FORMS += src/ui/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
@@ -36,4 +39,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/obj.cpp \
            src/cpp/renderer.cpp \
            src/cpp/shaders.cpp \
-           src/cpp/guile_thread.cpp
+           src/cpp/guile_thread.cpp \
+           src/generated/Tile.cpp \
+           src/generated/propertierbase.cpp

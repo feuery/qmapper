@@ -189,49 +189,32 @@ type name (prin1-to-string default)))))
 (defun fill-property-names (obj)
   (let ((class-name (classname obj))
 	(property-container (propertylist obj)))
-    (format t "~A() {~%" class-name)
+    (format t "~A();~%" class-name)
     
-    (mapcar (lambda (property-pair i)
-	      (let ((name (car property-pair)))
-		(format t "r[~D] = \"~A\";~%" i name)))
-	    property-container
-	    (range (length property-container)))
+    (format t "const char* type_name(const char* propertyname); ~%")
 
-    (format t "}~%")
-    
-    (format t "const char* type_name(const char* propertyname) {~%")
-
-    (->> property-container
-	 (mapcar (lambda (x)
-		   (let ((name (car x))
-			 (type (regex-replace-all "__"
-						  (format nil "~a" (cdr x))
-						  "::")))
-		     (format t "if (strcmp(propertyname, \"~A\") == 0) return \"~A\";~%" name type)))))
-    (format t "return \"\";~%}~%")
-
-    (format t "const char** names() { return r; }~%")
+    (format t "virtual const char** names() { return r; }~%")
     (format t "int property_count = ~a;~%" (length property-container))
 
     (dolist (type-group (group-properties-by-type obj))
       (let ((type (car type-group))
 	    (properties (cdr type-group)))
 	(format t "virtual void set(const char* propertyname, ~A value) {~%" type)
-	(format t "if(strcmp(propertyname, \"~A\") == 0) ~A = value;~%" (car properties) (car properties))
+	(format t "if(strcmp(propertyname, \"~A\") == 0) ~A_field = value;~%" (car properties) (car properties))
 	(dolist (property (cdr properties))
-	  (format t "else if(strcmp(propertyname, \"~A\") == 0) ~A = value;~%" property property))
+	  (format t "else if(strcmp(propertyname, \"~A\") == 0) ~A_field = value;~%" property property))
 	(format t "}~%~%")
 
 	(format t "virtual ~A get(const char* propertyname, bool *success, ~A* type_helper) {~%" type type)
 	(format t "if(strcmp(propertyname, \"~A\") == 0) {~%
 *success = true;
-return ~A;
+return ~A_field;
 }" (car properties) (car properties))
 	
 	(dolist (property (cdr properties))
 	  (format t "else if(strcmp(propertyname, \"~A\") == 0) {~%
 *success = true;
-return ~A;
+return ~A_field;
 }" property property))
 	(format t "*success = false; ~A a; return a;~%}~%" type)))    
 
@@ -246,21 +229,21 @@ return ~A;
 
 
 (defmacro defcppclass (class include-list &rest forms)
-  (let ((classname (cadr class))
+  (let ((classname (-> class cadr symbol-name string-capitalize))
 	(contains-inherit? (->> forms
 				(remove-if-not (lambda (f)
 						 (eq (car f) 'inherits)))
 				length
 				plusp)))
     (setf (classname classobj) classname)
-    (format t "#ifndef ~a~%#define ~a~%" classname classname)
+    (format t "#ifndef ~a_inclguard~%#define ~a_inclguard~%" classname classname)
     (format t "//// generated at ~a~%" (now))
     (format t "#include<cstring>~%")
     (format t "#include<propertierbase.h>~%")
     (dolist (file include-list)
       (format t "#include~a~%" file))
 
-    (format t "class ~A: public propertierbase ~%" classname)
+    (format t "class ~A: public Propertierbase ~%" classname)
 
     (if contains-inherit?
 	(format t ", ")
@@ -281,7 +264,8 @@ return ~A;
 (defun source (forms class-object)
   (declare (optimize (debug 3)))
   (let ((*print-case* :downcase)
-	(class-name (cadadr forms)))
+	(class-name (-> forms cadadr symbol-name string-capitalize))
+	(property-container (propertylist class-object)))
     (setf (classname class-object) class-name)
     (format t "#include <~a.h>~%" class-name)
     (format t "///////// CPP FILE STARTS HERE, generated at ~a~%" (now))
@@ -292,7 +276,27 @@ return ~A;
 				     "::")))
 	(format t "~A ~A::get~A() {~% return ~A_field; ~%};~%"
 		type class-name (-> name symbol-name string-capitalize) name)
-	(format t "void ~A::set~A(~A val) {~% ~A_field = val; ~%}~%" class-name (-> name symbol-name string-capitalize) type name)))))
+	(format t "void ~A::set~A(~A val) {~% ~A_field = val; ~%}~%" class-name (-> name symbol-name string-capitalize) type name)))
+    (format t "~A::~A(){~%" class-name class-name)
+    
+    (mapcar (lambda (property-pair i)
+	      (let ((name (car property-pair)))
+		(format t "r[~D] = \"~A\";~%" i name)))
+	    property-container
+	    (range (length property-container)))
+
+    (format t "}~%~%")
+
+    (format t "const char* ~A::type_name(const char* propertyname) {~%" class-name)
+
+    (->> property-container
+	 (mapcar (lambda (x)
+		   (let ((name (car x))
+			 (type (regex-replace-all "__"
+						  (format nil "~a" (cdr x))
+						  "::")))
+		     (format t "if (strcmp(propertyname, \"~A\") == 0) return \"~A\";~%" name type)))))
+    (format t "return \"\";~%}~%")))
 
 (defun load-def-file (path)
   (let* ((file-contents (read-file path))
@@ -325,17 +329,17 @@ return ~A;
 			 (sleep 3))))))
 
 (defvar *baseclass-header-start*
-  "#ifndef propertierbase
-#define propertierbase
+  "#ifndef propertierbasee
+#define propertierbasee
 //// generated at #<date-time 2017-06-17 18:44:10.914 {10067809C3}>
 
-class propertierbase
+class Propertierbase
 {
 public:
-  propertierbase() {}
-  ~propertierbase() {}
+  Propertierbase();
+  virtual ~Propertierbase();
   virtual const char* type_name(const char* propertyname) = 0;
-  const char** names();
+  virtual const char** names() = 0;
 ")
 
 (defvar *baseclass-header-stop* 
@@ -344,21 +348,34 @@ public:
 #endif
 ")
 
+(defvar *baseclass-cpp* "#include<propertierbase.h>
+Propertierbase::Propertierbase() 
+{
+
+}
+
+Propertierbase::~Propertierbase() 
+{
+
+}")
+
 (defun handle-base-class (property-types)
   (declare (optimize (debug 3)))
-  (let ((header-filename (str *output-dir* "/propertierbase.h")))
+  (let ((header-filename (str *output-dir* "/propertierbase.h"))
+	(cpp-filename (str *output-dir* "/propertierbase.cpp")))
     (with-open-file (f header-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
       (write-string *baseclass-header-start* f)
       (write-string
-       (->> property-types
-	    remove-duplicates
+       (->> (remove-duplicates property-types :test #'equal)
 	    (mapcar #'(lambda (type)
 			(str
-			 (format nil "virtual void set(const char* propertyname, ~a value) { };~%" type)
-			 (format nil "virtual ~a get(const char* propertyname, bool *success, ~A* type_helper) { *success = false; ~a A; return A; };~%" type type type))))
+			 (format nil "virtual void set(const char* propertyname, ~a value) = 0;~%" type)
+			 (format nil "virtual ~a get(const char* propertyname, bool *success, ~A* type_helper) = 0;~%" type type))))
 	    (apply #'str))
        f)		       
       (write-string *baseclass-header-stop* f))
+    (with-open-file (f cpp-filename :direction :output :if-exists :overwrite :if-does-not-exist :create)
+      (write-string *baseclass-cpp* f))
     (format t "Built the base class ~a~%" header-filename)))
 
 (defun flatten (l)

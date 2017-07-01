@@ -1,4 +1,4 @@
-(defcppclass tile ()
+(defcppclass Tile ()
   (public
    (properties
     (int x 0)
