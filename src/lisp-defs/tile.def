@@ -1,7 +1,9 @@
-(defcppclass Tile ()
+(defcppclass tile ()
   (public
    (properties
     (int x 0)
     (int y 0)
     (int tileset 0)
-    (int rotation 0))))
+    (int rotation 0))))  
+
+ 

@@ -1,7 +1,7 @@
 #include <QtDebug>
 #include <QApplication>
 #include <guile_thread.h>
-#include <Tile.h>
+#include <tile.h>
 #include "mainwindow.h"
 
 int main(int argc, char** argv)

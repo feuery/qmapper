@@ -229,7 +229,7 @@ return ~A_field;
 
 
 (defmacro defcppclass (class include-list &rest forms)
-  (let ((classname (-> class cadr symbol-name string-capitalize))
+  (let ((classname (-> class cadr symbol-name string-downcase))
 	(contains-inherit? (->> forms
 				(remove-if-not (lambda (f)
 						 (eq (car f) 'inherits)))
@@ -264,7 +264,7 @@ return ~A_field;
 (defun source (forms class-object)
   (declare (optimize (debug 3)))
   (let ((*print-case* :downcase)
-	(class-name (-> forms cadadr symbol-name string-capitalize))
+	(class-name (-> forms cadadr symbol-name string-downcase))
 	(property-container (propertylist class-object)))
     (setf (classname class-object) class-name)
     (format t "#include <~a.h>~%" class-name)

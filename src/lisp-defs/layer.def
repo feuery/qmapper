@@ -1,0 +1,5 @@
+(defcppclass layer ("<tile.h>" "<vector>")
+  (public
+   (fields
+    (std__vector<std__vector<tile>>* tiles nullptr)))) 
+  

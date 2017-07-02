@@ -30,7 +30,9 @@ HEADERS += src/headers/files.h \
            src/headers/texture.h \
            src/headers/guile_thread.h \
            src/generated/propertierbase.h \
-           src/generated/Tile.h
+           src/generated/tile.h \
+           src/generated/layer.h \
+           src/generated/map.h
 FORMS += src/ui/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
@@ -40,5 +42,7 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/renderer.cpp \
            src/cpp/shaders.cpp \
            src/cpp/guile_thread.cpp \
-           src/generated/Tile.cpp \
-           src/generated/propertierbase.cpp
+           src/generated/tile.cpp \
+           src/generated/propertierbase.cpp \
+           src/generated/layer.cpp \
+           src/generated/map.cpp

@@ -1,9 +1,9 @@
-#ifndef Tile_inclguard
-#define Tile_inclguard
-//// generated at #<date-time 2017-07-01 22:22:12.955 {100221D863}>
+#ifndef tile_inclguard
+#define tile_inclguard
+//// generated at #<date-time 2017-07-02 15:21:43.063 {10042E2B43}>
 #include<cstring>
 #include<propertierbase.h>
-class Tile: public Propertierbase 
+class tile: public Propertierbase 
  { 
 public: 
 int getX();
@@ -31,7 +31,7 @@ void setRotation(int val);
 
 int rotation_field = 0;
 public: 
-Tile();
+tile();
 const char* type_name(const char* propertyname); 
 virtual const char** names() { return r; }
 int property_count = 4;

@@ -1,0 +1,6 @@
+(defcppclass map ("<layer.h>" "<vector>")
+  (public
+   (fields
+    (std__vector<std__vector<Layer>>* layers nullptr))))
+
+
