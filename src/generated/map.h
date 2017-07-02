@@ -1,14 +1,16 @@
 #ifndef map_inclguard
 #define map_inclguard
-//// generated at #<date-time 2017-07-02 15:21:43.062 {10042D23C3}>
+//// generated at #<date-time 2017-07-02 19:06:35.016 {100360B3E3}>
 #include<cstring>
 #include<propertierbase.h>
 #include<layer.h>
 #include<vector>
+#include<string>
 class map: public Propertierbase 
  { 
 public: 
 std::vector<std::vector<layer>>*  layers = nullptr;
+std::string  name = "Map 1";
 public: 
 map();
 const char* type_name(const char* propertyname); 

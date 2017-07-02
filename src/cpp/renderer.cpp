@@ -103,12 +103,12 @@ Renderer::~Renderer()
 void Renderer::initializeGL()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  auto o = new immutable_obj(f,
-				      "",
-				      "defaultVertex.glsl",
-			     "defaultFragment.glsl");
-  o->setup_texture(f, "/home/feuer/testitero.jpeg");
-  objects.push_back(o);
+  // auto o = new immutable_obj(f,
+  // 				      "",
+  // 				      "defaultVertex.glsl",
+  // 			     "defaultFragment.glsl");
+  // o->setup_texture(f, "/home/feuer/testitero.jpeg");
+  // objects.push_back(o);
   
   
   if(f)

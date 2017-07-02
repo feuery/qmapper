@@ -5,20 +5,53 @@
 #include <QPushButton>
 #include <mainwindow.h>
 #include <QFileDialog>
+
+#define btnW 200
+#define btnH 25
+
+#define btn(title) { QPushButton *btn = new QPushButton(title, this); \
+    btn->setMaximumWidth(btnW);\
+    btn->setMaximumHeight(btnH);\
+    toolbox_container->addWidget(btn); }
+
+#define btn2(title, container) { QPushButton *btn = new QPushButton(title, this);	\
+    btn->setMaximumWidth(btnW);\
+    btn->setMaximumHeight(btnH);\
+    container->addWidget(btn); }
+
+QGroupBox* MainWindow::toolbox()
+{
+   QGroupBox *grp = new QGroupBox("Tools", this);
+   QVBoxLayout *l = new QVBoxLayout(this);
+   
+   btn2("I'm", l);
+   btn2("A", l);
+   btn2("Dynamically built", l);
+   btn2("Toolbox list", l);
+   grp->setLayout(l);
+   return grp;
+}
  
-MainWindow::MainWindow(int argc, char** argv) :  QDialog(), t(argc, argv)
+MainWindow::MainWindow(int argc, char** argv) :  QFrame(), t(argc, argv)
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
+  
   QVBoxLayout *toolbox_container = new QVBoxLayout(this);
-  qDebug() << "JEEJEE";
+  toolbox_container->setSpacing(0);
+
   r = new Renderer;
-  qDebug() << "JEEJEE";
 
   QPushButton *btn_texture = new QPushButton("Set texture to all surfaces ", this);
+  btn_texture->setMaximumWidth(btnW);
+  btn_texture->setMaximumHeight(btnH);
   connect(btn_texture, &QPushButton::clicked, this, &MainWindow::setTexture_clicked);
-  
   toolbox_container->addWidget(btn_texture);
-  toolbox_container->addWidget(new QPushButton("Create new surface ", this));
+
+  toolbox_container->addWidget(toolbox());
+  
+  btn("Resize map");
+  btn("Run game");
+  btn("Create new surface ");
   layout->addLayout(toolbox_container);
   layout->addWidget(r);
   
@@ -32,7 +65,7 @@ MainWindow::~MainWindow()
 {
   t.running = false;
   if(!t.wait()) {
-    qDebug()<<"Terminating t";
+    qDebug()<<"Terminating guile_thread";
     t.terminate();
   }
 }
@@ -43,3 +76,9 @@ void MainWindow::setTexture_clicked(bool checked)
   
   r->texturizeDrawingQueue(texture_path);
 }  
+
+void MainWindow::registerController(editorController *ec)
+{
+  this->ec = ec;
+  ec->registerWindow(this);
+}

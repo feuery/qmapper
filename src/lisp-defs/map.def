@@ -1,6 +1,7 @@
-(defcppclass map ("<layer.h>" "<vector>")
+(defcppclass map ("<layer.h>" "<vector>" "<string>")
   (public
    (fields
-    (std__vector<std__vector<Layer>>* layers nullptr))))
+    (std__vector<std__vector<Layer>>* layers nullptr)
+    (std__string name "Map 1"))))
 
 
