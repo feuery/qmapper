@@ -392,40 +392,42 @@ Propertierbase::~Propertierbase()
         ((atom l) (list l))
         (t (loop for a in l appending (flatten a)))))
 
+(defun do-compile (file-to-compile)
+  (let* ((*print-case* :downcase)
+	 (file-type (-> (format nil "~A" file-to-compile)					     
+			reverse
+			(subseq 0 3)
+			reverse)))
+    (when (and (string= file-type "def")
+	       (probe-file file-to-compile))
+      (format t "Compiling began from change to ~a~%" file-to-compile)
+      (let* ((compilation-objs (->> (list-directory *input-dir*) 
+				    (remove-if-not #'(lambda (x)
+						       (string= (pathname-type x) "def")))
+				    (mapcar #'load-def-file)))
+	     (property-types (->> compilation-objs
+				  (mapcar #'propertylist)
+				  ;; (mapcar #'(lambda (list)
+				  ;; 	      (break)
+				  ;; 	      list))
+				  (mapcar #'cdr)
+				  (mapcar #'(lambda (l)
+					      (mapcar #'cdr l)))
+				  flatten)))
+	
+	(handle-base-class property-types)
+	(dolist (obj compilation-objs)
+	  (with-open-file (f (header-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
+	    (write-string (header-str obj) f))
+	  (with-open-file (f (src-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
+	    (write-string (src-str obj) f)))
+	(format t "Built a snapshot ~a~%" (now))))
+    (sleep 2)))
+
 (defun compilation-server-loop ()
   (declare (optimize (debug 3)))
   (loop while running?
-     do (let* ((*print-case* :downcase)
-	       (file-to-compile (pop-queue *compilation-queue*))
-	       (file-type (-> (format nil "~A" file-to-compile)					     
-			      reverse
-			      (subseq 0 3)
-			      reverse)))
-	  (when (and (string= file-type "def")
-		     (probe-file file-to-compile))
-	    (format t "Compiling began from change to ~a~%" file-to-compile)
-	    (let* ((compilation-objs (->> (list-directory *input-dir*) 
-					  (remove-if-not #'(lambda (x)
-							     (string= (pathname-type x) "def")))
-					  (mapcar #'load-def-file)))
-		   (property-types (->> compilation-objs
-					(mapcar #'propertylist)
-					;; (mapcar #'(lambda (list)
-					;; 	      (break)
-					;; 	      list))
-					(mapcar #'cdr)
-					(mapcar #'(lambda (l)
-						    (mapcar #'cdr l)))
-					flatten)))
-	      
-	      (handle-base-class property-types)
-	      (dolist (obj compilation-objs)
-		(with-open-file (f (header-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
-		  (write-string (header-str obj) f))
-		(with-open-file (f (src-filename obj) :direction :output :if-exists :overwrite :if-does-not-exist :create)
-		  (write-string (src-str obj) f)))
-	      (format t "Built a snapshot ~a~%" (now))))
-	  (sleep 2))))
+     do (do-compile (pop-queue *compilation-queue*))))
 
 (defun start-compilation-server ()
   (format t "Starting compilation server moving data from ~A to ~A~%" *input-dir* *output-dir*)
@@ -439,12 +441,16 @@ Propertierbase::~Propertierbase()
   (unless *output-dir*
     (setf *output-dir* (get-argv "--output-dir")))
   (unless *input-dir*
-      (setf *input-dir* (get-argv "--input-dir")))
+    (setf *input-dir* (get-argv "--input-dir")))
   (mapcar (lambda (x)
 	    (pop-queue *compilation-queue*)) (range (queue-count *compilation-queue*)))
-  (cond
+  
+  (cond     
     ((not *output-dir*) (format t "You need to set value to *output-dir*. Command line syntax is \"--output-dir path\". Call (main) again after setfing it"))
     ((not *input-dir*) (format t "You need to set value to *input-dir*. Command line syntax is \"--input-dir path\". Call (main) again after setfing it"))
+    ((get-argv "--batch")
+     (do-compile (car (list-directory *input-dir*))))     
+    
     (t (start-compilation-server))))
 
 
