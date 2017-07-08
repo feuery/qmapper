@@ -193,7 +193,7 @@ type name (prin1-to-string default)))))
     
     (format t "const char* type_name(const char* propertyname); ~%")
 
-    (format t "virtual const char** names() { return r; }~%")
+    (format t "virtual const char[][] names() { return r; }~%")
     (format t "int property_count = ~a;~%" (length property-container))
 
     (dolist (type-group (group-properties-by-type obj))
@@ -253,6 +253,7 @@ return ~A_field;
       (eval form))
     (format t "public: ~%")
     (fill-property-names classobj)
+    (format t "virtual const char[] type_identifier() { return \"~A\"; }" classname)
     (format t "};~%")
     (format t "#endif")))
 
@@ -339,7 +340,8 @@ public:
   Propertierbase();
   virtual ~Propertierbase();
   virtual const char* type_name(const char* propertyname) = 0;
-  virtual const char** names() = 0;
+  virtual const char[][] names() = 0;
+  virtual const char[] type_identifier();
 ")
 
 (defvar *baseclass-header-stop* 
