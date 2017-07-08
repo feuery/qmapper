@@ -33,7 +33,9 @@ HEADERS += src/headers/files.h \
            src/generated/tile.h \
            src/generated/layer.h \
            src/generated/map.h \
-           src/headers/editorController.h
+           src/headers/editorController.h \
+           src/headers/tilelistmodel.h \
+           src/headers/layerlistmodel.h
 FORMS += src/ui/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
@@ -47,4 +49,6 @@ SOURCES += src/cpp/files.cpp \
            src/generated/propertierbase.cpp \
            src/generated/layer.cpp \
            src/generated/map.cpp \
-           src/cpp/editorController.cpp
+           src/cpp/editorController.cpp \
+           src/cpp/tilelistmodel.cpp \
+           src/cpp/layerlistmodel.cpp
