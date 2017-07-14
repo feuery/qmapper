@@ -9,6 +9,7 @@ public:
   virtual ~Propertierbase();
   virtual const char* type_name(const char* propertyname) = 0;
   virtual const char** names() = 0;
+  virtual const char* type_identifier() = 0;
 virtual void set(const char* propertyname, int value);
 virtual int get(const char* propertyname, bool *success, int* type_helper);
 

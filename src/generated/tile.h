@@ -1,6 +1,6 @@
 #ifndef tile_inclguard
 #define tile_inclguard
-//// generated at #<date-time 2017-07-02 19:06:35.016 {1003612B13}>
+//// generated at #<date-time 2017-07-14 19:54:25.444 {1002EC7903}>
 #include<cstring>
 #include<propertierbase.h>
 class tile: public Propertierbase 
@@ -62,5 +62,5 @@ return x_field;
 }*success = false; int a; return a;
 }
 const char* r[4];
-};
+virtual const char* type_identifier() { return "tile"; }};
 #endif

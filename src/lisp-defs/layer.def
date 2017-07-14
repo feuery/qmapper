@@ -1,5 +1,7 @@
-(defcppclass layer ("<tile.h>" "<vector>")
+(defcppclass layer ("<tile.h>" "<string>" "<vector>")
   (public
    (fields
-    (std__vector<std__vector<tile>>* tiles nullptr)))) 
+    (std__vector<std__vector<tile>>* tiles nullptr))
+   (properties
+    (std__string name ""))))
   
