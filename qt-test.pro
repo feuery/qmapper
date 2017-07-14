@@ -35,7 +35,10 @@ HEADERS += src/headers/files.h \
            src/generated/root.h \
            src/generated/map.h \
            src/headers/editorController.h \
-           src/headers/tilelistmodel.h 
+           src/headers/tilelistmodel.h \
+           src/headers/layerContainer.h \
+           src/headers/mapContainer.h \
+           src/headers/rootContainer.h 
 FORMS += src/ui/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
@@ -52,3 +55,6 @@ SOURCES += src/cpp/files.cpp \
            src/generated/root.cpp \
            src/cpp/editorController.cpp \
            src/cpp/tilelistmodel.cpp \
+           src/cpp/layerContainer.cpp \
+           src/cpp/mapContainer.cpp \
+           src/cpp/rootContainer.cpp 

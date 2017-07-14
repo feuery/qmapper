@@ -1,7 +1,7 @@
 #ifndef EDITORCONTROLLER_H
 #define EDITORCONTROLLER_H
 
-#include <map.h>
+#include <rootContainer.h>
 #include <vector>
 #include <mainwindow.h>
 
@@ -13,6 +13,8 @@ public:
   map Map;
 
   void registerWindow(MainWindow *w);
+
+  Rootcontainer document;
 
 private:
 

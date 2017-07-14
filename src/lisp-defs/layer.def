@@ -3,5 +3,12 @@
    (fields
     (std__vector<std__vector<tile>>* tiles nullptr))
    (properties
-    (std__string name ""))))
+    (std__string name ""))
+   (functions
+    (int getWidth (void))
+    (int getHeight (void))))
+  (protected
+   (fields
+    (int W 0)
+    (int H 0))))
   

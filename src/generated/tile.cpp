@@ -1,5 +1,5 @@
 #include <tile.h>
-///////// CPP FILE STARTS HERE, generated at #<date-time 2017-07-14 19:54:25.444 {1002ECC213}>
+///////// CPP FILE STARTS HERE, generated at #<date-time 2017-07-14 20:26:24.835 {1002ED5133}>
 int tile::getRotation() {
  return rotation_field; 
 };
