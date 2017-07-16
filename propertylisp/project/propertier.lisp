@@ -229,12 +229,19 @@ return ~A_field;
 
 
 (defmacro defcppclass (class include-list &rest forms)
+  (declare (optimize (debug 3)))
   (let ((classname (-> class cadr symbol-name string-downcase))
 	(contains-inherit? (->> forms
 				(remove-if-not (lambda (f)
 						 (eq (car f) 'inherits)))
 				length
-				plusp)))
+				plusp))
+	(declare-class-form (remove-if-not #'(lambda (e)
+					      (and (listp e)
+						   (equal (car e) 'declare-class))) forms))
+	(forms (remove-if #'(lambda (e)
+				(and (listp e)
+				     (equal (car e) 'declare-class))) forms)))
     (setf (classname classobj) classname)
     (format t "#ifndef ~a_inclguard~%#define ~a_inclguard~%" classname classname)
     (format t "//// generated at ~a~%" (now))
@@ -242,6 +249,9 @@ return ~A_field;
     (format t "#include<propertierbase.h>~%")
     (dolist (file include-list)
       (format t "#include~a~%" file))
+
+    (when declare-class-form
+      (eval (car declare-class-form)))
 
     (format t "class ~A: public Propertierbase ~%" classname)
 
@@ -257,10 +267,13 @@ return ~A_field;
     (format t "};~%")
     (format t "#endif")))
 
+(defun declare-class (class)
+  (format t "class ~A;~%" class))
+
 (defun headers (forms)
   (let ((*print-case* :downcase))
-    (-> forms
-	eval)))
+      (-> forms
+	  eval)))
 
 (defun source (forms class-object)
   (declare (optimize (debug 3)))
