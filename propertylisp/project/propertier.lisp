@@ -267,8 +267,9 @@ return ~A_field;
     (format t "};~%")
     (format t "#endif")))
 
-(defun declare-class (class)
-  (format t "class ~A;~%" class))
+(defun declare-class (&rest classes)
+  (dolist (class classes)  
+    (format t "class ~A;~%" class)))
 
 (defun headers (forms)
   (let ((*print-case* :downcase))
