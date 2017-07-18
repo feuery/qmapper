@@ -19,6 +19,11 @@
     btn->setMaximumHeight(btnH);\
     container->addWidget(btn); }
 
+void MainWindow::setupTree()
+{
+  tree.setModel(&ec->documentTreeModel);
+}
+
 QGroupBox* MainWindow::toolbox()
 {
    QGroupBox *grp = new QGroupBox("Tools", this);
@@ -46,12 +51,15 @@ MainWindow::MainWindow(int argc, char** argv) :  QFrame(), t(argc, argv)
   btn_texture->setMaximumHeight(btnH);
   connect(btn_texture, &QPushButton::clicked, this, &MainWindow::setTexture_clicked);
   toolbox_container->addWidget(btn_texture);
-
   toolbox_container->addWidget(toolbox());
   
   btn("Resize map");
   btn("Run game");
   btn("Create new surface ");
+  
+  setupTree();
+  toolbox_container->addWidget(&tree);
+  
   layout->addLayout(toolbox_container);
   layout->addWidget(r);
   

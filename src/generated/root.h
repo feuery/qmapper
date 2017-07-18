@@ -1,11 +1,12 @@
 #ifndef root_inclguard
 #define root_inclguard
-//// generated at #<date-time 2017-07-14 20:26:24.835 {1002EC9DA3}>
+//// generated at #<date-time 2017-07-18 18:46:32.148 {1002ECF0A3}>
 #include<cstring>
 #include<propertierbase.h>
 #include<map.h>
 #include<vector>
 #include<string>
+class map;
 class root: public Propertierbase 
  { 
 public: 

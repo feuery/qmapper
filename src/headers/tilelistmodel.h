@@ -5,7 +5,7 @@
 #include <root.h>
 
 // Layers are parents/root nodes if needed
-class Tilelistmodel: QAbstractItemModel
+class Tilelistmodel: public QAbstractItemModel
 {
 public:
 
@@ -21,6 +21,9 @@ public:
   // QModelIndex parent(const QModelIndex &index) const override;
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent) const override;
+
+  // TODO implement
+  QModelIndex parent(const QModelIndex &child) const;
 
 
 private:

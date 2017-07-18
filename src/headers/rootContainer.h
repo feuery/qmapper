@@ -2,8 +2,9 @@
 #define ROOTCONTAINER_H
 
 #include<root.h>
+#include<tilelistmodel.h>
 
-class Rootcontainer: root{
+class Rootcontainer: public root{
 public:
 
   Rootcontainer();

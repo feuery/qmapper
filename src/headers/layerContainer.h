@@ -2,13 +2,19 @@
 #define LAYERCONTAINER_H
 
 #include <layer.h>
+#include <mapContainer.h>
 
-class Layercontainer: layer{
+class Layercontainer: public layer{
 public:
   // in tiles
   Layercontainer(int w, int h);
   ~Layercontainer();
+
+  virtual void set_parent(map* p) override;
+  virtual map* parent(void) override;
 private:
+
+  Mapcontainer *map_parent;
 
 };
 

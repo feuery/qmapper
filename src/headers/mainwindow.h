@@ -3,6 +3,7 @@
 
 #include <QFrame>
 #include <QGroupBox>
+#include <QTreeView>
 #include <renderer.h>
 #include <guile_thread.h>
 #include <editorController.h>
@@ -23,8 +24,11 @@ private:
   Renderer *r;
   Guile_Thread t;
   editorController *ec;
-
   QGroupBox* toolbox();
+
+  void setupTree();
+
+  QTreeView tree;
   
 };
 

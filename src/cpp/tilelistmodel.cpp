@@ -108,3 +108,36 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
 
   return QVariant();
 }
+
+template<typename T>
+int indexOf(std::vector<T>* vec, T element)
+{
+  auto it = std::find(vec->begin(), vec->end(), element);
+  if (it != vec->end()) {
+    return std::distance(vec->begin(), it);
+  }
+
+  return -1;
+}
+
+QModelIndex Tilelistmodel::parent(const QModelIndex &child) const
+{
+  Propertierbase *obj = getparent(child);
+  if(obj == Root) return QModelIndex();
+
+  const char* type = obj->type_identifier();
+  if(strcmp(type, "map") == 0) {
+    return createIndex(0, 0, Root);
+  }
+  else if(strcmp(type, "layer") == 0) {
+    layer *l = static_cast<layer*>(obj);
+    map *p = l->parent();
+    int row = indexOf(Root->all_maps, p);
+    return createIndex(row, 0, row);
+  }
+  else {
+    printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);
+    throw "";
+  }
+  return QModelIndex();
+}

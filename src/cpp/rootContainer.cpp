@@ -1,3 +1,4 @@
+#include <tilelistmodel.h>
 #include<rootContainer.h>
 
 Rootcontainer::Rootcontainer(): root()

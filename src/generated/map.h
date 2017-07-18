@@ -1,11 +1,14 @@
 #ifndef map_inclguard
 #define map_inclguard
-//// generated at #<date-time 2017-07-14 20:26:24.835 {1002EC0463}>
+//// generated at #<date-time 2017-07-18 18:46:32.148 {1002EC4153}>
 #include<cstring>
 #include<propertierbase.h>
+#include<root.h>
 #include<layer.h>
 #include<vector>
 #include<string>
+class root;
+class layer;
 class map: public Propertierbase 
  { 
 public: 
@@ -16,6 +19,8 @@ void setName(std::string val);
 
 
 std::string name_field = "Map 1";
+virtual void parent(root* p) = 0;
+virtual root* parent(void) = 0;
 public: 
 map();
 const char* type_name(const char* propertyname); 

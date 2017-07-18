@@ -1,11 +1,13 @@
 #ifndef layer_inclguard
 #define layer_inclguard
-//// generated at #<date-time 2017-07-14 20:26:24.834 {1002EB5043}>
+//// generated at #<date-time 2017-07-18 18:46:32.148 {1002EB64A3}>
 #include<cstring>
 #include<propertierbase.h>
 #include<tile.h>
 #include<string>
 #include<vector>
+#include<map.h>
+class map;
 class layer: public Propertierbase 
  { 
 public: 
@@ -18,9 +20,12 @@ void setName(std::string val);
 std::string name_field = "";
 virtual int getwidth(void) = 0;
 virtual int getheight(void) = 0;
+virtual void set_parent(map* p) = 0;
+virtual map* parent(void) = 0;
 protected: 
 int  w = 0;
 int  h = 0;
+map*  p = nullptr;
 public: 
 layer();
 const char* type_name(const char* propertyname); 

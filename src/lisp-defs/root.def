@@ -1,4 +1,5 @@
 (defcppclass root ("<map.h>" "<vector>" "<string>")
+  (declare-class "map")
   (public
    (fields
     (std__vector<map*>* all_maps nullptr)))) 

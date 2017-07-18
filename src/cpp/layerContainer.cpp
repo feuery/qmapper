@@ -17,3 +17,12 @@ Layercontainer::Layercontainer(int w, int h):layer()
 Layercontainer::~Layercontainer() {
   delete tiles;
 }
+
+void Layercontainer::set_parent(map* p)
+{
+  this->p = p;
+}
+map* Layercontainer::parent(void)
+{
+  return p;
+}
