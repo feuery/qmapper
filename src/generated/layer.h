@@ -1,6 +1,6 @@
 #ifndef layer_inclguard
 #define layer_inclguard
-//// generated at #<date-time 2017-07-18 18:46:32.148 {1002EB64A3}>
+//// generated at #<date-time 2017-07-19 19:03:23.134 {1002EB6403}>
 #include<cstring>
 #include<propertierbase.h>
 #include<tile.h>

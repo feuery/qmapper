@@ -2,7 +2,7 @@
   (declare-class "root" "layer")
   (public
    (fields
-    (std__vector<Layer>* layers nullptr))
+    (std__vector<Layer*>* layers nullptr))
    (properties
     (std__string name "Map 1"))
    (functions

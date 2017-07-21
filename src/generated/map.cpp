@@ -1,5 +1,5 @@
 #include <map.h>
-///////// CPP FILE STARTS HERE, generated at #<date-time 2017-07-18 18:46:32.148 {1002ECA1A3}>
+///////// CPP FILE STARTS HERE, generated at #<date-time 2017-07-19 19:03:23.134 {1002ECA1A3}>
 std::string map::getName() {
  return name_field; 
 };

@@ -4,7 +4,7 @@
 #include <map.h>
 #include <root.h>
 
-class Mapcontainer: map{
+class Mapcontainer: public map{
 public:
   Mapcontainer();
   ~Mapcontainer();

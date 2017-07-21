@@ -21,7 +21,14 @@
 
 void MainWindow::setupTree()
 {
-  tree.setModel(&ec->documentTreeModel);
+  if(ec) {
+    tree.setModel(&ec->documentTreeModel);
+    tree.setRootIndex(ec->documentTreeModel.rootIndex());
+  }
+  else {
+    puts("ec is null\n");
+    throw "";
+  }      
 }
 
 QGroupBox* MainWindow::toolbox()
@@ -37,31 +44,32 @@ QGroupBox* MainWindow::toolbox()
    return grp;
 }
  
-MainWindow::MainWindow(int argc, char** argv) :  QFrame(), t(argc, argv)
+MainWindow::MainWindow(int argc, char** argv) :  QFrame(), t(argc, argv), ec(new editorController())
 {
   QHBoxLayout *layout = new QHBoxLayout(this);
   
   QVBoxLayout *toolbox_container = new QVBoxLayout(this);
   toolbox_container->setSpacing(0);
 
-  r = new Renderer;
+  // r = new Renderer;
 
-  QPushButton *btn_texture = new QPushButton("Set texture to all surfaces ", this);
-  btn_texture->setMaximumWidth(btnW);
-  btn_texture->setMaximumHeight(btnH);
-  connect(btn_texture, &QPushButton::clicked, this, &MainWindow::setTexture_clicked);
-  toolbox_container->addWidget(btn_texture);
-  toolbox_container->addWidget(toolbox());
+  // QPushButton *btn_texture = new QPushButton("Set texture to all surfaces ", this);
+  // btn_texture->setMaximumWidth(btnW);
+  // btn_texture->setMaximumHeight(btnH);
+  // connect(btn_texture, &QPushButton::clicked, this, &MainWindow::setTexture_clicked);
+  // toolbox_container->addWidget(btn_texture);
+  // toolbox_container->addWidget(toolbox());
   
-  btn("Resize map");
-  btn("Run game");
-  btn("Create new surface ");
-  
+  // btn("Resize map");
+  // btn("Run game");
+  // btn("Create new surface ");
+
   setupTree();
   toolbox_container->addWidget(&tree);
+  tree.show();
   
-  layout->addLayout(toolbox_container);
-  layout->addWidget(r);
+  layout->addWidget(&tree); //addLayout(toolbox_container);
+  // layout->addWidget(r);
   
   // delete this->layout();
   setLayout(layout);

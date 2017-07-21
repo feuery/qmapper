@@ -1,6 +1,6 @@
 #ifndef map_inclguard
 #define map_inclguard
-//// generated at #<date-time 2017-07-18 18:46:32.148 {1002EC4153}>
+//// generated at #<date-time 2017-07-19 19:03:23.134 {1002EC4153}>
 #include<cstring>
 #include<propertierbase.h>
 #include<root.h>
@@ -12,7 +12,7 @@ class layer;
 class map: public Propertierbase 
  { 
 public: 
-std::vector<layer>*  layers = nullptr;
+std::vector<layer*>*  layers = nullptr;
 std::string getName();
 
 void setName(std::string val);

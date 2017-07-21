@@ -21,10 +21,9 @@ public:
   // QModelIndex parent(const QModelIndex &index) const override;
   int rowCount(const QModelIndex &parent = QModelIndex()) const override;
   int columnCount(const QModelIndex &parent) const override;
-
-  // TODO implement
   QModelIndex parent(const QModelIndex &child) const;
 
+  QModelIndex rootIndex();
 
 private:
 

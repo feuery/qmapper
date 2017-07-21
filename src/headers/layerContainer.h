@@ -12,6 +12,8 @@ public:
 
   virtual void set_parent(map* p) override;
   virtual map* parent(void) override;
+  virtual int getwidth(void) override;
+  virtual int getheight(void) override;
 private:
 
   Mapcontainer *map_parent;

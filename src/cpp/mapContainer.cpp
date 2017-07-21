@@ -2,7 +2,7 @@
 
 Mapcontainer::Mapcontainer(): map()
 {
-  layers = new std::vector<layer>;
+  layers = new std::vector<layer*>;
 }
 
 Mapcontainer::~Mapcontainer()

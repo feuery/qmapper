@@ -26,3 +26,12 @@ map* Layercontainer::parent(void)
 {
   return p;
 }
+
+int Layercontainer::getwidth(void)
+{
+  return w;
+}
+int Layercontainer::getheight(void)
+{
+  return h;
+}
