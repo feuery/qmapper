@@ -14,7 +14,7 @@ public:
   void registerWindow(MainWindow *w);
 
   Rootcontainer document;
-  Tilelistmodel documentTreeModel;
+  Tilelistmodel *documentTreeModel;
   Simplelistmodel *slm;
 
   QObject r;

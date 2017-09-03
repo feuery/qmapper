@@ -22,7 +22,8 @@
 void MainWindow::setupTree()
 {
   if(ec) {
-    tree.setModel(ec->slm);
+    // if ec->documentTreeModel is replaced by ec->slm it suddenly works? WTF?
+    tree.setModel(ec->documentTreeModel);
   }
   else {
     puts("ec is null\n");

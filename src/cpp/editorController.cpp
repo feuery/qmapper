@@ -7,10 +7,11 @@ void editorController::registerWindow(MainWindow *w)
   this->w = w;
 }
 
-editorController::editorController(): documentTreeModel(&document)
+editorController::editorController()
 {
   for(int i = 0; i < 3; i++) {
     Mapcontainer *m = new Mapcontainer();
+    m->setName("A map");
     m->parent(&document);
     for(int x = 0; x < 2; x++) {
       Layercontainer *l = new Layercontainer(10 + 10*x, 10 + 10*x);
@@ -19,6 +20,10 @@ editorController::editorController(): documentTreeModel(&document)
     }
     document.all_maps->push_back(m);
   }
+
+  documentTreeModel = new Tilelistmodel(&document);
+
+  // sanity-checking this shit
 
   r.setObjectName("I am root");
   QObject *child;
@@ -36,4 +41,5 @@ editorController::editorController(): documentTreeModel(&document)
 editorController::~editorController()
 {
   delete slm;
+  delete documentTreeModel;
 }

@@ -82,7 +82,10 @@ QModelIndex  Simplelistmodel::parent(const QModelIndex &index) const
   if(parentObject == m_root) return QModelIndex();
 
   QObject *grandParentObject = parentObject->parent();
-  return createIndex(grandParentObject->children().indexOf(parentObject),
+
+  int row = grandParentObject->children().indexOf(parentObject);
+  
+  return createIndex(row,
 		     0,
 		     parentObject);
 }
