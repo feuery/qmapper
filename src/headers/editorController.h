@@ -2,6 +2,7 @@
 #define EDITORCONTROLLER_H
 
 #include <rootContainer.h>
+#include <simplelistmodel.h>
 #include <vector>
 #include <mainwindow.h>
 
@@ -14,7 +15,11 @@ public:
 
   Rootcontainer document;
   Tilelistmodel documentTreeModel;
+  Simplelistmodel *slm;
 
+  QObject r;
+
+  ~editorController();
   editorController();
 
 private:

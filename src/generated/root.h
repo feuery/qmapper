@@ -11,6 +11,7 @@ class root: public Propertierbase
  { 
 public: 
 std::vector<map*>*  all_maps = nullptr;
+    virtual bool valid() { return true;}
 public: 
 root();
 const char* type_name(const char* propertyname); 

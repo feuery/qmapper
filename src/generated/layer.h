@@ -19,6 +19,7 @@ void setName(std::string val);
 
 std::string name_field = "";
 virtual int getwidth(void) = 0;
+    virtual bool valid() { return true;}
 virtual int getheight(void) = 0;
 virtual void set_parent(map* p) = 0;
 virtual map* parent(void) = 0;

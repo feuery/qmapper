@@ -16,7 +16,7 @@ std::vector<layer*>*  layers = nullptr;
 std::string getName();
 
 void setName(std::string val);
-
+   virtual bool valid() { return true;}
 
 std::string name_field = "Map 1";
 virtual void parent(root* p) = 0;

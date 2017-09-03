@@ -22,8 +22,7 @@
 void MainWindow::setupTree()
 {
   if(ec) {
-    tree.setModel(&ec->documentTreeModel);
-    tree.setRootIndex(ec->documentTreeModel.rootIndex());
+    tree.setModel(ec->slm);
   }
   else {
     puts("ec is null\n");
@@ -66,7 +65,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QFrame(), t(argc, argv), ec(new
 
   setupTree();
   toolbox_container->addWidget(&tree);
-  tree.show();
   
   layout->addWidget(&tree); //addLayout(toolbox_container);
   // layout->addWidget(r);

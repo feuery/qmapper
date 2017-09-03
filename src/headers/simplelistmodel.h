@@ -1,36 +1,36 @@
-#ifndef TILELISTMODEL_H
-#define TILELISTMODEL_H
+#ifndef SIMPLELISTMODEL_H
+#define SIMPLELISTMODEL_H
 
 #include <QAbstractListModel>
 #include <root.h>
 
 // Layers are parents/root nodes if needed
-class Tilelistmodel: public QAbstractItemModel
+class Simplelistmodel: public QAbstractItemModel
 {
   Q_OBJECT
 public:
 
-  Tilelistmodel(root *Root);
+  Simplelistmodel(QObject *root, QObject *parent = 0);
 
   // qabstractitemmodel-data
   QVariant data(const QModelIndex &index, int role) const override;
-  Qt::ItemFlags flags(const QModelIndex &index) const override;
+  /* Qt::ItemFlags flags(const QModelIndex &index) const override; */
   QVariant headerData(int section, Qt::Orientation orientation,
-		      int role = Qt::DisplayRole) const override;
+		      int role) const override;
   QModelIndex index(int row, int column,
-		    const QModelIndex &parent = QModelIndex()) const override;
+		    const QModelIndex &parent) const override;
   // QModelIndex parent(const QModelIndex &index) const override;
-  int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+  int rowCount(const QModelIndex &parent) const override;
   int columnCount(const QModelIndex &parent) const override;
   QModelIndex parent(const QModelIndex &child) const;
 
-  QModelIndex rootIndex();
+  /* QModelIndex rootIndex(); */
 
 private:
 
-  root *Root;
+  QObject* m_root;
 
   Propertierbase* getparent(const QModelIndex &parent) const;
 };
 
-#endif //TILELISTMODEL_H
+#endif //SIMPLELISTMODEL_H
