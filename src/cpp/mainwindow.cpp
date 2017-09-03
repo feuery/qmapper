@@ -22,8 +22,9 @@
 void MainWindow::setupTree()
 {
   if(ec) {
-    // if ec->documentTreeModel is replaced by ec->slm it suddenly works? WTF?
-    tree.setModel(ec->documentTreeModel);
+    // TODO Set up an event that refreshes the model on change to model
+    // or learn to use the Tilelistmodel
+    tree.setModel(dump_to_model(&ec->document));
   }
   else {
     puts("ec is null\n");

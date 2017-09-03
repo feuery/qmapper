@@ -11,10 +11,11 @@ editorController::editorController()
 {
   for(int i = 0; i < 3; i++) {
     Mapcontainer *m = new Mapcontainer();
-    m->setName("A map");
+    m->setName(std::to_string(i)+"th map");
     m->parent(&document);
     for(int x = 0; x < 2; x++) {
       Layercontainer *l = new Layercontainer(10 + 10*x, 10 + 10*x);
+      l->setName(std::to_string(x)+"th layer");
       l->set_parent(m);
       m->layers->push_back(l);
     }
