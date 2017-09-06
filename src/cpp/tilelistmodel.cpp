@@ -9,10 +9,7 @@ Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   else return Root;
 }
 
-Tilelistmodel::Tilelistmodel(root *R): Root(R)
-{
-  // setupModelData();
-}
+Tilelistmodel::Tilelistmodel(root *R): Root(R) { }
 
 int Tilelistmodel::rowCount(const QModelIndex &qparent) const
 {
@@ -84,26 +81,10 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
   return QModelIndex();
 }
 
-// Qt::ItemFlags Tilelistmodel::flags(const QModelIndex &index) const
-// {
-//   if(!index.isValid()) return Qt::ItemIsEnabled;
-
-//   // Propertierbase *base = getparent(index);
-//   // const char *type = base->type_identifier();
-
-//   // if(strcmp(type, "layer") == 0) {
-//   //   puts("Tyyppi on layer");
-//   //   return Qt::ItemIsEnabled|Qt::ItemIsSelectable | Qt::ItemNeverHasChildren;
-//   // }
-
-//   // printf("Tyyppi ei ole layer vaan %s\n", type);
-//   return Qt::ItemIsEnabled|Qt::ItemIsSelectable;
-// }
-
 QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
 {
   if(!index.isValid()) return QVariant();
-  if(!role != Qt::DisplayRole) return QVariant();
+  if(role != Qt::DisplayRole) return QVariant();
   
   Propertierbase *base = getparent(index);
   const char *type = base->type_identifier();
@@ -112,7 +93,6 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(strcmp(type, "root") == 0) {
     puts("Palautetaan root-dataa");
     return QString("Root");
-    
   }
   else if(strcmp(type, "map") == 0) {
     map *m = static_cast<map*>(base);

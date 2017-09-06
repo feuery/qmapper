@@ -40,7 +40,8 @@ HEADERS += src/headers/files.h \
            src/headers/layerContainer.h \
            src/headers/mapContainer.h \
            src/headers/rootContainer.h 
-FORMS += src/ui/main.ui
+FORMS += \
+    src/forms/main.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
            src/cpp/main.cpp \

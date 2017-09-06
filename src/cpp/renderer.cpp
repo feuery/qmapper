@@ -6,7 +6,7 @@
 #include <math.h>
 #include <renderer.h>
 
-Renderer::Renderer()
+Renderer::Renderer(): QOpenGLWidget()
 {
   grabKeyboard();
   
