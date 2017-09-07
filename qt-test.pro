@@ -35,6 +35,7 @@ HEADERS += src/headers/files.h \
            src/generated/root.h \
            src/generated/map.h \
            src/headers/editorController.h \
+           src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
            src/headers/simplelistmodel.h \
            src/headers/layerContainer.h \
@@ -56,6 +57,7 @@ SOURCES += src/cpp/files.cpp \
            src/generated/map.cpp \
            src/generated/root.cpp \
            src/cpp/editorController.cpp \
+           src/cpp/editorController_guile.cpp \
            src/cpp/tilelistmodel.cpp \
            src/cpp/simplelistmodel.cpp \
            src/cpp/layerContainer.cpp \

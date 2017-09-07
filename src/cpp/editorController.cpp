@@ -2,6 +2,15 @@
 #include <layerContainer.h>
 #include <editorController.h>
 
+editorController* editorController::instance;
+
+// editorController* editorController::getInstance()
+// {
+//   if(!instance)
+//     instance = new editorController();
+//   return instance;
+// }
+
 void editorController::registerWindow(MainWindow *w)
 {
   this->w = w;
@@ -9,6 +18,14 @@ void editorController::registerWindow(MainWindow *w)
 
 editorController::editorController()
 {
+
+  if(instance) {
+    puts("There already exists an editorController");
+    throw "";
+  }
+
+  instance = this;
+  
   for(int i = 0; i < 3; i++) {
     Mapcontainer *m = new Mapcontainer();
     m->setName(std::to_string(i)+"th map");

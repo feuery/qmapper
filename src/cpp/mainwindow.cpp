@@ -46,7 +46,9 @@ QGroupBox* MainWindow::toolbox()
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())
 {
   ui.setupUi(this);
+  ec->registerWindow(this);
 
+  
   r = new Renderer;
 
   QWidget *tb = new QWidget(this);
@@ -95,5 +97,7 @@ void MainWindow::setTexture_clicked(bool checked)
 void MainWindow::registerController(editorController *ec)
 {
   this->ec = ec;
+
+  puts("Controller registered");
   ec->registerWindow(this);
 }

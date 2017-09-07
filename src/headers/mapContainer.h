@@ -4,9 +4,13 @@
 #include <map.h>
 #include <root.h>
 
+class Mapcontainer;
+#include<layerContainer.h>
+
 class Mapcontainer: public map{
 public:
   Mapcontainer();
+  Mapcontainer(int w, int h, int layerCount, root *parent);
   ~Mapcontainer();
   
   root* parent();

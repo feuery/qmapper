@@ -21,7 +21,11 @@ public:
 
   ~editorController();
   editorController();
+  
+  /* BUT because guile_layer needs to access here too, we're forced to singleton this */
+  static editorController *instance;
 
+  static editorController* getInstance();
 private:
 
   MainWindow *w;

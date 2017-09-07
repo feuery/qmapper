@@ -2,9 +2,11 @@
 #include <QDebug>
 
 #include <libguile.h>
+#include <editorController_guile.h>
 
 // TODO make a real c-guile-registration system
 static void* register_functions(void* data) {
+  scm_c_define_gsubr("add-map", 3, 0, 0, reinterpret_cast<scm_t_subr>(add_map));
   return NULL;
 }
 
