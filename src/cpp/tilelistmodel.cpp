@@ -16,7 +16,6 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   Propertierbase *parent = getparent(qparent);
   QModelIndex grandParent = qparent.parent();
   if(parent == nullptr) {
-    // puts("parent on invaliidi!");
     throw "";
   }
   const char* type = parent->type_identifier();
@@ -28,7 +27,6 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   else if (strcmp(type, "root") == 0) {
     root *r = static_cast<root*>(parent);
     int rows = r->all_maps->size();
-    printf("%d riviä rootilla\n", rows);
     return rows;
   }
   else if(strcmp(type, "layer") == 0) {
@@ -36,7 +34,6 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
     return 0;
   }
   else {
-    // printf("Tilelistmodel got an unknown class %s\n", type);
     throw "";
   }
   return 0;
@@ -64,17 +61,12 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
   
   if(strcmp(type, "map") == 0) {
     map *m = static_cast<map*>(base);
-    return createIndex(row, column, m);
+    return createIndex(row, column, m->layers->at(row));
   }
   else if(strcmp(type, "root") == 0) {
-    return createIndex(row, column, Root);
-  }
-  else if(strcmp(type, "layer") == 0) {
-    layer *l = static_cast<layer*>(base);
-    return createIndex(row, column, l);
+    return createIndex(row, column, Root->all_maps->at(row));
   }
   else {
-    printf("Tilelistmodel got an unknown class %s\n", type);
     throw "";
   }
   
@@ -91,19 +83,16 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   int row = index.row();
 
   if(strcmp(type, "root") == 0) {
-    puts("Palautetaan root-dataa");
     return QString("Root");
   }
   else if(strcmp(type, "map") == 0) {
     map *m = static_cast<map*>(base);
-    printf("Palautetaan mappi %s\n", m->getName().c_str());
     return QString(m->getName().c_str());
   }
   else if(strcmp(type, "layer") == 0) {
     layer *l = static_cast<layer*>(base);
     return QString(l->getName().c_str());
   }
-  else puts("Type didn't match");
 
   return QVariant();
 }
@@ -136,7 +125,6 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
     layer *l = static_cast<layer*>(obj);
     map *p = l->parent();
     int row = indexOf(Root->all_maps, p);
-    printf("Palautetaan mapin alaista riviä %d\n", row);
     return createIndex(row, 0, p);
   }
   else {
