@@ -3,14 +3,18 @@
 extern "C" {
 
   SCM add_map(SCM s_w, SCM s_h, SCM s_layerCount) {
-  int w = scm_to_int(s_w),
-    h = scm_to_int(s_h),
-    layers = scm_to_int(s_layerCount);
+    int w = scm_to_int(s_w),
+      h = scm_to_int(s_h),
+      layers = scm_to_int(s_layerCount);
 
-  Mapcontainer *mc = new Mapcontainer(w, h, layers, &editorController::instance->document);
+    int count = editorController::instance->document.all_maps->size();
 
-  editorController::instance->document.all_maps->push_back(mc);
+    Mapcontainer *mc = new Mapcontainer(w, h, layers, &editorController::instance->document);
+
+    editorController::instance->documentTreeModel->begin(count);
+    editorController::instance->document.all_maps->push_back(mc);
+    editorController::instance->documentTreeModel->end();
   
-  return SCM_BOOL_T;
-}
+    return SCM_BOOL_T;
+  }
 }

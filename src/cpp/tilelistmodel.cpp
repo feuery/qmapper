@@ -133,3 +133,13 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   }
   return QModelIndex();
 }
+
+void Tilelistmodel::begin(int r)
+{
+  auto root = QModelIndex();
+  beginInsertRows(root, r, r+1);
+}
+void Tilelistmodel::end()
+{
+  endInsertRows();
+}

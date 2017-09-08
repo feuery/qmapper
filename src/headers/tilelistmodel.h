@@ -24,6 +24,9 @@ public:
   int columnCount(const QModelIndex &parent) const override;
   QModelIndex parent(const QModelIndex &child) const;
 
+  void begin(int r);
+  void end();
+
 private:
 
   root *Root;
