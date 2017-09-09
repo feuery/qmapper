@@ -1,5 +1,5 @@
 #include <layer.h>
-///////// CPP FILE STARTS HERE, generated at #<date-time 2017-07-19 19:03:23.134 {1002EBE343}>
+///////// CPP FILE STARTS HERE, generated at #<date-time 2017-09-09 22:10:21.956 {1002E73253}>
 std::string layer::getName() {
  return name_field; 
 };

@@ -143,3 +143,12 @@ void Tilelistmodel::end()
 {
   endInsertRows();
 }
+
+
+void Tilelistmodel::beginMap(int map_row)
+{
+  auto root = QModelIndex();
+  QModelIndex parent_index = index(map_row, 0, root);
+  int count = Root->all_maps->at(map_row)->layers->size();
+  beginInsertRows(parent_index, count, count+1);
+}

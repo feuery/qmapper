@@ -7,6 +7,7 @@
 
 extern "C" {
   SCM add_map(SCM s_w, SCM s_h, SCM s_layerCount);
+  SCM add_layer(SCM map_index);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

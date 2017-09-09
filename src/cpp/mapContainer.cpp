@@ -26,3 +26,14 @@ root* Mapcontainer::parent() {
 void Mapcontainer::parent(root *p) {
   R = p;
 }
+
+
+int Mapcontainer::width()
+{
+  return layers->at(0)->getwidth();
+}
+
+int Mapcontainer::height ()
+{
+  return layers->at(0)->getheight();
+}

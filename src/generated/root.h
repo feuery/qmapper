@@ -1,6 +1,6 @@
 #ifndef root_inclguard
 #define root_inclguard
-//// generated at #<date-time 2017-07-19 19:03:23.135 {1002ECF0A3}>
+//// generated at #<date-time 2017-09-09 22:10:21.957 {1002E87273}>
 #include<cstring>
 #include<propertierbase.h>
 #include<map.h>
@@ -11,7 +11,6 @@ class root: public Propertierbase
  { 
 public: 
 std::vector<map*>*  all_maps = nullptr;
-    virtual bool valid() { return true;}
 public: 
 root();
 const char* type_name(const char* propertyname); 

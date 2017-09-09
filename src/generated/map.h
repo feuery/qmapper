@@ -1,6 +1,6 @@
 #ifndef map_inclguard
 #define map_inclguard
-//// generated at #<date-time 2017-07-19 19:03:23.134 {1002EC4153}>
+//// generated at #<date-time 2017-09-09 22:10:21.957 {1002E7ACC3}>
 #include<cstring>
 #include<propertierbase.h>
 #include<root.h>
@@ -16,10 +16,12 @@ std::vector<layer*>*  layers = nullptr;
 std::string getName();
 
 void setName(std::string val);
-   virtual bool valid() { return true;}
+
 
 std::string name_field = "Map 1";
 virtual void parent(root* p) = 0;
+virtual int width(void) = 0;
+virtual int height(void) = 0;
 virtual root* parent(void) = 0;
 public: 
 map();

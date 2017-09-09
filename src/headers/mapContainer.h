@@ -15,6 +15,9 @@ public:
   
   root* parent();
   void parent(root *p);
+
+  int width() override;
+  int height() override;
 private:
 
   root *R;

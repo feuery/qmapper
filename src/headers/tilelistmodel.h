@@ -25,6 +25,7 @@ public:
   QModelIndex parent(const QModelIndex &child) const;
 
   void begin(int r);
+  void beginMap(int map_row);
   void end();
 
 private:

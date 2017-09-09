@@ -1,6 +1,6 @@
 #ifndef layer_inclguard
 #define layer_inclguard
-//// generated at #<date-time 2017-07-19 19:03:23.134 {1002EB6403}>
+//// generated at #<date-time 2017-09-09 22:10:21.935 {1002C039C3}>
 #include<cstring>
 #include<propertierbase.h>
 #include<tile.h>
@@ -19,7 +19,6 @@ void setName(std::string val);
 
 std::string name_field = "";
 virtual int getwidth(void) = 0;
-    virtual bool valid() { return true;}
 virtual int getheight(void) = 0;
 virtual void set_parent(map* p) = 0;
 virtual map* parent(void) = 0;
