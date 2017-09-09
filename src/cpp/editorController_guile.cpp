@@ -10,6 +10,7 @@ extern "C" {
     int count = editorController::instance->document.all_maps->size();
 
     Mapcontainer *mc = new Mapcontainer(w, h, layers, &editorController::instance->document);
+    mc->setName(QString("Map %1").arg(count).toStdString());
 
     editorController::instance->documentTreeModel->begin(count);
     editorController::instance->document.all_maps->push_back(mc);
