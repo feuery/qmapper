@@ -42,6 +42,30 @@ QGroupBox* MainWindow::toolbox()
   grp->setLayout(l);
   return grp;
 }
+
+void MainWindow::editObject()
+{
+  QModelIndex l = tree.currentIndex();
+  // Then, let's fire a property-editor-dialog with this pointer as parameter
+  // And update this pointer's data in-between the model's begin-row-update-thing
+  Propertierbase *b = static_cast<Propertierbase*>(l.internalPointer());
+  std::string type_helper = "";
+  bool success = false;
+  qDebug()<<"Editing " << QString(b->get("name", &success, &type_helper).c_str());
+}
+
+void MainWindow::setupTreeCtxMenu()
+{
+  QAction *edit = new QAction("&Edit", this);
+  edit->setShortcuts(QKeySequence::New);
+  edit->setStatusTip("Edit object");
+  connect(edit, &QAction::triggered, this, &MainWindow::editObject);
+
+  // tree_ctx_menu.addAction(edit);
+
+  tree.setContextMenuPolicy(Qt::ActionsContextMenu);
+  tree.addAction(edit);
+}
  
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())
 {
@@ -67,7 +91,8 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   btn("Run game");
   btn("Create new surface ");
 
-  setupTree();  
+  setupTree();
+  setupTreeCtxMenu();
   toolbox_layout->addWidget(&tree);
 
   tb->setLayout(toolbox_layout);;
