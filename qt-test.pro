@@ -39,9 +39,11 @@ HEADERS += src/headers/files.h \
            src/headers/tilelistmodel.h \
            src/headers/layerContainer.h \
            src/headers/mapContainer.h \
-           src/headers/rootContainer.h 
+           src/headers/rootContainer.h \
+           src/headers/propertyEditor.h
+           
 FORMS += \
-    src/forms/main.ui
+    src/forms/main.ui 
 SOURCES += src/cpp/files.cpp \
            src/cpp/gl_apu.cpp \
            src/cpp/main.cpp \
@@ -60,4 +62,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/tilelistmodel.cpp \
            src/cpp/layerContainer.cpp \
            src/cpp/mapContainer.cpp \
-           src/cpp/rootContainer.cpp 
+           src/cpp/rootContainer.cpp \
+           src/cpp/propertyEditor.cpp

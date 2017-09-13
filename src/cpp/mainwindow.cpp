@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <mainwindow.h>
 #include <QFileDialog>
+#include <propertyEditor.h>
 
 #define btnW 200
 #define btnH 25
@@ -49,9 +50,8 @@ void MainWindow::editObject()
   // Then, let's fire a property-editor-dialog with this pointer as parameter
   // And update this pointer's data in-between the model's begin-row-update-thing
   Propertierbase *b = static_cast<Propertierbase*>(l.internalPointer());
-  std::string type_helper = "";
-  bool success = false;
-  qDebug()<<"Editing " << QString(b->get("name", &success, &type_helper).c_str());
+  Propertyeditor *p = new Propertyeditor(b, this);
+  p->show();
 }
 
 void MainWindow::setupTreeCtxMenu()
@@ -94,6 +94,10 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   setupTree();
   setupTreeCtxMenu();
   toolbox_layout->addWidget(&tree);
+
+  QPushButton *close = new QPushButton("Close", this);
+  connect(close, &QPushButton::clicked, this, &QMainWindow::close);
+  toolbox_layout->addWidget(close);
 
   tb->setLayout(toolbox_layout);;
 
