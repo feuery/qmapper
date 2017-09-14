@@ -89,20 +89,51 @@
 
 (defn tokenize-privacy-level [[f & forms]]
   (map (partial tokenize-type f) forms))
-  
 
-(defn tokenize [def]
+(defn pick-declared-classes [def]
   (->> def
        (filter seq?)
-       (filter (fn [[s & lol]]
-                 (contains? #{'public 'private 'protected} s)))
+       (filter (comp (partial = 'declare-class) first))
+       (mapcat (partial drop 1))))
 
-       (mapcat tokenize-privacy-level)))
+(defn tokenize [[_ class-name include-list :as def]]
+  {:class-name class-name
+   :includes include-list
+   :declared-classes (pick-declared-classes def)
+   :forms (->> def
+               (filter seq?)
+               (filter (fn [[s & lol]]
+                         (contains? #{'public 'private 'protected} s)))
 
+               (mapcat tokenize-privacy-level))})
 
-(def get-functions (partial #'get-symbol-group 'functions))
-(def get-properties (partial #'get-symbol-group 'properties))
-(def get-fields (partial #'get-symbol-group 'fields))
+;; (tokenize test-data)
+;; {:class-name map,
+;;  :includes ("<root.h>" "<layer.h>" "<vector>" "<string>"),
+;;  :declared-classes ("root" "layer"),
+;;  :forms
+;;  (({:form (std__vector<Layer*>* layers nullptr),
+;;     :privacy public,
+;;     :type fields})
+;;   ({:form (std__string name "Map 1"),
+;;     :privacy public,
+;;     :type properties})
+;;   ({:form (void parent (root* p)), :privacy public, :type functions})
+;;   ({:form (int width (void)), :privacy public, :type functions}
+;;    {:form (int height (void)), :privacy public, :type functions}
+;;    {:form (root* parent (void)), :privacy public, :type functions})
+;;   ({:form (std__vector<Layer*>* layers nullptr),
+;;     :privacy private,
+;;     :type fields})
+;;   ({:form (std__string name "Map 1"),
+;;     :privacy private,
+;;     :type properties})
+;;   ({:form (void parent (root* p)),
+;;     :privacy private,
+;;     :type functions})
+;;   ({:form (int width (void)), :privacy private, :type functions}
+;;    {:form (int height (void)), :privacy private, :type functions}
+;;    {:form (root* parent (void)), :privacy private, :type functions}))}
                
 
 (defn start-compiler-backend! []
