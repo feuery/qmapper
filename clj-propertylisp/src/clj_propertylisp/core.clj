@@ -80,7 +80,7 @@
                    (fields
                     (std__vector<Layer*>* layers nullptr))
                    (properties
-                    (std__string name "Map 1"))
+                    (int name "Map 1"))
                    (functions
                     (void parent (root* p)))
                    (functions
@@ -93,7 +93,7 @@
                       (fields
                        (std__vector<std__vector<tile>>* tiles nullptr))
                       (properties
-                       (std__string name ""))
+                       (std__vector<std__string>* names nullptr))
                       (functions
                        (int getWidth (void))
                        (int getHeight (void)))
@@ -192,6 +192,21 @@
               (format "virtual void set(const char *propertyname, %s value);
 virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type type type)))
        (str/join "")))
+
+(defn get-set-strs-implementation [types]
+  (->> types
+       (map typesymbol->str)
+       (map (fn [type]
+              (format "void Propertierbase::set(const char *propertyname, %s value) 
+{
+
+}
+
+%s Propertierbase::get(const char *propertyname, bool *success, %s type_helper)
+{
+
+}\n" type type type)))
+       (str/join "")))
   
 
 (defn make-propertier-base [tokenized-classes]
@@ -228,11 +243,24 @@ virtual ~Propertierbase ();
                            make-get-sets-of-propertierbase
                            get-set-strs)
                        )
-        ]
-    header))
+        cpp (format "#include<propertierbase.h>
+Propertierbase::Propertierbase() 
+{
+
+}
+
+Propertierbase::~Propertierbase() 
+{
+
+}
+
+%s"
+                    (-> props
+                        make-get-sets-of-propertierbase
+                        get-set-strs-implementation))]
+    cpp))
 
 #_(make-propertier-base (map tokenize test-set))
-
 
 
 
