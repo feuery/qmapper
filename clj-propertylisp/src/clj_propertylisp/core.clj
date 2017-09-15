@@ -28,7 +28,6 @@
           compilation-set (->> parent-dir
                                file-seq
                                (filter (fn [f]
-                                         (println "ähvä o " (class f))
                                          (let [name (.getName f)]
                                            (and (not (re-find #"#" name))
                                                 (re-find #"\.def$" name)))))
@@ -367,15 +366,23 @@ return " prop-name "_field;
         
 #_(codegen (tokenize another-test))
 
-;; (defn start-compiler-backend! []
-;;   (go-loop [compilation-set (<! compilation-queue)]
+(defn start-compiler-backend! []
+  (go-loop [compilation-set (<! compilation-queue)]
 
-;;     (let [tokenized-classes (->> compilation-set
-;;                                  (mapv (comp tokenize read-line second)))
-;;           tokenized-classes-with-names (zipmap (keys compilation-set)
-;;                                                tokenized-classes)
-;;           {base-header :header
-;;            base-impl :implementation} (make-propertier-base tokenized-classes)
+    (let [tokenized-classes (->> compilation-set
+                                 (mapv (comp tokenize read-line second)))
+          tokenized-classes-with-names (zipmap (keys compilation-set)
+                                               tokenized-classes)
+          {base-header :header
+           base-impl :implementation} (make-propertier-base tokenized-classes)
 
-;;           class-output (map-vals (fn [tokenized-class]
-                                   
+          class-output (map-vals codegen)]
+      
+      (doseq [[file-name {:keys [header implementation]}] class-output
+              :let [file-name (str/replace file-name #"\.def" "")
+                    header-file (io/file (str @output-dir "/" file-name ".h"))
+                    cpp-file (io/file (str @output-dir "/" file-name ".cpp"))]]
+        (spit header-file header)
+        (spit cpp-file implementation))
+
+      (recur (<! compilation-queue)))))
