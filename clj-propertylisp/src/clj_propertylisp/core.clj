@@ -19,9 +19,10 @@
                          path))))
 
 (defn push-compilation! [content]
-  (>! compilation-queue content))
+  (go
+    (>! compilation-queue content)))
 
-(defn handler [ctx {:keys [kind file]}]                             
+(defn handler [ctx {:keys [kind file]}]
   (when (and (not= kind :delete)
              (not (re-find #"#" (.getName file))))
     (let [parent-dir (getContainerDirPath file)
@@ -36,18 +37,6 @@
                                       [(.getName f) (slurp f)]))
                                (into {}))]
       (push-compilation! compilation-set))))
-
-(defn start-compilation-d!
-  ([]
-   (if (and @input-dir
-            @output-dir)
-     (start-compilation-d! @input-dir
-                           @output-dir)
-     (println "No either input or output dir set")))
-  ([input-dir output-dir]
-   (hawk/watch! [{:paths [input-dir]
-                  :handler #'handler}])))
-
 
 ;; slurp every *.def file in input-dir
 ;; and create a compilation set of them
@@ -370,19 +359,43 @@ return " prop-name "_field;
   (go-loop [compilation-set (<! compilation-queue)]
 
     (let [tokenized-classes (->> compilation-set
-                                 (mapv (comp tokenize read-line second)))
+                                 (mapv (comp tokenize read-string second)))
           tokenized-classes-with-names (zipmap (keys compilation-set)
                                                tokenized-classes)
           {base-header :header
            base-impl :implementation} (make-propertier-base tokenized-classes)
 
-          class-output (map-vals codegen)]
+          class-output (map-vals codegen tokenized-classes-with-names)]
+
+      (let [propertier-h-f (io/file (str @output-dir "/propertierbase.h"))
+            propertier-c-f (io/file (str @output-dir "/propertierbase.cpp"))]
+        (spit propertier-h-f base-header)
+        (spit propertier-c-f base-impl))
       
       (doseq [[file-name {:keys [header implementation]}] class-output
               :let [file-name (str/replace file-name #"\.def" "")
                     header-file (io/file (str @output-dir "/" file-name ".h"))
                     cpp-file (io/file (str @output-dir "/" file-name ".cpp"))]]
-        (spit header-file header)
-        (spit cpp-file implementation))
+          (spit header-file header)
+          (spit cpp-file implementation))
 
       (recur (<! compilation-queue)))))
+
+(defn start-compilation-d!
+  ([]
+   (if (and @input-dir
+            @output-dir)
+     (start-compilation-d! @input-dir
+                           @output-dir)
+     (println "No either input or output dir set")))
+  ([local-input-dir local-output-dir]
+   (if (and local-input-dir
+            (not @input-dir))
+     (reset! input-dir local-input-dir))
+   (if (and local-output-dir
+            (not @output-dir))
+     (reset! output-dir local-output-dir))
+
+   (hawk/watch! [{:paths [local-input-dir]
+                  :handler #'handler}])
+   (start-compiler-backend!)))
