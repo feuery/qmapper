@@ -94,6 +94,7 @@
                       (fields
                        (std__vector<std__vector<tile>>* tiles nullptr))
                       (properties
+                       (std__string name "Map 1")
                        (std__vector<std__string>* names nullptr))
                       (functions
                        (int getWidth (void))
@@ -260,7 +261,7 @@ Propertierbase::~Propertierbase()
                         get-set-strs-implementation))]
     {:header header
      :implementation cpp}))
-(tokenize test-data)
+
 
 (defn codegen [{:keys [forms class-name declared-classes includes] :as tokenized-class}]
   (let [props (get-properties tokenized-class)
@@ -273,7 +274,8 @@ Propertierbase::~Propertierbase()
                                    (str "virtual void set(const char* propertyname, " type " value) {
 " (->> props
        (map (fn [{:keys [form]}]
-              (let [[prop-type prop-name _] form]
+              (let [[prop-type prop-name _] form
+                    prop-name ((comp str/capitalize name) prop-name)]
                 (str
                  "if(strcmp(propertyname, \"" prop-name "\") == 0) { " prop-name"_field = value; return; }"))))
        (str/join "\n"))
@@ -285,7 +287,8 @@ Propertierbase::~Propertierbase()
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
-                                                  (let [[_ prop-name _ ] form]
+                                                  (let [[_ prop-name _ ] form
+                                                        prop-name ((comp str/capitalize name) prop-name)]
                                                     (str "if(strcmp(propertyname, \"" prop-name "\") == 0) {
   *success = true;
   return " prop-name "_field;
@@ -299,41 +302,70 @@ Propertierbase::~Propertierbase()
                        (->> includes
                             (map (partial str "#include" ))
                             (str/join "\n"))
-                       "\n"
+                       ";\n"
                        (->> declared-classes
                             (map (partial str "class "))
                             (str/join ";\n"))
                        
-                       "\nclass " class-name " {\n " (->> forms
-                           (map (fn [{:keys [form privacy type]}]
-                                  (format "%s: %s" privacy 
-                                          (case type
-                                            fields (let [[type name default-val] form]
-                                                      (format "%s %s = %s;" 
-                                                              (typesymbol->str type)
-                                                              name
-                                                              default-val))
-                                            functions (let [[return-type name param-list] form]
-                                                         (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
-                                                                 name
-                                                                 param-list))
+                       ";\nclass " class-name " {\n " (->> forms
+                                                           (map (fn [{:keys [form privacy type]}]
+                                                                  (format "%s: %s" privacy 
+                                                                          (case type
+                                                                            fields (let [[type name default-val] form]
+                                                                                     (format "%s %s = %s;" 
+                                                                                             (typesymbol->str type)
+                                                                                             name
+                                                                                             default-val))
+                                                                            functions (let [[return-type name param-list] form]
+                                                                                        (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
+                                                                                                name
+                                                                                                param-list))
 
-                                            properties (let [[prop-type prop-name default-val] form
-                                                              prop-name ((comp str/capitalize name) prop-name)]
-                                                          (format "virtual void set%s(%s val);
+                                                                            properties (let [[prop-type prop-name default-val] form
+                                                                                             prop-name ((comp str/capitalize name) prop-name)]
+                                                                                         (format "virtual void set%s(%s val);
 virtual %s get%s()
 %s %s_field = %s;" prop-name prop-type
-                                                                  prop-type prop-name
-                                                                  prop-type prop-name default-val))))))
-                           (str/join "\n"))
+                                                                                                 prop-type prop-name
+                                                                                                 prop-type prop-name default-val))))))
+                                                           (str/join "\n"))
                            set-contents
                            get-contents
-                           "\n};\n#endif")]
-    class-content))
+                           "\nconst char * r[" (count props) "];"
+                           "\nvirtual const char* type_identifier() { return \"" class-name "\"; }"
+                           "\nvirtual int property_count() { return " (count props) "; }"
+                           "\n};\n#endif")
+        cpp-content (str "#include <" class-name ".h>
+////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
+
+"
+                         (->> props-by-types
+                              (map (fn [[type props]]
+                                     (->> props
+                                          (map (fn [{:keys [form]}]
+                                                 (let [[_ prop-name _] form
+                                                       prop-name ((comp str/capitalize name) prop-name)]
+                                                   (str "void " class-name "::set" prop-name "(" type " val) {
+" prop-name "_field = val;
+}
+                                                        " type " " class-name "::get" prop-name "() {
+return " prop-name "_field;
+}"))))
+                                          (str/join "\n"))))
+                              (str/join "\n"))"
+"
+                         class-name "::" class-name "() {
+"
+                         (->> props
+                              (map-indexed (fn [index {[_ prop-name] :form}]
+                                             (str "r[" index "] = \"" prop-name "\";")))
+                              (str/join "\n")) "
+}")]
+    {:header class-content
+     :implementation cpp-content}))
 
         
-#_(codegen (tokenize test-data))
-
+#_(codegen (tokenize another-test))
 
 ;; (defn start-compiler-backend! []
 ;;   (go-loop [compilation-set (<! compilation-queue)]
