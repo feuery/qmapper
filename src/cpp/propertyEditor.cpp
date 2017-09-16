@@ -1,38 +1,52 @@
 #include <QDebug>
+#include <QLabel>
 #include <propertyEditor.h>
+#include <QLineEdit>
+
+template<typename T, typename E>
+struct either
+{
+  T a;
+  E b;
+};
+
+either<bool, std::string> getStringProp(Propertierbase* base, const char *propname) {
+  std::string lol;
+  bool success = false;
+  either<bool, std::string> result;
+  result.b = base->get(propname, &success, lol);
+  result.a = success;
+  return result;
+}
 
 Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
 {
   std::string helper;
   bool success;
 
-  QFormLayout *data = new QFormLayout(this);
 
   const char **properties = base->names();
-  puts("Properties: ")
-  for(int i =0; i<base->property_count(); i++) {
-    if(strcmp(base->type_name(properties[i]), "std::string") == 0) {
-      std::string helper;
-      bool success = false;
-      std::string val = base->get(properties[i], &success, helper);
-
-      if(success) {
-	printf("%s = %s\n", properties[i], val.c_str());
-      }
-      else printf("%s failed\n", properties[i]);
-    }
-    else printf("typename %s is funny\n", base->type_name(properties[i]));
-  }
-  puts("Nomore properties");
   
-  QHBoxLayout *l = new QHBoxLayout(this);
-  QVBoxLayout *buttons = new QVBoxLayout(this);
+  QVBoxLayout *l = new QVBoxLayout(this);
+  QFormLayout *data = new QFormLayout(this);
+  for(int i =0; i<base->property_count(); i++) {
+    const char *type = base->type_name(properties[i]);
+    if(strcmp(type, "std::string") == 0) {
+      auto any = getStringProp(base, properties[i]);
+      QLineEdit *edit = any.a ? new QLineEdit(QString(any.b.c_str()), this):
+	new QLineEdit("Failed getting prop", this);
+      data->addRow(properties[i], edit);
+    }
+  }
+  
+  QHBoxLayout *buttons = new QHBoxLayout(this);
 
   QPushButton *close = new QPushButton("Close", this);
   buttons->addWidget(close);
-  l->addLayout(buttons);
 
-  setLayout(l);
+  l->addLayout(data);
+  l->addLayout(buttons);
+    
   setMinimumWidth(800);
   setMinimumHeight(600);
 
