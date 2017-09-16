@@ -18,23 +18,23 @@ int Tileset_field = 0;
 public: virtual void setRotation(int val);
 virtual int getRotation();
 int Rotation_field = 0;virtual void set(const char* propertyname, int value) {
-if(strcmp(propertyname, "X") == 0) { X_field = value; return; }
-if(strcmp(propertyname, "Y") == 0) { Y_field = value; return; }
-if(strcmp(propertyname, "Tileset") == 0) { Tileset_field = value; return; }
-if(strcmp(propertyname, "Rotation") == 0) { Rotation_field = value; return; } }virtual int get(const char* propertyname, bool *success, int type_helper) {
-if(strcmp(propertyname, "X") == 0) {
+if(strcmp(propertyname, "x") == 0) { X_field = value; return; }
+if(strcmp(propertyname, "y") == 0) { Y_field = value; return; }
+if(strcmp(propertyname, "tileset") == 0) { Tileset_field = value; return; }
+if(strcmp(propertyname, "rotation") == 0) { Rotation_field = value; return; } }virtual int get(const char* propertyname, bool *success, int type_helper) {
+if(strcmp(propertyname, "x") == 0) {
   *success = true;
   return X_field;
 }
-if(strcmp(propertyname, "Y") == 0) {
+if(strcmp(propertyname, "y") == 0) {
   *success = true;
   return Y_field;
 }
-if(strcmp(propertyname, "Tileset") == 0) {
+if(strcmp(propertyname, "tileset") == 0) {
   *success = true;
   return Tileset_field;
 }
-if(strcmp(propertyname, "Rotation") == 0) {
+if(strcmp(propertyname, "rotation") == 0) {
   *success = true;
   return Rotation_field;
 } *success = false; int invalid_data; return invalid_data;

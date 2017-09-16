@@ -18,8 +18,8 @@ public: virtual void parent (root* p) = 0;
 public: virtual int width (void) = 0;
 public: virtual int height (void) = 0;
 public: virtual root* parent (void) = 0;virtual void set(const char* propertyname, std::string value) {
-if(strcmp(propertyname, "Name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
-if(strcmp(propertyname, "Name") == 0) {
+if(strcmp(propertyname, "name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
+if(strcmp(propertyname, "name") == 0) {
   *success = true;
   return Name_field;
 } *success = false; std::string invalid_data; return invalid_data;

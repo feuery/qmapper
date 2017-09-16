@@ -51,7 +51,7 @@ void MainWindow::editObject()
   // And update this pointer's data in-between the model's begin-row-update-thing
   Propertierbase *b = static_cast<Propertierbase*>(l.internalPointer());
   Propertyeditor *p = new Propertyeditor(b, this);
-  p->show();
+  p->showMaximized();
 }
 
 void MainWindow::setupTreeCtxMenu()

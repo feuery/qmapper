@@ -1,5 +1,5 @@
 #include <tile.h>
-////// generated at 2017-09-16T10:57:44.766Z
+////// generated at 2017-09-16T12:30:53.297Z
 
 void Tile::setX(int val) {
 X_field = val;

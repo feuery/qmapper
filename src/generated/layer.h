@@ -21,8 +21,8 @@ public: virtual Map* parent (void) = 0;
 protected: int w = 0;
 protected: int h = 0;
 protected: Map* p = nullptr;virtual void set(const char* propertyname, std::string value) {
-if(strcmp(propertyname, "Name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
-if(strcmp(propertyname, "Name") == 0) {
+if(strcmp(propertyname, "name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
+if(strcmp(propertyname, "name") == 0) {
   *success = true;
   return Name_field;
 } *success = false; std::string invalid_data; return invalid_data;
