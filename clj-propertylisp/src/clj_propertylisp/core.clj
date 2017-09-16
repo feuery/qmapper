@@ -1,5 +1,3 @@
-;; For now this is intended to be ran as a repl
-;; Mostly because I don't dislike cider-repl as much as I dislike what SLIME does
 (ns clj-propertylisp.core
   (:require [hawk.core :as hawk]
             [clj-time.core :as t]
@@ -7,7 +5,8 @@
             [potpuri.core :refer [map-vals map-keys]]
             [clojure.core.async :refer [go go-loop <! >! chan]]
             [clojure.string :as str]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io])
+  (:gen-class))
 
 (def input-dir (atom nil))
 (def output-dir (atom nil))
@@ -432,3 +431,7 @@ return " prop-name "_field;
    (hawk/watch! [{:paths [local-input-dir]
                   :handler #'handler}])
    (start-compiler-backend!)))
+
+(defn -main [input output]
+  (println "Starting compilation daemon which compiles " input "->" output)
+  (start-compilation-d! input output))

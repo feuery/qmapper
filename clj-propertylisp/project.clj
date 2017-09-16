@@ -7,4 +7,6 @@
                  [org.clojure/core.async "0.3.443"]
                  [clj-time "0.14.0"]
                  [metosin/potpuri "0.4.0"]
-                 [hawk "0.2.11"]])
+                 [hawk "0.2.11"]]
+  :main clj-propertylisp.core
+  :aot :all)
