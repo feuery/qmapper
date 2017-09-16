@@ -1,47 +1,42 @@
-#ifndef layer_inclguard
-#define layer_inclguard
-//// generated at #<date-time 2017-09-09 22:10:21.935 {1002C039C3}>
-#include<cstring>
+#ifndef Layere
+#define Layere
+
 #include<propertierbase.h>
 #include<tile.h>
 #include<string>
 #include<vector>
 #include<map.h>
-class map;
-class layer: public Propertierbase 
- { 
-public: 
-std::vector<std::vector<tile>>*  tiles = nullptr;
-std::string getName();
+#include<cstring>
+class Map;
+class Tile;
+class Layer: public Propertierbase {
+ public: std::vector<std::vector<Tile>>* tiles = nullptr;
+public: virtual void setName(std::string val);
+virtual std::string getName();
+std::string Name_field = "";
+public: virtual int getWidth (void) = 0;
+public: virtual int getHeight (void) = 0;
+public: virtual void set_parent (Map* p) = 0;
+public: virtual Map* parent (void) = 0;
+protected: int w = 0;
+protected: int h = 0;
+protected: Map* p = nullptr;virtual void set(const char* propertyname, std::string value) {
+if(strcmp(propertyname, "Name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
+if(strcmp(propertyname, "Name") == 0) {
+  *success = true;
+  return Name_field;
+} *success = false; std::string invalid_data; return invalid_data;
+}
+public: Layer();
 
-void setName(std::string val);
+const char * r[1];
+const char** names() { return r; }
 
-
-std::string name_field = "";
-virtual int getwidth(void) = 0;
-virtual int getheight(void) = 0;
-virtual void set_parent(map* p) = 0;
-virtual map* parent(void) = 0;
-protected: 
-int  w = 0;
-int  h = 0;
-map*  p = nullptr;
-public: 
-layer();
-const char* type_name(const char* propertyname); 
-virtual const char** names() { return r; }
-int property_count = 1;
-virtual void set(const char* propertyname, std::string value) {
-if(strcmp(propertyname, "name") == 0) name_field = value;
+virtual const char* type_identifier() { return "Layer"; }
+virtual int property_count() { return 1; }
+virtual const char* type_name(const char *propertyname) {
+if(strcmp(propertyname, "name") == 0) return "std::string";return "";
 }
 
-virtual std::string get(const char* propertyname, bool *success, std::string* type_helper) {
-if(strcmp(propertyname, "name") == 0) {
-
-*success = true;
-return name_field;
-}*success = false; std::string a; return a;
-}
-const char* r[1];
-virtual const char* type_identifier() { return "layer"; }};
+};
 #endif

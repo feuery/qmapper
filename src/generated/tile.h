@@ -1,66 +1,57 @@
-#ifndef tile_inclguard
-#define tile_inclguard
-//// generated at #<date-time 2017-09-09 22:10:21.957 {1002E8E013}>
-#include<cstring>
+#ifndef Tilee
+#define Tilee
+
 #include<propertierbase.h>
-class tile: public Propertierbase 
- { 
-public: 
-int getX();
 
-void setX(int val);
+#include<cstring>
+;
+class Tile: public Propertierbase {
+ public: virtual void setX(int val);
+virtual int getX();
+int X_field = 0;
+public: virtual void setY(int val);
+virtual int getY();
+int Y_field = 0;
+public: virtual void setTileset(int val);
+virtual int getTileset();
+int Tileset_field = 0;
+public: virtual void setRotation(int val);
+virtual int getRotation();
+int Rotation_field = 0;virtual void set(const char* propertyname, int value) {
+if(strcmp(propertyname, "X") == 0) { X_field = value; return; }
+if(strcmp(propertyname, "Y") == 0) { Y_field = value; return; }
+if(strcmp(propertyname, "Tileset") == 0) { Tileset_field = value; return; }
+if(strcmp(propertyname, "Rotation") == 0) { Rotation_field = value; return; } }virtual int get(const char* propertyname, bool *success, int type_helper) {
+if(strcmp(propertyname, "X") == 0) {
+  *success = true;
+  return X_field;
+}
+if(strcmp(propertyname, "Y") == 0) {
+  *success = true;
+  return Y_field;
+}
+if(strcmp(propertyname, "Tileset") == 0) {
+  *success = true;
+  return Tileset_field;
+}
+if(strcmp(propertyname, "Rotation") == 0) {
+  *success = true;
+  return Rotation_field;
+} *success = false; int invalid_data; return invalid_data;
+}
+public: Tile();
 
+const char * r[4];
+const char** names() { return r; }
 
-int x_field = 0;
-int getY();
-
-void setY(int val);
-
-
-int y_field = 0;
-int getTileset();
-
-void setTileset(int val);
-
-
-int tileset_field = 0;
-int getRotation();
-
-void setRotation(int val);
-
-
-int rotation_field = 0;
-public: 
-tile();
-const char* type_name(const char* propertyname); 
-virtual const char** names() { return r; }
-int property_count = 4;
-virtual void set(const char* propertyname, int value) {
-if(strcmp(propertyname, "rotation") == 0) rotation_field = value;
-else if(strcmp(propertyname, "tileset") == 0) tileset_field = value;
-else if(strcmp(propertyname, "y") == 0) y_field = value;
-else if(strcmp(propertyname, "x") == 0) x_field = value;
+virtual const char* type_identifier() { return "Tile"; }
+virtual int property_count() { return 4; }
+virtual const char* type_name(const char *propertyname) {
+if(strcmp(propertyname, "x") == 0) return "int";
+if(strcmp(propertyname, "y") == 0) return "int";
+if(strcmp(propertyname, "tileset") == 0) return "int";
+if(strcmp(propertyname, "rotation") == 0) return "int";return "";
 }
 
-virtual int get(const char* propertyname, bool *success, int* type_helper) {
-if(strcmp(propertyname, "rotation") == 0) {
-
-*success = true;
-return rotation_field;
-}else if(strcmp(propertyname, "tileset") == 0) {
-
-*success = true;
-return tileset_field;
-}else if(strcmp(propertyname, "y") == 0) {
-
-*success = true;
-return y_field;
-}else if(strcmp(propertyname, "x") == 0) {
-
-*success = true;
-return x_field;
-}*success = false; int a; return a;
-}
-const char* r[4];
-virtual const char* type_identifier() { return "tile"; }};
+};
 #endif

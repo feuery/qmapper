@@ -7,7 +7,7 @@
 class Mapcontainer;
 #include<layerContainer.h>
 
-class Mapcontainer: public map{
+class Mapcontainer: public Map{
 public:
   Mapcontainer();
   Mapcontainer(int w, int h, int layerCount, root *parent);

@@ -1,16 +1,12 @@
 #include <map.h>
-///////// CPP FILE STARTS HERE, generated at #<date-time 2017-09-09 22:10:21.957 {1002E82243}>
-std::string map::getName() {
- return name_field; 
-};
-void map::setName(std::string val) {
- name_field = val; 
-}
-map::map(){
-r[0] = "name";
-}
+////// generated at 2017-09-16T10:57:44.767Z
 
-const char* map::type_name(const char* propertyname) {
-if (strcmp(propertyname, "name") == 0) return "std::string";
-return "";
+void Map::setName(std::string val) {
+Name_field = val;
+}
+                                                        std::string Map::getName() {
+return Name_field;
+}
+Map::Map() {
+r[0] = "name";
 }

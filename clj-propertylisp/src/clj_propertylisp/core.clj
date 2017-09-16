@@ -163,10 +163,16 @@
 (def get-fields (partial #'get-stuff 'fields))
 
 (defn get-includes-of-set [class-set]
-  (->> class-set
-       (map :includes)
-       flatten
-       (apply hash-set)))
+  (let [compiled-files (->> class-set
+                            (map (comp #(str "<" % ">")
+                                       #(str/replace % #".def" ".h")
+                                       :filename))
+                            set)]
+    (->> class-set
+         (map :includes)
+         flatten
+         (filter (complement (partial contains? compiled-files)))
+         (apply hash-set))))
 
 (defn make-get-sets-of-propertierbase [props]
   (->> props
@@ -251,7 +257,7 @@ Propertierbase::~Propertierbase()
      :implementation cpp}))
 
 
-(defn codegen [{:keys [forms class-name declared-classes includes] :as tokenized-class}]
+(defn codegen [{:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
   (let [props (get-properties tokenized-class)
         props-by-types (->> props
                             (group-by (comp first :form))
@@ -271,7 +277,7 @@ Propertierbase::~Propertierbase()
                           (str/join "\n"))
         get-contents (->> props-by-types
                           (map (fn [[type props]]
-                                 (str "virtual " type " get(const char* propertyname, bool *success, " type " val) {
+                                 (str "virtual " type " get(const char* propertyname, bool *success, " type " type_helper) {
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
@@ -282,20 +288,21 @@ Propertierbase::~Propertierbase()
   return " prop-name "_field;
 }"))))
                                            (str/join "\n"))
-                                      " *success = false; " type " val; return val;
+                                      " *success = false; " type " invalid_data; return invalid_data;
 }")))
                           (str/join "\n"))
                           
-        class-content (str
+        class-content (str "#ifndef " class-name "e\n#define " class-name "e\n"
+                           "\n#include<propertierbase.h>\n"
                        (->> includes
                             (map (partial str "#include" ))
                             (str/join "\n"))
-                       ";\n"
+                       "\n#include<cstring>\n"
                        (->> declared-classes
                             (map (partial str "class "))
                             (str/join ";\n"))
                        
-                       ";\nclass " class-name " {\n " (->> forms
+                       ";\nclass " class-name ": public Propertierbase {\n " (->> forms
                                                            (map (fn [{:keys [form privacy type]}]
                                                                   (format "%s: %s" privacy 
                                                                           (case type
@@ -310,20 +317,34 @@ Propertierbase::~Propertierbase()
                                                                                                 param-list))
 
                                                                             properties (let [[prop-type prop-name default-val] form
+                                                                                             prop-type (typesymbol->str prop-type)
                                                                                              prop-name ((comp str/capitalize name) prop-name)]
                                                                                          (format "virtual void set%s(%s val);
-virtual %s get%s()
+virtual %s get%s();
 %s %s_field = %s;" prop-name prop-type
                                                                                                  prop-type prop-name
-                                                                                                 prop-type prop-name default-val))))))
+                                                                                                 prop-type prop-name (pr-str default-val)))))))
                                                            (str/join "\n"))
                            set-contents
                            get-contents
+                           "\npublic: " class-name "();\n"
                            "\nconst char * r[" (count props) "];"
+                           "\nconst char** names() { return r; }\n"
                            "\nvirtual const char* type_identifier() { return \"" class-name "\"; }"
                            "\nvirtual int property_count() { return " (count props) "; }"
+                           "\nvirtual const char* type_name(const char *propertyname) {\n"
+
+                           (->> props-by-types
+                                (map (fn [[type props]]
+                                       (->> props
+                                            (map (fn [{[_ prop-name _] :form}]
+                                                   (str "if(strcmp(propertyname, \"" prop-name "\") == 0) return \"" type "\";")))
+                                            (str/join "\n"))))
+                                (str/join "\n"))
+                           "return \"\";\n}\n"
+                           
                            "\n};\n#endif")
-        cpp-content (str "#include <" class-name ".h>
+        cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
 
 "
@@ -355,31 +376,43 @@ return " prop-name "_field;
         
 #_(codegen (tokenize another-test))
 
+(defn read-string-report-fail [str]
+  (try
+    (read-string str)
+    (catch RuntimeException ex
+      (println "Todennäköinen EOF stringillä " (pr-str str))
+      (throw ex))))
+
 (defn start-compiler-backend! []
   (go-loop [compilation-set (<! compilation-queue)]
+    (try
+      (let [tokenized-classes (->> compilation-set
+                                   (mapv (fn [[filename content]]
+                                           (-> content
+                                               read-string-report-fail
+                                               tokenize
+                                               (assoc :filename filename)))))
+            tokenized-classes-with-names (zipmap (keys compilation-set)
+                                                      tokenized-classes)
+            {base-header :header
+             base-impl :implementation} (make-propertier-base tokenized-classes)
 
-    (let [tokenized-classes (->> compilation-set
-                                 (mapv (comp tokenize read-string second)))
-          tokenized-classes-with-names (zipmap (keys compilation-set)
-                                               tokenized-classes)
-          {base-header :header
-           base-impl :implementation} (make-propertier-base tokenized-classes)
+            class-output (map-vals codegen tokenized-classes-with-names)]
 
-          class-output (map-vals codegen tokenized-classes-with-names)]
-
-      (let [propertier-h-f (io/file (str @output-dir "/propertierbase.h"))
-            propertier-c-f (io/file (str @output-dir "/propertierbase.cpp"))]
-        (spit propertier-h-f base-header)
-        (spit propertier-c-f base-impl))
-      
-      (doseq [[file-name {:keys [header implementation]}] class-output
-              :let [file-name (str/replace file-name #"\.def" "")
-                    header-file (io/file (str @output-dir "/" file-name ".h"))
-                    cpp-file (io/file (str @output-dir "/" file-name ".cpp"))]]
+        (let [propertier-h-f (io/file (str @output-dir "/propertierbase.h"))
+              propertier-c-f (io/file (str @output-dir "/propertierbase.cpp"))]
+          (spit propertier-h-f base-header)
+          (spit propertier-c-f base-impl))
+        
+        (doseq [[file-name {:keys [header implementation]}] class-output
+                :let [file-name (str/replace file-name #"\.def" "")
+                      header-file (io/file (str @output-dir "/" file-name ".h"))
+                      cpp-file (io/file (str @output-dir "/" file-name ".cpp"))]]
           (spit header-file header)
-          (spit cpp-file implementation))
-
-      (recur (<! compilation-queue)))))
+          (spit cpp-file implementation)))
+      (catch Exception ex
+        (clojure.pprint/pprint ex)))
+    (recur (<! compilation-queue))))
 
 (defn start-compilation-d!
   ([]

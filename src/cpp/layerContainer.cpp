@@ -1,14 +1,14 @@
 #include<layerContainer.h>
 
-Layercontainer::Layercontainer(int w, int h):layer()
+Layercontainer::Layercontainer(int w, int h):Layer()
 {
   this->w = w;
   this->h = h;
-  tiles = new std::vector<std::vector<tile>>;
+  tiles = new std::vector<std::vector<Tile>>;
   for(int x = 0; x<w; x++) {
-    std::vector<tile> column;
+    std::vector<Tile> column;
     for(int y = 0; y<h; y++) {
-      column.push_back(tile());
+      column.push_back(Tile());
     }
     tiles->push_back(column);
   }   
@@ -18,20 +18,20 @@ Layercontainer::~Layercontainer() {
   delete tiles;
 }
 
-void Layercontainer::set_parent(map* p)
+void Layercontainer::set_parent(Map* p)
 {
   this->p = p;
 }
-map* Layercontainer::parent(void)
+Map* Layercontainer::parent(void)
 {
   return p;
 }
 
-int Layercontainer::getwidth(void)
+int Layercontainer::getWidth(void)
 {
   return w;
 }
-int Layercontainer::getheight(void)
+int Layercontainer::getHeight(void)
 {
   return h;
 }

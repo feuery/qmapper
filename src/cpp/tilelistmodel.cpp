@@ -20,17 +20,17 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   const char* type = parent->type_identifier();
   
-  if(strcmp(type, "map") == 0) {
-    map *Map = static_cast<map*>(parent);
-    return Map->layers->size();
+  if(strcmp(type, "Map") == 0) {
+    Map *m = static_cast<Map*>(parent);
+    return m->layers->size();
   }
   else if (strcmp(type, "root") == 0) {
     root *r = static_cast<root*>(parent);
     int rows = r->all_maps->size();
     return rows;
   }
-  else if(strcmp(type, "layer") == 0) {
-    layer *l = static_cast<layer*>(parent);
+  else if(strcmp(type, "Layer") == 0) {
+    Layer *l = static_cast<Layer*>(parent);
     return 0;
   }
   else {
@@ -59,8 +59,8 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
   
   const char *type = base->type_identifier();
   
-  if(strcmp(type, "map") == 0) {
-    map *m = static_cast<map*>(base);
+  if(strcmp(type, "Map") == 0) {
+    Map *m = static_cast<Map*>(base);
     return createIndex(row, column, m->layers->at(row));
   }
   else if(strcmp(type, "root") == 0) {
@@ -85,12 +85,12 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(strcmp(type, "root") == 0) {
     return QString("Root");
   }
-  else if(strcmp(type, "map") == 0) {
-    map *m = static_cast<map*>(base);
+  else if(strcmp(type, "Map") == 0) {
+    Map *m = static_cast<Map*>(base);
     return QString(m->getName().c_str());
   }
-  else if(strcmp(type, "layer") == 0) {
-    layer *l = static_cast<layer*>(base);
+  else if(strcmp(type, "Layer") == 0) {
+    Layer *l = static_cast<Layer*>(base);
     return QString(l->getName().c_str());
   }
 
@@ -117,13 +117,13 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 
   const char* type = obj->type_identifier();
 
-  if(strcmp(type, "map") == 0) {
-    map *m = static_cast<map*>(obj);
+  if(strcmp(type, "Map") == 0) {
+    Map *m = static_cast<Map*>(obj);
     return createIndex(indexOf(Root->all_maps, m), 0, Root);
   }
-  else if(strcmp(type, "layer") == 0) {
-    layer *l = static_cast<layer*>(obj);
-    map *p = l->parent();
+  else if(strcmp(type, "Layer") == 0) {
+    Layer *l = static_cast<Layer*>(obj);
+    Map *p = l->parent();
     int row = indexOf(Root->all_maps, p);
     return createIndex(row, 0, p);
   }

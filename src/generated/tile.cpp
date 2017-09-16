@@ -1,40 +1,33 @@
 #include <tile.h>
-///////// CPP FILE STARTS HERE, generated at #<date-time 2017-09-09 22:10:21.957 {1002E93003}>
-int tile::getRotation() {
- return rotation_field; 
-};
-void tile::setRotation(int val) {
- rotation_field = val; 
-}
-int tile::getTileset() {
- return tileset_field; 
-};
-void tile::setTileset(int val) {
- tileset_field = val; 
-}
-int tile::getY() {
- return y_field; 
-};
-void tile::setY(int val) {
- y_field = val; 
-}
-int tile::getX() {
- return x_field; 
-};
-void tile::setX(int val) {
- x_field = val; 
-}
-tile::tile(){
-r[0] = "rotation";
-r[1] = "tileset";
-r[2] = "y";
-r[3] = "x";
-}
+////// generated at 2017-09-16T10:57:44.766Z
 
-const char* tile::type_name(const char* propertyname) {
-if (strcmp(propertyname, "rotation") == 0) return "int";
-if (strcmp(propertyname, "tileset") == 0) return "int";
-if (strcmp(propertyname, "y") == 0) return "int";
-if (strcmp(propertyname, "x") == 0) return "int";
-return "";
+void Tile::setX(int val) {
+X_field = val;
+}
+                                                        int Tile::getX() {
+return X_field;
+}
+void Tile::setY(int val) {
+Y_field = val;
+}
+                                                        int Tile::getY() {
+return Y_field;
+}
+void Tile::setTileset(int val) {
+Tileset_field = val;
+}
+                                                        int Tile::getTileset() {
+return Tileset_field;
+}
+void Tile::setRotation(int val) {
+Rotation_field = val;
+}
+                                                        int Tile::getRotation() {
+return Rotation_field;
+}
+Tile::Tile() {
+r[0] = "x";
+r[1] = "y";
+r[2] = "tileset";
+r[3] = "rotation";
 }

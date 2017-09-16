@@ -22,7 +22,7 @@ extern "C" {
   SCM add_layer(SCM map_index)
   {
     int map_i = scm_to_int(map_index);
-    map *m = editorController::instance->document.all_maps->at(map_i);
+    Map *m = editorController::instance->document.all_maps->at(map_i);
     int c = m->layers->size();
     
     // map *m = editorController::instance->document->all_maps->at(map_i);

@@ -1,8 +1,0 @@
-(defcppclass tile ("<state.h>")
-  (inherits std__vector<std__vector<int>>)
-  (public
-   (properties
-    (std__lol lollero 3)
-    (unsigned long int moi 0)       
-    (std__vector<char*> nimivektori null)))) 
-

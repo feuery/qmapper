@@ -4,16 +4,16 @@
 #include <layer.h>
 #include <mapContainer.h>
 
-class Layercontainer: public layer{
+class Layercontainer: public Layer{
 public:
   // in tiles
   Layercontainer(int w, int h);
   ~Layercontainer();
 
-  virtual void set_parent(map* p) override;
-  virtual map* parent(void) override;
-  virtual int getwidth(void) override;
-  virtual int getheight(void) override;
+  virtual void set_parent(Map* p) override;
+  virtual Map* parent(void) override;
+  virtual int getWidth(void) override;
+  virtual int getHeight(void) override;
 private:
 
   Mapcontainer *map_parent;

@@ -1,5 +1,5 @@
-(defcppclass map ("<root.h>" "<layer.h>" "<vector>" "<string>")
-  (declare-class "root" "layer")
+(defcppclass Map ("<root.h>" "<layer.h>" "<vector>" "<string>")
+  (declare-class "root" "Layer")
   (public
    (fields
     (std__vector<Layer*>* layers nullptr))

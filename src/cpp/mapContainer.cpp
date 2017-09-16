@@ -1,8 +1,8 @@
 #include<mapContainer.h>
 
-Mapcontainer::Mapcontainer(): map()
+Mapcontainer::Mapcontainer(): Map()
 {
-  layers = new std::vector<layer*>;
+  layers = new std::vector<Layer*>;
 }
 
 Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapcontainer()
@@ -30,10 +30,10 @@ void Mapcontainer::parent(root *p) {
 
 int Mapcontainer::width()
 {
-  return layers->at(0)->getwidth();
+  return layers->at(0)->getWidth();
 }
 
 int Mapcontainer::height ()
 {
-  return layers->at(0)->getheight();
+  return layers->at(0)->getHeight();
 }

@@ -1,20 +1,20 @@
-(defcppclass layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
-  (declare-class "map")
+(defcppclass Layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
+  (declare-class "Map" "Tile")
   (public
    (fields
-    (std__vector<std__vector<tile>>* tiles nullptr))
+    (std__vector<std__vector<Tile>>* tiles nullptr))
    (properties
     (std__string name ""))
    (functions
     (int getWidth (void))
     (int getHeight (void)))
    (functions
-    (void set_parent (map* p)))
+    (void set_parent (Map* p)))
    (functions
-    (map* parent (void))))
+    (Map* parent (void))))
   (protected
    (fields
-    (int W 0)
-    (int H 0)
-    (map* p nullptr)))) 
+    (int w 0)
+    (int h 0)
+    (Map* p nullptr)))) 
   

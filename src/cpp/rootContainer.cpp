@@ -4,7 +4,7 @@
 Rootcontainer::Rootcontainer(): root()
 {
   // TODO replace with a vector<unique_pointer<map*>> or smthng which doesn't leak like a sieve
-  all_maps = new std::vector<map*>;
+  all_maps = new std::vector<Map*>;
 }
 
 Rootcontainer::~Rootcontainer()
