@@ -267,10 +267,9 @@ Propertierbase::~Propertierbase()
                                    (str "virtual void set(const char* propertyname, " type " value) {
 " (->> props
        (map (fn [{:keys [form]}]
-              (let [[prop-type prop-name _] form
-                    prop-name ((comp str/capitalize name) prop-name)]
+              (let [[prop-type prop-name _] form]
                 (str
-                 "if(strcmp(propertyname, \"" prop-name "\") == 0) { " prop-name"_field = value; return; }"))))
+                 "if(strcmp(propertyname, \"" prop-name "\") == 0) { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
        (str/join "\n"))
                                         " }")))
                           (str/join "\n"))
@@ -280,11 +279,10 @@ Propertierbase::~Propertierbase()
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
-                                                  (let [[_ prop-name _ ] form
-                                                        prop-name ((comp str/capitalize name) prop-name)]
+                                                  (let [[_ prop-name _ ] form]
                                                     (str "if(strcmp(propertyname, \"" prop-name "\") == 0) {
   *success = true;
-  return " prop-name "_field;
+  return " (-> prop-name name str/capitalize) "_field;
 }"))))
                                            (str/join "\n"))
                                       " *success = false; " type " invalid_data; return invalid_data;
