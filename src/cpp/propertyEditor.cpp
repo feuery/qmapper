@@ -19,12 +19,12 @@ either<bool, std::string> getStringProp(Propertierbase* base, const char *propna
   return result;
 }
 
+void editingStdStringFinished(Propertierbase *base, const char *propname, QLineEdit *edit) {
+  base->set(propname, edit->text().toStdString());
+}
+
 Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
 {
-  std::string helper;
-  bool success;
-
-
   const char **properties = base->names();
   
   QVBoxLayout *l = new QVBoxLayout(this);
@@ -35,6 +35,10 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
       auto any = getStringProp(base, properties[i]);
       QLineEdit *edit = any.a ? new QLineEdit(QString(any.b.c_str()), this):
 	new QLineEdit("Failed getting prop", this);
+
+      connect(edit, &QLineEdit::editingFinished,
+      	      [=]() { editingStdStringFinished(base, properties[i], edit); });
+      
       data->addRow(properties[i], edit);
     }
   }
@@ -55,5 +59,11 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
 
 Propertyeditor::~Propertyeditor()
 {
-  delete lbl;
+}
+
+void Propertyeditor::showEvent( QShowEvent* aShowEvent )
+{
+    QDialog::showEvent( aShowEvent );
+    activateWindow();
+    setFocus(Qt::ActiveWindowFocusReason);
 }

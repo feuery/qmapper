@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QVBoxLayout>
+#include <QShowEvent>
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -15,10 +16,11 @@ public:
 
   Propertyeditor(Propertierbase* base, QWidget *parent);
   ~Propertyeditor();
+
+  virtual void showEvent(QShowEvent *e);
   
 private:
 
-  QLabel *lbl;
 };
 
 #endif //PROPERTYEDITOR_H

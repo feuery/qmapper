@@ -1,5 +1,6 @@
 #include <QDebug>
 #include <QHBoxLayout>
+#include <QLineEdit>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPushButton>
@@ -40,6 +41,13 @@ QGroupBox* MainWindow::toolbox()
   btn2("A", l);
   btn2("Dynamically built", l);
   btn2("Toolbox list", l);
+
+  QLineEdit *lol = new QLineEdit(this);
+  lol->setFocus();
+  lol->setPlaceholderText("Would you please capture events?");
+  lol->setReadOnly(false);
+  l->addWidget(lol);
+  
   grp->setLayout(l);
   return grp;
 }
