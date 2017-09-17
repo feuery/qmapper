@@ -186,6 +186,34 @@
 virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type type type)))
        (str/join "")))
 
+(defn typefy-param-list [param-list]
+  (try
+    (cond
+      (empty? param-list) param-list
+      (= (count param-list) 1) (seq [(typesymbol->str (first param-list))])
+      :t (try (clojure.pprint/cl-format nil "~{~s ~s~^, ~}" 
+                                        (loop [param-list param-list
+                                               index 0
+                                               acc []]
+                                          (if-not (empty? param-list)
+                                            (recur (rest param-list)
+                                                   (inc index)
+                                                   (if (even? index)
+                                                     (conj acc (symbol (typesymbol->str (first param-list))))
+                                                     (conj acc (first param-list))))
+                                            (seq acc))))
+              
+              (catch Exception ex
+                (clojure.pprint/pprint ex)
+                (println "Param-list: ")
+                (clojure.pprint/pprint param-list)
+                ""
+                #_(throw ex))))
+    (catch Exception ex
+      (clojure.pprint/pprint ex)
+      (clojure.pprint/pprint param-list)
+      "")))
+
 (defn get-set-strs-implementation [types]
   (->> types
        (map typesymbol->str)
@@ -256,6 +284,20 @@ Propertierbase::~Propertierbase()
      :implementation cpp}))
 
 
+#_(codegen (assoc (tokenize
+    '(defcppclass Tileset ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>") 
+       (public
+        (fields
+         (GLuint vao_handle 0)
+         (GLuint shader_handle 0))    
+        (functions
+         (void render (QOpenGLFunctions_4_3_Core *f))
+         ;; TODO Fix compiler to tokenize 'const char*' as a single type
+         (void setVertexShader (std__string& shader))
+         (void setFragmentShader (std__string& shader))))))
+                :filename "lollero"))
+
+
 (defn codegen [{:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
   (let [props (get-properties tokenized-class)
         props-by-types (->> props
@@ -301,7 +343,7 @@ Propertierbase::~Propertierbase()
                        
                        ";\nclass " class-name ": public Propertierbase {\n " (->> forms
                                                            (map (fn [{:keys [form privacy type]}]
-                                                                  (format "%s: %s" privacy 
+                                                                  (format "%s: %s" privacy
                                                                           (case type
                                                                             fields (let [[type name default-val] form]
                                                                                      (format "%s %s = %s;" 
@@ -311,7 +353,8 @@ Propertierbase::~Propertierbase()
                                                                             functions (let [[return-type name param-list] form]
                                                                                         (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
                                                                                                 name
-                                                                                                param-list))
+                                                                                                (typefy-param-list 
+                                                                                                 param-list)))
 
                                                                             properties (let [[prop-type prop-name default-val] form
                                                                                              prop-type (typesymbol->str prop-type)
