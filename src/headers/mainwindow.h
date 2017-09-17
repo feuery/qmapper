@@ -28,7 +28,8 @@ private:
 
   Ui::MainWindow ui;
   
-  Renderer *r;
+  Renderer *map_view;
+  Renderer *tileset_view;
   Guile_Thread t;
   editorController *ec;
   QGroupBox* toolbox();

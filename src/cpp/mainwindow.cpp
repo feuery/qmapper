@@ -74,8 +74,8 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   ui.setupUi(this);
   ec->registerWindow(this);
 
-  
-  r = new Renderer;
+  map_view = new Renderer;
+  tileset_view = new Renderer;
 
   QWidget *tb = new QWidget(this);
   tb->setMaximumSize(200, INT_MAX);
@@ -103,8 +103,12 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   tb->setLayout(toolbox_layout);;
 
+  QSplitter *splitter = new QSplitter(Qt::Vertical, this);
+  splitter->addWidget(map_view);
+  splitter->addWidget(tileset_view);
+
   ui.splitter->addWidget(tb);
-  ui.splitter->addWidget(r);
+  ui.splitter->addWidget(splitter);
   
   t.start();
 }
@@ -122,7 +126,7 @@ void MainWindow::setTexture_clicked(bool checked)
 {
   QString texture_path = QFileDialog::getOpenFileName(NULL, "Open a texture file", "~", "Images (*.png *.jpeg *.jpg *.bmp");
   
-  r->texturizeDrawingQueue(texture_path);
+  map_view->texturizeDrawingQueue(texture_path);
 }  
 
 void MainWindow::registerController(editorController *ec)
