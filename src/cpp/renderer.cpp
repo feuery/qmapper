@@ -8,7 +8,7 @@
 
 Renderer::Renderer(): QOpenGLWidget()
 {
-  grabKeyboard();
+  // grabKeyboard();
   
   QSurfaceFormat format;
   format.setDepthBufferSize(24);
