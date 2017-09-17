@@ -37,7 +37,7 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
 	new QLineEdit("Failed getting prop", this);
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { editingStdStringFinished(base, properties[i], edit); });
+      	      [=]() { if(any.a) editingStdStringFinished(base, properties[i], edit); });
       
       data->addRow(properties[i], edit);
     }
@@ -64,6 +64,6 @@ Propertyeditor::~Propertyeditor()
 void Propertyeditor::showEvent( QShowEvent* aShowEvent )
 {
     QDialog::showEvent( aShowEvent );
-    activateWindow();
-    setFocus(Qt::ActiveWindowFocusReason);
+    // activateWindow();
+    // setFocus(Qt::ActiveWindowFocusReason);
 }

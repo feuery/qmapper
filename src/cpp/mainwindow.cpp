@@ -41,12 +41,6 @@ QGroupBox* MainWindow::toolbox()
   btn2("A", l);
   btn2("Dynamically built", l);
   btn2("Toolbox list", l);
-
-  QLineEdit *lol = new QLineEdit(this);
-  lol->setFocus();
-  lol->setPlaceholderText("Would you please capture events?");
-  lol->setReadOnly(false);
-  l->addWidget(lol);
   
   grp->setLayout(l);
   return grp;
@@ -59,7 +53,7 @@ void MainWindow::editObject()
   // And update this pointer's data in-between the model's begin-row-update-thing
   Propertierbase *b = static_cast<Propertierbase*>(l.internalPointer());
   Propertyeditor *p = new Propertyeditor(b, this);
-  p->showMaximized();
+  p->show();
 }
 
 void MainWindow::setupTreeCtxMenu()
