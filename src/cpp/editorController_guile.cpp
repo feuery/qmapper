@@ -39,4 +39,33 @@ extern "C" {
     return SCM_BOOL_T;
     
   }
+
+  SCM delete_map(SCM index_scm)
+  {
+    int index = scm_to_int(index_scm);
+    if(! (index >= 0 && index < editorController::instance->document.all_maps->size())) return SCM_BOOL_F;
+    editorController::instance->documentTreeModel->begin(index);
+    auto *doc = editorController::instance->document.all_maps;
+    doc->erase(doc->begin()+index);
+    editorController::instance->documentTreeModel->end();
+    return SCM_BOOL_T;
+  }
+
+  SCM delete_layer(SCM map_index_scm, SCM layer_index_scm)
+  {
+    uint map_index = (uint)scm_to_int(map_index_scm),
+      layer_index = (uint)scm_to_int(layer_index_scm);
+    
+    if(! (map_index >= 0 && map_index < editorController::instance->document.all_maps->size())) return SCM_BOOL_F;
+
+    editorController::instance->documentTreeModel->beginMap(map_index);
+    std::vector<Layer*>* layerset = editorController::instance->document.all_maps->at(map_index)->layers;
+
+    if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
+
+    layerset->erase(layerset->begin() + layer_index);
+    editorController::instance->documentTreeModel->end();
+
+    return SCM_BOOL_T;
+  }
 }
