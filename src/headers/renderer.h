@@ -11,13 +11,6 @@ class Renderer : public QOpenGLWidget {
 public:
   Renderer();
   ~Renderer();
-
-  // At some point we'll separate drawingqueue from the renderer
-  void texturizeDrawingQueue(QString& texture_path);
-
-protected:
-  virtual void mouseMoveEvent(QMouseEvent * event);
-  virtual void keyReleaseEvent(QKeyEvent *e);						  
   
 protected slots:
   virtual void paintGL();
@@ -27,8 +20,6 @@ protected slots:
 private:
   float r = 0.0f;
   QTimer timer;
-
-  immutable_obj* nearestObj(float mouse_x, float mouse_y);
   
   QVector<immutable_obj*> objects;
 };

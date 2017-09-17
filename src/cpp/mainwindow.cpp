@@ -82,11 +82,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   QVBoxLayout *toolbox_layout = new QVBoxLayout(this);
   toolbox_layout->setSpacing(0);
 
-  QPushButton *btn_texture = new QPushButton("Set texture to all surfaces ", this);
-  btn_texture->setMaximumWidth(btnW);
-  btn_texture->setMaximumHeight(btnH);
-  connect(btn_texture, &QPushButton::clicked, this, &MainWindow::setTexture_clicked);
-  toolbox_layout->addWidget(btn_texture);
   toolbox_layout->addWidget(toolbox());
   
   btn("Resize map");
@@ -120,14 +115,7 @@ MainWindow::~MainWindow()
     qDebug()<<"Terminating guile_thread";
     t.terminate();
   }
-}
-
-void MainWindow::setTexture_clicked(bool checked)
-{
-  QString texture_path = QFileDialog::getOpenFileName(NULL, "Open a texture file", "~", "Images (*.png *.jpeg *.jpg *.bmp");
-  
-  map_view->texturizeDrawingQueue(texture_path);
-}  
+} 
 
 void MainWindow::registerController(editorController *ec)
 {

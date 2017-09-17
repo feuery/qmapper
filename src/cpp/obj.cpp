@@ -18,8 +18,6 @@ immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
   else
     qDebug() << "Loading shaders succeded";
 
-  // setLocation({0.0f, 0.0f, 0.0f});
-  // setup_texture(f, texture_path);
 }
 
 immutable_obj::~immutable_obj() {
@@ -44,24 +42,18 @@ void immutable_obj::setup_texture(QOpenGLFunctions_4_3_Core *f, const char* file
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   unsigned char* img = SOIL_load_image(filename, &text_w, &text_h, 0, SOIL_LOAD_AUTO);
-  qDebug() << "SOIL_last_result: " << SOIL_last_result();
   if(img) {
     f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, text_w, text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
     f->glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(img);
     f->glBindTexture(GL_TEXTURE_2D, 0);
 
-    qDebug() << "Set up a texture from " << filename;
     return;
   }
 }
 
 void immutable_obj::setPixelLocation(Point3D p, int container_w, int container_h)
 {
-  // GLfloat v[] = {p.x, p.y, p.z, 1.0f};
-  // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
-  // f->glUniform4fv(loc_uniform, 4, v);
-  // qDebug()<<"New Location is " << p.x << ", " << p.y << ", " << p.z;
   newPXLoc = p;
   float x = p.x,
     y = p.y;
@@ -73,10 +65,6 @@ void immutable_obj::setPixelLocation(Point3D p, int container_w, int container_h
 Point3D immutable_obj::getPixelLocation()
 {
   return newPXLoc;
-  // GLfloat v[4];
-  // auto loc_uniform = f->glGetUniformLocation(shader_handle, "loc");
-  // f->glGetUniformfv(shader_handle, loc_uniform, v);
-  // return {v[0], v[1], v[2]};
 }
 
 Point3D immutable_obj::getGLLocation()
@@ -125,8 +113,6 @@ bool immutable_obj::reload_shaders(QOpenGLFunctions_4_3_Core *f)
 
     f->glDeleteShader(vShader);
     f->glDeleteShader(fShader);
-
-    printf("Shaders loaded at paths %s, %s", vertex_shader_path, fragment_shader_path);
     
     return shader_loaded = true;
   }

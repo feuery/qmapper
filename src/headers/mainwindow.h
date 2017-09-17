@@ -21,8 +21,6 @@ public:
   ~MainWindow();
 
   void registerController(editorController *ec);
-public slots:
-  void setTexture_clicked(bool checked);
   
 private:
 
