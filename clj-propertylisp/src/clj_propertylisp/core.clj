@@ -50,31 +50,29 @@
       name
       (str/replace #"__" "::")))
 
-(def test-data '(defcppclass map ("<root.h>" "<layer.h>" "<vector>" "<string>")
-                  (declare-class "root" "layer")
-                  (public
-                   (fields
-                    (std__vector<Layer*>* layers nullptr))
-                   (properties
-                    (std__string name "Map 1"))
-                   (functions
-                    (void parent (root* p)))
-                   (functions
-                    (int width (void ))
-                    (int height (void))
-                    (root* parent (void))))
-                  
-                  (private
-                   (fields
-                    (std__vector<Layer*>* layers nullptr))
-                   (properties
-                    (int name "Map 1"))
-                   (functions
-                    (void parent (root* p)))
-                   (functions
-                    (int width (void ))
-                    (int height (void))
-                    (root* parent (void))))))
+(def test-data '(defcppclass Layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
+  (declare-class "Map" "Tile")
+  (public
+   (fields
+    (std__vector<std__vector<Tile>>* tiles nullptr))
+   (properties
+    (std__string name ""))
+   (functions
+    (void set_parent (Map* p)))
+   (functions
+    (int getWidth ())
+    (int getHeight ())
+    (Map* parent ())))
+  (protected
+   (fields
+    (int w 0)
+    (int h 0)
+    (Map* p nullptr)))) )
+
+
+#_(:header (codegen (assoc (tokenize test-data) :filename "lol.def")))
+
+
 (def another-test '(defcppclass layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
                      (declare-class "map")
                      (public
@@ -191,7 +189,7 @@ virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type
     (cond
       (empty? param-list) param-list
       (= (count param-list) 1) (seq [(typesymbol->str (first param-list))])
-      :t (try (clojure.pprint/cl-format nil "~{~s ~s~^, ~}" 
+      :t (try (clojure.pprint/cl-format nil "(~{~s ~s~^, ~})" 
                                         (loop [param-list param-list
                                                index 0
                                                acc []]
@@ -282,20 +280,6 @@ Propertierbase::~Propertierbase()
                         get-set-strs-implementation))]
     {:header header
      :implementation cpp}))
-
-
-#_(codegen (assoc (tokenize
-    '(defcppclass Tileset ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>") 
-       (public
-        (fields
-         (GLuint vao_handle 0)
-         (GLuint shader_handle 0))    
-        (functions
-         (void render (QOpenGLFunctions_4_3_Core *f))
-         ;; TODO Fix compiler to tokenize 'const char*' as a single type
-         (void setVertexShader (std__string& shader))
-         (void setFragmentShader (std__string& shader))))))
-                :filename "lollero"))
 
 
 (defn codegen [{:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
