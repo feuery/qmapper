@@ -367,7 +367,17 @@ virtual %s get%s();
                                 (str/join "\n"))
                            "return \"\";\n}\n"
                            
-                           "\n};\n#endif")
+                           "\n};\n\n"
+                           class-name "* to" (str/capitalize class-name) "(Propertierbase *b) {
+if(strcmp(b->type_identifier(), \"class-name\") == 0) {
+  return static_cast<" class-name "*>(b);
+}
+else {
+printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier());
+throw \"\";
+}
+}\n"
+                           "\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
 
