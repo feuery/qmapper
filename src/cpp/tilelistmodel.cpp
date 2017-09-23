@@ -18,7 +18,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   if(parent == nullptr) {
     throw "";
   }
-  const char* type = parent->type_identifier();
+  const char* type = parent->type_identifier().get().c_str();
   
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(parent);
@@ -57,7 +57,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
 {
   Propertierbase *base = getparent(qparent);
   
-  const char *type = base->type_identifier();
+  const char *type = base->type_identifier().get().c_str();
   
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(base);
@@ -79,7 +79,7 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(role != Qt::DisplayRole) return QVariant();
   
   Propertierbase *base = getparent(index);
-  const char *type = base->type_identifier();
+  const char *type = base->type_identifier().get().c_str();
   int row = index.row();
 
   if(strcmp(type, "root") == 0) {
@@ -115,7 +115,7 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   Propertierbase *obj = getparent(index);
   if(obj == Root) return QModelIndex();
 
-  const char* type = obj->type_identifier();
+  const char* type = obj->type_identifier().get().c_str();
 
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(obj);
