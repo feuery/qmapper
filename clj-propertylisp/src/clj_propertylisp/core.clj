@@ -48,7 +48,8 @@
 (defn typesymbol->str [type]
   (-> type
       name
-      (str/replace #"__" "::")))
+      (str/replace #"__" "::")
+      (str/replace #"_" ", ")))
 
 (def test-data '(defcppclass Layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
   (declare-class "Map" "Tile")
