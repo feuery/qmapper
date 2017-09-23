@@ -254,18 +254,18 @@ virtual ~Propertierbase ();
 
   virtual flyweight<std::string> getId() 
   {
-    return id_field;
+    return Id_field;
   }
 
   virtual void setId(flyweight<std::string> v) 
 {
-  id_field = v;
+  Id_field = v;
 }
 
 %s
 
-private:
-  flyweight<std::string> id_field = flyweight<std::string>(std::to_string(rand()));
+protected:
+  flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
 
 };
 #endif"
@@ -300,7 +300,8 @@ Propertierbase::~Propertierbase()
 
 
 (defn codegen [{:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
-  (let [props (get-properties tokenized-class)
+  (let [props (conj (get-properties tokenized-class)
+                    {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})
         props-by-types (->> props
                             (group-by (comp first :form))
                             (map-keys typesymbol->str))
@@ -344,30 +345,29 @@ Propertierbase::~Propertierbase()
                             (map (partial str "class "))
                             (str/join ";\n"))
                        
-                       ";\nclass " class-name ": public Propertierbase {\n " (->> forms #_(conj forms {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})
-                                                                                  
-                                                           (map (fn [{:keys [form privacy type]}]
-                                                                  (format "%s: %s" privacy
-                                                                          (case type
-                                                                            fields (let [[type name default-val] form]
-                                                                                     (format "%s %s = %s;" 
-                                                                                             (typesymbol->str type)
-                                                                                             name
-                                                                                             default-val))
-                                                                            functions (let [[return-type name param-list] form]
-                                                                                        (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
-                                                                                                name
-                                                                                                (typefy-param-list 
-                                                                                                 param-list)))
+                       ";\nclass " class-name ": public Propertierbase {\n " (->> forms
+                                                                                  (map (fn [{:keys [form privacy type]}]
+                                                                                         (format "%s: %s" privacy
+                                                                                                 (case type
+                                                                                                   fields (let [[type name default-val] form]
+                                                                                                            (format "%s %s = %s;" 
+                                                                                                                    (typesymbol->str type)
+                                                                                                                    name
+                                                                                                                    default-val))
+                                                                                                   functions (let [[return-type name param-list] form]
+                                                                                                               (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
+                                                                                                                       name
+                                                                                                                       (typefy-param-list 
+                                                                                                                        param-list)))
 
-                                                                            properties (let [[prop-type prop-name default-val] form
-                                                                                             prop-type (typesymbol->str prop-type)
-                                                                                             prop-name ((comp str/capitalize name) prop-name)]
-                                                                                         (format "virtual void set%s(%s val);
+                                                                                                   properties (let [[prop-type prop-name default-val] form
+                                                                                                                    prop-type (typesymbol->str prop-type)
+                                                                                                                    prop-name ((comp str/capitalize name) prop-name)]
+                                                                                                                (format "virtual void set%s(%s val);
 virtual %s get%s();
 %s %s_field = %s;" prop-name prop-type
-                                                                                                 prop-type prop-name
-                                                                                                 prop-type prop-name (pr-str default-val)))))))
+                                                                                                                        prop-type prop-name
+                                                                                                                        prop-type prop-name (pr-str default-val)))))))
                                                            (str/join "\n"))
                            set-contents
                            get-contents
@@ -408,12 +408,14 @@ throw \"\";
                                           (map (fn [{:keys [form]}]
                                                  (let [[_ prop-name _] form
                                                        prop-name ((comp str/capitalize name) prop-name)]
-                                                   (str "void " class-name "::set" prop-name "(" type " val) {
+                                                   (if (not= prop-name "Id")
+                                                     (str "void " class-name "::set" prop-name "(" type " val) {
 " prop-name "_field = val;
 }
                                                         " type " " class-name "::get" prop-name "() {
 return " prop-name "_field;
-}"))))
+}")
+                                                     ""))))
                                           (str/join "\n"))))
                               (str/join "\n"))"
 "
@@ -490,3 +492,13 @@ return " prop-name "_field;
 (defn -main [input output]
   (println "Starting compilation daemon which compiles " input "->" output)
   (start-compilation-d! input output))
+
+(def tile '(defcppclass Tile ()
+  (public
+   (properties
+    (int x 0)
+    (int y 0)
+    (int tileset 0)
+    (int rotation 0)))))
+
+(:header (codegen (assoc (tokenize tile) :filename "tile.def")))
