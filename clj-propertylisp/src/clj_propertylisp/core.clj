@@ -72,7 +72,6 @@
 
 #_(:header (codegen (assoc (tokenize test-data) :filename "lol.def")))
 
-
 (def another-test '(defcppclass layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
                      (declare-class "map")
                      (public
@@ -180,8 +179,8 @@
   (->> types
        (map typesymbol->str)
        (map (fn [type]
-              (format "virtual void set(const char *propertyname, %s value);
-virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type type type)))
+              (format "virtual void set(flyweight<std::string>propertyname, %s value);
+virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper);\n" type type type)))
        (str/join "")))
 
 (defn typefy-param-list [param-list]
@@ -216,12 +215,12 @@ virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type
   (->> types
        (map typesymbol->str)
        (map (fn [type]
-              (format "void Propertierbase::set(const char *propertyname, %s value) 
+              (format "void Propertierbase::set(flyweight<std::string>propertyname, %s value) 
 {
 
 }
 
-%s Propertierbase::get(const char *propertyname, bool *success, %s type_helper)
+%s Propertierbase::get(flyweight<std::string>propertyname, bool *success, %s type_helper)
 {
 
 }\n" type type type)))
@@ -239,16 +238,34 @@ virtual %s get(const char *propertyname, bool *success, %s type_helper);\n" type
 
 %s
 
+#include <cstdlib>
+
+using namespace boost::flyweights;
+
 class Propertierbase 
 {
 public:
 Propertierbase ();
 virtual ~Propertierbase ();
-  virtual const char* type_name(const char* propertyname) = 0;
-  virtual const char** names() = 0;
-  virtual const char* type_identifier() = 0;
+  virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) = 0;
+  virtual std::vector<flyweight<std::string>> names() = 0;
+  virtual flyweight<std::string> type_identifier() = 0;
   virtual int property_count() = 0;
+
+  virtual flyweight<std::string> getId() 
+  {
+    return id_field;
+  }
+
+  virtual void setId(flyweight<std::string> v) 
+{
+  id_field = v;
+}
+
 %s
+
+private:
+  flyweight<std::string> id_field = flyweight<std::string>(std::to_string(rand()));
 
 };
 #endif"
@@ -290,23 +307,23 @@ Propertierbase::~Propertierbase()
         
         set-contents (->> props-by-types
                           (map (fn [[type props]]
-                                   (str "virtual void set(const char* propertyname, " type " value) {
+                                   (str "virtual void set(flyweight<std::string> propertyname, " type " value) {
 " (->> props
        (map (fn [{:keys [form]}]
               (let [[prop-type prop-name _] form]
                 (str
-                 "if(strcmp(propertyname, \"" prop-name "\") == 0) { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
+                 "if(propertyname == std::string(\"" prop-name "\")) { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
        (str/join "\n"))
                                         " }")))
                           (str/join "\n"))
         get-contents (->> props-by-types
                           (map (fn [[type props]]
-                                 (str "virtual " type " get(const char* propertyname, bool *success, " type " type_helper) {
+                                 (str "virtual " type " get(flyweight<std::string> propertyname, bool *success, " type " type_helper) {
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
                                                   (let [[_ prop-name _ ] form]
-                                                    (str "if(strcmp(propertyname, \"" prop-name "\") == 0) {
+                                                    (str "if(propertyname == std::string(\"" prop-name "\")) {
   *success = true;
   return " (-> prop-name name str/capitalize) "_field;
 }"))))
@@ -317,6 +334,8 @@ Propertierbase::~Propertierbase()
                           
         class-content (str "#ifndef " class-name "e\n#define " class-name "e\n"
                            "\n#include<propertierbase.h>\n"
+                           "\n#include<boost/flyweight.hpp>\n"
+                           "using namespace boost::flyweights;\n"
                        (->> includes
                             (map (partial str "#include" ))
                             (str/join "\n"))
@@ -325,7 +344,8 @@ Propertierbase::~Propertierbase()
                             (map (partial str "class "))
                             (str/join ";\n"))
                        
-                       ";\nclass " class-name ": public Propertierbase {\n " (->> forms
+                       ";\nclass " class-name ": public Propertierbase {\n " (->> forms #_(conj forms {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})
+                                                                                  
                                                            (map (fn [{:keys [form privacy type]}]
                                                                   (format "%s: %s" privacy
                                                                           (case type
@@ -352,28 +372,28 @@ virtual %s get%s();
                            set-contents
                            get-contents
                            "\npublic: " class-name "();\n"
-                           "\nconst char * r[" (count props) "];"
-                           "\nconst char** names() { return r; }\n"
-                           "\nvirtual const char* type_identifier() { return \"" class-name "\"; }"
+                           "\nstd::vector<flyweight<std::string>> r;"
+                           "\nstd::vector<flyweight<std::string>> names() { return r; }\n"
+                           "\nvirtual flyweight<std::string> type_identifier() { return flyweight<std::string>(\"" class-name "\"); }"
                            "\nvirtual int property_count() { return " (count props) "; }"
-                           "\nvirtual const char* type_name(const char *propertyname) {\n"
+                           "\nvirtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {\n"
 
                            (->> props-by-types
                                 (map (fn [[type props]]
                                        (->> props
                                             (map (fn [{[_ prop-name _] :form}]
-                                                   (str "if(strcmp(propertyname, \"" prop-name "\") == 0) return \"" type "\";")))
+                                                   (str "if(propertyname == std::string(\"" prop-name "\")) return flyweight<std::string>(\"" type "\");")))
                                             (str/join "\n"))))
                                 (str/join "\n"))
-                           "return \"\";\n}\n"
+                           "return flyweight<std::string>(\"\");\n}\n"
                            
                            "\n};\n\n"
                            class-name "* to" (str/capitalize class-name) "(Propertierbase *b) {
-if(strcmp(b->type_identifier(), \"class-name\") == 0) {
+if(b->type_identifier() == std::string(\"class-name\")) {
   return static_cast<" class-name "*>(b);
 }
 else {
-printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier());
+printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().get().c_str());
 throw \"\";
 }
 }\n"
@@ -401,7 +421,7 @@ return " prop-name "_field;
 "
                          (->> props
                               (map-indexed (fn [index {[_ prop-name] :form}]
-                                             (str "r[" index "] = \"" prop-name "\";")))
+                                             (str "r.push_back(flyweight<std::string>(std::string(\"" prop-name "\")));")))
                               (str/join "\n")) "
 }")]
     {:header class-content
