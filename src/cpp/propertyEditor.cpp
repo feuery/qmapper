@@ -2,6 +2,8 @@
 #include <QLabel>
 #include <propertyEditor.h>
 #include <QLineEdit>
+#include <root.h>
+#include <editorController.h>
 
 template<typename T, typename E>
 struct either
@@ -43,6 +45,12 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
       data->addRow(QString(properties.at(i).get().c_str()), edit);
     }
   }
+
+  root *r = &editorController::instance->document;
+  
+  data->addRow(QString("Row: "),
+	       new QLabel(QString(std::to_string(r->rowOf(base->getId())).c_str()), this));
+  data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
   
   QHBoxLayout *buttons = new QHBoxLayout(this);
 
