@@ -82,14 +82,21 @@ void MainWindow::setupTreeCtxMenu()
   tree.addAction(edit);
   QMenu *newMenu = new QMenu(this);
 
-  QAction *glsl = new QAction("&GLSL", this);
+  QAction *glsl = new QAction("&GLSL", this),
+    *scheme = new QAction("&Scheme", this);
+  
   glsl->setStatusTip("New GLSL-script asset");
+  scheme->setStatusTip("New Scheme asset");
 
-  connect(glsl, &QAction::triggered, [=]() {
+  connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
+    });
+  connect(scheme, &QAction::triggered, []() {
+      add_scheme_script();
     });
 
   newMenu->addAction(glsl);
+  newMenu->addAction(scheme);
 
   QAction *newMenu_act = new QAction("&New", this);
   newMenu_act->setMenu(newMenu);
