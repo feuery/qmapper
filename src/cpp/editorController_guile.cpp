@@ -93,4 +93,18 @@ extern "C" {
 
     return SCM_BOOL_T;
   }
+
+  SCM add_scheme_script()
+  {
+    editorController::instance->documentTreeModel->begin();
+
+    Script *scrpt = new Script;
+    scrpt->setScript_type(scheme);
+    scrpt->setName("A new Scheme script");
+    
+    (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
+    editorController::instance->documentTreeModel->end();
+
+    return SCM_BOOL_T;
+  }
 }

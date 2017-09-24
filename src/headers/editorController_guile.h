@@ -11,6 +11,7 @@ extern "C" {
   SCM delete_root_index(SCM index);
   SCM delete_layer(SCM map_index, SCM layer_index);
   SCM add_glsl_script();
+  SCM add_scheme_script();
 }
 
 #endif //EDITORCONTROLLER_GUILE_H
