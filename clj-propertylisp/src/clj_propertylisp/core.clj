@@ -389,15 +389,7 @@ virtual %s get%s();
                            "return flyweight<std::string>(\"\");\n}\n"
                            
                            "\n};\n\n"
-                           class-name "* to" (str/capitalize class-name) "(Propertierbase *b) {
-if(b->type_identifier() == std::string(\"" class-name "\")) {
-  return static_cast<" class-name "*>(b);
-}
-else {
-printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().get().c_str());
-throw \"\";
-}
-}\n"
+                           class-name "* to" (str/capitalize class-name) "(Propertierbase *b);"
                            "\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
@@ -426,7 +418,17 @@ return " prop-name "_field;
                               (map-indexed (fn [index {[_ prop-name] :form}]
                                              (str "r.push_back(flyweight<std::string>(std::string(\"" prop-name "\")));")))
                               (str/join "\n")) "
-}")]
+}"
+class-name "* to" (str/capitalize class-name) "(Propertierbase *b)
+ {
+if(b->type_identifier() == std::string(\"" class-name "\")) {
+  return static_cast<" class-name "*>(b);
+}
+else {
+printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().get().c_str());
+throw \"\";
+}
+}\n")]
     {:header class-content
      :implementation cpp-content}))
 
