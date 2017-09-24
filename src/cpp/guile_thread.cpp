@@ -8,7 +8,7 @@
 static void* register_functions(void* data) {
   scm_c_define_gsubr("add-map!", 3, 0, 0, reinterpret_cast<scm_t_subr>(add_map));
   scm_c_define_gsubr("add-layer!", 1, 0, 0, reinterpret_cast<scm_t_subr>(add_layer));
-  scm_c_define_gsubr("delete-map!", 1, 0, 0, reinterpret_cast<scm_t_subr>(delete_map));
+  scm_c_define_gsubr("delete-root-index!", 1, 0, 0, reinterpret_cast<scm_t_subr>(delete_root_index));
   scm_c_define_gsubr("delete-layer!", 2, 0, 0, reinterpret_cast<scm_t_subr>(delete_layer));
   return NULL;
 }

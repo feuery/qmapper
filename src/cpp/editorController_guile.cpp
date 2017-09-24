@@ -7,13 +7,13 @@ extern "C" {
       h = scm_to_int(s_h),
       layers = scm_to_int(s_layerCount);
 
-    int count = editorController::instance->document.all_maps->size();
+    int count = editorController::instance->document.registry->size();
 
     Mapcontainer *mc = new Mapcontainer(w, h, layers, &editorController::instance->document);
     mc->setName(QString("Map %1").arg(count).toStdString());
 
     editorController::instance->documentTreeModel->begin(count);
-    editorController::instance->document.all_maps->push_back(mc);
+    (*editorController::instance->document.registry)[mc->getId()] = mc;
     editorController::instance->documentTreeModel->end();
   
     return SCM_BOOL_T;
@@ -22,7 +22,11 @@ extern "C" {
   SCM add_layer(SCM map_index)
   {
     int map_i = scm_to_int(map_index);
-    Map *m = editorController::instance->document.all_maps->at(map_i);
+
+    root &r = editorController::instance->document;
+    auto map_strIndex = r.indexOf(map_i);
+    
+    Map *m =  toMap(r.registry->at(map_strIndex));
     int c = m->layers->size();
     
     // map *m = editorController::instance->document->all_maps->at(map_i);
@@ -40,26 +44,33 @@ extern "C" {
     
   }
 
-  SCM delete_map(SCM index_scm)
+  SCM delete_root_index(SCM index_scm)
   {
     int index = scm_to_int(index_scm);
-    if(! (index >= 0 && index < editorController::instance->document.all_maps->size())) return SCM_BOOL_F;
+    root &r = editorController::instance->document;
+    if(! (index >= 0 && index < r.registry->size())) return SCM_BOOL_F;
     editorController::instance->documentTreeModel->begin(index);
-    auto *doc = editorController::instance->document.all_maps;
-    doc->erase(doc->begin()+index);
+
+    auto strInd = r.indexOf(index);
+    
+    r.registry->erase(strInd);
     editorController::instance->documentTreeModel->end();
     return SCM_BOOL_T;
   }
 
   SCM delete_layer(SCM map_index_scm, SCM layer_index_scm)
   {
-    uint map_index = (uint)scm_to_int(map_index_scm),
-      layer_index = (uint)scm_to_int(layer_index_scm);
+    int map_index = scm_to_int(map_index_scm),
+      layer_index = scm_to_int(layer_index_scm);
+
+    root &r = editorController::instance->document;
     
-    if(! (map_index >= 0 && map_index < editorController::instance->document.all_maps->size())) return SCM_BOOL_F;
+    if(! (map_index >= 0 && map_index < r.registry->size())) return SCM_BOOL_F;
+
+    auto map_ind_str = r.indexOf(map_index);
 
     editorController::instance->documentTreeModel->beginMap(map_index);
-    std::vector<Layer*>* layerset = editorController::instance->document.all_maps->at(map_index)->layers;
+    std::vector<Layer*>* layerset = toMap(r.registry->at(map_ind_str))->layers;
 
     if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
 

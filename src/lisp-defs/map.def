@@ -8,6 +8,6 @@
    (functions
     (void parent (root* p)))
    (functions
-    (int width (void ))
-    (int height (void))
-    (root* parent (void))))) 
+    (int width ())
+    (int height ())
+    (root* parent ()))))  

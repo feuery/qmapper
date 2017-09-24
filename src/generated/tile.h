@@ -3,6 +3,9 @@
 
 #include<propertierbase.h>
 
+#include<boost/flyweight.hpp>
+using namespace boost::flyweights;
+
 #include<cstring>
 ;
 class Tile: public Propertierbase {
@@ -17,41 +20,52 @@ virtual int getTileset();
 int Tileset_field = 0;
 public: virtual void setRotation(int val);
 virtual int getRotation();
-int Rotation_field = 0;virtual void set(const char* propertyname, int value) {
-if(strcmp(propertyname, "x") == 0) { X_field = value; return; }
-if(strcmp(propertyname, "y") == 0) { Y_field = value; return; }
-if(strcmp(propertyname, "tileset") == 0) { Tileset_field = value; return; }
-if(strcmp(propertyname, "rotation") == 0) { Rotation_field = value; return; } }virtual int get(const char* propertyname, bool *success, int type_helper) {
-if(strcmp(propertyname, "x") == 0) {
+int Rotation_field = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+if(propertyname == std::string("Id")) { Id_field = value; return; } }
+virtual void set(flyweight<std::string> propertyname, int value) {
+if(propertyname == std::string("x")) { X_field = value; return; }
+if(propertyname == std::string("y")) { Y_field = value; return; }
+if(propertyname == std::string("tileset")) { Tileset_field = value; return; }
+if(propertyname == std::string("rotation")) { Rotation_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("Id")) {
+  *success = true;
+  return Id_field;
+} *success = false; flyweight<std::string> invalid_data; return invalid_data;
+}
+virtual int get(flyweight<std::string> propertyname, bool *success, int type_helper) {
+if(propertyname == std::string("x")) {
   *success = true;
   return X_field;
 }
-if(strcmp(propertyname, "y") == 0) {
+if(propertyname == std::string("y")) {
   *success = true;
   return Y_field;
 }
-if(strcmp(propertyname, "tileset") == 0) {
+if(propertyname == std::string("tileset")) {
   *success = true;
   return Tileset_field;
 }
-if(strcmp(propertyname, "rotation") == 0) {
+if(propertyname == std::string("rotation")) {
   *success = true;
   return Rotation_field;
 } *success = false; int invalid_data; return invalid_data;
 }
 public: Tile();
 
-const char * r[4];
-const char** names() { return r; }
+std::vector<flyweight<std::string>> r;
+std::vector<flyweight<std::string>> names() { return r; }
 
-virtual const char* type_identifier() { return "Tile"; }
-virtual int property_count() { return 4; }
-virtual const char* type_name(const char *propertyname) {
-if(strcmp(propertyname, "x") == 0) return "int";
-if(strcmp(propertyname, "y") == 0) return "int";
-if(strcmp(propertyname, "tileset") == 0) return "int";
-if(strcmp(propertyname, "rotation") == 0) return "int";return "";
+virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("Tile"); }
+virtual int property_count() { return 5; }
+virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {
+if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
+if(propertyname == std::string("x")) return flyweight<std::string>("int");
+if(propertyname == std::string("y")) return flyweight<std::string>("int");
+if(propertyname == std::string("tileset")) return flyweight<std::string>("int");
+if(propertyname == std::string("rotation")) return flyweight<std::string>("int");return flyweight<std::string>("");
 }
 
 };
+
+Tile* toTile(Propertierbase *b);
 #endif

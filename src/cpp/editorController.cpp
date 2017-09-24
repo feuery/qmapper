@@ -36,7 +36,9 @@ editorController::editorController()
       l->set_parent(m);
       m->layers->push_back(l);
     }
-    document.all_maps->push_back(m);
+    flyweight<std::string> id = m->getId();
+    Propertierbase *b = m;
+    (*document.registry)[id] = b;
   }
 
   documentTreeModel = new Tilelistmodel(&document);

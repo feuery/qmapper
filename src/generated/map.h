@@ -2,6 +2,9 @@
 #define Mape
 
 #include<propertierbase.h>
+
+#include<boost/flyweight.hpp>
+using namespace boost::flyweights;
 #include<root.h>
 #include<layer.h>
 #include<vector>
@@ -15,25 +18,36 @@ public: virtual void setName(std::string val);
 virtual std::string getName();
 std::string Name_field = "Map 1";
 public: virtual void parent (root* p) = 0;
-public: virtual int width (void) = 0;
-public: virtual int height (void) = 0;
-public: virtual root* parent (void) = 0;virtual void set(const char* propertyname, std::string value) {
-if(strcmp(propertyname, "name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
-if(strcmp(propertyname, "name") == 0) {
+public: virtual int width () = 0;
+public: virtual int height () = 0;
+public: virtual root* parent () = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+if(propertyname == std::string("Id")) { Id_field = value; return; } }
+virtual void set(flyweight<std::string> propertyname, std::string value) {
+if(propertyname == std::string("name")) { Name_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("Id")) {
+  *success = true;
+  return Id_field;
+} *success = false; flyweight<std::string> invalid_data; return invalid_data;
+}
+virtual std::string get(flyweight<std::string> propertyname, bool *success, std::string type_helper) {
+if(propertyname == std::string("name")) {
   *success = true;
   return Name_field;
 } *success = false; std::string invalid_data; return invalid_data;
 }
 public: Map();
 
-const char * r[1];
-const char** names() { return r; }
+std::vector<flyweight<std::string>> r;
+std::vector<flyweight<std::string>> names() { return r; }
 
-virtual const char* type_identifier() { return "Map"; }
-virtual int property_count() { return 1; }
-virtual const char* type_name(const char *propertyname) {
-if(strcmp(propertyname, "name") == 0) return "std::string";return "";
+virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("Map"); }
+virtual int property_count() { return 2; }
+virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {
+if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
+if(propertyname == std::string("name")) return flyweight<std::string>("std::string");return flyweight<std::string>("");
 }
 
 };
+
+Map* toMap(Propertierbase *b);
 #endif

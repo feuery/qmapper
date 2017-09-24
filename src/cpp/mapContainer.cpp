@@ -10,7 +10,9 @@ Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapconta
   R = parent;
   for(int i = 0; i < layerCount; i++) {
     Layercontainer *l = new Layercontainer(w, h);
+    l->setName("Layer "+std::to_string(i));
     layers->push_back(l);
+    l->set_parent(this);
   }
 }
 

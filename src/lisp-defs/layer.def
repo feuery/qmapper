@@ -6,12 +6,11 @@
    (properties
     (std__string name ""))
    (functions
-    (int getWidth (void))
-    (int getHeight (void)))
-   (functions
     (void set_parent (Map* p)))
    (functions
-    (Map* parent (void))))
+    (int getWidth ())
+    (int getHeight ())
+    (Map* parent ())))
   (protected
    (fields
     (int w 0)

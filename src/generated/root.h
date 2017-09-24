@@ -2,23 +2,37 @@
 #define roote
 
 #include<propertierbase.h>
-#include<map.h>
-#include<vector>
+
+#include<boost/flyweight.hpp>
+using namespace boost::flyweights;
+#include<propertierbase.h>
+#include<map>
 #include<string>
+#include<boost/flyweight.hpp>
 #include<cstring>
 class Map;
 class root: public Propertierbase {
- public: std::vector<Map*>* all_maps = nullptr;
+ public: std::map<flyweight<std::string>, Propertierbase*>* registry = nullptr;
+public: virtual flyweight<std::string> indexOf (int row) = 0;
+public: virtual int rowOf (flyweight<std::string> id) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+if(propertyname == std::string("Id")) { Id_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("Id")) {
+  *success = true;
+  return Id_field;
+} *success = false; flyweight<std::string> invalid_data; return invalid_data;
+}
 public: root();
 
-const char * r[0];
-const char** names() { return r; }
+std::vector<flyweight<std::string>> r;
+std::vector<flyweight<std::string>> names() { return r; }
 
-virtual const char* type_identifier() { return "root"; }
-virtual int property_count() { return 0; }
-virtual const char* type_name(const char *propertyname) {
-return "";
+virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("root"); }
+virtual int property_count() { return 1; }
+virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {
+if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");return flyweight<std::string>("");
 }
 
 };
+
+root* toRoot(Propertierbase *b);
 #endif

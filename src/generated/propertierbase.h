@@ -1,24 +1,50 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-09-16T12:30:53.294Z
+//// generated at 2017-09-24T08:53:33.648Z
 
+#include<boost/flyweight.hpp>
 #include<string>
+#include<QOpenGLFunctions_4_3_Core>
+#include<map>
+#include<QOpenGLFunctions>
+#include<script-types.h>
+#include<propertierbase.h>
 #include<vector>
+
+#include <cstdlib>
+
+using namespace boost::flyweights;
 
 class Propertierbase 
 {
 public:
 Propertierbase ();
 virtual ~Propertierbase ();
-  virtual const char* type_name(const char* propertyname) = 0;
-  virtual const char** names() = 0;
-  virtual const char* type_identifier() = 0;
+  virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) = 0;
+  virtual std::vector<flyweight<std::string>> names() = 0;
+  virtual flyweight<std::string> type_identifier() = 0;
   virtual int property_count() = 0;
-virtual void set(const char *propertyname, std::string value);
-virtual std::string get(const char *propertyname, bool *success, std::string type_helper);
-virtual void set(const char *propertyname, int value);
-virtual int get(const char *propertyname, bool *success, int type_helper);
 
+  virtual flyweight<std::string> getId() 
+  {
+    return Id_field;
+  }
+
+  virtual void setId(flyweight<std::string> v) 
+{
+  Id_field = v;
+}
+
+virtual void set(flyweight<std::string>propertyname, std::string value);
+virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
+virtual void set(flyweight<std::string>propertyname, scriptTypes value);
+virtual scriptTypes get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper);
+virtual void set(flyweight<std::string>propertyname, int value);
+virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
+
+
+protected:
+  flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
 
 };
 #endif

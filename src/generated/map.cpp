@@ -1,5 +1,6 @@
 #include <map.h>
-////// generated at 2017-09-16T12:30:53.300Z
+////// generated at 2017-09-24T08:53:33.663Z
+
 
 void Map::setName(std::string val) {
 Name_field = val;
@@ -8,5 +9,15 @@ Name_field = val;
 return Name_field;
 }
 Map::Map() {
-r[0] = "name";
+r.push_back(flyweight<std::string>(std::string("Id")));
+r.push_back(flyweight<std::string>(std::string("name")));
+}Map* toMap(Propertierbase *b)
+ {
+if(b->type_identifier() == std::string("Map")) {
+  return static_cast<Map*>(b);
+}
+else {
+printf("\"toMap called with \"%s\"\n", b->type_identifier().get().c_str());
+throw "";
+}
 }

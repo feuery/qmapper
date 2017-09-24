@@ -2,6 +2,9 @@
 #define Layere
 
 #include<propertierbase.h>
+
+#include<boost/flyweight.hpp>
+using namespace boost::flyweights;
 #include<tile.h>
 #include<string>
 #include<vector>
@@ -14,29 +17,40 @@ class Layer: public Propertierbase {
 public: virtual void setName(std::string val);
 virtual std::string getName();
 std::string Name_field = "";
-public: virtual int getWidth (void) = 0;
-public: virtual int getHeight (void) = 0;
 public: virtual void set_parent (Map* p) = 0;
-public: virtual Map* parent (void) = 0;
+public: virtual int getWidth () = 0;
+public: virtual int getHeight () = 0;
+public: virtual Map* parent () = 0;
 protected: int w = 0;
 protected: int h = 0;
-protected: Map* p = nullptr;virtual void set(const char* propertyname, std::string value) {
-if(strcmp(propertyname, "name") == 0) { Name_field = value; return; } }virtual std::string get(const char* propertyname, bool *success, std::string type_helper) {
-if(strcmp(propertyname, "name") == 0) {
+protected: Map* p = nullptr;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+if(propertyname == std::string("Id")) { Id_field = value; return; } }
+virtual void set(flyweight<std::string> propertyname, std::string value) {
+if(propertyname == std::string("name")) { Name_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("Id")) {
+  *success = true;
+  return Id_field;
+} *success = false; flyweight<std::string> invalid_data; return invalid_data;
+}
+virtual std::string get(flyweight<std::string> propertyname, bool *success, std::string type_helper) {
+if(propertyname == std::string("name")) {
   *success = true;
   return Name_field;
 } *success = false; std::string invalid_data; return invalid_data;
 }
 public: Layer();
 
-const char * r[1];
-const char** names() { return r; }
+std::vector<flyweight<std::string>> r;
+std::vector<flyweight<std::string>> names() { return r; }
 
-virtual const char* type_identifier() { return "Layer"; }
-virtual int property_count() { return 1; }
-virtual const char* type_name(const char *propertyname) {
-if(strcmp(propertyname, "name") == 0) return "std::string";return "";
+virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("Layer"); }
+virtual int property_count() { return 2; }
+virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {
+if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
+if(propertyname == std::string("name")) return flyweight<std::string>("std::string");return flyweight<std::string>("");
 }
 
 };
+
+Layer* toLayer(Propertierbase *b);
 #endif

@@ -26,7 +26,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   else if (strcmp(type, "root") == 0) {
     root *r = static_cast<root*>(parent);
-    int rows = r->all_maps->size();
+    int rows = r->registry->size();
     return rows;
   }
   else if(strcmp(type, "Layer") == 0) {
@@ -64,9 +64,11 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
     return createIndex(row, column, m->layers->at(row));
   }
   else if(strcmp(type, "root") == 0) {
-    return createIndex(row, column, Root->all_maps->at(row));
+    auto index = Root->indexOf(row);
+    return createIndex(row, column, Root->registry->at(index));
   }
   else {
+    printf("Unknown type %s\n", type);
     throw "";
   }
   
@@ -119,12 +121,19 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(obj);
-    return createIndex(indexOf(Root->all_maps, m), 0, Root);
+    return createIndex(Root->rowOf(m->getId()), 0, Root);
   }
   else if(strcmp(type, "Layer") == 0) {
     Layer *l = static_cast<Layer*>(obj);
     Map *p = l->parent();
-    int row = indexOf(Root->all_maps, p);
+
+    if(!p) {
+      qDebug() << "Layer " << l << " has invalid parent " << p;
+      return QModelIndex();
+    }
+    // qDebug() << "Trying to get parent of " << p;
+    // qDebug() << ", with id " << p->getId().get().c_str();
+    int row = Root->rowOf(p->getId());
     return createIndex(row, 0, p);
   }
   else {
@@ -149,6 +158,7 @@ void Tilelistmodel::beginMap(int map_row)
 {
   auto root = QModelIndex();
   QModelIndex parent_index = index(map_row, 0, root);
-  int count = Root->all_maps->at(map_row)->layers->size();
+  auto mapId = Root->indexOf(map_row);
+  int count = toMap(Root->registry->at(mapId))->layers->size();
   beginInsertRows(parent_index, count, count+1);
 }

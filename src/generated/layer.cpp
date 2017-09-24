@@ -1,5 +1,6 @@
 #include <layer.h>
-////// generated at 2017-09-16T12:30:53.299Z
+////// generated at 2017-09-24T08:53:33.662Z
+
 
 void Layer::setName(std::string val) {
 Name_field = val;
@@ -8,5 +9,15 @@ Name_field = val;
 return Name_field;
 }
 Layer::Layer() {
-r[0] = "name";
+r.push_back(flyweight<std::string>(std::string("Id")));
+r.push_back(flyweight<std::string>(std::string("name")));
+}Layer* toLayer(Propertierbase *b)
+ {
+if(b->type_identifier() == std::string("Layer")) {
+  return static_cast<Layer*>(b);
+}
+else {
+printf("\"toLayer called with \"%s\"\n", b->type_identifier().get().c_str());
+throw "";
+}
 }

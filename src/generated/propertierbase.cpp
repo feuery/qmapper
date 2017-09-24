@@ -9,21 +9,30 @@ Propertierbase::~Propertierbase()
 
 }
 
-void Propertierbase::set(const char *propertyname, std::string value) 
+void Propertierbase::set(flyweight<std::string>propertyname, std::string value) 
 {
 
 }
 
-std::string Propertierbase::get(const char *propertyname, bool *success, std::string type_helper)
+std::string Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::string type_helper)
 {
 
 }
-void Propertierbase::set(const char *propertyname, int value) 
+void Propertierbase::set(flyweight<std::string>propertyname, scriptTypes value) 
 {
 
 }
 
-int Propertierbase::get(const char *propertyname, bool *success, int type_helper)
+scriptTypes Propertierbase::get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper)
+{
+
+}
+void Propertierbase::set(flyweight<std::string>propertyname, int value) 
+{
+
+}
+
+int Propertierbase::get(flyweight<std::string>propertyname, bool *success, int type_helper)
 {
 
 }
