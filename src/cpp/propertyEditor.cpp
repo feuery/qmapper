@@ -5,6 +5,8 @@
 #include <root.h>
 #include <editorController.h>
 
+#include <script-types.h>
+
 template<typename T, typename E>
 struct either
 {
@@ -20,6 +22,21 @@ either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::str
   result.a = success;
   return result;
 }
+
+either<bool, std::string> getScriptTypeAsString(Propertierbase *base, flyweight<std::string> internedPropname) {
+  scriptTypes type = glsl;
+  either<bool, std::string> result;
+  switch(base->get(internedPropname, &result.a, type)) {
+  case glsl:
+    result.b = "glsl";
+    break;
+  case scheme:
+    result.b = "scheme";
+    break;
+  }
+  return result;
+}
+  
 
 void editingStdStringFinished(Propertierbase *base, flyweight<std::string> internedPropname, QLineEdit *edit) {
 
@@ -43,6 +60,11 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
       	      [=]() { if(any.a) editingStdStringFinished(base, properties.at(i), edit); });
       
       data->addRow(QString(properties.at(i).get().c_str()), edit);
+    }
+    else if(type == "scriptTypes") {
+      auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
+      QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
+      data->addRow(QString(properties.at(i).get().c_str()), lbl);
     }
   }
 

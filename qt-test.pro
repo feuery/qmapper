@@ -34,13 +34,16 @@ HEADERS += src/headers/files.h \
            src/generated/layer.h \
            src/generated/root.h \
            src/generated/map.h \
+           src/generated/tileset.h \
+           src/generated/script.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
            src/headers/layerContainer.h \
            src/headers/mapContainer.h \
            src/headers/rootContainer.h \
-           src/headers/propertyEditor.h
+           src/headers/propertyEditor.h \
+           src/headers/script-types.h
            
 FORMS += \
     src/forms/main.ui 
@@ -57,10 +60,13 @@ SOURCES += src/cpp/files.cpp \
            src/generated/layer.cpp \
            src/generated/map.cpp \
            src/generated/root.cpp \
+           src/generated/tileset.cpp \
+           src/generated/script.cpp \
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
            src/cpp/tilelistmodel.cpp \
            src/cpp/layerContainer.cpp \
            src/cpp/mapContainer.cpp \
            src/cpp/rootContainer.cpp \
-           src/cpp/propertyEditor.cpp
+           src/cpp/propertyEditor.cpp 
+           

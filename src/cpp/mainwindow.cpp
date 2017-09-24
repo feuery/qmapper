@@ -8,6 +8,9 @@
 #include <QFileDialog>
 #include <propertyEditor.h>
 
+#include <QMessageBox>
+#include <editorController_guile.h>
+
 #define btnW 200
 #define btnH 25
 
@@ -63,10 +66,34 @@ void MainWindow::setupTreeCtxMenu()
   edit->setStatusTip("Edit object");
   connect(edit, &QAction::triggered, this, &MainWindow::editObject);
 
+  // TODO
+  // Add a menu:
+  //       new -> glsl script	
+  //           -> scheme script
+  //           -> ------------
+  //           -> texture
+  //           -> ------------			
+  //           -> sprite
+  //           -> animation
+
   // tree_ctx_menu.addAction(edit);
 
   tree.setContextMenuPolicy(Qt::ActionsContextMenu);
   tree.addAction(edit);
+  QMenu *newMenu = new QMenu(this);
+
+  QAction *glsl = new QAction("&GLSL", this);
+  glsl->setStatusTip("New GLSL-script asset");
+
+  connect(glsl, &QAction::triggered, [=]() {
+      add_glsl_script();
+    });
+
+  newMenu->addAction(glsl);
+
+  QAction *newMenu_act = new QAction("&New", this);
+  newMenu_act->setMenu(newMenu);
+  tree.addAction(newMenu_act);
 }
  
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())

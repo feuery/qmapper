@@ -17,8 +17,7 @@ public:
 
   ~Texture()
   {
-    /* glDeleteTextures(1, &texture); */
-    qDebug() << "Deleted texture class, please don't do that yet!";
+    glDeleteTextures(1, &texture);
   }
 
   // void render();

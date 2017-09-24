@@ -3,6 +3,7 @@
 #include <QDebug>
 #include <map.h>
 #include <tilelistmodel.h>
+#include <script.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   if(parent.isValid()) return static_cast<Propertierbase*>(parent.internalPointer());
@@ -10,6 +11,8 @@ Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
 }
 
 Tilelistmodel::Tilelistmodel(root *R): Root(R) { }
+
+#define type_err_print printf("Got an unknown type %s\n", type);
 
 int Tilelistmodel::rowCount(const QModelIndex &qparent) const
 {
@@ -33,7 +36,11 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
     Layer *l = static_cast<Layer*>(parent);
     return 0;
   }
+  else if (strcmp(type, "Script") == 0) {
+    return 0;
+  }
   else {
+    type_err_print;
     throw "";
   }
   return 0;
@@ -95,6 +102,14 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
     Layer *l = static_cast<Layer*>(base);
     return QString(l->getName().c_str());
   }
+  else if(strcmp(type, "Script") == 0) {
+    Script *s = static_cast<Script*>(base);
+    return QString(s->getName().c_str());
+  }
+  else {
+    type_err_print;
+    throw "";
+  }
 
   return QVariant();
 }
@@ -136,8 +151,12 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
     int row = Root->rowOf(p->getId());
     return createIndex(row, 0, p);
   }
+  else if (strcmp(type, "Script") == 0) {
+    Script *s = static_cast<Script*>(obj);
+    return createIndex(Root->rowOf(s->getId()), 0, Root);
+  }
   else {
-    // printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);
+    printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);
     throw "";
   }
   return QModelIndex();
@@ -161,4 +180,11 @@ void Tilelistmodel::beginMap(int map_row)
   auto mapId = Root->indexOf(map_row);
   int count = toMap(Root->registry->at(mapId))->layers->size();
   beginInsertRows(parent_index, count, count+1);
+}
+
+void Tilelistmodel::begin()
+{
+  auto root = QModelIndex();
+  int count = Root->registry->size();
+  beginInsertRows(root, count, count + 1);
 }

@@ -1,4 +1,5 @@
 #include <editorController_guile.h>
+#include <script.h>
 
 extern "C" {
 
@@ -22,7 +23,6 @@ extern "C" {
   SCM add_layer(SCM map_index)
   {
     int map_i = scm_to_int(map_index);
-
     root &r = editorController::instance->document;
     auto map_strIndex = r.indexOf(map_i);
     
@@ -75,6 +75,20 @@ extern "C" {
     if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
 
     layerset->erase(layerset->begin() + layer_index);
+    editorController::instance->documentTreeModel->end();
+
+    return SCM_BOOL_T;
+  }
+
+  SCM add_glsl_script()
+  {
+    editorController::instance->documentTreeModel->begin();
+
+    Script *scrpt = new Script;
+    scrpt->setScript_type(glsl);
+    scrpt->setName("A new GLSL script");
+    
+    (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
     editorController::instance->documentTreeModel->end();
 
     return SCM_BOOL_T;

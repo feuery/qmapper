@@ -1,0 +1,10 @@
+;; Protip: make clj-propertylisp fart int id - properties automatically
+;; Or create some other kind of numeric addressing system for these
+(defcppclass Script ("<string>" "<script-types.h>")
+  (public
+   (properties
+    (std__string contents "")
+    (std__string name "")
+    ;; TODO make immutable
+    (std__string ns "user")
+    (scriptTypes script_type scheme))))  

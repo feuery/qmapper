@@ -4,6 +4,6 @@
    (fields
     (std__map<flyweight<std__string>___Propertierbase*>* registry nullptr))
    (functions
-    ;(std__vector<Map*> filterMaps ()) 
+    ;(std__vector<Map*> filterMaps ())  
     (flyweight<std__string> indexOf (int row))
     (int rowOf (flyweight<std__string> id)))))
