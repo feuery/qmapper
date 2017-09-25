@@ -38,6 +38,8 @@ private:
 
   void setupTreeCtxMenu();
   void editObject();
+
+  QString getTextureLocation();
 };
 
 #endif //MAIN_H

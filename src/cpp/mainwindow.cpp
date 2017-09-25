@@ -24,6 +24,10 @@
     btn->setMaximumHeight(btnH);					\
     container->addWidget(btn); }
 
+QString MainWindow::getTextureLocation() {
+  return QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
+}
+
 void MainWindow::setupTree()
 {
   if(ec) {
@@ -83,10 +87,12 @@ void MainWindow::setupTreeCtxMenu()
   QMenu *newMenu = new QMenu(this);
 
   QAction *glsl = new QAction("&GLSL", this),
-    *scheme = new QAction("&Scheme", this);
+    *scheme = new QAction("&Scheme", this),
+    *texture = new QAction("&Texture", this);
   
   glsl->setStatusTip("New GLSL-script asset");
   scheme->setStatusTip("New Scheme asset");
+  texture->setStatusTip("New texture asset");
 
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
@@ -94,9 +100,27 @@ void MainWindow::setupTreeCtxMenu()
   connect(scheme, &QAction::triggered, []() {
       add_scheme_script();
     });
+  connect(texture, &QAction::triggered, [=]() {
+      QString textLoc = getTextureLocation();
+      auto f = map_view->context()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+      if(!f) {
+	puts("Couldn't fetch an active QOpenGLContext");
+	return;
+      }
+
+      ec->documentTreeModel->begin();
+      
+      Texture *text = new textureContainer(textLoc, f);
+      text->parent(&ec->document);
+      (*ec->document.registry)[text->getId()] = text;
+
+      ec->documentTreeModel->end();
+    });
 
   newMenu->addAction(glsl);
   newMenu->addAction(scheme);
+  newMenu->addSeparator();
+  newMenu->addAction(texture);
 
   QAction *newMenu_act = new QAction("&New", this);
   newMenu_act->setMenu(newMenu);

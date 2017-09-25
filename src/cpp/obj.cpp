@@ -3,6 +3,9 @@
 #include <shaders.h>
 #include <gl_apu.h>
 
+#include <SOIL/SOIL.h>
+#include <qopengl.h>
+
 
 immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
 			     const char* texture_path,

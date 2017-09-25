@@ -1,8 +1,9 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-09-24T12:39:28.094Z
+//// generated at 2017-09-25T16:03:13.910Z
 
 #include<boost/flyweight.hpp>
+#include<QString>
 #include<string>
 #include<QOpenGLFunctions_4_3_Core>
 #include<map>

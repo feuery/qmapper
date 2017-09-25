@@ -4,6 +4,7 @@
 #include <map.h>
 #include <tilelistmodel.h>
 #include <script.h>
+#include <texture.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   if(parent.isValid()) return static_cast<Propertierbase*>(parent.internalPointer());
@@ -12,7 +13,7 @@ Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
 
 Tilelistmodel::Tilelistmodel(root *R): Root(R) { }
 
-#define type_err_print printf("Got an unknown type %s\n", type);
+#define type_err_print printf("Got an unknown type %s at line %d\n", type, __LINE__);
 
 int Tilelistmodel::rowCount(const QModelIndex &qparent) const
 {
@@ -32,11 +33,9 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
     int rows = r->registry->size();
     return rows;
   }
-  else if(strcmp(type, "Layer") == 0) {
-    Layer *l = static_cast<Layer*>(parent);
-    return 0;
-  }
-  else if (strcmp(type, "Script") == 0) {
+  else if(strcmp(type, "Layer") == 0 ||
+	  strcmp(type, "Script") == 0 ||
+	  strcmp(type, "Texture") == 0) {
     return 0;
   }
   else {
@@ -91,6 +90,12 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   const char *type = base->type_identifier().get().c_str();
   int row = index.row();
 
+  std::string helper;
+  bool succ = false;
+  std::string name = base->get(flyweight<std::string>(std::string("name")), &succ, helper);
+
+  if(succ) { return QString(name.c_str()); }
+  
   if(strcmp(type, "root") == 0) {
     return QString("Root");
   }
@@ -154,6 +159,10 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   else if (strcmp(type, "Script") == 0) {
     Script *s = static_cast<Script*>(obj);
     return createIndex(Root->rowOf(s->getId()), 0, Root);
+  }
+  else if(strcmp(type, "Texture") == 0 ) {
+    Texture *t = static_cast<Texture*>(obj);
+    return createIndex(Root->rowOf(t->getId()), 0, Root);
   }
   else {
     printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);

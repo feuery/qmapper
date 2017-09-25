@@ -5,6 +5,8 @@
 #include <vector>
 #include <mainwindow.h>
 
+#include <textureContainer.h>
+
 class MainWindow;
 
 /* Holds the state of the editor. Will be passed everywhere as a reference */

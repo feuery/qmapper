@@ -11,9 +11,9 @@ public:
   Rootcontainer();
   ~Rootcontainer();
   
-  // std::vector<Map*> filterMaps() override;
-  flyweight<std::string> indexOf (int row);
-  int rowOf(flyweight<std::string> id);
+  flyweight<std::string> indexOf (int row) override;
+  int rowOf(flyweight<std::string> id) override;
+  
 
 private:
 

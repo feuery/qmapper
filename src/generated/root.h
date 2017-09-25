@@ -9,6 +9,7 @@ using namespace boost::flyweights;
 #include<map>
 #include<string>
 #include<boost/flyweight.hpp>
+#include<QString>
 #include<cstring>
 class Map;
 class root: public Propertierbase {

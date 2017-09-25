@@ -1,0 +1,12 @@
+(defcppclass Texture ("<string>" "<QString>" "<root.h>")
+  ;; (declare-class )
+  (public
+   (fields
+    (GLuint texture_handle -1)
+    (int texture_width 0)
+    (int texture_height 0))
+   (functions
+    (void parent (root* p))
+    (root* parent ()))
+   (properties
+    (std__string name "New texture"))))

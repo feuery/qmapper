@@ -1,7 +1,6 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#include <texture.h>
 #include <gl_apu.h>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QOpenGLFunctions>
