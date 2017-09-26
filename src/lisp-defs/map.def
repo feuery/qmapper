@@ -1,10 +1,11 @@
-(defcppclass Map ("<root.h>" "<layer.h>" "<vector>" "<string>")
-  (declare-class "root" "Layer")
+(defcppclass Map ("<root.h>" "<layer.h>" "<vector>" "<string>" "<texture.h>")
+  (declare-class "root" "Layer" "Texture")
   (public
    (fields
-    (std__vector<Layer*>* layers nullptr))
+    (std__vector<Layer*>* layers nullptr)) 
    (properties
-    (std__string name "Map 1"))
+    (std__string name "Map 1")
+    (Texture* text nullptr))
    (functions
     (void parent (root* p)))
    (functions

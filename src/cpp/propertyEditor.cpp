@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <propertyEditor.h>
 #include <QLineEdit>
+#include <QComboBox>
 #include <root.h>
 #include <editorController.h>
 
@@ -65,6 +66,28 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
       auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
       QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
       data->addRow(QString(properties.at(i).get().c_str()), lbl);
+    }
+    else {
+      root *r = &editorController::instance->document;
+      std::vector<QString> kids;
+      qDebug() << "Property's name is " << properties.at(i).get().c_str();
+      qDebug()<<"Finding all root's children of type " << type.get().c_str();
+      for(auto it = r->registry->begin(); it != r->registry->end(); it++) {
+	qDebug() << "Is " << it->second->type_identifier().get().c_str() << " == " << type.get().c_str() << "?";
+	if(it->second->type_identifier() == type) {
+	  qDebug() << "Yes";
+	  auto result = getStringProp(it->second, flyweight<std::string>(std::string("name")));
+	  kids.push_back(QString(result.a ? result.b.c_str(): "Couldn't fetch object's name"));
+	} else qDebug() << "No";
+      }
+
+      QComboBox *cb = new QComboBox(this);
+      cb->addItems(QStringList(QList<QString>::fromVector(QVector<QString>::fromStdVector(kids))));
+      data->addRow(QString(properties.at(i).get().c_str()), cb);
+      // Haetaan rootin lapsista ne joiden type on sama kuin type
+      // Haetaan name niiltä joille se on määritelty, ja joille ei ole määritelty, haetaan id
+      // Sitten lyödään dropdowni jonka sisältö on nämä namet
+      // Kun dropdownin arvo muuttuu, base->set(properties.at(i), editorController::instance->document->registry->at(dropparissa_valittu_id));
     }
   }
 

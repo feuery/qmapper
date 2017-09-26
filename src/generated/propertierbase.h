@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-09-25T16:03:13.910Z
+//// generated at 2017-09-26T17:28:32.362Z
 
 #include<boost/flyweight.hpp>
 #include<QString>
@@ -16,6 +16,7 @@
 
 using namespace boost::flyweights;
 
+class Texture;
 class Propertierbase 
 {
 public:
@@ -40,6 +41,8 @@ virtual void set(flyweight<std::string>propertyname, std::string value);
 virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
 virtual void set(flyweight<std::string>propertyname, scriptTypes value);
 virtual scriptTypes get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper);
+virtual void set(flyweight<std::string>propertyname, Texture* value);
+virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
 

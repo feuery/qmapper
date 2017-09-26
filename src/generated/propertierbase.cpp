@@ -27,6 +27,15 @@ scriptTypes Propertierbase::get(flyweight<std::string>propertyname, bool *succes
 {
 
 }
+void Propertierbase::set(flyweight<std::string>propertyname, Texture* value) 
+{
+
+}
+
+Texture* Propertierbase::get(flyweight<std::string>propertyname, bool *success, Texture* type_helper)
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, int value) 
 {
 

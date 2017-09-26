@@ -383,7 +383,7 @@ virtual %s get%s();
                                 (map (fn [[type props]]
                                        (->> props
                                             (map (fn [{[_ prop-name _] :form}]
-                                                   (str "if(propertyname == std::string(\"" prop-name "\")) return flyweight<std::string>(\"" type "\");")))
+                                                   (str "if(propertyname == std::string(\"" prop-name "\")) return flyweight<std::string>(\"" (str/replace type #"\*" "") "\");")))
                                             (str/join "\n"))))
                                 (str/join "\n"))
                            "return flyweight<std::string>(\"\");\n}\n"
