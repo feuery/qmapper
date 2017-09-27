@@ -82,11 +82,12 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
       }
 
       QComboBox *cb = new QComboBox(this);
-      cb->addItems(QStringList(QList<QString>::fromVector(QVector<QString>::fromStdVector(kids))));
+      QStringList l;
+      l << "Empty";
+      l << QList<QString>::fromVector(QVector<QString>::fromStdVector(kids));
+      
+      cb->addItems(l);
       data->addRow(QString(properties.at(i).get().c_str()), cb);
-      // Haetaan rootin lapsista ne joiden type on sama kuin type
-      // Haetaan name niiltä joille se on määritelty, ja joille ei ole määritelty, haetaan id
-      // Sitten lyödään dropdowni jonka sisältö on nämä namet
       // Kun dropdownin arvo muuttuu, base->set(properties.at(i), editorController::instance->document->registry->at(dropparissa_valittu_id));
     }
   }
