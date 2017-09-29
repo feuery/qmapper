@@ -7,6 +7,7 @@
 #include <editorController.h>
 
 #include <script-types.h>
+#include <tilelistmodel.h>
 
 template<typename T, typename E>
 struct either
@@ -44,6 +45,32 @@ void editingStdStringFinished(Propertierbase *base, flyweight<std::string> inter
   base->set(internedPropname, edit->text().toStdString());
 }
 
+QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
+{
+  QStandardItemModel *model = new QStandardItemModel;
+
+  QStandardItem *empty = new QStandardItem("Empty");
+  model->appendRow(empty);
+
+  for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
+    either<bool, std::string> result = getStringProp(*m, flyweight<std::string>(std::string("name")));
+    
+    QStandardItem *map_item = new QStandardItem(result.b.c_str());
+    QVariant var;
+    var.setValue(*m);
+    map_item->setData(var);
+    model->appendRow(map_item);
+  }
+
+  return model;
+}
+
+static void indexChanged(Propertierbase *b, flyweight<std::string> internedPropName, Propertierbase *editedObject)
+{
+  editedObject->set(internedPropName, b);
+  qDebug()<<"Successfully changed " << internedPropName.get().c_str();
+}
+
 Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
 {
   std::vector<flyweight<std::string>> properties = base->names();
@@ -69,26 +96,49 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
     }
     else {
       root *r = &editorController::instance->document;
-      std::vector<QString> kids;
-      qDebug() << "Property's name is " << properties.at(i).get().c_str();
-      qDebug()<<"Finding all root's children of type " << type.get().c_str();
-      for(auto it = r->registry->begin(); it != r->registry->end(); it++) {
-	qDebug() << "Is " << it->second->type_identifier().get().c_str() << " == " << type.get().c_str() << "?";
-	if(it->second->type_identifier() == type) {
-	  qDebug() << "Yes";
-	  auto result = getStringProp(it->second, flyweight<std::string>(std::string("name")));
-	  kids.push_back(QString(result.a ? result.b.c_str(): "Couldn't fetch object's name"));
-	} else qDebug() << "No";
+
+      Propertierbase *currentValue = base->get(properties.at(i));
+      either<bool, std::string> nameResult;
+      if (currentValue) {
+	nameResult = getStringProp(currentValue, flyweight<std::string>(std::string("name")));
       }
+      else {
+	nameResult = {true, "Empty"};
+      }
+      if(!nameResult.a) continue;
+      
+      std::vector<Propertierbase*>* kids = new std::vector<Propertierbase*>;
+
+      for(auto it = r->registry->begin(); it != r->registry->end(); it++) {
+	if(it->second->type_identifier() == type) {
+	  kids->push_back(it->second);
+	} 
+      };      
 
       QComboBox *cb = new QComboBox(this);
-      QStringList l;
-      l << "Empty";
-      l << QList<QString>::fromVector(QVector<QString>::fromStdVector(kids));
+      QStandardItemModel *m = dump_to_model(kids);
+      cb->setModel(m);
       
-      cb->addItems(l);
+      int index = cb->findText(nameResult.b.c_str());
+      if(index > -1) cb->setCurrentIndex(index);
+      else qDebug() << "No valid index found for " << nameResult.b.c_str();
+      
+      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+	      [=](int index) {
+		index--;
+		if(index >= 0) {
+		  Propertierbase *b = kids->at(index);
+		  if(!b) {
+		    qDebug() << "invalid b in QComboBox::currentIndexChanged";
+		    return;
+		  }
+
+		  indexChanged(b, properties.at(i), base);
+		}
+		else indexChanged(nullptr, properties.at(i), base);
+	      });
+	      
       data->addRow(QString(properties.at(i).get().c_str()), cb);
-      // Kun dropdownin arvo muuttuu, base->set(properties.at(i), editorController::instance->document->registry->at(dropparissa_valittu_id));
     }
   }
 

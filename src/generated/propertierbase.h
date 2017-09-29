@@ -16,6 +16,7 @@
 
 using namespace boost::flyweights;
 
+/* Not created with propertier */
 class Texture;
 class Propertierbase 
 {
@@ -45,10 +46,17 @@ virtual void set(flyweight<std::string>propertyname, Texture* value);
 virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
+  // NOT CREATED WITH PROPERTIER
+  void set(flyweight<std::string> propName, Propertierbase *b);
+  Propertierbase* get(flyweight<std::string>propertyname);
 
 
 protected:
   flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
 
 };
+
+/* Not created with propertier */
+Q_DECLARE_METATYPE(Propertierbase*);
+
 #endif

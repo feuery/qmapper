@@ -119,17 +119,6 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   return QVariant();
 }
 
-template<typename T>
-int indexOf(std::vector<T>* vec, T element)
-{
-  auto it = std::find(vec->begin(), vec->end(), element);
-  if (it != vec->end()) {
-    return std::distance(vec->begin(), it);
-  }
-
-  return -1;
-}
-
 QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 {
   if(!index.isValid()) return QModelIndex();

@@ -36,4 +36,15 @@ private:
   Propertierbase* getparent(const QModelIndex &parent) const;
 };
 
+template<typename T>
+int indexOf(std::vector<T>* vec, T element)
+{
+  auto it = std::find(vec->begin(), vec->end(), element);
+  if (it != vec->end()) {
+    return std::distance(vec->begin(), it);
+  }
+
+  return -1;
+}
+
 #endif //TILELISTMODEL_H
