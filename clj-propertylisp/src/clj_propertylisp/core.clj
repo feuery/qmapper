@@ -51,25 +51,111 @@
       (str/replace #"___" ", ")
       (str/replace #"__" "::")))
 
-(def test-data '(defcppclass Layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
-  (declare-class "Map" "Tile")
-  (public
-   (fields
-    (std__vector<std__vector<Tile>>* tiles nullptr))
-   (properties
-    (std__string name ""))
-   (functions
-    (void set_parent (Map* p)))
-   (functions
-    (int getWidth ())
-    (int getHeight ())
-    (Map* parent ())))
-  (protected
-   (fields
-    (int w 0)
-    (int h 0)
-    (Map* p nullptr)))) )
-
+(def test-data '[{:class-name Texture,
+                  :includes ("<string>" "<QString>" "<root.h>"),
+                  :declared-classes (),
+                  :forms
+                  ({:form (GLuint texture_handle -1), :privacy public, :type fields}
+                   {:form (int texture_width 0), :privacy public, :type fields}
+                   {:form (int texture_height 0), :privacy public, :type fields}
+                   {:form (void parent (root* p)), :privacy public, :type functions}
+                   {:form (root* parent ()), :privacy public, :type functions}
+                   {:form (std__string name "New texture"),
+                    :privacy public,
+                    :type properties}),
+                  :filename "texture.def"}
+                 {:class-name Script,
+                  :includes ("<string>" "<script-types.h>"),
+                  :declared-classes (),
+                  :forms
+                  ({:form (std__string contents ""), :privacy public, :type properties}
+                   {:form (std__string name ""), :privacy public, :type properties}
+                   {:form (std__string ns "user"), :privacy public, :type properties}
+                   {:form (scriptTypes script_type scheme),
+                    :privacy public,
+                    :type properties}),
+                  :filename "script.def"}
+                 {:class-name Tileset,
+                  :includes
+                  ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>"),
+                  :declared-classes (),
+                  :forms
+                  ({:form (GLuint vao_handle 0), :privacy public, :type fields}
+                   {:form (GLuint shader_handle 0), :privacy public, :type fields}
+                   {:form (void render (QOpenGLFunctions_4_3_Core *f)),
+                    :privacy public,
+                    :type functions}
+                   {:form (void setVertexShader (std__string& shader)),
+                    :privacy public,
+                    :type functions}
+                   {:form (void setFragmentShader (std__string& shader)),
+                    :privacy public,
+                    :type functions}),
+                  :filename "tileset.def"}
+                 {:class-name Tile,
+                  :includes (),
+                  :declared-classes (),
+                  :forms
+                  ({:form (int x 0), :privacy public, :type properties}
+                   {:form (int y 0), :privacy public, :type properties}
+                   {:form (int tileset 0), :privacy public, :type properties}
+                   {:form (int rotation 0), :privacy public, :type properties}),
+                  :filename "tile.def"}
+                 {:class-name Layer,
+                  :includes ("<tile.h>" "<string>" "<vector>" "<map.h>"),
+                  :declared-classes ("Map" "Tile"),
+                  :forms
+                  ({:form (std__vector<std__vector<Tile>>* tiles nullptr),
+                    :privacy public,
+                    :type fields}
+                   {:form (std__string name ""), :privacy public, :type properties}
+                   {:form (void set_parent (Map* p)), :privacy public, :type functions}
+                   {:form (int getWidth ()), :privacy public, :type functions}
+                   {:form (int getHeight ()), :privacy public, :type functions}
+                   {:form (Map* parent ()), :privacy public, :type functions}
+                   {:form (int w 0), :privacy protected, :type fields}
+                   {:form (int h 0), :privacy protected, :type fields}
+                   {:form (Map* p nullptr), :privacy protected, :type fields}),
+                  :filename "layer.def"}
+                 {:class-name root,
+                  :includes
+                  ("<propertierbase.h>"
+                   "<map>"
+                   "<string>"
+                   "<boost/flyweight.hpp>"
+                   "<QString>"),
+                  :declared-classes ("Map"),
+                  :forms
+                  ({:form
+                    (std__map<flyweight<std__string>___Propertierbase*>*
+                     registry
+                     nullptr),
+                    :privacy public,
+                    :type fields}
+                   {:form (flyweight<std__string> indexOf (int row)),
+                    :privacy public,
+                    :type functions}
+                   {:form (int rowOf (flyweight<std__string> id)),
+                    :privacy public,
+                    :type functions}),
+                  :filename "root.def"}
+                 {:class-name Map,
+                  :includes
+                  ("<root.h>" "<layer.h>" "<vector>" "<string>" "<texture.h>"),
+                  :declared-classes ("root" "Layer" "Texture"),
+                  :forms
+                  ({:form (std__vector<Layer*>* layers nullptr),
+                    :privacy public,
+                    :type fields}
+                   {:form (std__string name "Map 1"),
+                    :privacy public,
+                    :type properties}
+                   {:form (Texture* text nullptr), :privacy public, :type properties}
+                   {:form (void parent (root* p)), :privacy public, :type functions}
+                   {:form (int width ()), :privacy public, :type functions}
+                   {:form (int height ()), :privacy public, :type functions}
+                   {:form (root* parent ()), :privacy public, :type functions}),
+                  :filename "map.def"}] )
 
 #_(:header (codegen (assoc (tokenize test-data) :filename "lol.def")))
 
@@ -233,6 +319,15 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
                    (map get-properties)
                    flatten)
         _ (assert (not (empty? props)))
+        prop-types (->> props
+                        (map (comp first :form ))
+                        set)
+        declared-classes (->> tokenized-classes
+                              (mapcat :declared-classes)
+                              set)
+        classes-to-compile (->> tokenized-classes
+                                (map :class-name)
+                                set)
         header (format "#ifndef propertierbasee
 #define propertierbasee
 //// generated at %s
@@ -241,8 +336,12 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
 
 #include <cstdlib>
 
-using namespace boost::flyweights;
+#include<boost/flyweight.hpp>
+#include<QOpenGLFunctions_4_3_Core>
+#include<QOpenGLFunctions>
 
+using namespace boost::flyweights;
+%s
 class Propertierbase 
 {
 public:
@@ -259,9 +358,12 @@ virtual ~Propertierbase ();
   }
 
   virtual void setId(flyweight<std::string> v) 
-{
-  Id_field = v;
-}
+  {
+    Id_field = v;
+  }
+
+  void set(flyweight<std::string> propName, Propertierbase *b);
+  Propertierbase* get(flyweight<std::string>propertyname);
 
 %s
 
@@ -269,13 +371,21 @@ protected:
   flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
 
 };
+
+Q_DECLARE_METATYPE(Propertierbase*);
+
 #endif"
                        ;; timestamp
                        (tf/unparse (tf/formatters :date-time)  (t/now))
+
                        ;; relevant includes
                        (->> (get-includes-of-set tokenized-classes)
                             (map #(str "#include" % ""))
                             (str/join "\n"))
+                       
+                       ;; declared-classes
+                       (clojure.pprint/cl-format nil
+                                                 "~{class ~A;\n~}" declared-classes)
                        ;; get-set-definitions
                        (-> props
                            make-get-sets-of-propertierbase
@@ -292,10 +402,61 @@ Propertierbase::~Propertierbase()
 
 }
 
-%s"
+%s
+
+void Propertierbase::set(flyweight<std::string> propName, Propertierbase *b)
+{
+  auto prop_typename = type_name(propName);
+  %s
+  else {
+    printf(\"Invalid type %%s\\n\", prop_typename.get().c_str());
+    throw \"\";
+  }
+}
+
+Propertierbase* Propertierbase::get(flyweight<std::string> propertyname)
+{
+  auto prop_typename = type_name(propertyname);
+  %s
+  return nullptr;
+}"
                     (-> props
                         make-get-sets-of-propertierbase
-                        get-set-strs-implementation))]
+                        get-set-strs-implementation)
+
+                    (->> prop-types
+                         (filter (fn [type]
+                                   (contains? classes-to-compile (-> type
+                                                                     name
+                                                                     (str/replace #"\*" "")
+                                                                     symbol))))
+                         (map (fn [class]
+                                (str "if(prop_typename == flyweight<std::string>(std::string(\"" (-> class
+                                                                                                     name
+                                                                                                     (str/replace #"\*" "")) "\"))) {
+" class " t = reinterpret_cast<" class ">(b);
+set(propName, t);
+return;
+}")))
+                         (str/join "\n"))
+
+                    (->> prop-types
+                         (filter (fn [type]
+                                   (contains? classes-to-compile (-> type
+                                                                     name
+                                                                     (str/replace #"\*" "")
+                                                                     symbol))))
+                         (map (fn [class]
+                                (str "if(prop_typename == flyweight<std::string>(std::string(\"" (-> class
+                                                                                                     name
+                                                                                                     (str/replace #"\*" "")) "\"))) {
+    bool success = false;
+    " class " b = nullptr;
+    b = get(propertyname, &success, b);
+    if(success) return (Propertierbase*)b;
+    else return nullptr;
+  }")))
+                         (str/join "\n")))]
     {:header header
      :implementation cpp}))
 
@@ -451,6 +612,7 @@ throw \"\";
                                                read-string-report-fail
                                                tokenize
                                                (assoc :filename filename)))))
+            ;; _ (clojure.pprint/pprint tokenized-classes)
             tokenized-classes-with-names (zipmap (keys compilation-set)
                                                       tokenized-classes)
             {base-header :header
@@ -503,5 +665,3 @@ throw \"\";
     (int y 0)
     (int tileset 0)
     (int rotation 0)))))
-
-(:header (codegen (assoc (tokenize tile) :filename "tile.def")))

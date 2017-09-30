@@ -1,23 +1,28 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-09-26T17:28:32.362Z
+//// generated at 2017-09-30T16:56:43.389Z
 
 #include<boost/flyweight.hpp>
 #include<QString>
 #include<string>
-#include<QOpenGLFunctions_4_3_Core>
 #include<map>
-#include<QOpenGLFunctions>
 #include<script-types.h>
 #include<propertierbase.h>
 #include<vector>
 
 #include <cstdlib>
 
-using namespace boost::flyweights;
+#include<boost/flyweight.hpp>
+#include<QOpenGLFunctions_4_3_Core>
+#include<QOpenGLFunctions>
 
-/* Not created with propertier */
+using namespace boost::flyweights;
+class Map;
+class root;
+class Layer;
+class Tile;
 class Texture;
+
 class Propertierbase 
 {
 public:
@@ -34,9 +39,12 @@ virtual ~Propertierbase ();
   }
 
   virtual void setId(flyweight<std::string> v) 
-{
-  Id_field = v;
-}
+  {
+    Id_field = v;
+  }
+
+  void set(flyweight<std::string> propName, Propertierbase *b);
+  Propertierbase* get(flyweight<std::string>propertyname);
 
 virtual void set(flyweight<std::string>propertyname, std::string value);
 virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
@@ -46,9 +54,6 @@ virtual void set(flyweight<std::string>propertyname, Texture* value);
 virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
-  // NOT CREATED WITH PROPERTIER
-  void set(flyweight<std::string> propName, Propertierbase *b);
-  Propertierbase* get(flyweight<std::string>propertyname);
 
 
 protected:
@@ -56,7 +61,6 @@ protected:
 
 };
 
-/* Not created with propertier */
 Q_DECLARE_METATYPE(Propertierbase*);
 
 #endif
