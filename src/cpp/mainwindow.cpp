@@ -14,6 +14,9 @@
 #define btnW 200
 #define btnH 25
 
+#define setSize(btn) btn->setMaximumWidth(btnW); \
+  btn->setMaximumHeight(btnH);						
+
 #define btn(title) { QPushButton *btn = new QPushButton(title, this);	\
     btn->setMaximumWidth(btnW);						\
     btn->setMaximumHeight(btnH);					\
@@ -63,6 +66,21 @@ void MainWindow::editObject()
   p->show();
 }
 
+void MainWindow::prepare_server_button(QVBoxLayout *toolbox_layout)
+{
+  server_connection = new QPushButton("Start documentation server");
+  setSize(server_connection);
+
+  toolbox_layout->addWidget(server_connection);
+
+  connect(server_connection, &QPushButton::clicked,
+	  [&]() {
+	    if(!s.initialized && s.start_server()) {
+	      server_connection->setText("Server running");
+	    }
+	  });
+}
+
 void MainWindow::setupTreeCtxMenu()
 {
   QAction *edit = new QAction("&Edit", this);
@@ -79,8 +97,6 @@ void MainWindow::setupTreeCtxMenu()
   //           -> ------------			
   //           -> sprite
   //           -> animation
-
-  // tree_ctx_menu.addAction(edit);
 
   tree.setContextMenuPolicy(Qt::ActionsContextMenu);
   tree.addAction(edit);
@@ -142,9 +158,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   toolbox_layout->addWidget(toolbox());
   
-  btn("Resize map");
-  btn("Run game");
-  btn("Create new surface ");
+  prepare_server_button(toolbox_layout);
 
   setupTree();
   setupTreeCtxMenu();

@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGroupBox>
 #include <QTreeView>
+#include <QPushButton>
 #include <QMenu>
 #include <QAction>
 #include <renderer.h>
@@ -11,6 +12,7 @@
 #include <editorController.h>
 
 #include <ui_main.h>
+#include <doc-server.h>
 
 class editorController;
 
@@ -25,6 +27,8 @@ public:
 private:
 
   Ui::MainWindow ui;
+
+  document_server s;
   
   Renderer *map_view;
   Renderer *tileset_view;
@@ -40,6 +44,10 @@ private:
   void editObject();
 
   QString getTextureLocation();
+
+  QPushButton *server_connection;
+
+  void prepare_server_button(QVBoxLayout *toolbox_layout);
 };
 
 #endif //MAIN_H

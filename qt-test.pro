@@ -12,6 +12,7 @@ INCLUDEPATH += ./src/generated
 INCLUDEPATH += /opt/local/include
 QT += widgets
 QT += opengl
+QT += network
 
 LIBS += -L/opt/local/lib
 LIBS += -lSOIL
@@ -44,7 +45,8 @@ HEADERS += src/headers/files.h \
            src/headers/mapContainer.h \
            src/headers/rootContainer.h \
            src/headers/propertyEditor.h \
-           src/headers/script-types.h
+           src/headers/script-types.h \
+           src/headers/doc-server.h
            
 FORMS += \
     src/forms/main.ui 
@@ -71,5 +73,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/mapContainer.cpp \
            src/cpp/rootContainer.cpp \
            src/cpp/propertyEditor.cpp \
-           src/cpp/textureContainer.cpp
+           src/cpp/textureContainer.cpp \
+           src/cpp/doc-server.cpp
            
