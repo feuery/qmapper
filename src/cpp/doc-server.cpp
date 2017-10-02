@@ -48,8 +48,18 @@ void document_server::helloWorld()
   out<<"Hello " << "World!";
 
   QTcpSocket *clientCon = server_socket->nextPendingConnection();
+
+  connect(clientCon, &QIODevice::readyRead, [=]() {
+      if(clientCon->atEnd()) {
+	QByteArray array = clientCon->readAll();
+	QString str(array);
+	qDebug() << "Got " << str << " from emacs";
+
+	clientCon->write(block);
+	clientCon->disconnectFromHost();
+      }
+    });
+  
   connect(clientCon, &QAbstractSocket::disconnected,
 	  clientCon, &QObject::deleteLater);
-  clientCon->write(block);
-  clientCon->disconnectFromHost();
 }
