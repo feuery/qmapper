@@ -1,5 +1,6 @@
 #include <doc-server.h>
 #include <QNetworkInterface>
+#include <editorController.h>
 
 document_server::document_server() {
   // Init tcp server and pair it to the sessionOpened() - slot
@@ -33,31 +34,38 @@ bool document_server::start_server() {
   // if we did not find one, use IPv4 localhost
   if (ipAddress.isEmpty())
     ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
-  QMessageBox::information(nullptr, "QMapper",
-			   QString("The server is running on\n\nIP: %1\nport: %2")
-			   .arg(ipAddress).arg(server_socket->serverPort()));
+  
+  QString msg = QString("The server is running on\n\nIP: %1\nport: %2")
+                   .arg(ipAddress).arg(server_socket->serverPort());
+  QMessageBox::information(nullptr, "QMapper", msg);
+  qDebug () << msg;
 
   return true;
 }
 
 void document_server::helloWorld()
 {
-  QByteArray block;
-  QDataStream out(&block, QIODevice::WriteOnly);
-  out.setVersion(QDataStream::Qt_4_0);
-  out<<"Hello " << "World!";
-
   QTcpSocket *clientCon = server_socket->nextPendingConnection();
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
-      if(clientCon->atEnd()) {
-	QByteArray array = clientCon->readAll();
-	QString str(array);
-	qDebug() << "Got " << str << " from emacs";
+      QByteArray block;
+      QDataStream out(&block, QIODevice::WriteOnly);
+      out.setVersion(QDataStream::Qt_4_0);
 
-	clientCon->write(block);
-	clientCon->disconnectFromHost();
-      }
+      QByteArray array = clientCon->readAll();
+      QString str(array);
+      str = str.replace(QString("\n"), QString(""));
+      std::string ns = str.toStdString();
+      
+      std::string contents = editorController::instance->document.findNs(ns);
+      QString c(contents.c_str());
+
+      qDebug() << "Found script " << c;
+
+      out << c;
+
+      clientCon->write(block);
+      clientCon->disconnectFromHost();
     });
   
   connect(clientCon, &QAbstractSocket::disconnected,

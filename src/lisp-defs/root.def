@@ -5,4 +5,5 @@
     (std__map<flyweight<std__string>___Propertierbase*>* registry nullptr))
    (functions
     (flyweight<std__string> indexOf (int row))
-    (int rowOf (flyweight<std__string> id)))))
+    (int rowOf (flyweight<std__string> id))
+    (std__string findNs (std__string ns)))))

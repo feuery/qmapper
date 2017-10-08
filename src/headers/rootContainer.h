@@ -13,7 +13,8 @@ public:
   
   flyweight<std::string> indexOf (int row) override;
   int rowOf(flyweight<std::string> id) override;
-  
+
+  std::string findNs (std::string ns) override;
 
 private:
 

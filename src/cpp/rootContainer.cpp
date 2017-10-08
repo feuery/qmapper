@@ -1,5 +1,7 @@
 #include <tilelistmodel.h>
 #include<rootContainer.h>
+#include <script.h>
+#include <QDebug>
 
 Rootcontainer::Rootcontainer(): root()
 {
@@ -42,4 +44,27 @@ int Rootcontainer::rowOf(flyweight<std::string> id)
   if(it == registry->end()) return -1;
  
   return std::distance(registry->begin(), it);
+}
+
+std::string Rootcontainer::findNs(std::string ns)
+{
+  std::vector<Script*> scripts;
+  
+  for(auto iter = registry->begin(); iter != registry->end(); iter++) {
+    qDebug() << "Is \"" << iter->second->type_identifier().get().c_str() << "\" = \"Script\"";
+    if (iter->second->type_identifier() == flyweight<std::string>(std::string("Script"))) {
+      qDebug() << "Yes, ";
+      qDebug() << "Is " << toScript(iter->second)->getNs().c_str() << " = " << ns.c_str();
+    }
+    
+    if(iter->second->type_identifier() == flyweight<std::string>(std::string("Script"))) {
+      if(toScript(iter->second)->getNs() == ns) {
+	qDebug() << "Yes";
+	return toScript(iter->second)->getContents();
+      }
+    } else qDebug() << "No";
+    qDebug() << "==========================================================";
+  }
+
+  return std::string("NOT FOUND NS ") + ns;
 }

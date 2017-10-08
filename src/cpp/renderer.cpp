@@ -46,7 +46,7 @@ void Renderer::initializeGL()
   
   if(f)
     f->glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-  else qDebug() << "f on roskaa";
+  // else qDebug() << "f on roskaa";
 }
 
 void Renderer::paintGL()
@@ -57,8 +57,8 @@ void Renderer::paintGL()
     
     for(auto i = objects.begin(); i != objects.end(); ++i) (*i)->render(f);
   }
-  else
-    qDebug() << "f on roskaa paintGL()ssä";
+  // else
+  //   qDebug() << "f on roskaa paintGL()ssä";
 }
 
 void Renderer::resizeGL(int w, int h)
