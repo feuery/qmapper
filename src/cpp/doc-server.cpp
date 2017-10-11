@@ -49,12 +49,12 @@ void document_server::helloWorld()
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
       QByteArray block;
-      QDataStream out(&block, QIODevice::WriteOnly);
-      out.setVersion(QDataStream::Qt_4_0);
+      // QDataStream out(&block, QIODevice::WriteOnly);
+      // out.setVersion(QDataStream::Qt_4_0);
 
       QByteArray array = clientCon->readAll();
       QString str(array);
-      str = str.replace(QString("\n"), QString(""));
+      str = str.replace(QString("\n"), QString("")).replace(QString("\r"), QString(""));
       std::string ns = str.toStdString();
       
       std::string contents = editorController::instance->document.findNs(ns);
@@ -62,9 +62,9 @@ void document_server::helloWorld()
 
       qDebug() << "Found script " << c;
 
-      out << c;
+      // out << c;
 
-      clientCon->write(block);
+      clientCon->write(c.toUtf8());
       clientCon->disconnectFromHost();
     });
   
