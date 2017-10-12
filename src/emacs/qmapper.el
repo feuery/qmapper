@@ -10,11 +10,11 @@
 				     server port
 				     :nowait nil)))
       ;; (message (concat "Process coding system is " (prin1-to-string (process-coding-system proc))))
-      (process-send-string proc (concat ns "\n"))
+      (process-send-string proc (concat "NS:" ns "\n"))
       (set-process-sentinel proc (lambda (p e)
 				   (switch-to-buffer (get-buffer-create buffer-name))
 				   (scheme-mode)
 				   (geiser-mode)
 				   (rename-buffer buffer-name))))))
 
-;; (qmapper-fetch-ns "localhost" 34983 "user")
+;; (qmapper-fetch-ns "localhost" 39689 "user")

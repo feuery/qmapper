@@ -55,17 +55,30 @@ void document_server::helloWorld()
       QByteArray array = clientCon->readAll();
       QString str(array);
       str = str.replace(QString("\n"), QString("")).replace(QString("\r"), QString(""));
-      std::string ns = str.toStdString();
+
+      QStringList l = str.split(":");
+      if(l.size() > 0) {
+	QString protocol = l.at(0),
+	  param = l.at(1);
+
+	if(protocol == QString("NS")) {
       
-      std::string contents = editorController::instance->document.findNs(ns);
-      QString c(contents.c_str());
+	  std::string ns = param.toStdString();
+      
+	  std::string contents = editorController::instance->document.findNs(ns);
+	  QString c(contents.c_str());
 
-      qDebug() << "Found script " << c;
+	  qDebug() << "Found script " << c;
 
-      // out << c;
+	  // out << c;
 
-      clientCon->write(c.toUtf8());
+	  clientCon->write(c.toUtf8());
+	}
+	else qDebug() << "Didn't recognize protocol " << protocol;
+      }
+      else qDebug() << "No protocol part found in message " << str;
       clientCon->disconnectFromHost();
+      
     });
   
   connect(clientCon, &QAbstractSocket::disconnected,
