@@ -1,5 +1,5 @@
 #include <layer.h>
-////// generated at 2017-10-08T15:29:19.843Z
+////// generated at 2017-10-12T15:52:37.559Z
 
 
 void Layer::setName(std::string val) {

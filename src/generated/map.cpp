@@ -1,5 +1,5 @@
 #include <map.h>
-////// generated at 2017-10-08T15:29:19.847Z
+////// generated at 2017-10-12T15:52:37.566Z
 
 
 void Map::setName(std::string val) {

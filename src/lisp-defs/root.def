@@ -6,4 +6,5 @@
    (functions
     (flyweight<std__string> indexOf (int row))
     (int rowOf (flyweight<std__string> id))
-    (std__string findNs (std__string ns)))))
+    (std__string findNs (std__string ns))
+    (void saveNs (std__string ns std__string content)))))

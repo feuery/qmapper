@@ -54,25 +54,28 @@ void document_server::helloWorld()
 
       QByteArray array = clientCon->readAll();
       QString str(array);
-      str = str.replace(QString("\n"), QString("")).replace(QString("\r"), QString(""));
 
       QStringList l = str.split(":");
       if(l.size() > 0) {
-	QString protocol = l.at(0),
-	  param = l.at(1);
+	QString protocol = l.at(0);
 
 	if(protocol == QString("NS")) {
-      
-	  std::string ns = param.toStdString();
+	  QString qns = l.at(1);
+	  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
       
 	  std::string contents = editorController::instance->document.findNs(ns);
 	  QString c(contents.c_str());
 
 	  qDebug() << "Found script " << c;
 
-	  // out << c;
-
 	  clientCon->write(c.toUtf8());
+	}
+	else if (protocol == QString("SAVE-NS")) {
+	  std::string ns = l.at(1).toStdString();
+	  std::string contents = str.replace(l.at(0)+":"+l.at(1)+":", QString("")).toStdString();
+	  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
+
+	  editorController::instance->document.saveNs(ns, contents);
 	}
 	else qDebug() << "Didn't recognize protocol " << protocol;
       }

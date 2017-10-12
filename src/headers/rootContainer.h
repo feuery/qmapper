@@ -15,6 +15,7 @@ public:
   int rowOf(flyweight<std::string> id) override;
 
   std::string findNs (std::string ns) override;
+  void saveNs (std::string ns, std::string content) override;
 
 private:
 
