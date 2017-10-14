@@ -1,7 +1,17 @@
 ;; -*- lexical-binding: t -*-
 
+(defvar qmapper-server ""
+  "QMapper server's location/IP")
+(defvar qmapper-port nil
+  "QMapper server's port")
+(defvar qmapper-ns ""
+  "NS current qmapper-buffer is visiting")
+
+(make-variable-buffer-local 'qmapper-server)
+(make-variable-buffer-local 'qmapper-port)
+(make-variable-buffer-local 'qmapper-ns)
+
 (defun qmapper-fetch-ns (server port ns)
-  (interactive "sServer: \nnPort: \nsNS: ")
   (let ((buffer-name (concat "QMAPPER: " ns)))
     (if (get-buffer buffer-name)
 	(kill-buffer buffer-name))
@@ -12,24 +22,77 @@
       ;; (message (concat "Process coding system is " (prin1-to-string (process-coding-system proc))))
       (process-send-string proc (concat "NS:" ns "\n"))
       (set-process-sentinel proc (lambda (p e)
-				   (switch-to-buffer (get-buffer-create buffer-name))
-				   (scheme-mode)
-				   (geiser-mode)
-				   (rename-buffer buffer-name))))))
+				   (with-current-buffer (get-buffer-create buffer-name)
+				     (switch-to-buffer (get-buffer-create buffer-name))
+				     
+				     (scheme-mode)
+				     (geiser-mode)
+				     (qmapper-editor-mode)
+				     (rename-buffer buffer-name)
 
-(defun qmapper-save-ns (server port ns)
-  ;; TODO make the params buffer-locals or smthg
-  (interactive "sServer: \nnPort: \nsNS: ")
-  (let ((buffer-name (concat "QMAPPER: " ns)))
-    (with-current-buffer buffer-name
-      (let* ((buf-content (buffer-string))
-	     (proc (open-network-stream "*qmapper-tmp*" (get-buffer-create "*qmapper-tmp*")
-				     server port
-				     :nowait nil)))
-	(process-send-string proc (concat "SAVE-NS:" ns ":" buf-content))
-	(set-process-sentinel proc (lambda (p e)))))))
+				     
+				     (setq qmapper-server server)
+				     (setq qmapper-port port)
+				     (setq qmapper-ns ns)))))))
+
+(defun qmapper-save-ns ()
+  (interactive)
+  (let* ((server qmapper-server)
+	 (port qmapper-port)
+	 (ns qmapper-ns)
+	 (buffer-name (concat "QMAPPER: " ns)))
+    (if (not (equal ns ""))
+	(with-current-buffer buffer-name
+	  (let* ((buf-content (buffer-string))
+		 (proc (open-network-stream "*qmapper-tmp*" (get-buffer-create "*qmapper-tmp*")
+					    server port
+					    :nowait nil)))
+	    (process-send-string proc (concat "SAVE-NS:" ns ":" buf-content))
+	    (set-process-sentinel proc (lambda (p e)
+					 (message (concat "Saved " ns " to " server ":" (int-to-string port)))))))
+      (save-buffer))))
+
+
+	     ;; (not (equal qmapper-server ""))
+	     ;; qmapper-port
+
+(defun qmapper-find-file (find-file &rest args)
+  (message (concat "Searching " (prin1-to-string (car args))))
+  (let* ((path (car args)))
+      (cond
+       ((string-match "^QM:\\(\\w+\\):\\([0-9]+\\):\\(.+\\)" path)
+	(let ((server (match-string 1 path))
+	      (port (string-to-int (match-string 2 path)))
+	      (ns (match-string 3 path)))
+	  (qmapper-fetch-ns server port ns)))
+       (t (apply find-file args)))))
+  
+
+(defun to-kill-buffer ()
+  (interactive)
+  (if (or (not (buffer-modified-p))
+  	       (and (buffer-modified-p)
+  		    (y-or-n-p (concat "Buffer " (prin1-to-string (current-buffer)) " modified. Kill anyway?"))))
+      (kill-buffer (current-buffer))))
+
+	    
+
+	    ;; (setq qmapper-ser
+
+(define-minor-mode qmapper-editor-mode
+  "QMapper doc-server client"
+  :lighter " qmapper"
+  :keymap (let ((map (make-sparse-keymap)))
+	    (define-key map (kbd "C-x C-s") #'qmapper-save-ns)
+	    (define-key map (kbd "C-x k") 'to-kill-buffer)
+	    (advice-add 'find-file :around #'qmapper-find-file)
+						   
+	    map)  
+  :global nil)
 				     
 	
 
 ;; (qmapper-fetch-ns "localhost" 40359 "user")
-;; (qmapper-save-ns  "localhost" 40359 "user")
+;; (qmapper-save-ns  "localhost" 40359 "user")t
+
+
