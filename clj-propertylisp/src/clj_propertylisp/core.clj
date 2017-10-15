@@ -490,12 +490,12 @@ virtual %s get%s();
                                                  (let [[_ prop-name _] form
                                                        prop-name ((comp str/capitalize name) prop-name)]
                                                    (if (not= prop-name "Id")
-                                                     (str "void " class-name "::set" prop-name "(" type " val) { 
+                                                     (str "void " class-name "::set" prop-name "(" type " value) { 
 "
                                                           (if validators
                                                             (str "if(" (str/join "&& \n"
                                                                                  (map validator-gen validators)) ") {\n"))
-                                                           prop-name "_field = val;
+                                                           prop-name "_field = value;
 "
                                                            (if validators
                                                              "}")
