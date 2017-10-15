@@ -1,9 +1,10 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-10-12T15:52:37.487Z
+//// generated at 2017-10-15T11:54:55.566Z
 
 #include<boost/flyweight.hpp>
 #include<QString>
+#include<either.h>
 #include<string>
 #include<map>
 #include<script-types.h>

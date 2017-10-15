@@ -46,7 +46,8 @@ HEADERS += src/headers/files.h \
            src/headers/rootContainer.h \
            src/headers/propertyEditor.h \
            src/headers/script-types.h \
-           src/headers/doc-server.h
+           src/headers/doc-server.h \
+           src/headers/either.h
            
 FORMS += \
     src/forms/main.ui 

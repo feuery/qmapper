@@ -10,13 +10,14 @@ using namespace boost::flyweights;
 #include<string>
 #include<boost/flyweight.hpp>
 #include<QString>
+#include<either.h>
 #include<cstring>
 class Map;
 class root: public Propertierbase {
  public: std::map<flyweight<std::string>, Propertierbase*>* registry = nullptr;
 public: virtual flyweight<std::string> indexOf (int row) = 0;
 public: virtual int rowOf (flyweight<std::string> id) = 0;
-public: virtual std::string findNs (std::string ns) = 0;
+public: virtual either<scriptTypes, std::string> findNs (std::string ns) = 0;
 public: virtual void saveNs (std::string ns, std::string content) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id")) { Id_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {

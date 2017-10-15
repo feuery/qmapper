@@ -1,6 +1,7 @@
 #include <doc-server.h>
 #include <QNetworkInterface>
 #include <editorController.h>
+#include <QRegExp>
 
 document_server::document_server() {
   // Init tcp server and pair it to the sessionOpened() - slot
@@ -62,13 +63,22 @@ void document_server::helloWorld()
 	if(protocol == QString("NS")) {
 	  QString qns = l.at(1);
 	  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
-      
-	  std::string contents = editorController::instance->document.findNs(ns);
+
+	  either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
+	  std::string contents = script_data.b;
 	  QString c(contents.c_str());
+
+	  QString firstLine = c.split(QString("\n")).at(0);
+
+	  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
+	                             (script_data.a == scheme? QString("; -*- mode: scheme; -*-\n"):
+				                               QString("; -*- mode: glsl; -*-\n")) + c;
+	    
+
 
 	  qDebug() << "Found script " << c;
 
-	  clientCon->write(c.toUtf8());
+	  clientCon->write(result.toUtf8());
 	}
 	else if (protocol == QString("SAVE-NS")) {
 	  std::string ns = l.at(1).toStdString();

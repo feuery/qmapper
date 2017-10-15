@@ -8,13 +8,7 @@
 
 #include <script-types.h>
 #include <tilelistmodel.h>
-
-template<typename T, typename E>
-struct either
-{
-  T a;
-  E b;
-};
+#include <either.h>
 
 either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::string> internedPropname) {
   std::string lol;

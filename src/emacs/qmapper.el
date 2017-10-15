@@ -24,9 +24,18 @@
       (set-process-sentinel proc (lambda (p e)
 				   (with-current-buffer (get-buffer-create buffer-name)
 				     (switch-to-buffer (get-buffer-create buffer-name))
+
+				     (goto-char 0)
+
+				     (cond
+				      ((save-excursion
+					 (search-forward "-*- mode: scheme" nil t))
+				       (scheme-mode)
+				       (geiser-mode))
+				      ((save-excursion
+					 (search-forward "-*- mode: glsl" nil t))
+				       (glsl-mode)))
 				     
-				     (scheme-mode)
-				     (geiser-mode)
 				     (qmapper-editor-mode)
 				     (rename-buffer buffer-name)
 
@@ -49,12 +58,9 @@
 					    :nowait nil)))
 	    (process-send-string proc (concat "SAVE-NS:" ns ":" buf-content))
 	    (set-process-sentinel proc (lambda (p e)
+					 (clear-modified)
 					 (message (concat "Saved " ns " to " server ":" (int-to-string port)))))))
       (save-buffer))))
-
-
-	     ;; (not (equal qmapper-server ""))
-	     ;; qmapper-port
 
 (defun qmapper-find-file (find-file &rest args)
   (message (concat "Searching " (prin1-to-string (car args))))
@@ -75,10 +81,6 @@
   		    (y-or-n-p (concat "Buffer " (prin1-to-string (current-buffer)) " modified. Kill anyway?"))))
       (kill-buffer (current-buffer))))
 
-	    
-
-	    ;; (setq qmapper-ser
-
 (define-minor-mode qmapper-editor-mode
   "QMapper doc-server client"
   :lighter " qmapper"
@@ -94,5 +96,3 @@
 
 ;; (qmapper-fetch-ns "localhost" 40359 "user")
 ;; (qmapper-save-ns  "localhost" 40359 "user")t
-
-

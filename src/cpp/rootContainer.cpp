@@ -31,27 +31,28 @@ int Rootcontainer::rowOf(flyweight<std::string> id)
   return std::distance(registry->begin(), it);
 }
 
-std::string Rootcontainer::findNs(std::string ns)
+either<scriptTypes, std::string> Rootcontainer::findNs(std::string ns)
 {
   std::vector<Script*> scripts;
+
+  either<scriptTypes, std::string> result;
   
   for(auto iter = registry->begin(); iter != registry->end(); iter++) {
-    // qDebug() << "Is \"" << iter->second->type_identifier().get().c_str() << "\" = \"Script\"";
-    // if (iter->second->type_identifier() == flyweight<std::string>(std::string("Script"))) {
-    //   qDebug() << "Yes, ";
-    //   qDebug() << "Is " << toScript(iter->second)->getNs().c_str() << " = " << ns.c_str();
-    // }
     
     if(iter->second->type_identifier() == flyweight<std::string>(std::string("Script"))) {
-      if(toScript(iter->second)->getNs() == ns) {
-	// qDebug() << "Yes";
-	return toScript(iter->second)->getContents();
+      Script *s = toScript(iter->second);
+      if(s->getNs() == ns) {
+	result.a = s->getScript_type();
+	result.b = s->getContents();
+	return result;
       }
     } // else qDebug() << "No";
     // qDebug() << "==========================================================";
   }
 
-  return std::string("NOT FOUND NS ") + ns;
+  result.b = std::string("NOT FOUND NS ") + ns;
+  result.a = scheme;
+  return result;
 }
 
 void Rootcontainer::saveNs (std::string ns, std::string content)
