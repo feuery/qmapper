@@ -1,27 +1,27 @@
 #include <tile.h>
-////// generated at 2017-10-15T11:54:55.642Z
+////// generated at 2017-10-15T15:50:50.200Z
 
 
-void Tile::setX(int val) {
-X_field = val;
+void Tile::setX(int value) { 
+X_field = value;
 }
                                                         int Tile::getX() {
 return X_field;
 }
-void Tile::setY(int val) {
-Y_field = val;
+void Tile::setY(int value) { 
+Y_field = value;
 }
                                                         int Tile::getY() {
 return Y_field;
 }
-void Tile::setTileset(int val) {
-Tileset_field = val;
+void Tile::setTileset(int value) { 
+Tileset_field = value;
 }
                                                         int Tile::getTileset() {
 return Tileset_field;
 }
-void Tile::setRotation(int val) {
-Rotation_field = val;
+void Tile::setRotation(int value) { 
+Rotation_field = value;
 }
                                                         int Tile::getRotation() {
 return Rotation_field;

@@ -7,6 +7,7 @@
 using namespace boost::flyweights;
 #include<string>
 #include<script-types.h>
+#include<nsValidators.h>
 #include<cstring>
 ;
 class Script: public Propertierbase {
@@ -22,13 +23,13 @@ std::string Ns_field = "user";
 public: virtual void setScript_type(scriptTypes val);
 virtual scriptTypes getScript_type();
 scriptTypes Script_type_field = scheme;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id")) { Id_field = value; return; } }
+if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {
-if(propertyname == std::string("contents")) { Contents_field = value; return; }
-if(propertyname == std::string("name")) { Name_field = value; return; }
-if(propertyname == std::string("ns")) { Ns_field = value; return; } }
+if(propertyname == std::string("contents") ) { Contents_field = value; return; }
+if(propertyname == std::string("name") ) { Name_field = value; return; }
+if(propertyname == std::string("ns")  && doesntContainNs(value)) { Ns_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, scriptTypes value) {
-if(propertyname == std::string("script_type")) { Script_type_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("script_type") ) { Script_type_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;

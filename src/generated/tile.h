@@ -21,12 +21,12 @@ int Tileset_field = 0;
 public: virtual void setRotation(int val);
 virtual int getRotation();
 int Rotation_field = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id")) { Id_field = value; return; } }
+if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, int value) {
-if(propertyname == std::string("x")) { X_field = value; return; }
-if(propertyname == std::string("y")) { Y_field = value; return; }
-if(propertyname == std::string("tileset")) { Tileset_field = value; return; }
-if(propertyname == std::string("rotation")) { Rotation_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("x") ) { X_field = value; return; }
+if(propertyname == std::string("y") ) { Y_field = value; return; }
+if(propertyname == std::string("tileset") ) { Tileset_field = value; return; }
+if(propertyname == std::string("rotation") ) { Rotation_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;

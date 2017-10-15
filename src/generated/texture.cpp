@@ -1,9 +1,9 @@
 #include <texture.h>
-////// generated at 2017-10-15T11:54:55.638Z
+////// generated at 2017-10-15T15:50:50.195Z
 
 
-void Texture::setName(std::string val) {
-Name_field = val;
+void Texture::setName(std::string value) { 
+Name_field = value;
 }
                                                         std::string Texture::getName() {
 return Name_field;

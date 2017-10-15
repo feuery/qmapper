@@ -67,3 +67,14 @@ void Rootcontainer::saveNs (std::string ns, std::string content)
     }
   }
 }
+
+bool Rootcontainer::containsNs (std::string ns) {
+  for(auto iter = registry->begin(); iter != registry->end(); iter++) {
+    if(iter->second->type_identifier() == flyweight<std::string>(std::string("Script"))) {
+      Script *scr = toScript(iter->second);
+      if(scr->getNs() == ns) return true;
+    }
+  }
+  
+  return false;
+}

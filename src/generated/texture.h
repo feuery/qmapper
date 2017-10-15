@@ -19,9 +19,9 @@ public: virtual root* parent () = 0;
 public: virtual void setName(std::string val);
 virtual std::string getName();
 std::string Name_field = "New texture";virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id")) { Id_field = value; return; } }
+if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {
-if(propertyname == std::string("name")) { Name_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("name") ) { Name_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;

@@ -1,9 +1,9 @@
 #include <layer.h>
-////// generated at 2017-10-15T11:54:55.644Z
+////// generated at 2017-10-15T15:50:50.202Z
 
 
-void Layer::setName(std::string val) {
-Name_field = val;
+void Layer::setName(std::string value) { 
+Name_field = value;
 }
                                                         std::string Layer::getName() {
 return Name_field;

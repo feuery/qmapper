@@ -1,27 +1,28 @@
 #include <script.h>
-////// generated at 2017-10-15T11:54:55.640Z
+////// generated at 2017-10-15T15:50:50.197Z
 
 
-void Script::setContents(std::string val) {
-Contents_field = val;
+void Script::setContents(std::string value) { 
+Contents_field = value;
 }
                                                         std::string Script::getContents() {
 return Contents_field;
 }
-void Script::setName(std::string val) {
-Name_field = val;
+void Script::setName(std::string value) { 
+Name_field = value;
 }
                                                         std::string Script::getName() {
 return Name_field;
 }
-void Script::setNs(std::string val) {
-Ns_field = val;
-}
+void Script::setNs(std::string value) { 
+if(doesntContainNs(value)) {
+Ns_field = value;
+}}
                                                         std::string Script::getNs() {
 return Ns_field;
 }
-void Script::setScript_type(scriptTypes val) {
-Script_type_field = val;
+void Script::setScript_type(scriptTypes value) { 
+Script_type_field = value;
 }
                                                         scriptTypes Script::getScript_type() {
 return Script_type_field;

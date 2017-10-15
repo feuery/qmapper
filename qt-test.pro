@@ -47,7 +47,8 @@ HEADERS += src/headers/files.h \
            src/headers/propertyEditor.h \
            src/headers/script-types.h \
            src/headers/doc-server.h \
-           src/headers/either.h
+           src/headers/either.h \
+           src/headers/nsValidators.h
            
 FORMS += \
     src/forms/main.ui 
@@ -75,5 +76,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/rootContainer.cpp \
            src/cpp/propertyEditor.cpp \
            src/cpp/textureContainer.cpp \
-           src/cpp/doc-server.cpp
-           
+           src/cpp/doc-server.cpp \
+           src/cpp/nsValidators.cpp

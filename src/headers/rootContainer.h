@@ -18,6 +18,8 @@ public:
   either<scriptTypes, std::string> findNs (std::string ns) override;
   void saveNs (std::string ns, std::string content) override;
 
+  bool containsNs (std::string ns);
+
 private:
 
 };

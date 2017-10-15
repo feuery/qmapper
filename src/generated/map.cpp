@@ -1,15 +1,15 @@
 #include <map.h>
-////// generated at 2017-10-15T11:54:55.650Z
+////// generated at 2017-10-15T15:50:50.209Z
 
 
-void Map::setName(std::string val) {
-Name_field = val;
+void Map::setName(std::string value) { 
+Name_field = value;
 }
                                                         std::string Map::getName() {
 return Name_field;
 }
-void Map::setText(Texture* val) {
-Text_field = val;
+void Map::setText(Texture* value) { 
+Text_field = value;
 }
                                                         Texture* Map::getText() {
 return Text_field;

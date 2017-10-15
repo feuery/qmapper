@@ -26,11 +26,11 @@ public: virtual void parent (root* p) = 0;
 public: virtual int width () = 0;
 public: virtual int height () = 0;
 public: virtual root* parent () = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id")) { Id_field = value; return; } }
+if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {
-if(propertyname == std::string("name")) { Name_field = value; return; } }
+if(propertyname == std::string("name") ) { Name_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, Texture* value) {
-if(propertyname == std::string("text")) { Text_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("text") ) { Text_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;

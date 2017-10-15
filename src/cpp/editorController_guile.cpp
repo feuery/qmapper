@@ -80,6 +80,10 @@ extern "C" {
     return SCM_BOOL_T;
   }
 
+  std::string genNs() {
+    return std::string("user") + std::to_string(rand() % 1000000);
+  }
+
   SCM add_glsl_script()
   {
     editorController::instance->documentTreeModel->begin();
@@ -87,6 +91,8 @@ extern "C" {
     Script *scrpt = new Script;
     scrpt->setScript_type(glsl);
     scrpt->setName("A new GLSL script");
+    std::string ns = genNs();
+    scrpt->setNs(ns);
     
     (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
     editorController::instance->documentTreeModel->end();
@@ -101,6 +107,8 @@ extern "C" {
     Script *scrpt = new Script;
     scrpt->setScript_type(scheme);
     scrpt->setName("A new Scheme script");
+    std::string ns = genNs();
+    scrpt->setNs(ns);
     
     (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
     editorController::instance->documentTreeModel->end();
