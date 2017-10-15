@@ -51,111 +51,17 @@
       (str/replace #"___" ", ")
       (str/replace #"__" "::")))
 
-(def test-data '[{:class-name Texture,
-                  :includes ("<string>" "<QString>" "<root.h>"),
-                  :declared-classes (),
-                  :forms
-                  ({:form (GLuint texture_handle -1), :privacy public, :type fields}
-                   {:form (int texture_width 0), :privacy public, :type fields}
-                   {:form (int texture_height 0), :privacy public, :type fields}
-                   {:form (void parent (root* p)), :privacy public, :type functions}
-                   {:form (root* parent ()), :privacy public, :type functions}
-                   {:form (std__string name "New texture"),
-                    :privacy public,
-                    :type properties}),
-                  :filename "texture.def"}
-                 {:class-name Script,
-                  :includes ("<string>" "<script-types.h>"),
-                  :declared-classes (),
-                  :forms
-                  ({:form (std__string contents ""), :privacy public, :type properties}
-                   {:form (std__string name ""), :privacy public, :type properties}
-                   {:form (std__string ns "user"), :privacy public, :type properties}
-                   {:form (scriptTypes script_type scheme),
-                    :privacy public,
-                    :type properties}),
-                  :filename "script.def"}
-                 {:class-name Tileset,
-                  :includes
-                  ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>"),
-                  :declared-classes (),
-                  :forms
-                  ({:form (GLuint vao_handle 0), :privacy public, :type fields}
-                   {:form (GLuint shader_handle 0), :privacy public, :type fields}
-                   {:form (void render (QOpenGLFunctions_4_3_Core *f)),
-                    :privacy public,
-                    :type functions}
-                   {:form (void setVertexShader (std__string& shader)),
-                    :privacy public,
-                    :type functions}
-                   {:form (void setFragmentShader (std__string& shader)),
-                    :privacy public,
-                    :type functions}),
-                  :filename "tileset.def"}
-                 {:class-name Tile,
-                  :includes (),
-                  :declared-classes (),
-                  :forms
-                  ({:form (int x 0), :privacy public, :type properties}
-                   {:form (int y 0), :privacy public, :type properties}
-                   {:form (int tileset 0), :privacy public, :type properties}
-                   {:form (int rotation 0), :privacy public, :type properties}),
-                  :filename "tile.def"}
-                 {:class-name Layer,
-                  :includes ("<tile.h>" "<string>" "<vector>" "<map.h>"),
-                  :declared-classes ("Map" "Tile"),
-                  :forms
-                  ({:form (std__vector<std__vector<Tile>>* tiles nullptr),
-                    :privacy public,
-                    :type fields}
-                   {:form (std__string name ""), :privacy public, :type properties}
-                   {:form (void set_parent (Map* p)), :privacy public, :type functions}
-                   {:form (int getWidth ()), :privacy public, :type functions}
-                   {:form (int getHeight ()), :privacy public, :type functions}
-                   {:form (Map* parent ()), :privacy public, :type functions}
-                   {:form (int w 0), :privacy protected, :type fields}
-                   {:form (int h 0), :privacy protected, :type fields}
-                   {:form (Map* p nullptr), :privacy protected, :type fields}),
-                  :filename "layer.def"}
-                 {:class-name root,
-                  :includes
-                  ("<propertierbase.h>"
-                   "<map>"
-                   "<string>"
-                   "<boost/flyweight.hpp>"
-                   "<QString>"),
-                  :declared-classes ("Map"),
-                  :forms
-                  ({:form
-                    (std__map<flyweight<std__string>___Propertierbase*>*
-                     registry
-                     nullptr),
-                    :privacy public,
-                    :type fields}
-                   {:form (flyweight<std__string> indexOf (int row)),
-                    :privacy public,
-                    :type functions}
-                   {:form (int rowOf (flyweight<std__string> id)),
-                    :privacy public,
-                    :type functions}),
-                  :filename "root.def"}
-                 {:class-name Map,
-                  :includes
-                  ("<root.h>" "<layer.h>" "<vector>" "<string>" "<texture.h>"),
-                  :declared-classes ("root" "Layer" "Texture"),
-                  :forms
-                  ({:form (std__vector<Layer*>* layers nullptr),
-                    :privacy public,
-                    :type fields}
-                   {:form (std__string name "Map 1"),
-                    :privacy public,
-                    :type properties}
-                   {:form (Texture* text nullptr), :privacy public, :type properties}
-                   {:form (void parent (root* p)), :privacy public, :type functions}
-                   {:form (int width ()), :privacy public, :type functions}
-                   {:form (int height ()), :privacy public, :type functions}
-                   {:form (root* parent ()), :privacy public, :type functions}),
-                  :filename "map.def"}] )
+(def test-data '(defcppclass Script ("<string>" "<script-types.h>" "<nsDoesnExistHeader.h>")
+  (public
+   (properties
+    (std__string contents "")
+    (std__string name "")
+    ;; TODO make immutable
+    ;; The fourth parameter is a list of validators that are unary C fns that onSet take the new value as param and return a bool that controls if the new value is suitable
+    ;; Every validator fn has to return true for it to be set
+    ;; If there are no validators, you don't need to write an empty list ()
+    (std__string ns "user" (nsDoesntExist nsDoesntReallyExist))
+    (scriptTypes script_type scheme)))))
 
 #_(:header (codegen (assoc (tokenize test-data) :filename "lol.def")))
 
@@ -182,11 +88,24 @@
 
 (def test-set [test-data another-test])
 
+;; Why should dissoc work with vectors? What's consistency?
+(defn vec-remove
+  "remove elem in coll"
+  [coll pos]
+  (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
+
 (defn tokenize-type [privacy-level [f & forms]]
   (map (fn [form]
-         {:form form
-          :privacy privacy-level
-          :type f})
+         (cond (= f 'properties) {:form (if (> (count form) 3)
+                                          (vec-remove (vec form) 3)
+                                          form)
+                                  :privacy privacy-level
+                                  :validators (if (> (count form) 3)
+                                                (nth form 3))
+                                  :type f}
+               :t {:form form
+                   :privacy privacy-level
+                   :type f}))
        forms))
 
 (defn tokenize-privacy-level [[f & forms]]
@@ -467,15 +386,23 @@ return;
         props-by-types (->> props
                             (group-by (comp first :form))
                             (map-keys typesymbol->str))
+
+        validator-gen (fn [valid-symbol]
+                        (str (name valid-symbol)
+                             "(value)"))
         
         set-contents (->> props-by-types
                           (map (fn [[type props]]
                                    (str "virtual void set(flyweight<std::string> propertyname, " type " value) {
 " (->> props
-       (map (fn [{:keys [form]}]
+       (map (fn [{:keys [form validators]}]
               (let [[prop-type prop-name _] form]
                 (str
-                 "if(propertyname == std::string(\"" prop-name "\")) { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
+                 "if(propertyname == std::string(\"" prop-name "\") "
+                 (if validators
+                   (str " && " (str/join " && "
+                                         (map validator-gen validators))))
+                 ") { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
        (str/join "\n"))
                                         " }")))
                           (str/join "\n"))
@@ -559,13 +486,20 @@ virtual %s get%s();
                          (->> props-by-types
                               (map (fn [[type props]]
                                      (->> props
-                                          (map (fn [{:keys [form]}]
+                                          (map (fn [{:keys [form validators]}]
                                                  (let [[_ prop-name _] form
                                                        prop-name ((comp str/capitalize name) prop-name)]
                                                    (if (not= prop-name "Id")
-                                                     (str "void " class-name "::set" prop-name "(" type " val) {
-" prop-name "_field = val;
-}
+                                                     (str "void " class-name "::set" prop-name "(" type " val) { 
+"
+                                                          (if validators
+                                                            (str "if(" (str/join "&& \n"
+                                                                                 (map validator-gen validators)) ") {\n"))
+                                                           prop-name "_field = val;
+"
+                                                           (if validators
+                                                             "}")
+"}
                                                         " type " " class-name "::get" prop-name "() {
 return " prop-name "_field;
 }")
