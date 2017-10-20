@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <propertierbase.h>
 #include <string>
+#include <QLineEdit>
+#include <unordered_map>
 
 class Propertyeditor: public QDialog{
   Q_OBJECT
@@ -20,6 +22,16 @@ public:
   virtual void showEvent(QShowEvent *e);
   
 private:
+
+  std::unordered_map<std::string, QLabel*> field_errorlabel_mapping;
+
+  QFormLayout* makeLayout(Propertierbase *base);
+  void resetLayout(Propertierbase *base);
+
+  QFormLayout *data;
+  QVBoxLayout *l;
+
+  void editingStdStringFinished(Propertierbase *base, flyweight<std::string> internedPropname, QLineEdit *edit);
 
 };
 

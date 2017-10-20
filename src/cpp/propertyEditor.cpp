@@ -1,7 +1,6 @@
 #include <QDebug>
 #include <QLabel>
 #include <propertyEditor.h>
-#include <QLineEdit>
 #include <QComboBox>
 #include <root.h>
 #include <editorController.h>
@@ -34,9 +33,16 @@ either<bool, std::string> getScriptTypeAsString(Propertierbase *base, flyweight<
 }
   
 
-void editingStdStringFinished(Propertierbase *base, flyweight<std::string> internedPropname, QLineEdit *edit) {
-
+void Propertyeditor::editingStdStringFinished(Propertierbase *base, flyweight<std::string> internedPropname, QLineEdit *edit)
+{
   base->set(internedPropname, edit->text().toStdString());
+  std::string errors = base->getErrorsOf(internedPropname);
+  if(QLabel *l = field_errorlabel_mapping[internedPropname.get()]) {
+    l->setText(QString(errors.c_str()));
+  }
+  else
+    printf("No error-label found for %s\n", internedPropname.get().c_str());
+  base->clearErrorsOf(internedPropname);
 }
 
 QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
@@ -65,12 +71,11 @@ static void indexChanged(Propertierbase *b, flyweight<std::string> internedPropN
   qDebug()<<"Successfully changed " << internedPropName.get().c_str();
 }
 
-Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
-{
+QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
+  QFormLayout *data = new QFormLayout;
+
   std::vector<flyweight<std::string>> properties = base->names();
-  
-  QVBoxLayout *l = new QVBoxLayout(this);
-  QFormLayout *data = new QFormLayout(this);
+
   for(int i =0; i<base->property_count(); i++) {
     flyweight<std::string> type = base->type_name(properties.at(i));
     if(type == std::string("std::string")) {
@@ -80,8 +85,17 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
 
       connect(edit, &QLineEdit::editingFinished,
       	      [=]() { if(any.a) editingStdStringFinished(base, properties.at(i), edit); });
+
+      flyweight<std::string> fieldName = properties.at(i);
+      std::string errors = base->getErrorsOf(fieldName);
+
+      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      error_field->setStyleSheet("QLabel { color: red; }");
+
+      field_errorlabel_mapping[properties.at(i).get()] = error_field;
       
       data->addRow(QString(properties.at(i).get().c_str()), edit);
+      data->addRow(QString(""), error_field);
     }
     else if(type == "scriptTypes") {
       auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
@@ -136,24 +150,38 @@ Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(p
     }
   }
 
+  return data;
+}
+
+void Propertyeditor::resetLayout(Propertierbase *base) {
   root *r = &editorController::instance->document;
+  l = new QVBoxLayout;
   
+  data = makeLayout(base);
+
   data->addRow(QString("Row: "),
 	       new QLabel(QString(std::to_string(r->rowOf(base->getId())).c_str()), this));
   data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
   
-  QHBoxLayout *buttons = new QHBoxLayout(this);
+  QHBoxLayout *buttons = new QHBoxLayout;
 
   QPushButton *close = new QPushButton("Close", this);
   buttons->addWidget(close);
-
+  
   l->addLayout(data);
   l->addLayout(buttons);
+  
+  setLayout(l);
+
+  connect(close, &QPushButton::clicked, this, &QDialog::accept);
+}
+
+Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
+{  
+  resetLayout(base);
     
   setMinimumWidth(800);
   setMinimumHeight(600);
-
-  connect(close, &QPushButton::clicked, this, &QDialog::accept);
 }
 
 Propertyeditor::~Propertyeditor()

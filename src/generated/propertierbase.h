@@ -18,6 +18,8 @@
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
 
+#include<unordered_map>
+
 using namespace boost::flyweights;
 class Map;
 class root;
@@ -56,6 +58,11 @@ virtual void set(flyweight<std::string>propertyname, Texture* value);
 virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
+
+  std::unordered_map<std::string, std::vector<std::string>> field_error_map;
+
+  std::string getErrorsOf(flyweight<std::string> field);
+  void clearErrorsOf(flyweight<std::string> field);
 
 
 protected:
