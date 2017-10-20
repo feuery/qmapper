@@ -27,14 +27,14 @@ std::string read_source(const char* src)
 
     if(!buffer) {
       fclose(f);
-      delete buffer;
+      delete [] buffer;
       return NULL;
     }
     else {
       fread(buffer, 1, f_size, f);
       fclose(f);
       std::string toret = buffer;
-      delete buffer;
+      delete [] buffer;
       return toret;
     }
   } else qDebug() << "File wasn't opened";
