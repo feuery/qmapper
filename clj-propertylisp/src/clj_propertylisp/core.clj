@@ -259,6 +259,8 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
 
+#include <unordered_map>
+
 using namespace boost::flyweights;
 %s
 class Propertierbase 
@@ -285,6 +287,11 @@ virtual ~Propertierbase ();
   Propertierbase* get(flyweight<std::string>propertyname);
 
 %s
+
+  std::unordered_map<std::string, std::vector<std::string>> field_error_map;
+
+  std::string getErrorsOf(flyweight<std::string> field);
+  void clearErrorsOf(flyweight<std::string> field);
 
 protected:
   flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
@@ -338,7 +345,23 @@ Propertierbase* Propertierbase::get(flyweight<std::string> propertyname)
   auto prop_typename = type_name(propertyname);
   %s
   return nullptr;
-}"
+}
+
+std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
+ std::string result;
+
+ std::vector<std::string> vec = field_error_map[field.get()];
+ for(auto i = vec.begin(); i < vec.end(); i++) {
+   result += *i + \"\\n\";
+ }
+
+ return result ;
+}
+
+void Propertierbase::clearErrorsOf(flyweight<std::string> field) {
+ field_error_map[field.get()].clear();
+}
+"
                     (-> props
                         make-get-sets-of-propertierbase
                         get-set-strs-implementation)
@@ -389,7 +412,7 @@ return;
 
         validator-gen (fn [valid-symbol]
                         (str (name valid-symbol)
-                             "(value)"))
+                             "(value, error_reporter)"))
         
         set-contents (->> props-by-types
                           (map (fn [[type props]]
@@ -398,6 +421,12 @@ return;
        (map (fn [{:keys [form validators]}]
               (let [[prop-type prop-name _] form]
                 (str
+
+                 (if validators (str "auto error_reporter = [&](std::string msg) {
+    std::vector<std::string>& vec = field_error_map[std::string(\"" prop-name "\")];
+	printf(\"Pushing error %s\\n\", msg.c_str());
+	vec.push_back(msg);};"))
+                 
                  "if(propertyname == std::string(\"" prop-name "\") "
                  (if validators
                    (str " && " (str/join " && "
@@ -492,14 +521,14 @@ virtual %s get%s();
                                                    (if (not= prop-name "Id")
                                                      (str "void " class-name "::set" prop-name "(" type " value) { 
 "
-                                                          (if validators
-                                                            (str "if(" (str/join "&& \n"
-                                                                                 (map validator-gen validators)) ") {\n"))
+                                                          (if validators (str "auto error_reporter = [&](std::string msg) {
+    std::vector<std::string>& vec = field_error_map[std::string(\"" prop-name "\")];
+	printf(\"Pushing error %s\\n\", msg.c_str());
+	vec.push_back(msg);};"
+                                                                              "if(" (str/join " && "
+                                                                                                                                                (map validator-gen validators)) ")"))
                                                            prop-name "_field = value;
-"
-                                                           (if validators
-                                                             "}")
-"}
+}
                                                         " type " " class-name "::get" prop-name "() {
 return " prop-name "_field;
 }")

@@ -75,21 +75,16 @@ Propertierbase* Propertierbase::get(flyweight<std::string> propertyname)
 }
 
 std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
-  std::string result;
-  try {
-    std::vector<std::string> vec = field_error_map[field.get()];
-    for(auto i = vec.begin(); i < vec.end(); i++) {
-      result += *i + "\n";
-    }
+ std::string result;
 
-    return result ;
-  }
-  catch (std::out_of_range ex) {
-    printf("Caught out_of_range\n");
-    throw ex;
-  }
+ std::vector<std::string> vec = field_error_map[field.get()];
+ for(auto i = vec.begin(); i < vec.end(); i++) {
+   result += *i + "\n";
+ }
+
+ return result ;
 }
 
 void Propertierbase::clearErrorsOf(flyweight<std::string> field) {
-  field_error_map[field.get()].clear();
+ field_error_map[field.get()].clear();
 }

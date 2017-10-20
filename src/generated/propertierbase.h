@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-10-15T15:50:50.129Z
+//// generated at 2017-10-20T15:05:31.463Z
 
 #include<boost/flyweight.hpp>
 #include<QString>
@@ -18,7 +18,7 @@
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
 
-#include<unordered_map>
+#include <unordered_map>
 
 using namespace boost::flyweights;
 class Map;
@@ -59,11 +59,11 @@ virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture*
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
 
+
   std::unordered_map<std::string, std::vector<std::string>> field_error_map;
 
   std::string getErrorsOf(flyweight<std::string> field);
   void clearErrorsOf(flyweight<std::string> field);
-
 
 protected:
   flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
