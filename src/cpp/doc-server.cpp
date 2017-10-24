@@ -72,7 +72,7 @@ void document_server::helloWorld()
 
 	  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
 	                             (script_data.a == scheme? QString("; -*- mode: scheme; -*-\n"):
-				                               QString("; -*- mode: glsl; -*-\n")) + c;
+				                               QString("// -*- mode: glsl; -*-\n")) + c;
 	    
 
 
