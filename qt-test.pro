@@ -29,6 +29,7 @@ HEADERS += src/headers/files.h \
            src/headers/renderer.h \
            src/headers/shaders.h \
            src/headers/guile_thread.h \
+           src/headers/tilesetContainer.h \
            src/generated/propertierbase.h \
            src/generated/tile.h \
            src/generated/layer.h \
@@ -77,4 +78,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/propertyEditor.cpp \
            src/cpp/textureContainer.cpp \
            src/cpp/doc-server.cpp \
-           src/cpp/nsValidators.cpp
+           src/cpp/nsValidators.cpp \
+           src/cpp/tilesetContainer.cpp

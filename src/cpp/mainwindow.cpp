@@ -11,6 +11,8 @@
 #include <QMessageBox>
 #include <editorController_guile.h>
 
+#include <tilesetContainer.h>
+
 #define btnW 200
 #define btnH 25
 
@@ -104,11 +106,13 @@ void MainWindow::setupTreeCtxMenu()
 
   QAction *glsl = new QAction("&GLSL", this),
     *scheme = new QAction("&Scheme", this),
-    *texture = new QAction("&Texture", this);
+    *texture = new QAction("&Texture", this),
+    *tileset = new QAction("T&ileset", this);
   
   glsl->setStatusTip("New GLSL-script asset");
   scheme->setStatusTip("New Scheme asset");
   texture->setStatusTip("New texture asset");
+  tileset->setStatusTip("New tileset");
 
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
@@ -133,14 +137,26 @@ void MainWindow::setupTreeCtxMenu()
       ec->documentTreeModel->end();
     });
 
+  connect(tileset, &QAction::triggered, this, &MainWindow::newTileset) ;
+
   newMenu->addAction(glsl);
   newMenu->addAction(scheme);
   newMenu->addSeparator();
   newMenu->addAction(texture);
+  newMenu->addAction(tileset);
 
   QAction *newMenu_act = new QAction("&New", this);
   newMenu_act->setMenu(newMenu);
   tree.addAction(newMenu_act);
+}
+
+void MainWindow::newTileset() {
+  // QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
+  ec->documentTreeModel->begin();
+  Tileset *t = new tilesetContainer;
+  t->setName("New Tileset");
+  (*ec->document.registry)[t->getId()] = t;
+  ec->documentTreeModel->end();
 }
  
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())

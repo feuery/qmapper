@@ -9,6 +9,15 @@ Propertierbase::~Propertierbase()
 
 }
 
+void Propertierbase::set(flyweight<std::string>propertyname, Script* value) 
+{
+
+}
+
+Script* Propertierbase::get(flyweight<std::string>propertyname, bool *success, Script* type_helper)
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, std::string value) 
 {
 
@@ -50,7 +59,12 @@ int Propertierbase::get(flyweight<std::string>propertyname, bool *success, int t
 void Propertierbase::set(flyweight<std::string> propName, Propertierbase *b)
 {
   auto prop_typename = type_name(propName);
-  if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
+  if(prop_typename == flyweight<std::string>(std::string("Script"))) {
+Script* t = reinterpret_cast<Script*>(b);
+set(propName, t);
+return;
+}
+if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
 Texture* t = reinterpret_cast<Texture*>(b);
 set(propName, t);
 return;
@@ -64,7 +78,14 @@ return;
 Propertierbase* Propertierbase::get(flyweight<std::string> propertyname)
 {
   auto prop_typename = type_name(propertyname);
-  if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
+  if(prop_typename == flyweight<std::string>(std::string("Script"))) {
+    bool success = false;
+    Script* b = nullptr;
+    b = get(propertyname, &success, b);
+    if(success) return (Propertierbase*)b;
+    else return nullptr;
+  }
+if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
     bool success = false;
     Texture* b = nullptr;
     b = get(propertyname, &success, b);

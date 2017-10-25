@@ -5,6 +5,7 @@
 #include <tilelistmodel.h>
 #include <script.h>
 #include <texture.h>
+#include <tilesetContainer.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   if(parent.isValid()) return static_cast<Propertierbase*>(parent.internalPointer());
@@ -35,7 +36,8 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   else if(strcmp(type, "Layer") == 0 ||
 	  strcmp(type, "Script") == 0 ||
-	  strcmp(type, "Texture") == 0) {
+	  strcmp(type, "Texture") == 0 ||
+	  strcmp(type, "Tileset") == 0) {
     return 0;
   }
   else {
@@ -111,6 +113,10 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
     Script *s = static_cast<Script*>(base);
     return QString(s->getName().c_str());
   }
+  else if(strcmp(type, "Tileset") == 0) {
+    Tileset *s = static_cast<Tileset*>(base);
+    return QString(s->getName().c_str());
+  }
   else {
     type_err_print;
     throw "";
@@ -151,6 +157,10 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   }
   else if(strcmp(type, "Texture") == 0 ) {
     Texture *t = static_cast<Texture*>(obj);
+    return createIndex(Root->rowOf(t->getId()), 0, Root);
+  }
+  else if(strcmp(type, "Tileset") == 0 ) {
+    Tileset *t = static_cast<Tileset*>(obj);
     return createIndex(Root->rowOf(t->getId()), 0, Root);
   }
   else {

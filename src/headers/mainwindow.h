@@ -26,6 +26,8 @@ public:
   
 private:
 
+  void newTileset();
+
   Ui::MainWindow ui;
 
   document_server s;

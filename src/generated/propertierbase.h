@@ -1,13 +1,15 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-10-20T15:05:31.463Z
+//// generated at 2017-10-25T15:48:57.758Z
 
 #include<boost/flyweight.hpp>
 #include<QString>
 #include<nsValidators.h>
 #include<either.h>
 #include<string>
+#include<QOpenGLFunctions_4_3_Core>
 #include<map>
+#include<QOpenGLFunctions>
 #include<script-types.h>
 #include<propertierbase.h>
 #include<vector>
@@ -21,6 +23,7 @@
 #include <unordered_map>
 
 using namespace boost::flyweights;
+class Script;
 class Map;
 class root;
 class Layer;
@@ -50,6 +53,8 @@ virtual ~Propertierbase ();
   void set(flyweight<std::string> propName, Propertierbase *b);
   Propertierbase* get(flyweight<std::string>propertyname);
 
+virtual void set(flyweight<std::string>propertyname, Script* value);
+virtual Script* get(flyweight<std::string>propertyname, bool *success, Script* type_helper);
 virtual void set(flyweight<std::string>propertyname, std::string value);
 virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
 virtual void set(flyweight<std::string>propertyname, scriptTypes value);
