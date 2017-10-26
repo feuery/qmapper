@@ -8,12 +8,17 @@ using namespace boost::flyweights;
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
 #include<string>
+#include<QString>
 #include<script.h>
+#include<renderer.h>
 #include<cstring>
 class Script;
 class Tileset: public Propertierbase {
  public: GLuint vao_handle = 0;
 public: GLuint shader_handle = 0;
+public: GLuint texture = 0;
+public: int texture_width_px = 0;
+public: int texture_height_px = 0;
 public: virtual void setName(std::string val);
 virtual std::string getName();
 std::string Name_field = "";
@@ -23,7 +28,8 @@ Script* Vertexshader_field = nullptr;
 public: virtual void setFragmentshader(Script* val);
 virtual Script* getFragmentshader();
 Script* Fragmentshader_field = nullptr;
-public: virtual void render (QOpenGLFunctions_4_3_Core *f) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+public: virtual void render (QOpenGLFunctions_4_3_Core *f) = 0;
+public: virtual bool load_texture (QString& path, Renderer* r) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {
 if(propertyname == std::string("name") ) { Name_field = value; return; } }

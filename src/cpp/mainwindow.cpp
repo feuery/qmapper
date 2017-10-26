@@ -151,12 +151,19 @@ void MainWindow::setupTreeCtxMenu()
 }
 
 void MainWindow::newTileset() {
-  // QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  ec->documentTreeModel->begin();
+  QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
   Tileset *t = new tilesetContainer;
-  t->setName("New Tileset");
-  (*ec->document.registry)[t->getId()] = t;
-  ec->documentTreeModel->end();
+  t->setName("New Tileset");  
+  if(t->load_texture(texture_file, tileset_view)) {
+    ec->documentTreeModel->begin();
+    (*ec->document.registry)[t->getId()] = t;
+    ec->documentTreeModel->end();
+  }
+  else {
+    delete t;
+    QMessageBox::critical(nullptr, "QMapper",
+			  QString("Unable to load tileset texture %1").arg(texture_file));
+  }
 }
  
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())

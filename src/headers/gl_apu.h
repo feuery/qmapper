@@ -20,5 +20,7 @@ inline QDebug operator<<(QDebug g, Point3D const& e)
 }
 
 GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f);
+
+GLuint loadTexture(QOpenGLFunctions_4_3_Core *f, const char* filename, int *text_w, int *text_h);
   
 #endif //GL_APU_H

@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <math.h>
 #include <renderer.h>
+#include <gl_apu.h>
 
 Renderer::Renderer(): QOpenGLWidget()
 {
@@ -66,3 +67,10 @@ void Renderer::resizeGL(int w, int h)
 
 }
 
+GLuint Renderer::load_texture(const char *path, int *w, int *h)
+{
+  makeCurrent();
+  auto result = loadTexture(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>(), path, w, h);
+  doneCurrent();
+  return result;
+}

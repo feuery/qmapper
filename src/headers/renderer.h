@@ -11,6 +11,8 @@ class Renderer : public QOpenGLWidget {
 public:
   Renderer();
   ~Renderer();
+
+  GLuint load_texture(const char *path, int *w, int *h);
   
 protected slots:
   virtual void paintGL();

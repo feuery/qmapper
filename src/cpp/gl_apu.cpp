@@ -1,4 +1,6 @@
 #include <gl_apu.h>
+#include <SOIL/SOIL.h>
+
 
 GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f)
 {
@@ -64,3 +66,35 @@ bool operator!=(Point3D const& l, Point3D const& r)
 
 // inline QDebug operator<<(QDebug g, Point3D const& e)
 
+GLuint loadTexture(QOpenGLFunctions_4_3_Core *f, const char* filename, int *text_w, int *text_h) {
+  GLuint texture = 0;
+  if(!f) {
+    qDebug() << "QOpenGLFunctions is null";
+    throw "";
+  }
+  if(strcmp(filename, "") == 0) {
+    qDebug() << "Not loading texture's from an empty string";
+    return -1;
+  }
+
+  
+  f->glGenTextures(1, &texture);
+  f->glBindTexture(GL_TEXTURE_2D, texture);
+
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  unsigned char* img = SOIL_load_image(filename, text_w, text_h, 0, SOIL_LOAD_AUTO);
+  if(img) {
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, *text_w, *text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+    f->glGenerateMipmap(GL_TEXTURE_2D);
+    SOIL_free_image_data(img);
+    f->glBindTexture(GL_TEXTURE_2D, 0);
+
+    return texture;
+  }
+
+  return -1;
+}
