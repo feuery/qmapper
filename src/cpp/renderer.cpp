@@ -8,9 +8,7 @@
 #include <gl_apu.h>
 
 Renderer::Renderer(): QOpenGLWidget()
-{
-  // grabKeyboard();
-  
+{  
   QSurfaceFormat format;
   format.setDepthBufferSize(24);
   format.setStencilBufferSize(8);
@@ -25,6 +23,9 @@ Renderer::Renderer(): QOpenGLWidget()
   }
   else timer.setInterval(0);
   timer.start();
+
+  if(!editorController::instance->ctx_provider)
+    editorController::instance->ctx_provider = this;
 }
 
 float distance(float x1, float y1, float x2, float y2)
@@ -35,9 +36,9 @@ float distance(float x1, float y1, float x2, float y2)
 
 Renderer::~Renderer()
 {
-  for(auto it = objects.begin(); it != objects.end(); ++it) {
-    delete *it;
-  }
+  // for(auto it = objects.begin(); it != objects.end(); ++it) {
+  //   delete *it;
+  // }
   releaseKeyboard();
 }
 
@@ -47,7 +48,6 @@ void Renderer::initializeGL()
   
   if(f)
     f->glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-  // else qDebug() << "f on roskaa";
 }
 
 void Renderer::paintGL()
@@ -58,8 +58,6 @@ void Renderer::paintGL()
     
     for(auto i = objects.begin(); i != objects.end(); ++i) (*i)->render(f);
   }
-  // else
-  //   qDebug() << "f on roskaa paintGL()ssä";
 }
 
 void Renderer::resizeGL(int w, int h)
@@ -73,4 +71,13 @@ GLuint Renderer::load_texture(const char *path, int *w, int *h)
   auto result = loadTexture(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>(), path, w, h);
   doneCurrent();
   return result;
+}
+
+QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
+  makeCurrent();
+  return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+}
+
+void Renderer::freeCtx() {
+  doneCurrent();
 }

@@ -28,7 +28,6 @@ Script* Vertexshader_field = nullptr;
 public: virtual void setFragmentshader(Script* val);
 virtual Script* getFragmentshader();
 Script* Fragmentshader_field = nullptr;
-public: virtual void render (QOpenGLFunctions_4_3_Core *f) = 0;
 public: virtual bool load_texture (QString& path, Renderer* r) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {

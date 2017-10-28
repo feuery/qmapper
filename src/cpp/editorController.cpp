@@ -1,3 +1,4 @@
+#include <propertierbase.h>
 #include <mapContainer.h>
 #include <layerContainer.h>
 #include <editorController.h>
@@ -18,7 +19,7 @@ void editorController::registerWindow(MainWindow *w)
   this->w = w;
 }
 
-editorController::editorController()
+editorController::editorController(): indexOfChosenTileset(flyweight<std::string>(""))
 {
 
   if(instance) {
@@ -51,17 +52,38 @@ editorController::editorController()
   scr->setName("Standard vertex shader");
   scr->setContents("#version 430 core\nlayout (location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nlayout (location = 2) in vec2 texCoord;\n\nuniform vec4 loc;\n\nout vec3 ourColor;\nout vec2 TexCoord;\n\nvoid main()\n{\n  gl_Position = vec4(position, 1.0f) + loc;\n  ourColor = color;\n  TexCoord = texCoord;\n}\n");
   (*document.registry)[scr->getId()] = scr;
+  indexOfStdVertexShader = scr->getId();
 
   scr = new Script;
   scr->setScript_type(glsl);
   scr->setName("Standard fragment shader");
   scr->setNs("defaultShader");
   scr->setContents("#version 430 core\nin vec3 ourColor;\nin vec2 TexCoord;\n\nout vec4 color;\n\nuniform sampler2D ourTexture;\n\nvoid main() {\n  color = texture(ourTexture, TexCoord);\n}");
-
   (*document.registry)[scr->getId()] = scr;
+  indexOfStdFragmentShader = scr->getId();
 }
 
 editorController::~editorController()
 {
   delete documentTreeModel;
+}
+
+QOpenGLFunctions_4_3_Core* editorController::getGlFns()
+{
+  if(!ctx_provider) {
+    qDebug() << "Can't get QOpenGLFunctions when provider is nil";
+    throw "";
+  }
+
+  return ctx_provider->getGlFns();
+}
+
+void editorController::freeCtx()
+{
+  if(!ctx_provider) {
+    qDebug() << "Can't get QOpenGLFunctions when provider is nil";
+    throw "";
+  }
+
+  ctx_provider->freeCtx();
 }

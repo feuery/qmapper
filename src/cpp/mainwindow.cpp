@@ -37,6 +37,19 @@ void MainWindow::setupTree()
 {
   if(ec) {
     tree.setModel(ec->documentTreeModel);
+    connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
+	if(!index.isValid()) return;
+	Propertierbase *b = static_cast<Propertierbase*>(index.internalPointer());
+	std::string type = b->type_identifier().get();
+
+	if(type == "Tileset") {
+	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
+	  immutable_obj* o = static_cast<immutable_obj*>(t);
+	  ec->indexOfChosenTileset = t->getId();
+	  tileset_view->objects.clear();
+	  tileset_view->objects.push_back(o);
+	}
+      });
   }
   else {
     puts("ec is null\n");
@@ -152,8 +165,18 @@ void MainWindow::setupTreeCtxMenu()
 
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  Tileset *t = new tilesetContainer;
-  t->setName("New Tileset");  
+
+  auto f = tileset_view->getGlFns();
+
+  tilesetContainer *t = new tilesetContainer(f);
+
+  t->setVertexshader(toScript(ec->document.registry->at(ec->indexOfStdVertexShader)));
+  t->setFragmentshader(toScript(ec->document.registry->at(ec->indexOfStdFragmentShader)));
+  
+  static_cast<immutable_obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
+  t->setName("New Tileset");
+  
+  tileset_view->freeCtx();
   if(t->load_texture(texture_file, tileset_view)) {
     ec->documentTreeModel->begin();
     (*ec->document.registry)[t->getId()] = t;

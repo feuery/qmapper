@@ -15,6 +15,7 @@
 #include <doc-server.h>
 
 class editorController;
+class Renderer;
 
 class MainWindow: public QMainWindow {
   Q_OBJECT

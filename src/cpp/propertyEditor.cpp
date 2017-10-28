@@ -8,6 +8,9 @@
 #include <script-types.h>
 #include <tilelistmodel.h>
 #include <either.h>
+#include <script.h>
+#include <tileset.h>
+#include <tilesetContainer.h>
 
 either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::string> internedPropname) {
   std::string lol;
@@ -68,8 +71,18 @@ QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
 static void indexChanged(Propertierbase *b, flyweight<std::string> internedPropName, Propertierbase *editedObject)
 {
   editedObject->set(internedPropName, b);
+
+  if(b->type_identifier().get() == std::string("Script") &&
+     editedObject->type_identifier().get() == std::string("Tileset") &&
+     toScript(b)->getScript_type() == glsl) {
+    tilesetContainer *t = static_cast<tilesetContainer*>(editedObject);
+    auto f = editorController::instance->getGlFns();
+    static_cast<immutable_obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
+  }
+  
   qDebug()<<"Successfully changed " << internedPropName.get().c_str();
 }
+
 
 QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
   QFormLayout *data = new QFormLayout;

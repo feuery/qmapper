@@ -1,59 +1,24 @@
+
 #include <QtDebug>
 #include <obj.h>
 #include <shaders.h>
 #include <gl_apu.h>
+#include <editorController.h>
+#include <script.h>
 
 #include <SOIL/SOIL.h>
 #include <qopengl.h>
 
+using namespace boost::flyweights;
 
-immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f,
-			     const char* texture_path,
-			     const char* vertex_shader_path,
-			     const char* fragment_shader_path): vertex_shader_path(vertex_shader_path),
-					     fragment_shader_path(fragment_shader_path),
-					     shader_loaded(false)
+immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f): shader_loaded(false)
 {
   vao_handle = generateRectangle(f);
-
-  if(!reload_shaders(f))
-    throw "Reloading shaders failed";
-  else
-    qDebug() << "Loading shaders succeded";
-
 }
 
-immutable_obj::~immutable_obj() {
-  
-}
-
-void immutable_obj::setup_texture(QOpenGLFunctions_4_3_Core *f, const char* filename)
-{
-  if(strcmp(filename, "") == 0) {
-    qDebug() << "Not loading texture's from an empty string";
-    return;
-  }
-  if(!shader_loaded) { qDebug()<<"Shader isn't loaded?"; return; }
-
-  
-  f->glGenTextures(1, &texture);
-  f->glBindTexture(GL_TEXTURE_2D, texture);
-
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  unsigned char* img = SOIL_load_image(filename, &text_w, &text_h, 0, SOIL_LOAD_AUTO);
-  if(img) {
-    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, text_w, text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
-    f->glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(img);
-    f->glBindTexture(GL_TEXTURE_2D, 0);
-
-    return;
-  }
-}
+// immutable_obj::~immutable_obj() {
+//   qDebug()<< "At ~immutable_obj";
+// }
 
 void immutable_obj::setPixelLocation(Point3D p, int container_w, int container_h)
 {
@@ -75,13 +40,13 @@ Point3D immutable_obj::getGLLocation()
   return GLLoc;
 }
 
-Rect immutable_obj::getSize()
-{
-  return {text_w, text_h};
-}
-
 void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
 {
+  if(!shader_loaded) {
+    qDebug() << "Shader isn't loaded";
+    return;
+  }
+  
   f->glUseProgram (shader_handle);
 
   if(oldPXLoc != newPXLoc) {
@@ -92,6 +57,7 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
   }
 
   f->glActiveTexture(GL_TEXTURE0);
+  GLuint texture = getTexture();
   f->glBindTexture(GL_TEXTURE_2D, texture);
   f->glUniform1i(f->glGetUniformLocation(shader_handle, "ourTexture"), 0);
 
@@ -101,23 +67,44 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
   f->glBindVertexArray(0);
 }
 
-bool immutable_obj::reload_shaders(QOpenGLFunctions_4_3_Core *f)
+GLuint fetchShader(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> id, SHADER_TYPE s) {
+  std::string result = toScript(editorController::instance->document.registry->at(id))->getContents();
+  const char* c_haisee = result.c_str();
+  const char* const* source = &c_haisee;
+
+  GLuint vertexShader = f->glCreateShader(s == VERTEX? GL_VERTEX_SHADER: GL_FRAGMENT_SHADER);
+  f->glShaderSource(vertexShader, 1, source, NULL);
+  f->glCompileShader(vertexShader);
+
+  GLint success;
+  GLchar infoLog[512];
+  f->glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+  if(!success) {
+    f->glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+    printf("Loading shader %s failed: %s\nf", id.get().c_str(), infoLog);
+  }
+  else qDebug()<<"Compiled shader " << id.get().c_str();
+
+  return vertexShader;
+}
+
+bool immutable_obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexShaderId, flyweight<std::string> fragmentShaderId)
 {
   try {
     if(shader_loaded)
       f->glDeleteProgram(shader_handle);
-
-    if(!vertex_shader_path || !fragment_shader_path) return true;
   
-    auto vShader = LoadShaders(f, vertex_shader_path, VERTEX),
-      fShader = LoadShaders(f, fragment_shader_path, FRAGMENT);
+    auto vShader = fetchShader(f, vertexShaderId, VERTEX);
+    auto fShader = fetchShader(f, fragmentShaderId, FRAGMENT);
 
     shader_handle = CreateShaderProgram(f, vShader, fShader);
 
     f->glDeleteShader(vShader);
     f->glDeleteShader(fShader);
-    
-    return shader_loaded = true;
+
+    shader_loaded = true;
+    qDebug() << "Shader is loaded";
   }
   catch (...) {
     puts("Caught unknown exception at immutable_obj::reload_shaders()");

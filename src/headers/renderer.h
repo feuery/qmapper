@@ -6,6 +6,8 @@
 #include <QVector>
 #include <obj.h>
 
+#include <editorController.h>
+
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
 public:
@@ -13,6 +15,11 @@ public:
   ~Renderer();
 
   GLuint load_texture(const char *path, int *w, int *h);
+
+  QOpenGLFunctions_4_3_Core* getGlFns();
+  void freeCtx();
+
+  QVector<immutable_obj*> objects;
   
 protected slots:
   virtual void paintGL();
@@ -22,8 +29,6 @@ protected slots:
 private:
   float r = 0.0f;
   QTimer timer;
-  
-  QVector<immutable_obj*> objects;
 };
 
 #endif //RENDERER_H
