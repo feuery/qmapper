@@ -8,6 +8,8 @@
 
 #include <editorController.h>
 
+class immutable_obj;
+
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
 public:

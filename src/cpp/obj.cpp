@@ -13,12 +13,7 @@ using namespace boost::flyweights;
 
 immutable_obj::immutable_obj(QOpenGLFunctions_4_3_Core *f): shader_loaded(false)
 {
-  vao_handle = generateRectangle(f);
 }
-
-// immutable_obj::~immutable_obj() {
-//   qDebug()<< "At ~immutable_obj";
-// }
 
 void immutable_obj::setPixelLocation(Point3D p, int container_w, int container_h)
 {
@@ -46,9 +41,8 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
     qDebug() << "Shader isn't loaded";
     return;
   }
-  
-  f->glUseProgram (shader_handle);
 
+  f->glUseProgram (shader_handle);  
   if(oldPXLoc != newPXLoc) {
     oldPXLoc = newPXLoc;
     GLfloat v[] = {GLLoc.x, GLLoc.y, GLLoc.z, 0.0f};
@@ -57,10 +51,9 @@ void immutable_obj::render(QOpenGLFunctions_4_3_Core *f)
   }
 
   f->glActiveTexture(GL_TEXTURE0);
-  GLuint texture = getTexture();
   f->glBindTexture(GL_TEXTURE_2D, texture);
+  
   f->glUniform1i(f->glGetUniformLocation(shader_handle, "ourTexture"), 0);
-
   f->glBindVertexArray(vao_handle);
   
   f->glDrawElements(GL_TRIANGLE_FAN, 6, GL_UNSIGNED_INT, 0);
@@ -110,4 +103,12 @@ bool immutable_obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::
     puts("Caught unknown exception at immutable_obj::reload_shaders()");
     return shader_loaded = false;
   }
+}
+
+bool immutable_obj::load_texture(QString& path, Renderer* r)
+{
+  texture = r->load_texture(path.toStdString().c_str(), &texture_width_px, &texture_height_px);
+  vao_handle = generateRectangle(r->getGlFns(), texture_width_px, texture_height_px, r->width(), r->height());
+  r->freeCtx();
+  return texture > 0;
 }

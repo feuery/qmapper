@@ -2,13 +2,21 @@
 #define OBJ_H
 
 #include <gl_apu.h>
+#include <renderer.h>
 #include<boost/flyweight.hpp>
+
+class Renderer;
 
 class immutable_obj{
 public:
 
-  GLuint vao_handle;
+  GLuint vao_handle = -1;
   GLuint shader_handle;
+  GLuint texture = -1;
+  bool load_texture(QString& path, Renderer* r);
+
+  int texture_width_px, texture_height_px;
+  
   Point left_up;
 
   bool shader_loaded;
@@ -27,9 +35,6 @@ public:
   Point3D getGLLocation();
   Point3D getPixelLocation();
 
-
- protected:
-  virtual GLuint getTexture() = 0;
 };
 
 #endif //OBJ_H

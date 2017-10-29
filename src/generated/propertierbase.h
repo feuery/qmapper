@@ -1,8 +1,8 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-10-28T14:35:25.222Z
+//// generated at 2017-10-28T17:12:10.920Z
 
-
+// #include<renderer.h>
 #include<boost/flyweight.hpp>
 #include<QString>
 #include<nsValidators.h>

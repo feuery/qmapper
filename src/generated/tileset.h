@@ -14,12 +14,7 @@ using namespace boost::flyweights;
 #include<cstring>
 class Script;
 class Tileset: public Propertierbase {
- public: GLuint vao_handle = 0;
-public: GLuint shader_handle = 0;
-public: GLuint texture = 0;
-public: int texture_width_px = 0;
-public: int texture_height_px = 0;
-public: virtual void setName(std::string val);
+ public: virtual void setName(std::string val);
 virtual std::string getName();
 std::string Name_field = "";
 public: virtual void setVertexshader(Script* val);
@@ -27,8 +22,7 @@ virtual Script* getVertexshader();
 Script* Vertexshader_field = nullptr;
 public: virtual void setFragmentshader(Script* val);
 virtual Script* getFragmentshader();
-Script* Fragmentshader_field = nullptr;
-public: virtual bool load_texture (QString& path, Renderer* r) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+Script* Fragmentshader_field = nullptr;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {
 if(propertyname == std::string("name") ) { Name_field = value; return; } }

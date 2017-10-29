@@ -1,15 +1,7 @@
 (defcppclass Tileset ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>" "<QString>" "<script.h>" "<renderer.h>")
   (declare-class "Script")
   (public
-   (fields
-    (GLuint vao_handle 0)
-    (GLuint shader_handle 0)
-    (GLuint texture 0)
-    (int texture_width_px 0)
-    (int texture_height_px 0))
    (properties
     (std__string name "")
     (Script* vertexShader nullptr)
-    (Script* fragmentShader nullptr))
-   (functions
-    (bool load_texture (QString& path Renderer* r)))))
+    (Script* fragmentShader nullptr))))

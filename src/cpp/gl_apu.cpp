@@ -2,14 +2,21 @@
 #include <SOIL/SOIL.h>
 
 
-GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f)
+GLuint generateRectangle (QOpenGLFunctions_4_3_Core *f, int text_w, int text_h, int screen_w, int screen_h)
 {
+  qDebug()<< "Width is " << (float)text_w << "/" << (float)screen_w << ":" << (float)text_w/(float)screen_w;
+  qDebug()<< "Height is " << (float)text_h << "/" << (float)screen_h << ":" << (float)text_h/(float)screen_h;
+
+  float w = 2 * (float)text_w/(float)screen_w,
+    h = (float)text_h/(float)screen_h;
+  
+  
   GLfloat vertices[] = {
-        // Positions          // Colors           // Texture Coords
-         1.0f,  1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Top Right
-         1.0f, -1.0f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Bottom Right
-        -1.0f, -1.0f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Bottom Left
-        -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f  // Top Left 
+    // Positions                                  // Colors           // Texture Coords
+    (-1.0f + w), 1.0f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 0.0f, // Top Right
+    (-1.0f + w), (1.0f - h), 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 1.0f, // Bottom Right
+    -1.0f, (1.0f - h), 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 1.0f, // Bottom Left
+    -1.0f,  1.0f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 0.0f  // Top Left 
     };
 
   GLuint indices[] = {  // Note that we start from 0!
@@ -88,7 +95,7 @@ GLuint loadTexture(QOpenGLFunctions_4_3_Core *f, const char* filename, int *text
 
   unsigned char* img = SOIL_load_image(filename, text_w, text_h, 0, SOIL_LOAD_AUTO);
   if(img) {
-    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, *text_w, *text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+    f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, *text_w, *text_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
     f->glGenerateMipmap(GL_TEXTURE_2D);
     SOIL_free_image_data(img);
     f->glBindTexture(GL_TEXTURE_2D, 0);
