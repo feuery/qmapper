@@ -2,16 +2,12 @@
 #define TILESETCONTAINER_H
 
 #include <tileset.h>
-#include <obj.h>
+#include <new_obj.h>
 
-class tilesetContainer: public Tileset, public immutable_obj {
+class tilesetContainer: public Tileset, public obj {
 public:
 
-  tilesetContainer(QOpenGLFunctions_4_3_Core *f);
-  // ~tilesetContainer();
-
-  // virtual void render (QOpenGLFunctions_4_3_Core *f) override;
-
+  tilesetContainer(Renderer *r, const char *tilesetPath);
 };
 
 #endif //TILESETCONTAINER_H

@@ -1,22 +1,7 @@
 #include <tilesetContainer.h>
 
 #include <QDebug>
-#include <gl_apu.h>
 
-// void tilesetContainer::render (QOpenGLFunctions_4_3_Core *f)
-// {
-//   qDebug() << "Rendering tileset";
-// }
-
-tilesetContainer::tilesetContainer(QOpenGLFunctions_4_3_Core *f): Tileset(), immutable_obj(f) {
+tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(), obj(r, editorController::instance, tilesetPath) {
   
 }
-
-// tilesetContainer::~tilesetContainer() {
-//   qDebug() << "At ~tilesetContainer";
-// }
-
-// GLuint tilesetContainer::getTexture()
-// {
-//   return texture;
-// }

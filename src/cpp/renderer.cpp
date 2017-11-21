@@ -5,7 +5,6 @@
 #include <QDebug>
 #include <math.h>
 #include <renderer.h>
-#include <gl_apu.h>
 
 Renderer::Renderer(): QOpenGLWidget()
 {  
@@ -36,9 +35,6 @@ float distance(float x1, float y1, float x2, float y2)
 
 Renderer::~Renderer()
 {
-  // for(auto it = objects.begin(); it != objects.end(); ++it) {
-  //   delete *it;
-  // }
   releaseKeyboard();
 }
 
@@ -60,19 +56,6 @@ void Renderer::paintGL()
   }
 }
 
-void Renderer::resizeGL(int w, int h)
-{
-
-}
-
-GLuint Renderer::load_texture(const char *path, int *w, int *h)
-{
-  makeCurrent();
-  auto result = loadTexture(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>(), path, w, h);
-  doneCurrent();
-  return result;
-}
-
 QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
   makeCurrent();
   return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
@@ -80,4 +63,12 @@ QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
 
 void Renderer::freeCtx() {
   doneCurrent();
+}
+
+void Renderer::mouseMoveEvent(QMouseEvent *e) {
+  for(auto fn: mouseMoveEvents) fn(e);
+}
+
+void Renderer::resizeGL(int w, int h)
+{
 }

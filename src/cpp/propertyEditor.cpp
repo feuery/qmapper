@@ -77,7 +77,7 @@ static void indexChanged(Propertierbase *b, flyweight<std::string> internedPropN
      toScript(b)->getScript_type() == glsl) {
     tilesetContainer *t = static_cast<tilesetContainer*>(editedObject);
     auto f = editorController::instance->getGlFns();
-    static_cast<immutable_obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
+    static_cast<obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
   }
   
   qDebug()<<"Successfully changed " << internedPropName.get().c_str();

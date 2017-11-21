@@ -50,7 +50,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setScript_type(glsl);
   scr->setNs("defaultVertex");
   scr->setName("Standard vertex shader");
-  scr->setContents("#version 430 core\nlayout (location = 0) in vec3 position;\nlayout (location = 1) in vec3 color;\nlayout (location = 2) in vec2 texCoord;\n\nuniform vec4 loc;\n\nout vec3 ourColor;\nout vec2 TexCoord;\n\nvoid main()\n{\n  gl_Position = vec4(position, 1.0f) + loc;\n  ourColor = color;\n  TexCoord = texCoord;\n}\n");
+  scr->setContents("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n");
   (*document.registry)[scr->getId()] = scr;
   indexOfStdVertexShader = scr->getId();
 
@@ -58,7 +58,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setScript_type(glsl);
   scr->setName("Standard fragment shader");
   scr->setNs("defaultShader");
-  scr->setContents("#version 430 core\nin vec3 ourColor;\nin vec2 TexCoord;\n\nout vec4 color;\n\nuniform sampler2D ourTexture;\n\nvoid main() {\n  color = texture(ourTexture, TexCoord);\n}");
+  scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\n\nvoid main() {\n  vec4 texel = vec4(spriteColor, 1.0) * texture(image, TexCoord);\n  if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
   (*document.registry)[scr->getId()] = scr;
   indexOfStdFragmentShader = scr->getId();
 }

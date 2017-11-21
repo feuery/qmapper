@@ -44,7 +44,7 @@ void MainWindow::setupTree()
 
 	if(type == "Tileset") {
 	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
-	  immutable_obj* o = static_cast<immutable_obj*>(t);
+	  obj* o = static_cast<obj*>(t);
 	  ec->indexOfChosenTileset = t->getId();
 	  tileset_view->objects.clear();
 	  tileset_view->objects.push_back(o);
@@ -166,18 +166,11 @@ void MainWindow::setupTreeCtxMenu()
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
 
-  auto f = tileset_view->getGlFns();
+  tilesetContainer *t = new tilesetContainer(tileset_view, texture_file.toStdString().c_str());
 
-  tilesetContainer *t = new tilesetContainer(f);
-
-  t->setVertexshader(toScript(ec->document.registry->at(ec->indexOfStdVertexShader)));
-  t->setFragmentshader(toScript(ec->document.registry->at(ec->indexOfStdFragmentShader)));
-  
-  static_cast<immutable_obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
   t->setName("New Tileset");
   
-  tileset_view->freeCtx();
-  if(t->load_texture(texture_file, tileset_view)) {
+  if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
     ec->documentTreeModel->begin();
     (*ec->document.registry)[t->getId()] = t;
     ec->documentTreeModel->end();
@@ -196,6 +189,15 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   map_view = new Renderer;
   tileset_view = new Renderer;
+
+  tileset_view->mouseMoveEvents.push_back([](QMouseEvent *e) {
+      if(e->buttons() != Qt::LeftButton) return;
+
+      // jaa koordinaatit 50:llä ja kopioi indeksi jonnekin missä valittu-tile-shader näkee sen
+      // Lisäks tee valitusta tilesetistä sellainen tekstuuri jonka voi liittää myös valittu-tile-shaderiin uniformina
+      int x = e->x() / 50, y = e->y() / 50;
+      qDebug() << "X: " << x << "\nY:" << y;
+    });
 
   QWidget *tb = new QWidget(this);
   tb->setMaximumSize(200, INT_MAX);

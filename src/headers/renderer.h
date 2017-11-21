@@ -4,11 +4,13 @@
 #include <QOpenGLWidget>
 #include <QTimer>
 #include <QVector>
-#include <obj.h>
+#include <new_obj.h>
+#include <functional>
+#include <QMouseEvent>
 
 #include <editorController.h>
 
-class immutable_obj;
+class obj;
 
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
@@ -16,12 +18,14 @@ public:
   Renderer();
   ~Renderer();
 
-  GLuint load_texture(const char *path, int *w, int *h);
-
   QOpenGLFunctions_4_3_Core* getGlFns();
   void freeCtx();
 
-  QVector<immutable_obj*> objects;
+  QVector<obj*> objects;
+  QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
+
+protected:
+  virtual void mouseMoveEvent(QMouseEvent *e) override;
   
 protected slots:
   virtual void paintGL();

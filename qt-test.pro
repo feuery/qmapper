@@ -23,11 +23,9 @@ QMAKE_CXXFLAGS += `guile-config compile`
 
 # Input
 HEADERS += src/headers/files.h \
-           src/headers/gl_apu.h \
            src/headers/mainwindow.h \
-           src/headers/obj.h \
+           src/headers/new_obj.h \
            src/headers/renderer.h \
-           src/headers/shaders.h \
            src/headers/guile_thread.h \
            src/headers/tilesetContainer.h \
            src/generated/propertierbase.h \
@@ -54,12 +52,10 @@ HEADERS += src/headers/files.h \
 FORMS += \
     src/forms/main.ui 
 SOURCES += src/cpp/files.cpp \
-           src/cpp/gl_apu.cpp \
            src/cpp/main.cpp \
            src/cpp/mainwindow.cpp \
-           src/cpp/obj.cpp \
+           src/cpp/new_obj.cpp \
            src/cpp/renderer.cpp \
-           src/cpp/shaders.cpp \
            src/cpp/guile_thread.cpp \
            src/generated/tile.cpp \
            src/generated/propertierbase.cpp \
