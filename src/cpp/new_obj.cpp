@@ -1,6 +1,10 @@
 #include <new_obj.h>
 #include <script.h>
 
+#include <QImage>
+
+#include <editorController.h>
+
 GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
 {
   GLuint VAO, VBO;
@@ -169,12 +173,13 @@ GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *tex
   return texture;
 }
 
-obj::obj(Renderer *r, editorController *ec, const char *texture_path)
+obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
 {
+  auto ec = editorController::instance;
   auto fns = r->getGlFns();
   shader = createShader(fns, ec);  
   VAO = getVAO(fns, r->width(), r->height(), shader);
-  texture = load_texture(fns, texture_path, &text_w, &text_h);
+  texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
 
   position = glm::vec2(0.0f, 0.0f);
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));

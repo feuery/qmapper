@@ -1,10 +1,11 @@
 #include <QOpenGLFunctions>
 #include <Qt>
 #include <QMouseEvent>
-#include <QOpenGLFunctions_4_3_Core>
+
 #include <QDebug>
 #include <math.h>
 #include <renderer.h>
+#include <editorController.h>
 
 Renderer::Renderer(): QOpenGLWidget()
 {  
@@ -71,4 +72,9 @@ void Renderer::mouseMoveEvent(QMouseEvent *e) {
 
 void Renderer::resizeGL(int w, int h)
 {
+}
+
+QVector<obj*>& Renderer::getObjs()
+{
+  return objects;
 }

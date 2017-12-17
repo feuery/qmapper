@@ -3,7 +3,9 @@
 #include <layerContainer.h>
 #include <editorController.h>
 
+#include <new_obj.h>
 #include <script.h>
+
 
 editorController* editorController::instance;
 
@@ -61,6 +63,14 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\n\nvoid main() {\n  vec4 texel = vec4(spriteColor, 1.0) * texture(image, TexCoord);\n  if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
   (*document.registry)[scr->getId()] = scr;
   indexOfStdFragmentShader = scr->getId();
+
+  scr = new Script;
+  scr->setScript_type(glsl);
+  scr->setName("Standard selected tile - view's fragmentshader");
+  scr->setNs("default.tileView");
+  scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\nuniform vec2 selectedTileCoord; // <- in tile-coords\n\nvoid main() {\n  vec4 texel = // vec4(spriteColor, 1.0) * \n texture(image, TexCoord + (selectedTileCoord));\n if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
+  (*document.registry)[scr->getId()] = scr;
+  indexOfStdTileviewFragShader = scr->getId();
 }
 
 editorController::~editorController()
@@ -86,4 +96,21 @@ void editorController::freeCtx()
   }
 
   ctx_provider->freeCtx();
+}
+
+void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer)
+{
+  selectedTileX = x;
+  selectedTileY = y;
+
+  int tilesetViewObjSize = tilesetView->getObjs().size();
+  if(tilesetViewObjSize == 1) {
+    obj *tileset = tilesetView->getObjs().at(0);
+
+    if(!tileRenderer) qDebug() << "tileRenderer is nil";
+    
+    tileRenderer->setSelectedTile(x, y, tileset);
+    qDebug() << "Updating tileset shader";
+  }
+  else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
 }

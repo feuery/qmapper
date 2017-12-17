@@ -45,6 +45,7 @@ HEADERS += src/headers/files.h \
            src/headers/rootContainer.h \
            src/headers/propertyEditor.h \
            src/headers/script-types.h \
+           src/headers/tileview_renderer.h \
            src/headers/doc-server.h \
            src/headers/either.h \
            src/headers/nsValidators.h
@@ -75,4 +76,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/textureContainer.cpp \
            src/cpp/doc-server.cpp \
            src/cpp/nsValidators.cpp \
+           src/cpp/tileview_renderer.cpp \
            src/cpp/tilesetContainer.cpp

@@ -15,7 +15,6 @@
 #include <doc-server.h>
 
 class editorController;
-class Renderer;
 
 class MainWindow: public QMainWindow {
   Q_OBJECT
@@ -33,8 +32,7 @@ private:
 
   document_server s;
   
-  Renderer *map_view;
-  Renderer *tileset_view;
+  Renderer *map_view, *tileset_view, *tileview;
   Guile_Thread t;
   editorController *ec;
   QGroupBox* toolbox();

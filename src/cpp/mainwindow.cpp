@@ -12,6 +12,7 @@
 #include <editorController_guile.h>
 
 #include <tilesetContainer.h>
+#include <tileview_renderer.h>
 
 #define btnW 200
 #define btnH 25
@@ -46,8 +47,8 @@ void MainWindow::setupTree()
 	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
 	  obj* o = static_cast<obj*>(t);
 	  ec->indexOfChosenTileset = t->getId();
-	  tileset_view->objects.clear();
-	  tileset_view->objects.push_back(o);
+	  tileset_view->getObjs().clear();
+	  tileset_view->getObjs().push_back(o);
 	}
       });
   }
@@ -181,7 +182,7 @@ void MainWindow::newTileset() {
 			  QString("Unable to load tileset texture %1").arg(texture_file));
   }
 }
- 
+
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())
 {
   ui.setupUi(this);
@@ -189,20 +190,30 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   map_view = new Renderer;
   tileset_view = new Renderer;
+  auto _tileview = new tileview_renderer;
+  _tileview->setMinimumSize(50,50);
+  _tileview->setMaximumSize(50,50);
 
-  tileset_view->mouseMoveEvents.push_back([](QMouseEvent *e) {
+  tileview = _tileview;
+
+  tileset_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
       if(e->buttons() != Qt::LeftButton) return;
 
       // jaa koordinaatit 50:llä ja kopioi indeksi jonnekin missä valittu-tile-shader näkee sen
       // Lisäks tee valitusta tilesetistä sellainen tekstuuri jonka voi liittää myös valittu-tile-shaderiin uniformina
       int x = e->x() / 50, y = e->y() / 50;
-      qDebug() << "X: " << x << "\nY:" << y;
+
+      ec->setSelectedTile(x, y, tileset_view, _tileview);
+
     });
 
   QWidget *tb = new QWidget(this);
   tb->setMaximumSize(200, INT_MAX);
   QVBoxLayout *toolbox_layout = new QVBoxLayout(this);
   toolbox_layout->setSpacing(0);
+
+  toolbox_layout->addWidget(new QLabel(QString("Selected Tile"), this));
+  toolbox_layout->addWidget(tileview);
 
   toolbox_layout->addWidget(toolbox());
   

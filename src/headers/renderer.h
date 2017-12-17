@@ -2,13 +2,12 @@
 #define RENDERER_H
 
 #include <QOpenGLWidget>
+#include <QOpenGLFunctions_4_3_Core>
 #include <QTimer>
 #include <QVector>
 #include <new_obj.h>
 #include <functional>
 #include <QMouseEvent>
-
-#include <editorController.h>
 
 class obj;
 
@@ -20,9 +19,9 @@ public:
 
   QOpenGLFunctions_4_3_Core* getGlFns();
   void freeCtx();
-
-  QVector<obj*> objects;
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
+
+  virtual QVector<obj*>& getObjs();
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
@@ -33,6 +32,7 @@ protected slots:
   virtual void initializeGL();
 
 private:
+  QVector<obj*> objects;
   float r = 0.0f;
   QTimer timer;
 };

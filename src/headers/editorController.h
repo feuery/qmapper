@@ -7,6 +7,7 @@
 
 #include <textureContainer.h>
 #include <renderer.h>
+#include <tileview_renderer.h>
 
 class MainWindow;
 class Renderer;
@@ -26,7 +27,11 @@ public:
 
   flyweight<std::string> indexOfChosenTileset;
   flyweight<std::string> indexOfStdVertexShader;
-  flyweight<std::string> indexOfStdFragmentShader;
+  flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
+
+  int selectedTileX = 0, selectedTileY = 0;
+
+  void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
   
   /* BUT because guile_layer needs to access here too, we're forced to singleton this */
   static editorController *instance;
