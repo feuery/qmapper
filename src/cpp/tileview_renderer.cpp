@@ -105,26 +105,7 @@ void tileview_renderer::paintGL()
   f->glBindVertexArray(0);
 }
 
-void tileview_renderer::setSelectedTile(int x, int y, obj *tileset_texture)
+void tileview_renderer::setSelectedTile(obj *selectedTile)
 {
-  makeCurrent();
-  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  if(!f) {
-    qDebug() << "Couldn't get qopenglcontext";
-    throw "";
-  }
-
-  texture = tileset_texture->texture;
-
-  qDebug() << "X = " << ((float)(x * 50) / ((float)tileset_texture->text_w/2.0f)) - 1.0f  << ", Y = " << ((float)(y * 50) / ((float)tileset_texture->text_h/2.0f)) - 1.0f;
-  
-  f->glUseProgram(shader);
-  f->glUniform2f(f->glGetUniformLocation(shader, "selectedTileCoord"), ((float)(x * 50) / ((float)tileset_texture->text_w/2.0f)) - 1.0f, ((float)(y * 50) / ((float)tileset_texture->text_h/2.0f)) - 1.0f);
-		 
-  
-  qDebug() << "Set selected tile at " << x << ", " << y;
-
-  f->glUseProgram(0);
-
-  doneCurrent();  
+  texture = selectedTile->texture;
 }

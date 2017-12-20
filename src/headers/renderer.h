@@ -9,7 +9,7 @@
 #include <functional>
 #include <QMouseEvent>
 
-class obj;
+class Renderable;
 
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
@@ -21,7 +21,7 @@ public:
   void freeCtx();
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
 
-  virtual QVector<obj*>& getObjs();
+  virtual QVector<Renderable*>& getObjs();
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
@@ -32,7 +32,7 @@ protected slots:
   virtual void initializeGL();
 
 private:
-  QVector<obj*> objects;
+  QVector<Renderable*> objects;
   float r = 0.0f;
   QTimer timer;
 };

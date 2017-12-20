@@ -45,7 +45,7 @@ void MainWindow::setupTree()
 
 	if(type == "Tileset") {
 	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
-	  obj* o = static_cast<obj*>(t);
+	  Renderable* o = static_cast<Renderable*>(t);
 	  ec->indexOfChosenTileset = t->getId();
 	  tileset_view->getObjs().clear();
 	  tileset_view->getObjs().push_back(o);
@@ -171,16 +171,16 @@ void MainWindow::newTileset() {
 
   t->setName("New Tileset");
   
-  if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
+  // if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
     ec->documentTreeModel->begin();
     (*ec->document.registry)[t->getId()] = t;
     ec->documentTreeModel->end();
-  }
-  else {
-    delete t;
-    QMessageBox::critical(nullptr, "QMapper",
-			  QString("Unable to load tileset texture %1").arg(texture_file));
-  }
+  // }
+  // else {
+  //   delete t;
+  //   QMessageBox::critical(nullptr, "QMapper",
+  // 			  QString("Unable to load tileset texture %1").arg(texture_file));
+  // }
 }
 
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())

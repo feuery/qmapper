@@ -10,63 +10,53 @@
   ja tekee tileseteistä 2d-taulukoita täynnä opengl-textuuri-kahvoja
 */
 
-GLuint toTexture(QOpenGLFunctions_4_3_Core *f, QImage &img)
-{
-  int text_w = 50,
-      text_h = 50;
-  
-  GLuint texture;
-  f->glGenTextures(1, &texture);
-  f->glBindTexture(GL_TEXTURE_2D, texture);
-  
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_BORDER);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_BORDER);
-
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, text_w, text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img.constBits());
-  f->glGenerateMipmap(GL_TEXTURE_2D);
-  f->glBindTexture(GL_TEXTURE_2D, 0);
-
-  assert(text_w == 50);
-  assert(text_h == 50);
-
-  return texture;
-}
 
 // Making this return a 2d array should be a low hanging fruit when optimizing
 // I'm skipping it now 'cause I have no idea how this insane language did
 // dynamically sized 2D arrays
-QVector<QVector<GLuint>> load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const char *filename)
+void tilesetContainer::load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const char *filename)
 {
   QImage root_img;
   root_img.load(QString(filename));
 
-  int array_w = root_img.width() / 50;
-  int array_h = root_img.height() / 50;
+  tiles_w = root_img.width() / 50;
+  tiles_h = root_img.height() / 50;
 
-  QVector<QVector<GLuint>> results(array_w);
+  tiles = new obj**[tiles_w];
+
+  // QVector<QVector<obj*>> results(array_w);
   
-  for(int x = 0; x < array_w; x++) {
-    QVector<GLuint> row (array_h);
+  for(int x = 0; x < tiles_w; x++) {
+    tiles[x] = new obj*[tiles_h];
     
-    for(int y = 0; y < array_h; y++) {
+    for(int y = 0; y < tiles_h; y++) {
       QImage copy = root_img.copy(x * 50,
 				  y * 50, 50, 50);
-      row.push_back(toTexture(f, copy));
+      obj *o = new obj(f, copy);
+      o->position = glm::vec2(x * 50.0f, y * 50.0f);
+      qDebug() << "Loading tiletexture at " << o;
+      tiles[x][y] = o;
     }
-    results.push_back(row);
   }
-  
-  return results;
 }
 
-tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(), obj(r, tilesetPath, true) {
+tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(){
   auto fns = r->getGlFns();
-  textures = load_texture_splitted(fns, tilesetPath);
+  load_texture_splitted(fns, tilesetPath);
   r->freeCtx();
 }
 
-void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f) {
-  qDebug() << "Rendering a tileset";
+void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
+{
+  for(int x = 0; x < tiles_w; x++) {
+    for(int y = 0; y < tiles_h; y++) {
+      obj* tile = tiles[x][y];
+      if(tile) {
+	tile->render(f);
+      }
+      else qDebug() << "Tile on " << tile;
+      // else
+      // 	puts("Tile ei ole validi :(");
+    }
+  }
 }

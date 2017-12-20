@@ -23,6 +23,7 @@ QMAKE_CXXFLAGS += `guile-config compile`
 
 # Input
 HEADERS += src/headers/files.h \
+           src/headers/renderable.h \
            src/headers/mainwindow.h \
            src/headers/new_obj.h \
            src/headers/renderer.h \

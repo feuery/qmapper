@@ -6,6 +6,8 @@
 #include <new_obj.h>
 #include <script.h>
 
+#include <tilesetContainer.h>
+
 
 editorController* editorController::instance;
 
@@ -105,12 +107,15 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
   int tilesetViewObjSize = tilesetView->getObjs().size();
   if(tilesetViewObjSize == 1) {
-    obj *tileset = tilesetView->getObjs().at(0);
+    Renderable *tileset = tilesetView->getObjs().at(0);
+
+    tilesetContainer *tc = dynamic_cast<tilesetContainer*>(tileset);
+
+    obj *tile = tc->tiles[x][y];
 
     if(!tileRenderer) qDebug() << "tileRenderer is nil";
     
-    tileRenderer->setSelectedTile(x, y, tileset);
-    qDebug() << "Updating tileset shader";
+    tileRenderer->setSelectedTile(tile);
   }
   else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
 }

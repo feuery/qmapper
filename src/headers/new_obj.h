@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp> 
 #include <QOpenGLWidget>
 #include <renderer.h>
+#include <renderable.h>
 
 using namespace boost::flyweights;
 
@@ -14,8 +15,9 @@ GLuint CreateShaderProgram(QOpenGLFunctions_4_3_Core *f, GLuint vertex_shader, G
 GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
 
 class Renderer;
+class editorController;
 
-class obj
+class obj: public Renderable
 {
 public:
   glm::vec2 position;
@@ -25,14 +27,21 @@ public:
   GLuint shader, texture;
   GLuint VAO;
 
+  QImage copy;
+
   int text_w, text_h;
 
   obj(Renderer *r, const char *texture_path, bool skipTexture = false);
+  obj(QOpenGLFunctions_4_3_Core *f, QImage img);
   ~obj();
 
   virtual void render(QOpenGLFunctions_4_3_Core *f);
   void reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId);
   bool load_new_texture(const char *path, Renderer *r);
+
+private:
+  void prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec);
+  void prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec);
 };
 
 #endif //NEW_OBJ_H

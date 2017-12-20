@@ -9,19 +9,14 @@
 
 Renderer::Renderer(): QOpenGLWidget()
 {  
-  QSurfaceFormat format;
-  format.setDepthBufferSize(24);
-  format.setStencilBufferSize(8);
-  format.setVersion(4,3);
-  format.setProfile(QSurfaceFormat::CoreProfile);
-  setFormat(format);
 
   connect(&timer, SIGNAL(timeout()), this, SLOT(repaint()));
-  if(format.swapInterval() == -1) {
-    qDebug("Swap Buffers at v_blank not available: refresh at approx 60fps.");
-    timer.setInterval(17);
-  }
-  else timer.setInterval(0);
+  // if(format.swapInterval() == -1) {
+  //   qDebug("Swap Buffers at v_blank not available: refresh at approx 60fps.");
+  //   timer.setInterval(17);
+  // }
+  // else
+    timer.setInterval(0);
   timer.start();
 
   if(!editorController::instance->ctx_provider)
@@ -74,7 +69,7 @@ void Renderer::resizeGL(int w, int h)
 {
 }
 
-QVector<obj*>& Renderer::getObjs()
+QVector<Renderable*>& Renderer::getObjs()
 {
   return objects;
 }

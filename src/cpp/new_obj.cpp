@@ -173,18 +173,94 @@ GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *tex
   return texture;
 }
 
-obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
+void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec)
 {
-  auto ec = editorController::instance;
-  auto fns = r->getGlFns();
-  shader = createShader(fns, ec);  
-  VAO = getVAO(fns, r->width(), r->height(), shader);
-  texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
-
+  shader = createShader(fns, ec);
+  VAO = getVAO(fns, parentw, parenth, shader);
   position = glm::vec2(0.0f, 0.0f);
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
+}
+  
+void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec)
+{
+  shader = createShader(fns, ec);  
+  VAO = getVAO(fns, r->width(), r->height(), shader);
+  position = glm::vec2(0.0f, 0.0f);
+  size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
+  rotate = 0.0f;
+  color = glm::vec3(1.0f, 1.0f, 1.0f);
+}
+
+const char* formatToStr(QImage::Format format)
+{
+  switch(format) {
+  case QImage::Format_Invalid: return "Format_Invalid";
+  case QImage::Format_Mono: return "Format_Mono";
+  case QImage::Format_MonoLSB: return "Format_MonoLSB";
+  case QImage::Format_Indexed8: return "Format_Indexed8";
+  case QImage::Format_RGB32: return "Format_RGB32";
+  case QImage::Format_ARGB32: return "Format_ARGB32";
+  case QImage::Format_ARGB32_Premultiplied: return "Format_ARGB32_Premultiplied";
+  case QImage::Format_RGB16: return "Format_RGB16";
+  case QImage::Format_ARGB8565_Premultiplied: return "Format_ARGB8565_Premultiplied";
+  case QImage::Format_RGB666: return "Format_RGB666";
+  case QImage::Format_ARGB6666_Premultiplied: return "Format_ARGB6666_Premultiplied";
+  case QImage::Format_RGB555: return "Format_RGB555";
+  case QImage::Format_ARGB8555_Premultiplied: return "Format_ARGB8555_Premultiplied";
+  case QImage::Format_RGB888: return "Format_RGB888";
+  case QImage::Format_RGB444: return "Format_RGB444";
+  case QImage::Format_ARGB4444_Premultiplied: return "Format_ARGB4444_Premultiplied";
+  case QImage::Format_RGBX8888: return "Format_RGBX8888";
+  case QImage::Format_RGBA8888: return "Format_RGBA8888";
+  case QImage::Format_RGBA8888_Premultiplied: return "Format_RGBA8888_Premultiplied";
+  case QImage::Format_BGR30: return "Format_BGR30";
+  case QImage::Format_A2BGR30_Premultiplied: return "Format_A2BGR30_Premultiplied";
+  case QImage::Format_RGB30: return "Format_RGB30";
+  case QImage::Format_A2RGB30_Premultiplied: return "Format_A2RGB30_Premultiplied";
+  case QImage::Format_Alpha8: return "Format_Alpha8";
+  case QImage::Format_Grayscale8: return "Format_Grayscale8";
+  }
+
+  return "Not recognized";
+}
+
+obj::obj(QOpenGLFunctions_4_3_Core *f, QImage img)
+{
+  auto ec = editorController::instance;
+  text_w = text_h = 50.0f;
+  prepare(f, 50.0f, 50.0f, ec);
+
+  copy = img;
+
+  qDebug() << "Format is " << formatToStr(img.format());
+
+  f->glGenTextures(1, &texture);
+  f->glBindTexture(GL_TEXTURE_2D, texture);
+  
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_BORDER);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_BORDER);
+
+  qDebug() << "Texture dimensions: " << text_w << text_h;
+  
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, copy.bits());
+  f->glGenerateMipmap(GL_TEXTURE_2D);
+  f->glBindTexture(GL_TEXTURE_2D, 0);
+
+  qDebug() << "Texture generated";
+}
+
+obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
+{
+  auto ec = editorController::instance;
+  auto fns = r->getGlFns();
+
+  prepare(fns, r, ec);
+  
+  texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
 
   r->freeCtx();
 }
@@ -220,6 +296,23 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
   f->glBindVertexArray(VAO);
   f->glDrawArrays(GL_TRIANGLES, 0, 6);
   f->glBindVertexArray(0);
+
+  GLenum err (f->glGetError());
+ 
+  while(err!=GL_NO_ERROR) {
+    std::string error;
+ 
+    switch(err) {
+    case GL_INVALID_OPERATION:      error="INVALID_OPERATION";      break;
+    case GL_INVALID_ENUM:           error="INVALID_ENUM";           break;
+    case GL_INVALID_VALUE:          error="INVALID_VALUE";          break;
+    case GL_OUT_OF_MEMORY:          error="OUT_OF_MEMORY";          break;
+    case GL_INVALID_FRAMEBUFFER_OPERATION:  error="INVALID_FRAMEBUFFER_OPERATION";  break;
+    }
+ 
+    qDebug() << "GL_" << error.c_str();
+    err=f->glGetError();
+  }
 }
 
 void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId)
@@ -232,7 +325,7 @@ void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> ve
 bool obj::load_new_texture(const char *path, Renderer *r)
 {
   auto fns = r->getGlFns();
-  texture = load_texture(fns, path, &text_w, &text_h);
+  texture = load_texture(fns, path, &text_w, &text_h); 
   r->freeCtx();
   return true;
 }

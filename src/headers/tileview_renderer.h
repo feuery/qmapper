@@ -10,7 +10,7 @@ class tileview_renderer: public Renderer {
 public:
 
   tileview_renderer();
-  void setSelectedTile(int x, int y, obj *tileset_texture);
+  void setSelectedTile(obj *selectedTile);
 								      
 protected slots:
   virtual void paintGL() override;
