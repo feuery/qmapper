@@ -25,7 +25,11 @@ public:
   ~editorController();
   editorController();
 
+  void populateMaps();
+
   flyweight<std::string> indexOfChosenTileset;
+  flyweight<std::string> indexOfChosenMap;
+
   flyweight<std::string> indexOfStdVertexShader;
   flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
   std::vector<Renderer*> renderers;
@@ -33,12 +37,16 @@ public:
   int selectedTileX = 0, selectedTileY = 0;
 
   void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
+
+  // Goddammit
+  Renderer *map_view;
   
   /* BUT because guile_layer needs to access here too, we're forced to singleton this */
   static editorController *instance;
 
   static editorController* getInstance();
 
+  // Stuff between here and private: probably needs removing
   Renderer* ctx_provider = nullptr;
 
   QOpenGLFunctions_4_3_Core* getGlFns();

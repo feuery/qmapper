@@ -1,8 +1,12 @@
 #include<mapContainer.h>
+#include<tilesetContainer.h>
+#include<editorController.h>
 
 Mapcontainer::Mapcontainer(): Map()
 {
   layers = new std::vector<Layer*>;
+  id = rand();
+  editorController::instance->map_view->owned_objects[id] = this;
 }
 
 Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapcontainer()
@@ -38,4 +42,36 @@ int Mapcontainer::width()
 int Mapcontainer::height ()
 {
   return layers->at(0)->getHeight();
+}
+
+int Mapcontainer::getRenderId()
+{
+  return id;
+}
+
+void Mapcontainer::render(Renderer *parent)
+{
+  auto f = parent->getGlFns();
+  render(f);
+  parent->freeCtx();
+}
+
+void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
+{
+  for(int l = 0; l < layers->size(); l++) {
+    for(int x = 0; x < width(); x++) {
+      for(int y = 0; y < height(); y++) {
+	Tile tile = layers->at(l)->tiles->at(x).at(y);
+	
+	// qDebug() << "Tileset: " << tile.getTileset().get().c_str();
+
+	if(tile.getTileset().get() != "") {	
+	  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.registry->at(tile.getTileset()));
+	  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
+	  Renderable *tile_to_render = editorController::instance->map_view->owned_objects[tile_to_render_id];
+	  tile_to_render->render(f);
+	}
+      }
+    }
+  }
 }

@@ -9,5 +9,7 @@ public:
   virtual void render(Renderer *parent) = 0;
   virtual int getRenderId() = 0;
 };
+#else
+class Renderable;
 
 #endif //RENDERABLE_H

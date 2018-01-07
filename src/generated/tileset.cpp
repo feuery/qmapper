@@ -1,5 +1,5 @@
 #include <tileset.h>
-////// generated at 2017-11-21T16:31:10.788Z
+////// generated at 2018-01-07T16:54:10.879Z
 
 
 void Tileset::setName(std::string value) { 
@@ -20,11 +20,18 @@ Fragmentshader_field = value;
                                                         Script* Tileset::getFragmentshader() {
 return Fragmentshader_field;
 }
+void Tileset::setTiles(std::vector<std::vector<Tile*>>* value) { 
+Tiles_field = value;
+}
+                                                        std::vector<std::vector<Tile*>>* Tileset::getTiles() {
+return Tiles_field;
+}
 Tileset::Tileset() {
 r.push_back(flyweight<std::string>(std::string("Id")));
 r.push_back(flyweight<std::string>(std::string("name")));
 r.push_back(flyweight<std::string>(std::string("vertexShader")));
 r.push_back(flyweight<std::string>(std::string("fragmentShader")));
+r.push_back(flyweight<std::string>(std::string("tiles")));
 }Tileset* toTileset(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Tileset")) {

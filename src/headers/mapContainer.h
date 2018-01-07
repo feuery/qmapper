@@ -6,11 +6,14 @@
 
 class Mapcontainer;
 #include<layerContainer.h>
+#include<new_obj.h>
 
-class Mapcontainer: public Map{
+class Mapcontainer: public Map, public Renderable{
 public:
+
   Mapcontainer();
   Mapcontainer(int w, int h, int layerCount, root *parent);
+
   ~Mapcontainer();
   
   root* parent();
@@ -18,10 +21,14 @@ public:
 
   int width() override;
   int height() override;
+
+  virtual void render(QOpenGLFunctions_4_3_Core *f) override;
+  virtual void render(Renderer *parent) override;
+  int id ;
+  int getRenderId() override;
 private:
 
   root *R;
-
 };
 
 #endif //MAPCONTAINER_H

@@ -23,16 +23,7 @@ void editorController::registerWindow(MainWindow *w)
   this->w = w;
 }
 
-editorController::editorController(): indexOfChosenTileset(flyweight<std::string>(""))
-{
-
-  if(instance) {
-    puts("There already exists an editorController");
-    throw "";
-  }
-
-  instance = this;
-  
+void editorController::populateMaps() {
   for(int i = 0; i < 3; i++) {
     Mapcontainer *m = new Mapcontainer();
     m->setName(std::to_string(i)+"th map");
@@ -47,6 +38,17 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
     Propertierbase *b = m;
     (*document.registry)[id] = b;
   }
+}
+
+editorController::editorController(): indexOfChosenTileset(flyweight<std::string>(""))
+{
+
+  if(instance) {
+    puts("There already exists an editorController");
+    throw "";
+  }
+
+  instance = this;
 
   documentTreeModel = new Tilelistmodel(&document);
 

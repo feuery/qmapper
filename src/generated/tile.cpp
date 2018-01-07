@@ -1,7 +1,13 @@
 #include <tile.h>
-////// generated at 2017-11-21T16:31:10.790Z
+////// generated at 2018-01-07T16:54:10.881Z
 
 
+void Tile::setTileset(flyweight<std::string> value) { 
+Tileset_field = value;
+}
+                                                        flyweight<std::string> Tile::getTileset() {
+return Tileset_field;
+}
 void Tile::setX(int value) { 
 X_field = value;
 }
@@ -13,12 +19,6 @@ Y_field = value;
 }
                                                         int Tile::getY() {
 return Y_field;
-}
-void Tile::setTileset(int value) { 
-Tileset_field = value;
-}
-                                                        int Tile::getTileset() {
-return Tileset_field;
 }
 void Tile::setRotation(int value) { 
 Rotation_field = value;

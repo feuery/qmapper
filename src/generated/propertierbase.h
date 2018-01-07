@@ -1,7 +1,8 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2017-11-21T16:31:10.715Z
+//// generated at 2018-01-07T16:54:10.816Z
 
+#include<renderer.h>
 #include<boost/flyweight.hpp>
 #include<QString>
 #include<nsValidators.h>
@@ -55,12 +56,16 @@ virtual ~Propertierbase ();
 
 virtual void set(flyweight<std::string>propertyname, Script* value);
 virtual Script* get(flyweight<std::string>propertyname, bool *success, Script* type_helper);
+virtual void set(flyweight<std::string>propertyname, flyweight<std::string> value);
+virtual flyweight<std::string> get(flyweight<std::string>propertyname, bool *success, flyweight<std::string> type_helper);
 virtual void set(flyweight<std::string>propertyname, std::string value);
 virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
 virtual void set(flyweight<std::string>propertyname, scriptTypes value);
 virtual scriptTypes get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper);
 virtual void set(flyweight<std::string>propertyname, Texture* value);
 virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
+virtual void set(flyweight<std::string>propertyname, std::vector<std::vector<Tile*>>* value);
+virtual std::vector<std::vector<Tile*>>* get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
 

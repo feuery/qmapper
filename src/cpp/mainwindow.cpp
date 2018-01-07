@@ -50,6 +50,13 @@ void MainWindow::setupTree()
 	  tileset_view->getDrawQueue().clear();
 	  tileset_view->getDrawQueue().push_back(o);
 	}
+	else if(type == "Map") {
+	  Mapcontainer *m = static_cast<Mapcontainer*>(b);
+	  Renderable *o = static_cast<Renderable*>(m);
+	  ec->indexOfChosenMap = m->getId();
+	  map_view->getDrawQueue().clear();
+	  map_view->getDrawQueue().push_back(o);
+	}
       });
   }
   else {
@@ -190,6 +197,9 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   map_view = new Renderer;
   map_view->name = "MAP VIEW";
+  ec->map_view = map_view;
+  ec->populateMaps();
+  
   tileset_view = new Renderer;
   tileset_view->name = "TILESET VIEW";
   

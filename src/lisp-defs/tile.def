@@ -3,7 +3,7 @@
    (properties
     (int x 0)
     (int y 0)
-    (int tileset 0)
-    (int rotation 0))))      
+    (flyweight<std__string> tileset )
+    (int rotation 0))))
 
  

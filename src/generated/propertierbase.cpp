@@ -18,6 +18,15 @@ Script* Propertierbase::get(flyweight<std::string>propertyname, bool *success, S
 {
 
 }
+void Propertierbase::set(flyweight<std::string>propertyname, flyweight<std::string> value) 
+{
+
+}
+
+flyweight<std::string> Propertierbase::get(flyweight<std::string>propertyname, bool *success, flyweight<std::string> type_helper)
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, std::string value) 
 {
 
@@ -42,6 +51,15 @@ void Propertierbase::set(flyweight<std::string>propertyname, Texture* value)
 }
 
 Texture* Propertierbase::get(flyweight<std::string>propertyname, bool *success, Texture* type_helper)
+{
+
+}
+void Propertierbase::set(flyweight<std::string>propertyname, std::vector<std::vector<Tile*>>* value) 
+{
+
+}
+
+std::vector<std::vector<Tile*>>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper)
 {
 
 }
