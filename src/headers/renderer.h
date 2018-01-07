@@ -5,6 +5,7 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include <QTimer>
 #include <QVector>
+#include <QMap>
 #include <new_obj.h>
 #include <functional>
 #include <QMouseEvent>
@@ -21,7 +22,10 @@ public:
   void freeCtx();
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
 
-  virtual QVector<Renderable*>& getObjs();
+  virtual QVector<Renderable*>& getDrawQueue();
+
+  QMap<int, Renderable*> owned_objects;
+  std::string name;
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
@@ -32,9 +36,13 @@ protected slots:
   virtual void initializeGL();
 
 private:
-  QVector<Renderable*> objects;
+  QVector<Renderable*> drawQueue;
   float r = 0.0f;
   QTimer timer;
 };
+
+#else
+
+class Renderer;
 
 #endif //RENDERER_H

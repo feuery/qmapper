@@ -13,9 +13,12 @@ public:
   tilesetContainer(Renderer *r, const char *tilesetPath);
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
+  virtual void render(Renderer *parent) override;
+  int id = rand();
+  int getRenderId() override;
 
 private:
-  void load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const char *filename);
+  void load_texture_splitted(Renderer *p, const char *filename);
 };
 
 #endif //TILESETCONTAINER_H

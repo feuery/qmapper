@@ -48,7 +48,15 @@ void Renderer::paintGL()
   if(f) {
     f->glClear(GL_COLOR_BUFFER_BIT);
     
-    for(auto i = objects.begin(); i != objects.end(); ++i) (*i)->render(f);
+    for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
+      Renderable *o = owned_objects[(*i)->getRenderId()];
+      if (o) 
+	o->render(this);
+      else {
+	qDebug () << "Couldn't find object-to-render with id " << (*i)->getRenderId();
+	throw "";
+      }
+    }
   }
 }
 
@@ -69,7 +77,7 @@ void Renderer::resizeGL(int w, int h)
 {
 }
 
-QVector<Renderable*>& Renderer::getObjs()
+QVector<Renderable*>& Renderer::getDrawQueue()
 {
-  return objects;
+  return drawQueue;
 }

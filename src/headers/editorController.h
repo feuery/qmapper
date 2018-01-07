@@ -28,6 +28,7 @@ public:
   flyweight<std::string> indexOfChosenTileset;
   flyweight<std::string> indexOfStdVertexShader;
   flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
+  std::vector<Renderer*> renderers;
 
   int selectedTileX = 0, selectedTileY = 0;
 

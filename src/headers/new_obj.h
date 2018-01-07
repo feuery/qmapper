@@ -31,17 +31,31 @@ public:
 
   int text_w, text_h;
 
-  obj(Renderer *r, const char *texture_path, bool skipTexture = false);
-  obj(QOpenGLFunctions_4_3_Core *f, QImage img);
+  int id; 
+
+  static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false);
+  static obj* make(Renderer *parent, QImage img);
+
   ~obj();
 
   virtual void render(QOpenGLFunctions_4_3_Core *f);
+  virtual void render(Renderer *parent) override;
   void reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId);
   bool load_new_texture(const char *path, Renderer *r);
 
+  int getRenderId() override;
+
 private:
+
+  obj(Renderer *r, const char *texture_path, bool skipTexture = false);
+  obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img);
+  
   void prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec);
   void prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec);
 };
+
+#else
+
+class obj;
 
 #endif //NEW_OBJ_H

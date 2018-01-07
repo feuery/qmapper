@@ -105,9 +105,9 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   selectedTileX = x;
   selectedTileY = y;
 
-  int tilesetViewObjSize = tilesetView->getObjs().size();
+  int tilesetViewObjSize = tilesetView->getDrawQueue().size();
   if(tilesetViewObjSize == 1) {
-    Renderable *tileset = tilesetView->getObjs().at(0);
+    Renderable *tileset = tilesetView->getDrawQueue().at(0);
 
     tilesetContainer *tc = dynamic_cast<tilesetContainer*>(tileset);
 

@@ -185,7 +185,7 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat paren
   
 void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec)
 {
-  shader = createShader(fns, ec);  
+  shader = createShader(fns, ec);
   VAO = getVAO(fns, r->width(), r->height(), shader);
   position = glm::vec2(0.0f, 0.0f);
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
@@ -226,11 +226,11 @@ const char* formatToStr(QImage::Format format)
   return "Not recognized";
 }
 
-obj::obj(QOpenGLFunctions_4_3_Core *f, QImage img)
+obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
 {
   auto ec = editorController::instance;
   text_w = text_h = 50.0f;
-  prepare(f, 50.0f, 50.0f, ec);
+  prepare(f, r->width(), r->height(), ec);
 
   copy = img;
 
@@ -258,6 +258,8 @@ obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
   auto ec = editorController::instance;
   auto fns = r->getGlFns();
 
+  qDebug()<<"Preparing obj for parent" << r->name.c_str();
+  
   prepare(fns, r, ec);
   
   texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
@@ -268,6 +270,11 @@ obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
 obj::~obj()
 {
 
+}
+
+void obj::render(Renderer *parent) {
+  render(parent->getGlFns());
+  parent->freeCtx();
 }
 
 void obj::render(QOpenGLFunctions_4_3_Core *f)
@@ -328,4 +335,36 @@ bool obj::load_new_texture(const char *path, Renderer *r)
   texture = load_texture(fns, path, &text_w, &text_h); 
   r->freeCtx();
   return true;
+}
+
+obj* obj::make(Renderer *parent, QImage img) {
+  int id = rand();
+  for(Renderer *r: editorController::instance->renderers) {
+    auto f = r->getGlFns();
+
+    qDebug()<<"Preparing obj " << id << " for parent" << r->name.c_str();
+    
+    obj *o = new obj(parent, f, img);
+    o->id = id;
+    r->owned_objects[id] = o;
+    r->freeCtx();
+  }
+
+  // These are always producing objs so this is a safe cast
+  return static_cast<obj*>(parent->owned_objects[id]);
+}
+
+obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
+  int id = rand();
+  for(Renderer *r: editorController::instance->renderers) {
+    obj *o = new obj(r, texture_path, skipTexture);
+    o->id = id;
+    r->owned_objects[id] = o;
+  }
+
+  return static_cast<obj*>(rr->owned_objects[id]);
+}
+
+int obj::getRenderId() {
+  return id;
 }

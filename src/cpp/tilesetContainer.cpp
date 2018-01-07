@@ -14,7 +14,7 @@
 // Making this return a 2d array should be a low hanging fruit when optimizing
 // I'm skipping it now 'cause I have no idea how this insane language did
 // dynamically sized 2D arrays
-void tilesetContainer::load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const char *filename)
+void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filename)
 {
   QImage root_img;
   root_img.load(QString(filename));
@@ -32,7 +32,7 @@ void tilesetContainer::load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const
     for(int y = 0; y < tiles_h; y++) {
       QImage copy = root_img.copy(x * 50,
 				  y * 50, 50, 50);
-      obj *o = new obj(f, copy);
+      obj *o = obj::make(parent, copy);
       o->position = glm::vec2(x * 50.0f, y * 50.0f);
       qDebug() << "Loading tiletexture at " << o;
       tiles[x][y] = o;
@@ -41,9 +41,23 @@ void tilesetContainer::load_texture_splitted(QOpenGLFunctions_4_3_Core *f, const
 }
 
 tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(){
-  auto fns = r->getGlFns();
-  load_texture_splitted(fns, tilesetPath);
-  r->freeCtx();
+  load_texture_splitted(r, tilesetPath);
+  r->owned_objects[id] = this;
+}
+
+void tilesetContainer::render(Renderer *parent)
+{
+  for(int x = 0; x <  tiles_w; x++) {
+    for(int y = 0; y < tiles_h; y++) {
+      Renderable *tile = tiles[x][y];
+
+      if(tile) {
+  	tile->render(parent);
+      }
+      else qDebug() << "Tile on " << tile;
+    }
+  }
+  
 }
 
 void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
@@ -55,8 +69,11 @@ void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
 	tile->render(f);
       }
       else qDebug() << "Tile on " << tile;
-      // else
-      // 	puts("Tile ei ole validi :(");
     }
   }
+}
+
+int tilesetContainer::getRenderId()
+{
+  return id;
 }

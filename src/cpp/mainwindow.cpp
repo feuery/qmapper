@@ -47,8 +47,8 @@ void MainWindow::setupTree()
 	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
 	  Renderable* o = static_cast<Renderable*>(t);
 	  ec->indexOfChosenTileset = t->getId();
-	  tileset_view->getObjs().clear();
-	  tileset_view->getObjs().push_back(o);
+	  tileset_view->getDrawQueue().clear();
+	  tileset_view->getDrawQueue().push_back(o);
 	}
       });
   }
@@ -189,8 +189,17 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   ec->registerWindow(this);
 
   map_view = new Renderer;
+  map_view->name = "MAP VIEW";
   tileset_view = new Renderer;
+  tileset_view->name = "TILESET VIEW";
+  
   auto _tileview = new tileview_renderer;
+  _tileview->name = "TILE VIEW";
+
+  ec->renderers.push_back(map_view);
+  ec->renderers.push_back(tileset_view);
+  ec->renderers.push_back(_tileview);
+  
   _tileview->setMinimumSize(50,50);
   _tileview->setMaximumSize(50,50);
 
