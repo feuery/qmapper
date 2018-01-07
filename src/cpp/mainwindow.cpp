@@ -13,6 +13,7 @@
 
 #include <tilesetContainer.h>
 #include <tileview_renderer.h>
+#include <layerContainer.h>
 
 #define btnW 200
 #define btnH 25
@@ -54,8 +55,16 @@ void MainWindow::setupTree()
 	  Mapcontainer *m = static_cast<Mapcontainer*>(b);
 	  Renderable *o = static_cast<Renderable*>(m);
 	  ec->indexOfChosenMap = m->getId();
+	  ec->indexOfChosenLayer = m->layers->at(0)->getId();
 	  map_view->getDrawQueue().clear();
 	  map_view->getDrawQueue().push_back(o);
+	}
+	else if(type == "Layer") {
+	  Layercontainer *l = static_cast<Layercontainer*>(b);
+	  Map *m = l->parent();
+
+	  ec->indexOfChosenMap = m->getId();
+	  ec->indexOfChosenLayer = l->getId();
 	}
       });
   }
@@ -224,6 +233,14 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
       ec->setSelectedTile(x, y, tileset_view, _tileview);
 
+    });
+
+  map_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
+      if(e->buttons() != Qt::LeftButton) return;
+
+      int x = e->x() / 50, y = e->y() / 50;
+
+      // ec->set
     });
 
   QWidget *tb = new QWidget(this);

@@ -29,6 +29,7 @@ public:
 
   flyweight<std::string> indexOfChosenTileset;
   flyweight<std::string> indexOfChosenMap;
+  flyweight<std::string> indexOfChosenLayer;
 
   flyweight<std::string> indexOfStdVertexShader;
   flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
