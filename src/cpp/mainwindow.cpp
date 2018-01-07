@@ -61,10 +61,13 @@ void MainWindow::setupTree()
 	}
 	else if(type == "Layer") {
 	  Layercontainer *l = static_cast<Layercontainer*>(b);
-	  Map *m = l->parent();
+	  Mapcontainer *m = static_cast<Mapcontainer*>(l->parent());
 
 	  ec->indexOfChosenMap = m->getId();
 	  ec->indexOfChosenLayer = l->getId();
+
+	  map_view->getDrawQueue().clear();
+	  map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
 	}
       });
   }
