@@ -54,7 +54,7 @@
 (def test-data '(defcppclass Script ("<string>" "<script-types.h>" "<nsDoesnExistHeader.h>")
   (public
    (properties
-    (std__string contents "")
+    (std__string contents)
     (std__string name "")
     ;; TODO make immutable
     ;; The fourth parameter is a list of validators that are unary C fns that onSet take the new value as param and return a bool that controls if the new value is suitable
@@ -481,11 +481,17 @@ return;
                                                                                                    properties (let [[prop-type prop-name default-val] form
                                                                                                                     prop-type (typesymbol->str prop-type)
                                                                                                                     prop-name ((comp str/capitalize name) prop-name)]
-                                                                                                                (format "virtual void set%s(%s val);
+                                                                                                                (if default-val
+                                                                                                                  (format "virtual void set%s(%s val);
 virtual %s get%s();
 %s %s_field = %s;" prop-name prop-type
-                                                                                                                        prop-type prop-name
-                                                                                                                        prop-type prop-name (pr-str default-val)))))))
+                                                                                                                          prop-type prop-name
+                                                                                                                          prop-type prop-name (pr-str default-val))
+                                                                                                                  (format "virtual void set%s(%s val);
+virtual %s get%s();
+%s %s_field;" prop-name prop-type
+                                                                                                                          prop-type prop-name
+                                                                                                                          prop-type prop-name)))))))
                                                            (str/join "\n"))
                            set-contents
                            get-contents
@@ -565,6 +571,11 @@ throw \"\";
     (catch RuntimeException ex
       (println "Todennäköinen EOF stringillä " (pr-str str))
       (throw ex))))
+
+#_(-> (tokenize test-data)
+    (assoc :filename "lol.def")
+    codegen)
+
 
 (defn start-compiler-backend! []
   (go-loop [compilation-set (<! compilation-queue)]

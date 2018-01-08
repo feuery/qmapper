@@ -17,7 +17,7 @@ virtual int getY();
 int Y_field = 0;
 public: virtual void setTileset(flyweight<std::string> val);
 virtual flyweight<std::string> getTileset();
- flyweight<std::string> Tileset_field;
+flyweight<std::string> Tileset_field;
 public: virtual void setRotation(int val);
 virtual int getRotation();
 int Rotation_field = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
