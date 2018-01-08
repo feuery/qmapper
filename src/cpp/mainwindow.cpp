@@ -15,6 +15,8 @@
 #include <tileview_renderer.h>
 #include <layerContainer.h>
 
+#include <tilelistmodel.h>
+
 #define btnW 200
 #define btnH 25
 
@@ -55,7 +57,7 @@ void MainWindow::setupTree()
 	  Mapcontainer *m = static_cast<Mapcontainer*>(b);
 	  Renderable *o = static_cast<Renderable*>(m);
 	  ec->indexOfChosenMap = m->getId();
-	  ec->indexOfChosenLayer = m->layers->at(0)->getId();
+	  ec->indexOfChosenLayer = 0;
 	  map_view->getDrawQueue().clear();
 	  map_view->getDrawQueue().push_back(o);
 	}
@@ -64,7 +66,7 @@ void MainWindow::setupTree()
 	  Mapcontainer *m = static_cast<Mapcontainer*>(l->parent());
 
 	  ec->indexOfChosenMap = m->getId();
-	  ec->indexOfChosenLayer = l->getId();
+	  ec->indexOfChosenLayer = indexOf(m->layers, static_cast<Layer*>(l));
 
 	  map_view->getDrawQueue().clear();
 	  map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
@@ -230,8 +232,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   tileset_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
       if(e->buttons() != Qt::LeftButton) return;
 
-      // jaa koordinaatit 50:llä ja kopioi indeksi jonnekin missä valittu-tile-shader näkee sen
-      // Lisäks tee valitusta tilesetistä sellainen tekstuuri jonka voi liittää myös valittu-tile-shaderiin uniformina
       int x = e->x() / 50, y = e->y() / 50;
 
       ec->setSelectedTile(x, y, tileset_view, _tileview);
@@ -243,7 +243,8 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
       int x = e->x() / 50, y = e->y() / 50;
 
-      // ec->set
+      //ec knows which tile is selected 
+      ec->setTileAt(x, y);
     });
 
   QWidget *tb = new QWidget(this);

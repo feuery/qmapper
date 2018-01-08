@@ -118,6 +118,26 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     if(!tileRenderer) qDebug() << "tileRenderer is nil";
     
     tileRenderer->setSelectedTile(tile);
+
+    selectedTileData.setX(x);
+    selectedTileData.setY(y);
+    selectedTileData.setRotation(0);
+    selectedTileData.setTileset(indexOfChosenTileset);
+
+    qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().get().c_str() << "}";
   }
   else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
+}
+
+void editorController::setTileAt(int x, int y)
+{
+  Map* m = toMap(document.registry->at(indexOfChosenMap));
+  if(indexOfChosenLayer < 0) {
+    qDebug() << "IndexOfChosenLayer is small " << indexOfChosenLayer;
+    return;
+  }
+
+  qDebug() << "Setting tile at " << indexOfChosenLayer << ", " << x << ", " << y;
+  
+  m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y) = selectedTileData;
 }

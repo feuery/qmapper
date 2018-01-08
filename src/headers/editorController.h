@@ -9,6 +9,8 @@
 #include <renderer.h>
 #include <tileview_renderer.h>
 
+#include <tile.h>
+
 class MainWindow;
 class Renderer;
 
@@ -29,15 +31,17 @@ public:
 
   flyweight<std::string> indexOfChosenTileset;
   flyweight<std::string> indexOfChosenMap;
-  flyweight<std::string> indexOfChosenLayer;
+  int indexOfChosenLayer;
 
   flyweight<std::string> indexOfStdVertexShader;
   flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
   std::vector<Renderer*> renderers;
 
   int selectedTileX = 0, selectedTileY = 0;
+  Tile selectedTileData;
 
   void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
+  void setTileAt(int x, int y);
 
   // Goddammit
   Renderer *map_view;
