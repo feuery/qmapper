@@ -48,14 +48,14 @@ void Propertyeditor::editingStdStringFinished(Propertierbase *base, flyweight<st
   base->clearErrorsOf(internedPropname);
 }
 
-QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
+QStandardItemModel* dump_to_model(std::vector<Propertierbase*> prop_objs)
 {
   QStandardItemModel *model = new QStandardItemModel;
 
   QStandardItem *empty = new QStandardItem("Empty");
   model->appendRow(empty);
 
-  for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
+  for(auto m = prop_objs.begin(); m < prop_objs.end(); m++) {
     either<bool, std::string> result = getStringProp(*m, flyweight<std::string>(std::string("name")));
     
     QStandardItem *map_item = new QStandardItem(result.b.c_str());
@@ -128,13 +128,7 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       }
       if(!nameResult.a) continue;
       
-      std::vector<Propertierbase*>* kids = new std::vector<Propertierbase*>;
-
-      for(auto it = r->registry->begin(); it != r->registry->end(); it++) {
-	if(it->second->type_identifier() == type) {
-	  kids->push_back(it->second);
-	} 
-      };      
+      std::vector<Propertierbase*> kids = r->registryOf(type);
 
       QComboBox *cb = new QComboBox(this);
       QStandardItemModel *m = dump_to_model(kids);
@@ -145,10 +139,10 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       else qDebug() << "No valid index found for " << nameResult.b.c_str();
       
       connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-	      [=](int index) {
+	      [&](int index) {
 		index--;
 		if(index >= 0) {
-		  Propertierbase *b = kids->at(index);
+		  Propertierbase *b = kids.at(index);
 		  if(!b) {
 		    qDebug() << "invalid b in QComboBox::currentIndexChanged";
 		    return;

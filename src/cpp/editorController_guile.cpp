@@ -1,20 +1,20 @@
 #include <editorController_guile.h>
 #include <script.h>
 
-extern "C" {
+extern "C" { 
 
   SCM add_map(SCM s_w, SCM s_h, SCM s_layerCount) {
     int w = scm_to_int(s_w),
       h = scm_to_int(s_h),
       layers = scm_to_int(s_layerCount);
 
-    int count = editorController::instance->document.registry->size();
+    int count = editorController::instance->document.registrySize();
 
     Mapcontainer *mc = new Mapcontainer(w, h, layers, &editorController::instance->document);
     mc->setName(QString("Map %1").arg(count).toStdString());
 
     editorController::instance->documentTreeModel->begin(count);
-    (*editorController::instance->document.registry)[mc->getId()] = mc;
+    editorController::instance->document.doRegister("Map", mc->getId(), mc);
     editorController::instance->documentTreeModel->end();
   
     return SCM_BOOL_T;
@@ -23,10 +23,9 @@ extern "C" {
   SCM add_layer(SCM map_index)
   {
     int map_i = scm_to_int(map_index);
-    root &r = editorController::instance->document;
-    auto map_strIndex = r.indexOf(map_i);
+    Rootcontainer &r = static_cast<Rootcontainer&>(editorController::instance->document);
     
-    Map *m =  toMap(r.registry->at(map_strIndex));
+    Map *m =  r.nth<Map>(std::string("Map"), map_i);
     int c = m->layers->size();
     
     // map *m = editorController::instance->document->all_maps->at(map_i);
@@ -44,17 +43,19 @@ extern "C" {
     
   }
 
-  SCM delete_root_index(SCM index_scm)
+  SCM delete_root_index(SCM index_scm, SCM type_name)
   {
+    char *type = scm_to_locale_string(type_name);
+    std::string tyype = type;
     int index = scm_to_int(index_scm);
     root &r = editorController::instance->document;
-    if(! (index >= 0 && index < r.registry->size())) return SCM_BOOL_F;
+    if(! (index >= 0 && index < r.typeRegistrySize(tyype))) return SCM_BOOL_F;
     editorController::instance->documentTreeModel->begin(index);
-
-    auto strInd = r.indexOf(index);
     
-    r.registry->erase(strInd);
+    r.erase(tyype, index);
     editorController::instance->documentTreeModel->end();
+
+    free(type);
     return SCM_BOOL_T;
   }
 
@@ -63,14 +64,12 @@ extern "C" {
     int map_index = scm_to_int(map_index_scm),
       layer_index = scm_to_int(layer_index_scm);
 
-    root &r = editorController::instance->document;
+    Rootcontainer &r = static_cast<Rootcontainer&>(editorController::instance->document);
     
-    if(! (map_index >= 0 && map_index < r.registry->size())) return SCM_BOOL_F;
-
-    auto map_ind_str = r.indexOf(map_index);
+    if(! (map_index >= 0 && map_index < r.registrySize())) return SCM_BOOL_F;
 
     editorController::instance->documentTreeModel->beginMap(map_index);
-    std::vector<Layer*>* layerset = toMap(r.registry->at(map_ind_str))->layers;
+    std::vector<Layer*>* layerset = r.nth<Map>("Map", map_index)->layers;
 
     if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
 
@@ -94,7 +93,7 @@ extern "C" {
     std::string ns = genNs();
     scrpt->setNs(ns);
     
-    (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
+    editorController::instance->document.doRegister("Script", scrpt->getId(), scrpt);
     editorController::instance->documentTreeModel->end();
 
     return SCM_BOOL_T;
@@ -110,7 +109,7 @@ extern "C" {
     std::string ns = genNs();
     scrpt->setNs(ns);
     
-    (*editorController::instance->document.registry)[scrpt->getId()] = scrpt;
+    editorController::instance->document.doRegister("Script", scrpt->getId(), scrpt);
     editorController::instance->documentTreeModel->end();
 
     return SCM_BOOL_T;

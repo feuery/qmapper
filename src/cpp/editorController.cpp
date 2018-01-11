@@ -36,7 +36,7 @@ void editorController::populateMaps() {
     }
     flyweight<std::string> id = m->getId();
     Propertierbase *b = m;
-    (*document.registry)[id] = b;
+    document.doRegister("Map", id, b);
   }
 }
 
@@ -57,7 +57,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setNs("defaultVertex");
   scr->setName("Standard vertex shader");
   scr->setContents("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n");
-  (*document.registry)[scr->getId()] = scr;
+  document.doRegister("Script", scr->getId(), scr);
   indexOfStdVertexShader = scr->getId();
 
   scr = new Script;
@@ -65,7 +65,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setName("Standard fragment shader");
   scr->setNs("defaultShader");
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\n\nvoid main() {\n  vec4 texel = vec4(spriteColor, 1.0) * texture(image, TexCoord);\n  if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
-  (*document.registry)[scr->getId()] = scr;
+  document.doRegister("Script", scr->getId(), scr);
   indexOfStdFragmentShader = scr->getId();
 
   scr = new Script;
@@ -73,7 +73,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setName("Standard selected tile - view's fragmentshader");
   scr->setNs("default.tileView");
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\nuniform vec2 selectedTileCoord; // <- in tile-coords\n\nvoid main() {\n  vec4 texel = // vec4(spriteColor, 1.0) * \n texture(image, TexCoord + (selectedTileCoord));\n if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
-  (*document.registry)[scr->getId()] = scr;
+  document.doRegister("Script", scr->getId(), scr);
   indexOfStdTileviewFragShader = scr->getId();
 }
 
@@ -131,7 +131,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
 void editorController::setTileAt(int x, int y)
 {
-  Map* m = toMap(document.registry->at(indexOfChosenMap));
+  Map* m = toMap(document.fetchRegister("Map", indexOfChosenMap));
   if(indexOfChosenLayer < 0) {
     qDebug() << "IndexOfChosenLayer is small " << indexOfChosenLayer;
     return;

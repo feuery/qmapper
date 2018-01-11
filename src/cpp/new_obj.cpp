@@ -100,7 +100,7 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
 }
 
 std::string getScript(flyweight<std::string> id) {
-  Script *obj = toScript((*editorController::instance->document.registry)[id]);
+  Script *obj = toScript(editorController::instance->document.fetchRegister("Script", id));
   if(!obj) {
     puts("Obj is null");
     throw "";
@@ -325,8 +325,8 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
 void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId)
 {
   editorController *ec = editorController::instance;
-  shader = createShader(f, toScript((*ec->document.registry)[vertexId])->getContents().c_str(),
-			toScript((*ec->document.registry)[fragmentId])->getContents().c_str());
+  shader = createShader(f, toScript(ec->document.fetchRegister("Script", vertexId))->getContents().c_str(),
+			toScript(ec->document.fetchRegister("Script", fragmentId))->getContents().c_str());
 }
 
 bool obj::load_new_texture(const char *path, Renderer *r)

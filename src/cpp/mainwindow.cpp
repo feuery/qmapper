@@ -167,7 +167,7 @@ void MainWindow::setupTreeCtxMenu()
       
       Texture *text = new textureContainer(textLoc, f);
       text->parent(&ec->document);
-      (*ec->document.registry)[text->getId()] = text;
+      ec->document.doRegister("Texture", text->getId(), text);
 
       ec->documentTreeModel->end();
     });
@@ -194,7 +194,7 @@ void MainWindow::newTileset() {
   
   // if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
     ec->documentTreeModel->begin();
-    (*ec->document.registry)[t->getId()] = t;
+    ec->document.doRegister("Tileset", t->getId(), t);
     ec->documentTreeModel->end();
   // }
   // else {

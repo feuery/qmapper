@@ -2,12 +2,21 @@
 					"<string>" "<boost/flyweight.hpp>"
 					"<QString>" "<either.h>")
   (declare-class "Map")
-  (public
+  (protected
    (fields
-    (std__map<flyweight<std__string>___Propertierbase*>* registry nullptr))
+    (std__map<std__string___std__map<std__string___Propertierbase*>>* registry nullptr)))
+  
+  (public
    (functions
-    (flyweight<std__string> indexOf (int row))
+    (int registrySize ())
+    (int typeRegistrySize (std__string type_name))
+    (void erase (std__string type std__string id))
+    (void erase (std__string type int id))
+    (Propertierbase* fetchRegister (std__string Type, flyweight<std__string> id))
+    (void doRegister (std__string Type, flyweight<std__string> id, Propertierbase* object)) 
+    ;(flyweight<std__string> indexOf (int row))
     (int rowOf (flyweight<std__string> id))
     (either<scriptTypes___std__string> findNs (std__string ns))
     (void saveNs (std__string ns std__string content))
-    (bool containsNs (std__string ns)))))
+    (bool containsNs (std__string ns))
+    (std__vector<Propertierbase*> registryOf (std__string type)))))

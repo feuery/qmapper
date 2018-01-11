@@ -14,12 +14,18 @@ using namespace boost::flyweights;
 #include<cstring>
 class Map;
 class root: public Propertierbase {
- public: std::map<flyweight<std::string>, Propertierbase*>* registry = nullptr;
-public: virtual flyweight<std::string> indexOf (int row) = 0;
+ protected: std::map<std::string, std::map<std::string, Propertierbase*>>* registry = nullptr;
+public: virtual int registrySize () = 0;
+public: virtual int typeRegistrySize (std::string type_name) = 0;
+public: virtual void erase (std::string type, std::string id) = 0;
+public: virtual void erase (std::string type, int id) = 0;
+public: virtual Propertierbase* fetchRegister (std::string Type, flyweight<std::string> id) = 0;
+public: virtual void doRegister (std::string Type, flyweight<std::string> id, Propertierbase* object) = 0;
 public: virtual int rowOf (flyweight<std::string> id) = 0;
 public: virtual either<scriptTypes, std::string> findNs (std::string ns) = 0;
 public: virtual void saveNs (std::string ns, std::string content) = 0;
-public: virtual bool containsNs (std::string ns) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
+public: virtual bool containsNs (std::string ns) = 0;
+public: virtual std::vector<Propertierbase*> registryOf (std::string type) = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
 if(propertyname == std::string("Id")) {
   *success = true;

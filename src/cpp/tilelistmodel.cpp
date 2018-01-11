@@ -1,11 +1,10 @@
-// http://web.archive.org/web/20150224011819/http://qt-project.org/doc/qt-4.8/itemviews-editabletreemodel-treemodel-cpp.html
-
 #include <QDebug>
 #include <map.h>
 #include <tilelistmodel.h>
 #include <script.h>
 #include <texture.h>
 #include <tilesetContainer.h>
+#include <rootContainer.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   if(parent.isValid()) return static_cast<Propertierbase*>(parent.internalPointer());
@@ -31,7 +30,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   else if (strcmp(type, "root") == 0) {
     root *r = static_cast<root*>(parent);
-    int rows = r->registry->size();
+    int rows = r->registrySize();
     return rows;
   }
   else if(strcmp(type, "Layer") == 0 ||
@@ -72,8 +71,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
     return createIndex(row, column, m->layers->at(row));
   }
   else if(strcmp(type, "root") == 0) {
-    auto index = Root->indexOf(row);
-    return createIndex(row, column, Root->registry->at(index));
+    return createIndex(row, column, static_cast<Rootcontainer*>(Root)->registryToList().at(row));
   }
   else {
     printf("Unknown type %s\n", type);
@@ -185,14 +183,14 @@ void Tilelistmodel::beginMap(int map_row)
 {
   auto root = QModelIndex();
   QModelIndex parent_index = index(map_row, 0, root);
-  auto mapId = Root->indexOf(map_row);
-  int count = toMap(Root->registry->at(mapId))->layers->size();
+
+  int count = static_cast<Rootcontainer*>(Root)->nth<Map>("Map", map_row)->layers->size();
   beginInsertRows(parent_index, count, count+1);
 }
 
 void Tilelistmodel::begin()
 {
   auto root = QModelIndex();
-  int count = Root->registry->size();
+  int count = Root->registrySize();
   beginInsertRows(root, count, count + 1);
 }

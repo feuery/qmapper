@@ -6,9 +6,8 @@
 static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
 {
   editorController *ec = editorController::instance;
-
-  std::string vertex_source = toScript((*ec->document.registry)[ec->indexOfStdVertexShader])->getContents(),
-    fragmentSource = toScript((*ec->document.registry)[ec->indexOfStdTileviewFragShader])->getContents();
+  std::string vertex_source = toScript(ec->document.fetchRegister("Script", ec->indexOfStdVertexShader))->getContents(),
+    fragmentSource = toScript(ec->document.fetchRegister("Script", ec->indexOfStdTileviewFragShader))->getContents();
 
   const char* vertex_haisee = vertex_source.c_str();
   const char* const* v = &vertex_haisee;
