@@ -124,7 +124,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     selectedTileData.setRotation(0);
     selectedTileData.setTileset(indexOfChosenTileset);
 
-    qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().get().c_str() << "}";
+    qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().c_str() << "}";
   }
   else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
 }

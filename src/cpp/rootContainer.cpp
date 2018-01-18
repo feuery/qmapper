@@ -7,7 +7,7 @@ Rootcontainer::Rootcontainer(): root()
 {
   // TODO replace with a vector<unique_pointer<map*>> or smthng which doesn't leak like a sieve
   registry = new std::map<std::string, std::map<std::string, Propertierbase*>>;
-  (*registry)["Layer"];
+  // (*registry)["Layer"];
   (*registry)["Map"];
   (*registry)["Root"];
   (*registry)["Script"];
@@ -19,23 +19,6 @@ Rootcontainer::Rootcontainer(): root()
 Rootcontainer::~Rootcontainer()
 {
   delete registry;
-}
-
-
-// flyweight<std::string> Rootcontainer::indexOf (int row)
-// {
-//   auto it = registry->begin();
-//   for(int i =0; i<row; i++)
-//     it ++;
-//   return it->first;
-// }
-
-int Rootcontainer::rowOf(flyweight<std::string> id)
-{
-  auto it = registry->find(id);
-  if(it == registry->end()) return -1;
- 
-  return std::distance(registry->begin(), it);
 }
 
 either<scriptTypes, std::string> Rootcontainer::findNs(std::string ns)
@@ -78,12 +61,12 @@ bool Rootcontainer::containsNs (std::string ns) {
   return false;
 }
 
-Propertierbase* Rootcontainer::fetchRegister(std::string type, flyweight<std::string> id) {
-  return registry->at(type).at(id.get());
+Propertierbase* Rootcontainer::fetchRegister(std::string type, std::string id) {
+  return registry->at(type).at(id);
 }
   
-void Rootcontainer::doRegister(std::string type, flyweight<std::string> id, Propertierbase *o) {
-  (*registry)[type][id.get()] = o;
+void Rootcontainer::doRegister(std::string type, std::string id, Propertierbase *o) {
+  (*registry)[type][id] = o;
 }
 
 int Rootcontainer::registrySize() {
@@ -128,7 +111,22 @@ std::vector<Propertierbase*> Rootcontainer::registryToList() {
 			   return v;});
 }
 
+std::vector<Propertierbase*> Rootcontainer::registryToList(std::vector<std::string> filterTypes) {
+  std::vector<Propertierbase*> v;
+
+  for(auto i = registry->begin(); i != registry->end(); i++) {
+    if(std::find(filterTypes.begin(), filterTypes.end(), i->first) != filterTypes.end()) continue;
+
+    for(auto i2: i->second)
+      v.push_back(i2.second);
+  }
+  return v;
+}
+
 std::vector<Propertierbase*> Rootcontainer::registryOf (std::string type) {
+
+  if(type == "std::string") return {};
+  
   std::vector<Propertierbase*> r;
 
   for(auto i: registry->at(type)){

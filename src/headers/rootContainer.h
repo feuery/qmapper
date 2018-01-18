@@ -11,17 +11,14 @@ public:
 
   Rootcontainer();
   ~Rootcontainer();
-  
-  // flyweight<std::string> indexOf (int row) override;
-  int rowOf(flyweight<std::string> id) override;
 
   either<scriptTypes, std::string> findNs (std::string ns) override;
   void saveNs (std::string ns, std::string content) override;
 
   bool containsNs (std::string ns);
 
-  Propertierbase* fetchRegister (std::string Type, flyweight<std::string> id);
-  void doRegister (std::string Type, flyweight<std::string> id, Propertierbase* object);
+  Propertierbase* fetchRegister (std::string Type, std::string id);
+  void doRegister (std::string Type, std::string id, Propertierbase* object);
 
   int registrySize();
   int typeRegistrySize(std::string type_name);
@@ -30,6 +27,7 @@ public:
   std::vector<Propertierbase*> registryOf (std::string type) override;
 
   std::vector<Propertierbase*> registryToList();
+  std::vector<Propertierbase*> registryToList(std::vector<std::string> filterTypes);
   template<typename T>
   T* nth(std::string type_name, int i);
 

@@ -1,4 +1,5 @@
 #include<layerContainer.h>
+#include <editorController.h>
 
 Layercontainer::Layercontainer(int w, int h):Layer()
 {
@@ -11,7 +12,9 @@ Layercontainer::Layercontainer(int w, int h):Layer()
       column.push_back(Tile());
     }
     tiles->push_back(column);
-  }   
+  }
+
+  // editorController::instance->document.doRegister("Layer", getId(), this);
 }
 
 Layercontainer::~Layercontainer() {

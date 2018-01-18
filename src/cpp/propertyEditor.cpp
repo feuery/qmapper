@@ -13,6 +13,8 @@
 #include <tilesetContainer.h>
 
 either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::string> internedPropname) {
+  if(internedPropname.get() == std::string("Id")) return {true, base->getId().get()};
+  
   std::string lol;
   bool success = false;
   either<bool, std::string> result;
@@ -90,7 +92,8 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
   std::vector<flyweight<std::string>> properties = base->names();
 
   for(int i =0; i<base->property_count(); i++) {
-    flyweight<std::string> type = base->type_name(properties.at(i));
+    std::string type = base->type_name(properties.at(i)).get();
+    
     if(type == std::string("std::string")) {
       auto any = getStringProp(base, properties.at(i));
       QLineEdit *edit = any.a ? new QLineEdit(QString(any.b.c_str()), this):
@@ -112,6 +115,11 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
     }
     else if(type == "scriptTypes") {
       auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
+      QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
+      data->addRow(QString(properties.at(i).get().c_str()), lbl);
+    }
+    else if(type == "flyweight<std::string>") {
+      auto scriptTypeResult = getStringProp(base, properties.at(i));
       QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
       data->addRow(QString(properties.at(i).get().c_str()), lbl);
     }
@@ -162,12 +170,13 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
 
 void Propertyeditor::resetLayout(Propertierbase *base) {
   root *r = &editorController::instance->document;
+  auto reg = r->registryToList({});
   l = new QVBoxLayout;
   
   data = makeLayout(base);
 
   data->addRow(QString("Row: "),
-	       new QLabel(QString(std::to_string(r->rowOf(base->getId())).c_str()), this));
+	       new QLabel(QString(std::to_string(indexOf<Propertierbase*>(&reg, base)).c_str()), this));
   data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
   
   QHBoxLayout *buttons = new QHBoxLayout;

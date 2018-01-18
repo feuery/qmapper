@@ -4,7 +4,6 @@
 #include <script.h>
 #include <texture.h>
 #include <tilesetContainer.h>
-#include <rootContainer.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
   if(parent.isValid()) return static_cast<Propertierbase*>(parent.internalPointer());
@@ -64,14 +63,19 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
 {
   Propertierbase *base = getparent(qparent);
   
-  const char *type = base->type_identifier().get().c_str();
+  auto type = base->type_identifier().get();
   
-  if(strcmp(type, "Map") == 0) {
+  if(type == "Map") {
+    // Se tulee tänne
     Map *m = static_cast<Map*>(base);
-    return createIndex(row, column, m->layers->at(row));
+    qDebug () << " PARENT ON MAP!!!!";
+    Layer *l =  m->layers->at(row);
+    return createIndex(row, column, l);
   }
-  else if(strcmp(type, "root") == 0) {
-    return createIndex(row, column, static_cast<Rootcontainer*>(Root)->registryToList().at(row));
+  else if(type == "root") {
+    auto reg = Root->registryToList({});
+    qDebug() << " Returning root index to type  "<< reg.at(row)->type_identifier().get().c_str();
+    return createIndex(row, column, reg.at(row));
   }
   else {
     printf("Unknown type %s\n", type);
@@ -87,7 +91,7 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(role != Qt::DisplayRole) return QVariant();
   
   Propertierbase *base = getparent(index);
-  const char *type = base->type_identifier().get().c_str();
+  std::string type = base->type_identifier().get();
   int row = index.row();
 
   std::string helper;
@@ -96,22 +100,22 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
 
   if(succ) { return QString(name.c_str()); }
   
-  if(strcmp(type, "root") == 0) {
+  if(type == "root") {
     return QString("Root");
   }
-  else if(strcmp(type, "Map") == 0) {
+  else if(type == "Map") {
     Map *m = static_cast<Map*>(base);
     return QString(m->getName().c_str());
   }
-  else if(strcmp(type, "Layer") == 0) {
+  else if(type == "Layer") {
     Layer *l = static_cast<Layer*>(base);
     return QString(l->getName().c_str());
   }
-  else if(strcmp(type, "Script") == 0) {
+  else if(type == "Script") {
     Script *s = static_cast<Script*>(base);
     return QString(s->getName().c_str());
   }
-  else if(strcmp(type, "Tileset") == 0) {
+  else if(type == "Tileset") {
     Tileset *s = static_cast<Tileset*>(base);
     return QString(s->getName().c_str());
   }
@@ -130,13 +134,16 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   Propertierbase *obj = getparent(index);
   if(obj == Root) return QModelIndex();
 
-  const char* type = obj->type_identifier().get().c_str();
+  std::string type = obj->type_identifier().get();
 
-  if(strcmp(type, "Map") == 0) {
+  auto reg = Root->registryToList({});
+  
+  if(type == "Map") {
     Map *m = static_cast<Map*>(obj);
-    return createIndex(Root->rowOf(m->getId()), 0, Root);
+    
+    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(m)), 0, Root);
   }
-  else if(strcmp(type, "Layer") == 0) {
+  else if(type == "Layer") {
     Layer *l = static_cast<Layer*>(obj);
     Map *p = l->parent();
 
@@ -144,22 +151,21 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
       qDebug() << "Layer " << l << " has invalid parent " << p;
       return QModelIndex();
     }
-    // qDebug() << "Trying to get parent of " << p;
-    // qDebug() << ", with id " << p->getId().get().c_str();
-    int row = Root->rowOf(p->getId());
+    int row = indexOf<Layer*>(p->layers,l);
+    
     return createIndex(row, 0, p);
   }
-  else if (strcmp(type, "Script") == 0) {
+  else if (type == "Script") {
     Script *s = static_cast<Script*>(obj);
-    return createIndex(Root->rowOf(s->getId()), 0, Root);
+    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(s)), 0, Root);
   }
-  else if(strcmp(type, "Texture") == 0 ) {
+  else if(type == "Texture" ) {
     Texture *t = static_cast<Texture*>(obj);
-    return createIndex(Root->rowOf(t->getId()), 0, Root);
+    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(t)), 0, Root);
   }
-  else if(strcmp(type, "Tileset") == 0 ) {
+  else if(type == "Tileset" ) {
     Tileset *t = static_cast<Tileset*>(obj);
-    return createIndex(Root->rowOf(t->getId()), 0, Root);
+    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(t)), 0, Root);
   }
   else {
     printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);
@@ -183,8 +189,8 @@ void Tilelistmodel::beginMap(int map_row)
 {
   auto root = QModelIndex();
   QModelIndex parent_index = index(map_row, 0, root);
-
-  int count = static_cast<Rootcontainer*>(Root)->nth<Map>("Map", map_row)->layers->size();
+  auto map = Root->registryToList({}).at(map_row);
+  int count = toMap(map)->layers->size();
   beginInsertRows(parent_index, count, count+1);
 }
 
