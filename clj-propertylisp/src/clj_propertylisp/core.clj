@@ -48,6 +48,7 @@
 (defn typesymbol->str [type]
   (-> type
       name
+      (str/replace #"_" " ")
       (str/replace #"___" ", ")
       (str/replace #"__" "::")))
 
