@@ -62,7 +62,11 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
   for(int l = 0; l < layers->size(); l++) {
     for(int x = 0; x < width(); x++) {
       for(int y = 0; y < height(); y++) {
-	Tile tile = layers->at(l)->tiles->at(x).at(y);
+	Layer *layer = layers->at(l);
+
+	if(!layer->getVisible()) continue;
+	
+	Tile tile = layer->tiles->at(x).at(y);
 	
 
 	if(tile.getTileset() != "") {
