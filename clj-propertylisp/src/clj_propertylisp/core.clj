@@ -48,9 +48,9 @@
 (defn typesymbol->str [type]
   (-> type
       name
-      (str/replace #"_" " ")
       (str/replace #"___" ", ")
-      (str/replace #"__" "::")))
+      (str/replace #"__" "::")
+      (str/replace #"_" " ")))
 
 (def test-data '(defcppclass Script ("<string>" "<script-types.h>" "<nsDoesnExistHeader.h>")
   (public
