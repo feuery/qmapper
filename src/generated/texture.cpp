@@ -1,5 +1,5 @@
 #include <texture.h>
-////// generated at 2018-01-18T15:29:08.532Z
+////// generated at 2018-01-18T15:59:41.307Z
 
 
 void Texture::setName(std::string value) { 

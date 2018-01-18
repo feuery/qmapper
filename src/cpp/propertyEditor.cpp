@@ -161,6 +161,7 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
 
       bool b = result.b;
       QCheckBox *cb = new QCheckBox(properties.at(i).get().c_str(), this);
+      cb->setCheckState(b ? Qt::Checked: Qt::Unchecked);
 
       connect(cb, &QCheckBox::stateChanged,
 	      [=](int state) { if(result.a) editingBoolFinished(base, properties.at(i), state == Qt::Checked); });

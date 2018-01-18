@@ -22,7 +22,7 @@ virtual unsigned char getOpacity();
 unsigned char Opacity_field = 0;
 public: virtual void setVisible(bool val);
 virtual bool getVisible();
-bool Visible_field;
+bool Visible_field = true;
 public: virtual void set_parent (Map* p) = 0;
 public: virtual int getWidth () = 0;
 public: virtual int getHeight () = 0;

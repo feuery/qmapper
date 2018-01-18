@@ -6,7 +6,7 @@
    (properties
     (std__string name "")
     (unsigned_char opacity 0)
-    (bool visible false)) 
+    (bool visible true)) 
    (functions
     (void set_parent (Map* p))
     (int getWidth ())
