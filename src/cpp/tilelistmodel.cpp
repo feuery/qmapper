@@ -66,15 +66,12 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
   auto type = base->type_identifier().get();
   
   if(type == "Map") {
-    // Se tulee tänne
     Map *m = static_cast<Map*>(base);
-    qDebug () << " PARENT ON MAP!!!!";
     Layer *l =  m->layers->at(row);
     return createIndex(row, column, l);
   }
   else if(type == "root") {
     auto reg = Root->registryToList({});
-    qDebug() << " Returning root index to type  "<< reg.at(row)->type_identifier().get().c_str();
     return createIndex(row, column, reg.at(row));
   }
   else {
