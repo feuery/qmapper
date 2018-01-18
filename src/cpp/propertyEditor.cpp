@@ -23,6 +23,16 @@ either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::str
   return result;
 }
 
+template<typename T>
+either<bool, T> getNumericProp(Propertierbase* base, flyweight<std::string> internedPropname) {
+  T t;
+  bool success = false;
+  either<bool, T> result;
+  result.b = base->get(internedPropname, &success, t);
+  result.a = success;
+  return result;
+}
+
 either<bool, std::string> getScriptTypeAsString(Propertierbase *base, flyweight<std::string> internedPropname) {
   scriptTypes type = glsl;
   either<bool, std::string> result;
@@ -48,6 +58,22 @@ void Propertyeditor::editingStdStringFinished(Propertierbase *base, flyweight<st
   else
     printf("No error-label found for %s\n", internedPropname.get().c_str());
   base->clearErrorsOf(internedPropname);
+}
+
+template <typename T>
+void editingNmbrStringFinished(Propertierbase *base, flyweight<std::string> propName, QLineEdit *l) {
+  QString t = l->text();
+
+  bool canConvert = false;
+  int i = t.toInt(&canConvert);
+
+  if(!canConvert) {
+    qDebug() << "Can't convert property " << propName.get().c_str() << "with value " << t << " to int";
+    return;
+  }
+
+  T val = (T)i;
+  base->set(propName, val);
 }
 
 QStandardItemModel* dump_to_model(std::vector<Propertierbase*> prop_objs)
@@ -85,7 +111,6 @@ static void indexChanged(Propertierbase *b, flyweight<std::string> internedPropN
   qDebug()<<"Successfully changed " << internedPropName.get().c_str();
 }
 
-
 QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
   QFormLayout *data = new QFormLayout;
 
@@ -113,6 +138,36 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       data->addRow(QString(properties.at(i).get().c_str()), edit);
       data->addRow(QString(""), error_field);
     }
+    // This probably could be macrofied for all the numeric types
+    else if (type == "unsigned char") {
+      auto result = getNumericProp<unsigned char>(base, properties.at(i));
+
+      if(!result.a) {
+	qDebug() << "Couldn't find unsigned char - prop " << properties.at(i).get().c_str();
+	throw "";
+      }
+
+      int v = result.b;
+      
+      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
+	new QLineEdit("Failed getting prop", this);
+
+      edit->setValidator(new QIntValidator(0, 255, this));
+
+      connect(edit, &QLineEdit::editingFinished,
+	      [=]() { if(result.a) editingNmbrStringFinished<unsigned char>(base, properties.at(i), edit); });
+
+      flyweight<std::string> fieldName = properties.at(i);
+      std::string errors = base->getErrorsOf(fieldName);
+
+      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      error_field->setStyleSheet("QLabel { color: red; }");
+
+      field_errorlabel_mapping[properties.at(i).get()] = error_field;
+      
+      data->addRow(QString(properties.at(i).get().c_str()), edit);
+      data->addRow(QString(""), error_field);
+    }      
     else if(type == "scriptTypes") {
       auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
       QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());

@@ -4,10 +4,10 @@
    (fields
     (std__vector<std__vector<Tile>>* tiles nullptr))
    (properties
-    (std__string name ""))
+    (std__string name "")
+    (unsigned_char opacity 0)) 
    (functions
-    (void set_parent (Map* p)))
-   (functions
+    (void set_parent (Map* p))
     (int getWidth ())
     (int getHeight ())
     (Map* parent ())))

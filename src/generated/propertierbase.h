@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-01-17T18:45:43.658Z
+//// generated at 2018-01-18T13:33:15.984Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -66,6 +66,8 @@ virtual void set(flyweight<std::string>propertyname, std::vector<std::vector<Til
 virtual std::vector<std::vector<Tile*>>* get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
+virtual void set(flyweight<std::string>propertyname, unsigned char value);
+virtual unsigned char get(flyweight<std::string>propertyname, bool *success, unsigned char type_helper);
 
 
   std::unordered_map<std::string, std::vector<std::string>> field_error_map;
