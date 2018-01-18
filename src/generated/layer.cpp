@@ -1,5 +1,5 @@
 #include <layer.h>
-////// generated at 2018-01-18T13:33:15.993Z
+////// generated at 2018-01-18T15:29:08.535Z
 
 
 void Layer::setName(std::string value) { 
@@ -14,10 +14,17 @@ Opacity_field = value;
                                                         unsigned char Layer::getOpacity() {
 return Opacity_field;
 }
+void Layer::setVisible(bool value) { 
+Visible_field = value;
+}
+                                                        bool Layer::getVisible() {
+return Visible_field;
+}
 Layer::Layer() {
 r.push_back(flyweight<std::string>(std::string("Id")));
 r.push_back(flyweight<std::string>(std::string("name")));
 r.push_back(flyweight<std::string>(std::string("opacity")));
+r.push_back(flyweight<std::string>(std::string("visible")));
 }Layer* toLayer(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Layer")) {

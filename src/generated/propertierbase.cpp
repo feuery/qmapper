@@ -9,6 +9,15 @@ Propertierbase::~Propertierbase()
 
 }
 
+void Propertierbase::set(flyweight<std::string>propertyname, bool value) 
+{
+
+}
+
+bool Propertierbase::get(flyweight<std::string>propertyname, bool *success, bool type_helper)
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, Script* value) 
 {
 

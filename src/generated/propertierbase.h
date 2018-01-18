@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-01-18T13:33:15.984Z
+//// generated at 2018-01-18T15:29:08.527Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -54,6 +54,8 @@ virtual ~Propertierbase ();
   void set(flyweight<std::string> propName, Propertierbase *b);
   Propertierbase* get(flyweight<std::string>propertyname);
 
+virtual void set(flyweight<std::string>propertyname, bool value);
+virtual bool get(flyweight<std::string>propertyname, bool *success, bool type_helper);
 virtual void set(flyweight<std::string>propertyname, Script* value);
 virtual Script* get(flyweight<std::string>propertyname, bool *success, Script* type_helper);
 virtual void set(flyweight<std::string>propertyname, std::string value);

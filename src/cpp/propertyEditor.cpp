@@ -2,6 +2,7 @@
 #include <QLabel>
 #include <propertyEditor.h>
 #include <QComboBox>
+#include <QCheckBox>
 #include <root.h>
 #include <editorController.h>
 
@@ -19,6 +20,14 @@ either<bool, std::string> getStringProp(Propertierbase* base, flyweight<std::str
   bool success = false;
   either<bool, std::string> result;
   result.b = base->get(internedPropname, &success, lol);
+  result.a = success;
+  return result;
+}
+
+either<bool, bool> getBoolProp(Propertierbase* base, flyweight<std::string> internedPropname) { 
+  bool success = false;
+  either<bool, bool> result;
+  result.b = base->get(internedPropname, &success, success);
   result.a = success;
   return result;
 }
@@ -74,6 +83,10 @@ void editingNmbrStringFinished(Propertierbase *base, flyweight<std::string> prop
 
   T val = (T)i;
   base->set(propName, val);
+}
+
+void editingBoolFinished(Propertierbase *base, flyweight<std::string> propname, bool checked) {
+  base->set(propname, checked);
 }
 
 QStandardItemModel* dump_to_model(std::vector<Propertierbase*> prop_objs)
@@ -137,6 +150,23 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       
       data->addRow(QString(properties.at(i).get().c_str()), edit);
       data->addRow(QString(""), error_field);
+    }
+    else if (type == "bool") {
+      auto result = getBoolProp(base, properties.at(i));
+
+      if(!result.a) {
+	qDebug() << "Couldn't get bool prop " << properties.at(i).get().c_str();
+	throw "";
+      }
+
+      bool b = result.b;
+      QCheckBox *cb = new QCheckBox(properties.at(i).get().c_str(), this);
+
+      connect(cb, &QCheckBox::stateChanged,
+	      [=](int state) { if(result.a) editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
+
+      data->addRow("", cb);
+      
     }
     // This probably could be macrofied for all the numeric types
     else if (type == "unsigned char") {
