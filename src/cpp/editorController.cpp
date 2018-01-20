@@ -64,7 +64,7 @@ editorController::editorController(): indexOfChosenTileset(flyweight<std::string
   scr->setScript_type(glsl);
   scr->setName("Standard fragment shader");
   scr->setNs("defaultShader");
-  scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\n\nvoid main() {\n  vec4 texel = vec4(spriteColor, 1.0) * texture(image, TexCoord);\n  if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
+  scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture(image, TexCoord) * opacity;\n\n  color = texel;\n}");
   document.doRegister("Script", scr->getId(), scr);
   indexOfStdFragmentShader = scr->getId();
 

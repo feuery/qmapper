@@ -19,7 +19,7 @@ virtual std::string getName();
 std::string Name_field = "";
 public: virtual void setOpacity(unsigned char val);
 virtual unsigned char getOpacity();
-unsigned char Opacity_field = 0;
+unsigned char Opacity_field = 255;
 public: virtual void setVisible(bool val);
 virtual bool getVisible();
 bool Visible_field = true;

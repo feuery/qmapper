@@ -31,7 +31,9 @@ public:
 
   int text_w, text_h;
 
-  int id; 
+  int id;
+
+  unsigned char opacity;
 
   static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false);
   static obj* make(Renderer *parent, QImage img);

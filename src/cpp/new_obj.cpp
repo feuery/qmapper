@@ -165,7 +165,7 @@ GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *tex
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   unsigned char* img = SOIL_load_image(filename, text_w, text_h, 0, SOIL_LOAD_RGB);  
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, *text_w, *text_h, 0, GL_RGB, GL_UNSIGNED_BYTE, img);
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *text_w, *text_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
   f->glGenerateMipmap(GL_TEXTURE_2D);
   SOIL_free_image_data(img);
   f->glBindTexture(GL_TEXTURE_2D, 0);
@@ -181,6 +181,7 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat paren
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
+  opacity = 255;
 }
   
 void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec)
@@ -191,6 +192,7 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController 
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
+  opacity = 255;
 }
 
 const char* formatToStr(QImage::Format format)
@@ -297,6 +299,15 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
 
   f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
   f->glUniform3f(f->glGetUniformLocation(shader, "spriteColor"), color.x, color.y, color.z);
+
+  auto op_loc = f->glGetUniformLocation(shader, "opacity");
+
+  if(op_loc < 0) qDebug() << "No opacity location found";
+
+  float op = (float)opacity / 255.0f;
+
+  f->glUniform4f(op_loc, op, op, op, op);
+  
   f->glActiveTexture(GL_TEXTURE0);
   f->glBindTexture(GL_TEXTURE_2D, texture);
 

@@ -5,7 +5,7 @@
     (std__vector<std__vector<Tile>>* tiles nullptr))
    (properties
     (std__string name "")
-    (unsigned_char opacity 0)
+    (unsigned_char opacity 255)
     (bool visible true)) 
    (functions
     (void set_parent (Map* p))

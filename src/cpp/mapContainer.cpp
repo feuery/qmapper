@@ -66,14 +66,14 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 
 	if(!layer->getVisible()) continue;
 	
-	Tile tile = layer->tiles->at(x).at(y);
-	
+	Tile tile = layer->tiles->at(x).at(y);	
 
-	if(tile.getTileset() != "") {
+	if(tile.getTileset() != "" && layer->getOpacity() > 0) {
 	  flyweight<std::string> id (tile.getTileset());
 	  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
 	  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
 	  obj *tile_to_render = static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
+	  tile_to_render->opacity = layer->getOpacity();
 	  tile_to_render->position = glm::vec2(x * 50.0f, y * 50.0f);
 	    
 	  tile_to_render->render(f);
