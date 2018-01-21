@@ -10,6 +10,7 @@
 #include <tileview_renderer.h>
 
 #include <tile.h>
+#include <tool.h>
 
 class MainWindow;
 class Renderer;
@@ -45,6 +46,8 @@ public:
 
   // Goddammit
   Renderer *map_view;
+  Tool *t;
+  
   
   /* BUT because guile_layer needs to access here too, we're forced to singleton this */
   static editorController *instance;

@@ -243,8 +243,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
       int x = e->x() / 50, y = e->y() / 50;
 
-      //ec knows which tile is selected 
-      ec->setTileAt(x, y);
+      ec->t->doUse(e, x, y, ec);
     });
 
   QWidget *tb = new QWidget(this);

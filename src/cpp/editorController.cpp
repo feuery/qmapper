@@ -5,6 +5,7 @@
 
 #include <new_obj.h>
 #include <script.h>
+#include <pen.h>
 
 #include <tilesetContainer.h>
 
@@ -40,7 +41,7 @@ void editorController::populateMaps() {
   }
 }
 
-editorController::editorController(): indexOfChosenTileset(flyweight<std::string>(""))
+editorController::editorController(): indexOfChosenTileset(flyweight<std::string>("")), t(new Pen)
 {
 
   if(instance) {
