@@ -9,7 +9,6 @@
 
 #include <tilesetContainer.h>
 
-
 editorController* editorController::instance;
 
 // editorController* editorController::getInstance()
@@ -162,5 +161,6 @@ void editorController::rotateTile90Deg(int x, int y) {
   check_chosen_layer;
 
   Tile &t = m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y);
-  t.setRotation((t.getRotation() + 90) % 360);
+  int new_rot = (t.getRotation() + 90);
+  t.setRotation(new_rot);
 }

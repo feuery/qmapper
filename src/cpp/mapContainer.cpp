@@ -1,6 +1,12 @@
 #include<mapContainer.h>
 #include<tilesetContainer.h>
 #include<editorController.h>
+#include <cmath>
+
+double toRadians(int deg)
+{
+  return deg * M_PI / 180.0;
+}
 
 Mapcontainer::Mapcontainer(): Map()
 {
@@ -75,6 +81,9 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 	  obj *tile_to_render = static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
 	  tile_to_render->opacity = layer->getOpacity();
 	  tile_to_render->position = glm::vec2(x * 50.0f, y * 50.0f);
+
+	  // Completely unlike the glm documentation claims, the rotation has to be in radians
+	  tile_to_render->rotate = toRadians(tile.getRotation());
 	    
 	  tile_to_render->render(f);
 	}
