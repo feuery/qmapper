@@ -43,6 +43,8 @@ public:
 
   void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
   void setTileAt(int x, int y);
+  void setTileRotation(int x, int y, int deg_angl);
+  void rotateTile90Deg(int x, int y);
 
   // Goddammit
   Renderer *map_view;

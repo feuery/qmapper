@@ -130,15 +130,37 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
 }
 
+#define check_chosen_layer   if(indexOfChosenLayer < 0) { \
+  qDebug() << "IndexOfChosenLayer not valid: " << indexOfChosenLayer; \
+  return; \
+  }
+
 void editorController::setTileAt(int x, int y)
 {
   Map* m = toMap(document.fetchRegister("Map", indexOfChosenMap));
-  if(indexOfChosenLayer < 0) {
-    qDebug() << "IndexOfChosenLayer is small " << indexOfChosenLayer;
-    return;
-  }
+
+  check_chosen_layer
 
   qDebug() << "Setting tile at " << indexOfChosenLayer << ", " << x << ", " << y;
   
   m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y) = selectedTileData;
+}
+
+
+void editorController::setTileRotation(int x, int y, int deg_angl) {
+  Map *m = toMap(document.fetchRegister("Map", indexOfChosenMap));
+
+  check_chosen_layer;
+
+  Tile &t = m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y);
+  t.setRotation(deg_angl);    
+}
+
+void editorController::rotateTile90Deg(int x, int y) {
+  Map *m = toMap(document.fetchRegister("Map", indexOfChosenMap));
+
+  check_chosen_layer;
+
+  Tile &t = m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y);
+  t.setRotation((t.getRotation() + 90) % 360);
 }

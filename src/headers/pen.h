@@ -6,7 +6,6 @@
 class Pen: public Tool{
 public:
   virtual void use(QMouseEvent *event, int tilex, int tiley, editorController *e) override;
-  virtual bool canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) override;
 
 };
 

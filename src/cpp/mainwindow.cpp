@@ -17,6 +17,8 @@
 
 #include <tilelistmodel.h>
 
+#include <tool_list.h>
+
 #define btnW 200
 #define btnH 25
 
@@ -83,12 +85,20 @@ QGroupBox* MainWindow::toolbox()
 {
   QGroupBox *grp = new QGroupBox("Tools", this);
   QVBoxLayout *l = new QVBoxLayout(this);
-   
-  btn2("I'm", l);
-  btn2("A", l);
-  btn2("Dynamically built", l);
-  btn2("Toolbox list", l);
-  
+
+  for(auto i: tool_cache) {
+    QPushButton *btn = new QPushButton(i.first.c_str(), this); 
+    btn->setMaximumWidth(btnW);						
+    btn->setMaximumHeight(btnH);
+    connect(btn, &QPushButton::clicked,
+	    [=]()
+	    {
+	      qDebug() << "Setting " << i.first.c_str() << "as selected tool";
+	      editorController::instance->t = tool_cache.at(i.first);
+	    });
+    l->addWidget(btn);
+  }
+    
   grp->setLayout(l);
   return grp;
 }

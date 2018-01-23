@@ -51,7 +51,9 @@ HEADERS += src/headers/files.h \
            src/headers/either.h \
            src/headers/nsValidators.h \
            src/headers/tool.h\
-           src/headers/pen.h
+           src/headers/pen.h \
+           src/headers/rotater.h \
+           src/headers/tool_list.h
            
 FORMS += \
     src/forms/main.ui 
@@ -81,4 +83,7 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/nsValidators.cpp \
            src/cpp/tileview_renderer.cpp \
            src/cpp/tilesetContainer.cpp \
-           src/cpp/pen.cpp
+           src/cpp/pen.cpp \
+           src/cpp/tool.cpp \
+           src/cpp/rotater.cpp \
+           src/cpp/tool_list.cpp
