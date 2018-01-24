@@ -73,6 +73,13 @@ void Renderer::mouseMoveEvent(QMouseEvent *e) {
   for(auto fn: mouseMoveEvents) fn(e);
 }
 
+void Renderer::mousePressEvent(QMouseEvent *e) {
+  for(auto fn: mouseDownEvents) fn(e);
+}
+void Renderer::mouseReleaseEvent(QMouseEvent *e) {
+  for(auto fn: mouseUpEvents) fn(e);
+}
+
 void Renderer::resizeGL(int w, int h)
 {
 }

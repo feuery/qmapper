@@ -21,6 +21,8 @@ public:
   QOpenGLFunctions_4_3_Core* getGlFns();
   void freeCtx();
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
+  QVector<std::function<void(QMouseEvent*)>> mouseDownEvents;
+  QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;
 
   virtual QVector<Renderable*>& getDrawQueue();
 
@@ -29,7 +31,9 @@ public:
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
-  
+  virtual void mousePressEvent(QMouseEvent *e) override;
+  virtual void mouseReleaseEvent(QMouseEvent *e) override;
+							 
 protected slots:
   virtual void paintGL();
   virtual void resizeGL(int w, int h);

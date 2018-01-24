@@ -248,12 +248,17 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
     });
 
+  map_view->mouseDownEvents.push_back([=](QMouseEvent *e) {
+      ec->t->mouseDown(ec);
+    });
+
   map_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
       if(e->buttons() != Qt::LeftButton) return;
 
       int x = e->x() / 50, y = e->y() / 50;
 
       ec->t->doUse(e, x, y, ec);
+      ec->t->registerDrag(x, y);
     });
 
   QWidget *tb = new QWidget(this);
