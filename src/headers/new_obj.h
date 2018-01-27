@@ -47,6 +47,8 @@ public:
 
   int getRenderId() override;
 
+  obj* subObj = nullptr;
+
 private:
 
   obj(Renderer *r, const char *texture_path, bool skipTexture = false);

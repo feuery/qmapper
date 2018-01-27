@@ -62,6 +62,15 @@ void Mapcontainer::render(Renderer *parent)
   parent->freeCtx();
 }
 
+obj* tileToObj(Tile &tile)
+{
+  if(tile.getTileset() == "") return nullptr;
+  flyweight<std::string> id (tile.getTileset());
+  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
+  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
+  return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
+}
+
 void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 {
 
@@ -72,18 +81,20 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 
 	if(!layer->getVisible()) continue;
 	
-	Tile tile = layer->tiles->at(x).at(y);	
+	Tile tile = layer->tiles->at(x).at(y);
 
 	if(tile.getTileset() != "" && layer->getOpacity() > 0) {
-	  flyweight<std::string> id (tile.getTileset());
-	  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
-	  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
-	  obj *tile_to_render = static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
+	  obj *tile_to_render = tileToObj(tile);
 	  tile_to_render->opacity = layer->getOpacity();
 	  tile_to_render->position = glm::vec2(x * 50.0f, y * 50.0f);
 
 	  // Completely unlike the glm documentation claims, the rotation has to be in radians
 	  tile_to_render->rotate = toRadians(tile.getRotation());
+
+	  if(l > 0) {
+	    Tile subTile = layers->at(l-1)->tiles->at(x).at(y);
+	    tile_to_render->subObj = tileToObj(subTile);
+	  }	  
 	    
 	  tile_to_render->render(f);
 	}

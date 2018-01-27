@@ -39,6 +39,7 @@ GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, 
   //Move ortho projection to 2dshader
   f->glUseProgram(shader);
   f->glUniform1i(f->glGetUniformLocation(shader, "image"), 0);
+  f->glUniform1i(f->glGetUniformLocation(shader, "subTile"), 1);
 
   f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   return VAO;
@@ -241,10 +242,10 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
   f->glGenTextures(1, &texture);
   f->glBindTexture(GL_TEXTURE_2D, texture);
   
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); 
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_CLAMP_TO_BORDER);
-  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_CLAMP_TO_BORDER);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); 
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   qDebug() << "Texture dimensions: " << text_w << text_h;
   
@@ -302,11 +303,20 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
 
   auto op_loc = f->glGetUniformLocation(shader, "opacity");
 
-  if(op_loc < 0) qDebug() << "No opacity location found";
-
+  if(op_loc < 0) {
+    qDebug() << "No opacity location found";
+    throw "";
+  }
   float op = (float)opacity / 255.0f;
 
   f->glUniform4f(op_loc, op, op, op, op);
+  
+
+  if(subObj) {
+    f->glActiveTexture(GL_TEXTURE1);
+    f->glBindTexture(GL_TEXTURE_2D, subObj->texture);
+    f->glUniform1i(f->glGetUniformLocation(shader, "subTileBound"), 1);
+  }
   
   f->glActiveTexture(GL_TEXTURE0);
   f->glBindTexture(GL_TEXTURE_2D, texture);
@@ -314,6 +324,10 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
   f->glBindVertexArray(VAO);
   f->glDrawArrays(GL_TRIANGLES, 0, 6);
   f->glBindVertexArray(0);
+
+  if(subObj) {
+    f->glUniform1i(f->glGetUniformLocation(shader, "subTileBound"), 0);
+  }
 
   GLenum err (f->glGetError());
  
