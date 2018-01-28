@@ -249,7 +249,7 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
 
   qDebug() << "Texture dimensions: " << text_w << text_h;
   
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, copy.bits());
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glBindTexture(GL_TEXTURE_2D, 0);
 
