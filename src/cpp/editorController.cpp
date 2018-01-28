@@ -113,6 +113,9 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
     tilesetContainer *tc = dynamic_cast<tilesetContainer*>(tileset);
 
+    if(x >= tc->tiles_w || y >= tc->tiles_h) return;
+    if(x < 0 || y < 0) return;
+
     obj *tile = tc->tiles[x][y];
 
     if(!tileRenderer) qDebug() << "tileRenderer is nil";
