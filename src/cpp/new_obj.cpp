@@ -237,8 +237,6 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
 
   copy = img;
 
-  qDebug() << "Format is " << formatToStr(img.format());
-
   f->glGenTextures(1, &texture);
   f->glBindTexture(GL_TEXTURE_2D, texture);
   
@@ -246,22 +244,16 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-  qDebug() << "Texture dimensions: " << text_w << text_h;
   
   f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glBindTexture(GL_TEXTURE_2D, 0);
-
-  qDebug() << "Texture generated";
 }
 
 obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
 {
   auto ec = editorController::instance;
   auto fns = r->getGlFns();
-
-  qDebug()<<"Preparing obj for parent" << r->name.c_str();
   
   prepare(fns, r, ec);
   

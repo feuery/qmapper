@@ -53,7 +53,8 @@ HEADERS += src/headers/files.h \
            src/headers/tool.h\
            src/headers/pen.h \
            src/headers/rotater.h \
-           src/headers/tool_list.h
+           src/headers/tool_list.h \
+           src/headers/scroll.h
            
 FORMS += \
     src/forms/main.ui 
@@ -86,4 +87,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/pen.cpp \
            src/cpp/tool.cpp \
            src/cpp/rotater.cpp \
-           src/cpp/tool_list.cpp
+           src/cpp/tool_list.cpp \
+           src/cpp/scroll.cpp

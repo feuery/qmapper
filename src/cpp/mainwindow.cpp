@@ -283,9 +283,15 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   tb->setLayout(toolbox_layout);;
 
+  Scroll *s = new Scroll(this);
+  s->setWidget(map_view);
+
+  Scroll *s2 = new Scroll(this);
+  s2->setWidget(tileset_view);
+
   QSplitter *splitter = new QSplitter(Qt::Vertical, this);
-  splitter->addWidget(map_view);
-  splitter->addWidget(tileset_view);
+  splitter->addWidget(s);
+  splitter->addWidget(s2);
 
   ui.splitter->addWidget(tb);
   ui.splitter->addWidget(splitter);

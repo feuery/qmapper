@@ -10,6 +10,8 @@
 #include <functional>
 #include <QMouseEvent>
 
+#include <scroll.h>
+
 class Renderable;
 
 class Renderer : public QOpenGLWidget {
@@ -28,6 +30,8 @@ public:
 
   QMap<int, Renderable*> owned_objects;
   std::string name;
+
+  friend class Scroll;
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;

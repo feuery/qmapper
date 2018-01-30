@@ -21,6 +21,13 @@ Renderer::Renderer(): QOpenGLWidget()
 
   if(!editorController::instance->ctx_provider)
     editorController::instance->ctx_provider = this;
+
+  // This trickery-pockery tricks the scrollarea to function as expected
+  const int w = 9999;
+  const int h = w;
+  setMaximumWidth(w);
+  setMaximumHeight(h);
+  resize(w, h);
 }
 
 float distance(float x1, float y1, float x2, float y2)
