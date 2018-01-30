@@ -5,16 +5,12 @@ Layercontainer::Layercontainer(int w, int h):Layer()
 {
   this->w = w;
   this->h = h;
-  tiles = new std::vector<std::vector<Tile>>;
-  for(int x = 0; x<w; x++) {
-    std::vector<Tile> column;
-    for(int y = 0; y<h; y++) {
-      column.push_back(Tile());
+  tiles = new std::vector<std::vector<Tile>>(w, std::vector<Tile>(h, Tile()));
+  if(editorController::instance->tiles)
+    for(int x = 0; x < tiles->size(); x++) {
+      for(int y = 0; y < tiles->at(x).size(); y ++)
+	editorController::instance->tiles->push_back(&tiles->at(x)[y]);
     }
-    tiles->push_back(column);
-  }
-
-  // editorController::instance->document.doRegister("Layer", getId(), this);
 }
 
 Layercontainer::~Layercontainer() {

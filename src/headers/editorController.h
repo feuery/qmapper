@@ -6,6 +6,7 @@
 #include <mainwindow.h>
 
 #include <textureContainer.h>
+#include <tilesetContainer.h>
 #include <renderer.h>
 #include <tileview_renderer.h>
 
@@ -45,6 +46,9 @@ public:
   void setTileAt(int x, int y);
   void setTileRotation(int x, int y, int deg_angl);
   void rotateTile90Deg(int x, int y);
+
+  tilesetContainer *firstLoadedTileset = nullptr;
+  std::vector<Tile*>* tiles = new std::vector<Tile*>;
 
   // Goddammit
   Renderer *map_view;

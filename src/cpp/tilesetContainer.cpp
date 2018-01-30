@@ -1,15 +1,6 @@
 #include <tilesetContainer.h>
-
+#include <editorController.h>
 #include <QDebug>
-
-// https://gist.github.com/nkint/9089157#file-gistfile1-txt-L27
-/*
-  Askartele paskartele viritys joka lataa png:n levyltä QImageksi
-  Jakaa sen 50 x 50 kokoisiksi QImageiksi QImage::copy()lläoo
-  Tekee jokaisesta näistä opengltextuurin
-  ja tekee tileseteistä 2d-taulukoita täynnä opengl-textuuri-kahvoja
-*/
-
 
 // Making this return a 2d array should be a low hanging fruit when optimizing
 // I'm skipping it now 'cause I have no idea how this insane language did
@@ -58,6 +49,16 @@ tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tilese
   setTiles(new std::vector<std::vector<Tile*>>);
   load_texture_splitted(r, tilesetPath);
   r->owned_objects[id] = this;
+  if(!editorController::instance->firstLoadedTileset) {
+    for(int i = 0; i < editorController::instance->tiles->size(); i++) {
+      Tile *t = editorController::instance->tiles->at(i);
+      t->setTileset(getId().get());
+    }
+    
+    editorController::instance->firstLoadedTileset = this;
+    delete editorController::instance->tiles;
+    editorController::instance->tiles = nullptr;
+  }
 }
 
 void tilesetContainer::render(Renderer *parent)
