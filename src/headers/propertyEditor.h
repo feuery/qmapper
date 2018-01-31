@@ -20,6 +20,8 @@ public:
   ~Propertyeditor();
 
   virtual void showEvent(QShowEvent *e);
+
+  std::function<void()> onClose = [&](){ accept(); };
   
 private:
 

@@ -82,11 +82,54 @@ void editingNmbrStringFinished(Propertierbase *base, flyweight<std::string> prop
   }
 
   T val = (T)i;
+  qDebug() << "Setting " << propName.get().c_str() << " to " << val;
   base->set(propName, val);
 }
 
 void editingBoolFinished(Propertierbase *base, flyweight<std::string> propname, bool checked) {
   base->set(propname, checked);
+}
+
+QStandardItemModel* dump_to_model(verticalAnchor v_a) {
+  QStandardItemModel *model = new QStandardItemModel;
+
+  QStandardItem *empty = new QStandardItem("Empty");
+  model->appendRow(empty);
+
+  QStandardItem *m = new QStandardItem("Top");
+  QVariant var;
+  var.setValue(TOP);
+  m->setData(var);
+  model->appendRow(m);
+
+  m = new QStandardItem("Bottom");
+  QVariant var2;
+  var2.setValue(BOTTOM);
+  m->setData(var2);
+  model->appendRow(m);
+
+  return model;
+}
+
+QStandardItemModel* dump_to_model(horizontalAnchor v_a) {
+  QStandardItemModel *model = new QStandardItemModel;
+
+  QStandardItem *empty = new QStandardItem("Empty");
+  model->appendRow(empty);
+
+  QStandardItem *m = new QStandardItem("Left");
+  QVariant var;
+  var.setValue(LEFT);
+  m->setData(var);
+  model->appendRow(m);
+
+  m = new QStandardItem("Right");
+  QVariant var2;
+  var2.setValue(RIGHT);
+  m->setData(var2);
+  model->appendRow(m);
+
+  return model;
 }
 
 QStandardItemModel* dump_to_model(std::vector<Propertierbase*> prop_objs)
@@ -198,7 +241,39 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       
       data->addRow(QString(properties.at(i).get().c_str()), edit);
       data->addRow(QString(""), error_field);
-    }      
+    }
+    else if (type == "int") {
+      auto result = getNumericProp<int>(base, properties.at(i));
+
+      if(!result.a) {
+	qDebug() << "Couldn't find int - prop " << properties.at(i).get().c_str();
+	throw "";
+      }
+
+      int v = result.b;
+      
+      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
+	new QLineEdit("Failed getting prop", this);
+
+      edit->setValidator(new QIntValidator(0, INT_MAX, this));
+
+      connect(edit, &QLineEdit::editingFinished,
+      	      [=]() { if(result.a) {
+		  qDebug() << "Basen tyyppi: " << base->type_identifier().get().c_str();
+		  editingNmbrStringFinished<int>(base, properties.at(i), edit);
+		}});
+
+      flyweight<std::string> fieldName = properties.at(i);
+      std::string errors = base->getErrorsOf(fieldName);
+
+      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      error_field->setStyleSheet("QLabel { color: red; }");
+
+      field_errorlabel_mapping[properties.at(i).get()] = error_field;
+      
+      data->addRow(QString(properties.at(i).get().c_str()), edit);
+      data->addRow(QString(""), error_field);
+    }
     else if(type == "scriptTypes") {
       auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
       QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
@@ -208,6 +283,64 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       auto scriptTypeResult = getStringProp(base, properties.at(i));
       QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
       data->addRow(QString(properties.at(i).get().c_str()), lbl);
+    }
+    else if(type == "verticalAnchor") {
+      verticalAnchor lol = TOP;
+      bool succ = false;
+      verticalAnchor currentVal = base->get(properties.at(i), &succ, lol);
+      flyweight<std::string> propName = properties.at(i);
+
+      QComboBox *cb = new QComboBox(this);
+      QStandardItemModel *m = dump_to_model(TOP);
+      cb->setModel(m);
+
+      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+	      [=](int index) {
+		index--;
+		if(index >= 0) {
+		  verticalAnchor ha = (verticalAnchor)index;
+		  
+		  base->set(propName, ha);
+		}
+		else qDebug() << "index < 0";
+	      });
+
+      QVariant v;
+      v.setValue(currentVal);
+      int index = cb->findData(v);
+      if(index > -1) cb->setCurrentIndex(index);
+      else qDebug() << "No valid index found for verticalAnchor";
+
+      data->addRow(QString(properties.at(i).get().c_str()), cb);
+    }
+    else if(type == "horizontalAnchor") {
+      horizontalAnchor lol = LEFT;
+      bool succ = false;
+      horizontalAnchor currentVal = base->get(properties.at(i), &succ, lol);
+      flyweight<std::string> propName = properties.at(i);
+
+      QComboBox *cb = new QComboBox(this);
+      QStandardItemModel *m = dump_to_model(lol);
+      cb->setModel(m);
+
+      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+	      [=](int index) {
+		index--;
+		if(index >= 0) {
+		  horizontalAnchor ha = (horizontalAnchor)index;
+		  
+		  base->set(propName, ha);
+		}
+		else qDebug() << "index < 0";
+	      });
+
+      QVariant v;
+      v.setValue(currentVal);
+      int index = cb->findData(v);
+      if(index > -1) cb->setCurrentIndex(index);
+      else qDebug() << "No valid index found for horizontalAnchor";
+
+      data->addRow(QString(properties.at(i).get().c_str()), cb);
     }
     else {
       root *r = &editorController::instance->document;
@@ -275,7 +408,9 @@ void Propertyeditor::resetLayout(Propertierbase *base) {
   
   setLayout(l);
 
-  connect(close, &QPushButton::clicked, this, &QDialog::accept);
+  connect(close, &QPushButton::clicked, [&]() {
+      onClose();
+    });
 }
 
 Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)

@@ -37,6 +37,7 @@ HEADERS += src/headers/files.h \
            src/generated/tileset.h \
            src/generated/script.h \
            src/generated/texture.h \
+           src/generated/resize_obj.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
@@ -73,6 +74,7 @@ SOURCES += src/cpp/files.cpp \
            src/generated/tileset.cpp \
            src/generated/script.cpp \
            src/generated/texture.cpp \
+           src/generated/resize_obj.cpp \
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
            src/cpp/tilelistmodel.cpp \

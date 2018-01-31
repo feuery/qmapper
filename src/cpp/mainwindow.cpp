@@ -18,11 +18,12 @@
 #include <tilelistmodel.h>
 
 #include <tool_list.h>
+#include <resize_obj.h>
 
 #define btnW 200
 #define btnH 25
 
-#define setSize(btn) btn->setMaximumWidth(btnW); \
+#define setSize(btn) btn->setMaximumWidth(btnW);	\
   btn->setMaximumHeight(btnH);						
 
 #define btn(title) { QPushButton *btn = new QPushButton(title, this);	\
@@ -203,15 +204,39 @@ void MainWindow::newTileset() {
   t->setName("New Tileset");
   
   // if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
-    ec->documentTreeModel->begin();
-    ec->document.doRegister("Tileset", t->getId(), t);
-    ec->documentTreeModel->end();
+  ec->documentTreeModel->begin();
+  ec->document.doRegister("Tileset", t->getId(), t);
+  ec->documentTreeModel->end();
   // }
   // else {
   //   delete t;
   //   QMessageBox::critical(nullptr, "QMapper",
   // 			  QString("Unable to load tileset texture %1").arg(texture_file));
   // }
+}
+
+void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
+{
+  QPushButton *btn = new QPushButton("Resize map");
+  setSize(btn);
+
+  toolbox_layout->addWidget(btn);
+
+  connect(btn, &QPushButton::clicked,
+	  [&]() {
+	    Map *currentMap = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
+	    resize_data *o = new resize_data;
+	    o->setNew_width(currentMap->width());
+	    o->setNew_height(currentMap->height());
+	    Propertyeditor *p = new Propertyeditor(o, this);
+	    p->onClose = [=]() {
+	      qDebug() << "Resizing to " << o->getNew_width() << ", " << o->getNew_height() << ", " << (o->getVertical_anchor() == TOP? "TOP": "BOTTOM") << ", " << (o->getHorizontal_anchor() == LEFT? "LEFT": "RIGHT");
+	      currentMap->resize(o->getNew_width(), o->getNew_height(), o->getVertical_anchor(), o->getHorizontal_anchor());
+	      delete o;
+	      p->accept();
+	    };
+	    p->show();
+	  });
 }
 
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())
@@ -272,6 +297,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   toolbox_layout->addWidget(toolbox());
   
   prepare_server_button(toolbox_layout);
+  prepareResizeBtn(toolbox_layout);
 
   setupTree();
   setupTreeCtxMenu();

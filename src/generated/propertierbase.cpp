@@ -45,6 +45,15 @@ scriptTypes Propertierbase::get(flyweight<std::string>propertyname, bool *succes
 {
 
 }
+void Propertierbase::set(flyweight<std::string>propertyname, verticalAnchor value) 
+{
+
+}
+
+verticalAnchor Propertierbase::get(flyweight<std::string>propertyname, bool *success, verticalAnchor type_helper)
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, Texture* value) 
 {
 
@@ -69,6 +78,15 @@ void Propertierbase::set(flyweight<std::string>propertyname, int value)
 }
 
 int Propertierbase::get(flyweight<std::string>propertyname, bool *success, int type_helper)
+{
+
+}
+void Propertierbase::set(flyweight<std::string>propertyname, horizontalAnchor value) 
+{
+
+}
+
+horizontalAnchor Propertierbase::get(flyweight<std::string>propertyname, bool *success, horizontalAnchor type_helper)
 {
 
 }

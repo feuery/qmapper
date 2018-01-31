@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-01-30T19:46:50.184Z
+//// generated at 2018-01-31T14:08:33.488Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -63,12 +63,16 @@ virtual void set(flyweight<std::string>propertyname, std::string value);
 virtual std::string get(flyweight<std::string>propertyname, bool *success, std::string type_helper);
 virtual void set(flyweight<std::string>propertyname, scriptTypes value);
 virtual scriptTypes get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper);
+virtual void set(flyweight<std::string>propertyname, verticalAnchor value);
+virtual verticalAnchor get(flyweight<std::string>propertyname, bool *success, verticalAnchor type_helper);
 virtual void set(flyweight<std::string>propertyname, Texture* value);
 virtual Texture* get(flyweight<std::string>propertyname, bool *success, Texture* type_helper);
 virtual void set(flyweight<std::string>propertyname, std::vector<std::vector<Tile*>>* value);
 virtual std::vector<std::vector<Tile*>>* get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper);
 virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper);
+virtual void set(flyweight<std::string>propertyname, horizontalAnchor value);
+virtual horizontalAnchor get(flyweight<std::string>propertyname, bool *success, horizontalAnchor type_helper);
 virtual void set(flyweight<std::string>propertyname, unsigned char value);
 virtual unsigned char get(flyweight<std::string>propertyname, bool *success, unsigned char type_helper);
 

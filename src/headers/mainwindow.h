@@ -49,6 +49,7 @@ private:
   QPushButton *server_connection;
 
   void prepare_server_button(QVBoxLayout *toolbox_layout);
+  void prepareResizeBtn(QVBoxLayout *toolbox_layout);
 };
 
 #endif //MAIN_H

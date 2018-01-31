@@ -1,5 +1,5 @@
 #include <script.h>
-////// generated at 2018-01-30T19:46:50.254Z
+////// generated at 2018-01-31T14:08:33.502Z
 
 
 void Script::setContents(std::string value) { 
