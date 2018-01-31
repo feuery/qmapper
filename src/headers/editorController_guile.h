@@ -13,6 +13,7 @@ extern "C" {
   SCM add_glsl_script();
   SCM add_scheme_script();
   SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor);
+  SCM toggle_rendering();
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

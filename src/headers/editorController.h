@@ -53,6 +53,8 @@ public:
   // Goddammit
   Renderer *map_view;
   Tool *t;
+
+  bool renderingEnabled = true;
   
   
   /* BUT because guile_layer needs to access here too, we're forced to singleton this */

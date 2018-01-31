@@ -51,6 +51,8 @@ void Renderer::initializeGL()
 
 void Renderer::paintGL()
 {
+  editorController *ec = editorController::instance;
+  if(!ec->renderingEnabled) return;
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   if(f) {
     f->glClear(GL_COLOR_BUFFER_BIT);

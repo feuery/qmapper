@@ -13,6 +13,7 @@ static void* register_functions(void* data) {
   scm_c_define_gsubr("add-glsl-script!", 0, 0, 0, reinterpret_cast<scm_t_subr>(add_glsl_script));
   scm_c_define_gsubr("add-scheme-script!", 0, 0, 0, reinterpret_cast<scm_t_subr>(add_scheme_script));
   scm_c_define_gsubr("resize-current-map!", 4, 0, 0, reinterpret_cast<scm_t_subr>(resize_current_map));
+  scm_c_define_gsubr("toggle-rendering!", 0, 0, 0, reinterpret_cast<scm_t_subr>(toggle_rendering));
   return NULL;
 }
 

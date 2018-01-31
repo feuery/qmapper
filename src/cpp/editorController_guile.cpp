@@ -118,6 +118,11 @@ extern "C" {
   SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor)
   {
     editorController *ec = editorController::instance;
+
+    // It might cause problems if we screw with data structures while renderer is deep within the same datastructures
+    bool oldRenderingState = ec->renderingEnabled;
+    ec->renderingEnabled = false;
+    
     Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
     int new_w = scm_to_int(w),
       new_h = scm_to_int(h);
@@ -131,6 +136,15 @@ extern "C" {
 
     m->resize(new_w, new_h, vertical_a == "TOP"? TOP: BOTTOM, horizontal_a == "RIGHT"? RIGHT: LEFT);
 
+    ec->renderingEnabled = oldRenderingState;;
+
+    return SCM_BOOL_T;
+  }
+
+  SCM toggle_rendering() {
+    editorController *ec = editorController::instance;
+    qDebug() << (ec->renderingEnabled? "Stopping renderer": "Starting renderer");
+    ec->renderingEnabled = !ec->renderingEnabled;
     return SCM_BOOL_T;
   }
 }
