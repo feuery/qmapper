@@ -143,8 +143,20 @@ void Mapcontainer::resize (int w,
       }
     }
     else if (w_diff > 0) {
-      // then remove
+      if(h_anchor == LEFT) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  for(int i = 0; i < w_diff; i++) {
+	    (*layer)->tiles->erase((*layer)->tiles->begin());
+	  }
+	}
+      }
+      else if (h_anchor == RIGHT) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  for(int i = 0; i < w_diff; i++) {
+	    (*layer)->tiles->pop_back();
+	  }
+	}
+      }
     }
-  }
-  
+  }  
 }
