@@ -128,7 +128,7 @@ void Mapcontainer::resize (int w,
 	  for(int i = 0; i < abs(w_diff); i++) {
 	    qDebug() << "Inserting to left";
 	    (*layer)->tiles->insert((*layer)->tiles->begin(),
-				   (std::vector<Tile>(layer_h, Tile())));
+				    (std::vector<Tile>(layer_h, Tile())));
 	  }
 	}
       }
@@ -190,22 +190,28 @@ void Mapcontainer::resize (int w,
 	  }
 	}
       }
-    // }
-    // else if (h_diff > 0) {
-    //   if(h_anchor == LEFT) {
-    // 	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
-    // 	  for(int i = 0; i < h_diff; i++) {
-    // 	    (*layer)->tiles->erase((*layer)->tiles->begin());
-    // 	  }
-    // 	}
-    //   }
-    //   else if (h_anchor == RIGHT) {
-    // 	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
-    // 	  for(int i = 0; i < h_diff; i++) {
-    // 	    (*layer)->tiles->pop_back();
-    // 	  }
-    // 	}
-    //   }
+    }
+    else if (h_diff > 0) {
+      if(v_anchor == TOP) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  int layer_w = (*layer)->getWidth();
+	  for(int x = 0; x < layer_w; x++) {
+	    for(int i = 0; i < abs(h_diff); i++) {
+	      (*layer)->tiles->at(x).erase((*layer)->tiles->at(x).begin());
+	    }
+	  }
+	}
+      }
+      else if (v_anchor == BOTTOM) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  int layer_w = (*layer)->getWidth();
+	  for(int x = 0; x < layer_w; x++) {
+	    for(int i = 0; i < abs(h_diff); i++) {
+	      (*layer)->tiles->at(x).pop_back();
+	    }
+	  }
+	}
+      }
     }
   }
 }
