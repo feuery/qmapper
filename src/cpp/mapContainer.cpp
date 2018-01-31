@@ -102,3 +102,49 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
     }
   }
 }
+
+
+void Mapcontainer::resize (int w,
+			   int h,
+			   verticalAnchor v_anchor,
+			   horizontalAnchor h_anchor)
+{
+  int old_w = width(),
+    old_h = height();
+  // first horizontal, then vertical
+
+  qDebug() << "w, oldw: " << w << ", " << old_w;
+
+  if(old_w != w) {
+    int w_diff = old_w - w;
+
+    qDebug() << "w_diff: " << w_diff;
+
+    if(w_diff < 0) {
+      // then add
+      if(h_anchor == LEFT) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  int layer_h = (*layer)->getHeight();
+	  for(int i = 0; i < abs(w_diff); i++) {
+	    qDebug() << "Inserting to left";
+	    (*layer)->tiles->insert((*layer)->tiles->begin(),
+				   (std::vector<Tile>(layer_h, Tile())));
+	  }
+	}
+      }
+      else if (h_anchor == RIGHT) {
+	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  qDebug() << "Inserting to right";
+	  int layer_h = (*layer)->getHeight();
+	  for(int i = 0; i < abs(w_diff); i++) {
+	    (*layer)->tiles->push_back(std::vector<Tile>(layer_h, Tile()));
+	  }
+	}
+      }
+    }
+    else if (w_diff > 0) {
+      // then remove
+    }
+  }
+  
+}

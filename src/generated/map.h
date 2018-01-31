@@ -10,6 +10,7 @@ using namespace boost::flyweights;
 #include<vector>
 #include<string>
 #include<texture.h>
+#include<resize-enums.h>
 #include<cstring>
 class root;
 class Layer;
@@ -25,6 +26,7 @@ Texture* Text_field = nullptr;
 public: virtual void parent (root* p) = 0;
 public: virtual int width () = 0;
 public: virtual int height () = 0;
+public: virtual void resize (int w, int h, verticalAnchor vAnchor, horizontalAnchor hAnchor) = 0;
 public: virtual root* parent () = 0;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, std::string value) {

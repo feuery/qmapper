@@ -1,4 +1,4 @@
-(defcppclass Map ("<root.h>" "<layer.h>" "<vector>" "<string>" "<texture.h>")
+(defcppclass Map ("<root.h>" "<layer.h>" "<vector>" "<string>" "<texture.h>" "<resize-enums.h>")
   (declare-class "root" "Layer" "Texture")
   (public
    (fields
@@ -7,8 +7,11 @@
     (std__string name "Map 1")
     (Texture* text nullptr))
    (functions
-    (void parent (root* p)))
-   (functions
+    (void parent (root* p))
     (int width ())
     (int height ())
+    (void resize (int w
+		  int h
+		  verticalAnchor vAnchor
+		  horizontalAnchor hAnchor))
     (root* parent ()))))  

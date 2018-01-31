@@ -4,7 +4,6 @@
 #include <map.h>
 #include <root.h>
 
-class Mapcontainer;
 #include<layerContainer.h>
 #include<new_obj.h>
 
@@ -24,11 +23,16 @@ public:
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render(Renderer *parent) override;
+  void resize (int w,
+	       int h,
+	       verticalAnchor v_anchor,
+	       horizontalAnchor h_anchor) override;
   int id ;
   int getRenderId() override;
 private:
 
   root *R;
 };
-
+#else
+class Mapcontainer;
 #endif //MAPCONTAINER_H

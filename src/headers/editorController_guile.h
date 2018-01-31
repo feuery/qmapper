@@ -12,6 +12,7 @@ extern "C" {
   SCM delete_layer(SCM map_index, SCM layer_index);
   SCM add_glsl_script();
   SCM add_scheme_script();
+  SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

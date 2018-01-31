@@ -28,9 +28,9 @@ Map* Layercontainer::parent(void)
 
 int Layercontainer::getWidth(void)
 {
-  return w;
+  return tiles->size();
 }
 int Layercontainer::getHeight(void)
 {
-  return h;
+  return tiles->at(0).size();
 }

@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-01-20T19:28:35.097Z
+//// generated at 2018-01-30T19:46:50.184Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -14,6 +14,7 @@
 #include<script-types.h>
 #include<propertierbase.h>
 #include<vector>
+#include<resize-enums.h>
 
 #include <cstdlib>
 
