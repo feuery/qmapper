@@ -115,7 +115,7 @@ extern "C" {
     return SCM_BOOL_T;
   }
 
-  SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor)
+  SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor)
   {
     editorController *ec = editorController::instance;
     Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
@@ -124,7 +124,10 @@ extern "C" {
     const char* h_a = scm_to_locale_string(scm_symbol_to_string(horizontal_anchor));
     std::string horizontal_a = h_a;
 
-    m->resize(new_w, new_h, TOP, horizontal_a == "RIGHT"? RIGHT: LEFT);
+    const char *v_a = scm_to_locale_string(scm_symbol_to_string(vertical_anchor));
+    std::string vertical_a = v_a;
+
+    m->resize(new_w, new_h, vertical_a == "TOP"? TOP: BOTTOM, horizontal_a == "RIGHT"? RIGHT: LEFT);
 
     return SCM_BOOL_T;
   }
