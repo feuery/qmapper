@@ -127,6 +127,8 @@ extern "C" {
     const char *v_a = scm_to_locale_string(scm_symbol_to_string(vertical_anchor));
     std::string vertical_a = v_a;
 
+    qDebug() << "Vertical anchor: " << v_a;
+
     m->resize(new_w, new_h, vertical_a == "TOP"? TOP: BOTTOM, horizontal_a == "RIGHT"? RIGHT: LEFT);
 
     return SCM_BOOL_T;

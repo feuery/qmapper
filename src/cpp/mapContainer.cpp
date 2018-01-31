@@ -167,7 +167,7 @@ void Mapcontainer::resize (int w,
 
     if(h_diff < 0) {
       // then add
-      if(h_anchor == TOP) {
+      if(v_anchor == TOP) {
 	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
 	  int layer_w = (*layer)->getWidth();
 	  for(int x = 0; x < layer_w; x++) {
@@ -179,15 +179,17 @@ void Mapcontainer::resize (int w,
 	  }
 	}
       }
-    //   else if (h_anchor == RIGHT) {
-    // 	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
-    // 	  qDebug() << "Inserting to right";
-    // 	  int layer_h = (*layer)->getHeight();
-    // 	  for(int i = 0; i < abs(h_diff); i++) {
-    // 	    (*layer)->tiles->push_back(std::vector<Tile>(layer_h, Tile()));
-    // 	  }
-    // 	}
-    //   }
+      else if (v_anchor == BOTTOM) {
+    	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	  int layer_w = (*layer)->getWidth();
+	  for(int x = 0; x < layer_w; x++) {
+	    for(int i = 0; i < abs(h_diff); i++) {
+	      qDebug() << "Inserting to bottom";
+	      (*layer)->tiles->at(x).push_back(Tile());
+	    }
+	  }
+	}
+      }
     // }
     // else if (h_diff > 0) {
     //   if(h_anchor == LEFT) {
