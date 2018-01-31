@@ -23,6 +23,7 @@
 #include<QOpenGLFunctions>
 
 #include <unordered_map>
+#include <json.hpp>
 
 using namespace boost::flyweights;
 class Script;

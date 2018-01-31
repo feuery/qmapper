@@ -56,7 +56,8 @@ HEADERS += src/headers/files.h \
            src/headers/rotater.h \
            src/headers/tool_list.h \
            src/headers/scroll.h \
-           src/headers/resize-enums.h
+           src/headers/resize-enums.h \
+           src/headers/json.hpp
            
 FORMS += \
     src/forms/main.ui 
