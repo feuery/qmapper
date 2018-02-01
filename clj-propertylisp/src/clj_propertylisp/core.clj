@@ -37,11 +37,6 @@
                                (into {}))]
       (push-compilation! compilation-set))))
 
-;; slurp every *.def file in input-dir
-;; and create a compilation set of them
-;; and push THAT to the *compilation-queue*
-
-
 #_(start-compilation-d! "/home/feuer2/Dropbox/qt-test/src/lisp-defs"
                       "/home/feuer2/Dropbox/qt-test/src/generated")
 
@@ -187,7 +182,7 @@
        (map typesymbol->str)
        (map (fn [type]
               (format "virtual void set(flyweight<std::string>propertyname, %s value);
-virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper);\n" type type type)))
+virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper) const;\n" type type type)))
        (str/join "")))
 
 (defn typefy-param-list [param-list]
@@ -227,7 +222,7 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
 
 }
 
-%s Propertierbase::get(flyweight<std::string>propertyname, bool *success, %s type_helper)
+%s Propertierbase::get(flyweight<std::string>propertyname, bool *success, %s type_helper) const
 {
 
 }\n" type type type)))
@@ -269,12 +264,12 @@ class Propertierbase
 public:
 Propertierbase ();
 virtual ~Propertierbase ();
-  virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) = 0;
+  virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const = 0;
   virtual std::vector<flyweight<std::string>> names() = 0;
   virtual flyweight<std::string> type_identifier() = 0;
   virtual int property_count() = 0;
 
-  virtual flyweight<std::string> getId() 
+  virtual flyweight<std::string> getId() const
   {
     return Id_field;
   }
@@ -285,7 +280,7 @@ virtual ~Propertierbase ();
   }
 
   void set(flyweight<std::string> propName, Propertierbase *b);
-  Propertierbase* get(flyweight<std::string>propertyname);
+  Propertierbase* get(flyweight<std::string>propertyname) const;
 
 %s
 
@@ -293,6 +288,9 @@ virtual ~Propertierbase ();
 
   std::string getErrorsOf(flyweight<std::string> field);
   void clearErrorsOf(flyweight<std::string> field);
+
+  virtual std::string toJSON() const = 0;
+  virtual void fromJSON(const char* json) = 0;
 
 protected:
   flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
@@ -341,7 +339,7 @@ void Propertierbase::set(flyweight<std::string> propName, Propertierbase *b)
   }
 }
 
-Propertierbase* Propertierbase::get(flyweight<std::string> propertyname)
+Propertierbase* Propertierbase::get(flyweight<std::string> propertyname) const
 {
   auto prop_typename = type_name(propertyname);
   %s
@@ -404,9 +402,16 @@ return;
      :implementation cpp}))
 
 
-(defn codegen [{:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
-  (let [props (conj (get-properties tokenized-class)
-                    {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})
+(defn codegen [all-classes {:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
+  (let [compiled-classes (set (mapcat second
+                                      (map-vals (fn [{:keys [class-name]}]
+                                                  [class-name (symbol (str (name class-name) "*"))])
+                                                all-classes)))
+        _ (locking *out*
+            (println "all classes: ")
+            (clojure.pprint/pprint compiled-classes))
+        props (conj (get-properties tokenized-class)
+                    {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})        
         props-by-types (->> props
                             (group-by (comp first :form))
                             (map-keys typesymbol->str))
@@ -438,7 +443,7 @@ return;
                           (str/join "\n"))
         get-contents (->> props-by-types
                           (map (fn [[type props]]
-                                 (str "virtual " type " get(flyweight<std::string> propertyname, bool *success, " type " type_helper) {
+                                 (str "virtual " type " get(flyweight<std::string> propertyname, bool *success, " type " type_helper) const {
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
@@ -454,6 +459,8 @@ return;
                           
         class-content (str "#ifndef " class-name "e\n#define " class-name "e\n"
                            "\n#include<propertierbase.h>\n"
+                           "\n#include<json.hpp>\n"
+                           "\nusing nlohmann::json;\n"
                            "\n#include<boost/flyweight.hpp>\n"
                            "using namespace boost::flyweights;\n"
                        (->> includes
@@ -484,24 +491,26 @@ return;
                                                                                                                     prop-name ((comp str/capitalize name) prop-name)]
                                                                                                                 (if default-val
                                                                                                                   (format "virtual void set%s(%s val);
-virtual %s get%s();
+virtual %s get%s() const;
 %s %s_field = %s;" prop-name prop-type
                                                                                                                           prop-type prop-name
                                                                                                                           prop-type prop-name (pr-str default-val))
                                                                                                                   (format "virtual void set%s(%s val);
-virtual %s get%s();
+virtual %s get%s() const;
 %s %s_field;" prop-name prop-type
                                                                                                                           prop-type prop-name
                                                                                                                           prop-type prop-name)))))))
                                                            (str/join "\n"))
                            set-contents
                            get-contents
+                           "\npublic: virtual std::string toJSON() const;
+ virtual void fromJSON(const char* json);"
                            "\npublic: " class-name "();\n"
                            "\nstd::vector<flyweight<std::string>> r;"
                            "\nstd::vector<flyweight<std::string>> names() { return r; }\n"
                            "\nvirtual flyweight<std::string> type_identifier() { return flyweight<std::string>(\"" class-name "\"); }"
                            "\nvirtual int property_count() { return " (count props) "; }"
-                           "\nvirtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {\n"
+                           "\nvirtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const {\n"
 
                            (->> props-by-types
                                 (map (fn [[type props]]
@@ -514,8 +523,14 @@ virtual %s get%s();
                            
                            "\n};\n\n"
                            class-name "* to" (str/capitalize class-name) "(Propertierbase *b);"
+                           "\n
+    void to_json(json& j, const " class-name "& c);
+    void from_json(const json& j, " class-name "& c);
+    void to_json(json& j, const " class-name "* c);
+    void from_json(const json& j, " class-name "* c);"
                            "\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
+#include <json.hpp>
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
 
 "
@@ -536,7 +551,7 @@ virtual %s get%s();
                                                                                                                                                 (map validator-gen validators)) ")"))
                                                            prop-name "_field = value;
 }
-                                                        " type " " class-name "::get" prop-name "() {
+                                                        " type " " class-name "::get" prop-name "() const {
 return " prop-name "_field;
 }")
                                                      ""))))
@@ -559,7 +574,58 @@ else {
 printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().get().c_str());
 throw \"\";
 }
-}\n")]
+}
+
+std::string " class-name "::toJSON() const
+{
+nlohmann::json j {
+"
+(->> props
+     (filter (fn [{[type] :form}]
+               (or (contains? compiled-classes type)
+                   (contains? #{'std__string
+                                'flyweight<std__string>
+                                'int
+                                'float
+                                'double
+                                'unsigned_char
+                                'short
+                                'long} type))))
+     (map (fn [{:keys [form]}]
+            (let [[type prop-name & _] form
+                  prop-name ((comp str/capitalize name) prop-name)]
+              (str "{\"" prop-name "\", get" prop-name "()" (if (= type 'flyweight<std__string>)
+                     ".get()}"
+                     "}")))))
+     (str/join ",\n")) "\n};
+return j.dump();
+}
+void " class-name "::fromJSON(const char* json)
+{
+
+}
+
+using nlohmann::json;
+
+    void to_json(json& j, const " class-name "& c) {
+        j = json::parse(c.toJSON());
+    }
+
+    void from_json(const json& j, " class-name "& c) {
+        c.fromJSON(j.get<std::string>().c_str());
+    }
+    void to_json(json& j, const " class-name "* c) {
+      if(c)
+        j = json::parse(c->toJSON());
+      else
+        j = json::parse(\"{\\\"error\\\": \\\"c is null\\\"}\");
+    }
+
+    void from_json(const json& j, " class-name "* c) {
+        c->fromJSON(j.get<std::string>().c_str());
+}
+"
+)]
     {:header class-content
      :implementation cpp-content}))
 
@@ -593,7 +659,7 @@ throw \"\";
             {base-header :header
              base-impl :implementation} (make-propertier-base tokenized-classes)
 
-            class-output (map-vals codegen tokenized-classes-with-names)]
+            class-output (map-vals (partial codegen tokenized-classes-with-names) tokenized-classes-with-names)]
 
         (let [propertier-h-f (io/file (str @output-dir "/propertierbase.h"))
               propertier-c-f (io/file (str @output-dir "/propertierbase.cpp"))]

@@ -3,6 +3,10 @@
 
 #include<propertierbase.h>
 
+#include<json.hpp>
+
+using nlohmann::json;
+
 #include<boost/flyweight.hpp>
 using namespace boost::flyweights;
 #include<resize-enums.h>
@@ -10,16 +14,16 @@ using namespace boost::flyweights;
 ;
 class resize_data: public Propertierbase {
  public: virtual void setNew_width(int val);
-virtual int getNew_width();
+virtual int getNew_width() const;
 int New_width_field = 0;
 public: virtual void setNew_height(int val);
-virtual int getNew_height();
+virtual int getNew_height() const;
 int New_height_field = 0;
 public: virtual void setVertical_anchor(verticalAnchor val);
-virtual verticalAnchor getVertical_anchor();
+virtual verticalAnchor getVertical_anchor() const;
 verticalAnchor Vertical_anchor_field = TOP;
 public: virtual void setHorizontal_anchor(horizontalAnchor val);
-virtual horizontalAnchor getHorizontal_anchor();
+virtual horizontalAnchor getHorizontal_anchor() const;
 horizontalAnchor Horizontal_anchor_field = LEFT;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
 if(propertyname == std::string("Id") ) { Id_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, int value) {
@@ -28,13 +32,13 @@ if(propertyname == std::string("new_height") ) { New_height_field = value; retur
 virtual void set(flyweight<std::string> propertyname, verticalAnchor value) {
 if(propertyname == std::string("vertical_anchor") ) { Vertical_anchor_field = value; return; } }
 virtual void set(flyweight<std::string> propertyname, horizontalAnchor value) {
-if(propertyname == std::string("horizontal_anchor") ) { Horizontal_anchor_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) {
+if(propertyname == std::string("horizontal_anchor") ) { Horizontal_anchor_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;
 } *success = false; flyweight<std::string> invalid_data; return invalid_data;
 }
-virtual int get(flyweight<std::string> propertyname, bool *success, int type_helper) {
+virtual int get(flyweight<std::string> propertyname, bool *success, int type_helper) const {
 if(propertyname == std::string("new_width")) {
   *success = true;
   return New_width_field;
@@ -44,18 +48,20 @@ if(propertyname == std::string("new_height")) {
   return New_height_field;
 } *success = false; int invalid_data; return invalid_data;
 }
-virtual verticalAnchor get(flyweight<std::string> propertyname, bool *success, verticalAnchor type_helper) {
+virtual verticalAnchor get(flyweight<std::string> propertyname, bool *success, verticalAnchor type_helper) const {
 if(propertyname == std::string("vertical_anchor")) {
   *success = true;
   return Vertical_anchor_field;
 } *success = false; verticalAnchor invalid_data; return invalid_data;
 }
-virtual horizontalAnchor get(flyweight<std::string> propertyname, bool *success, horizontalAnchor type_helper) {
+virtual horizontalAnchor get(flyweight<std::string> propertyname, bool *success, horizontalAnchor type_helper) const {
 if(propertyname == std::string("horizontal_anchor")) {
   *success = true;
   return Horizontal_anchor_field;
 } *success = false; horizontalAnchor invalid_data; return invalid_data;
 }
+public: virtual std::string toJSON() const;
+ virtual void fromJSON(const char* json);
 public: resize_data();
 
 std::vector<flyweight<std::string>> r;
@@ -63,7 +69,7 @@ std::vector<flyweight<std::string>> names() { return r; }
 
 virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("resize_data"); }
 virtual int property_count() { return 5; }
-virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) {
+virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const {
 if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
 if(propertyname == std::string("new_width")) return flyweight<std::string>("int");
 if(propertyname == std::string("new_height")) return flyweight<std::string>("int");
@@ -74,4 +80,9 @@ if(propertyname == std::string("horizontal_anchor")) return flyweight<std::strin
 };
 
 resize_data* toResize_data(Propertierbase *b);
+
+    void to_json(json& j, const resize_data& c);
+    void from_json(const json& j, resize_data& c);
+    void to_json(json& j, const resize_data* c);
+    void from_json(const json& j, resize_data* c);
 #endif

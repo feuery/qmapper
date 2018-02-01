@@ -1,23 +1,24 @@
 #include <layer.h>
-////// generated at 2018-01-31T14:08:33.505Z
+#include <json.hpp>
+////// generated at 2018-02-01T09:49:48.762Z
 
 
 void Layer::setName(std::string value) { 
 Name_field = value;
 }
-                                                        std::string Layer::getName() {
+                                                        std::string Layer::getName() const {
 return Name_field;
 }
 void Layer::setOpacity(unsigned char value) { 
 Opacity_field = value;
 }
-                                                        unsigned char Layer::getOpacity() {
+                                                        unsigned char Layer::getOpacity() const {
 return Opacity_field;
 }
 void Layer::setVisible(bool value) { 
 Visible_field = value;
 }
-                                                        bool Layer::getVisible() {
+                                                        bool Layer::getVisible() const {
 return Visible_field;
 }
 Layer::Layer() {
@@ -34,4 +35,38 @@ else {
 printf("\"toLayer called with \"%s\"\n", b->type_identifier().get().c_str());
 throw "";
 }
+}
+
+std::string Layer::toJSON() const
+{
+nlohmann::json j {
+{"Id", getId().get()},
+{"Name", getName()},
+{"Opacity", getOpacity()}
+};
+return j.dump();
+}
+void Layer::fromJSON(const char* json)
+{
+
+}
+
+using nlohmann::json;
+
+    void to_json(json& j, const Layer& c) {
+        j = json::parse(c.toJSON());
+    }
+
+    void from_json(const json& j, Layer& c) {
+        c.fromJSON(j.get<std::string>().c_str());
+    }
+    void to_json(json& j, const Layer* c) {
+      if(c)
+        j = json::parse(c->toJSON());
+      else
+        j = json::parse("{\"error\": \"c is null\"}");
+    }
+
+    void from_json(const json& j, Layer* c) {
+        c->fromJSON(j.get<std::string>().c_str());
 }
