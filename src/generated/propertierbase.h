@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-02-01T09:49:48.738Z
+//// generated at 2018-02-01T11:28:50.207Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -73,6 +73,10 @@ virtual void set(flyweight<std::string>propertyname, int value);
 virtual int get(flyweight<std::string>propertyname, bool *success, int type_helper) const;
 virtual void set(flyweight<std::string>propertyname, horizontalAnchor value);
 virtual horizontalAnchor get(flyweight<std::string>propertyname, bool *success, horizontalAnchor type_helper) const;
+virtual void set(flyweight<std::string>propertyname, std::vector<std::vector<Tile>>* value);
+virtual std::vector<std::vector<Tile>>* get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const;
+virtual void set(flyweight<std::string>propertyname, std::vector<Layer*>* value);
+virtual std::vector<Layer*>* get(flyweight<std::string>propertyname, bool *success, std::vector<Layer*>* type_helper) const;
 virtual void set(flyweight<std::string>propertyname, unsigned char value);
 virtual unsigned char get(flyweight<std::string>propertyname, bool *success, unsigned char type_helper) const;
 

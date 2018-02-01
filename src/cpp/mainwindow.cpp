@@ -69,7 +69,7 @@ void MainWindow::setupTree()
 	  Mapcontainer *m = static_cast<Mapcontainer*>(l->parent());
 
 	  ec->indexOfChosenMap = m->getId();
-	  ec->indexOfChosenLayer = indexOf(m->layers, static_cast<Layer*>(l));
+	  ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
 
 	  map_view->getDrawQueue().clear();
 	  map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));

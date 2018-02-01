@@ -10,7 +10,7 @@ double toRadians(int deg)
 
 Mapcontainer::Mapcontainer(): Map()
 {
-  layers = new std::vector<Layer*>;
+  setLayers(new std::vector<Layer*>);
   id = rand();
   editorController::instance->map_view->owned_objects[id] = this;
 }
@@ -21,14 +21,14 @@ Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapconta
   for(int i = 0; i < layerCount; i++) {
     Layercontainer *l = new Layercontainer(w, h);
     l->setName("Layer "+std::to_string(i));
-    layers->push_back(l);
+    getLayers()->push_back(l);
     l->set_parent(this);
   }
 }
 
 Mapcontainer::~Mapcontainer()
 {
-  delete layers;
+  delete getLayers();
 }
 
 root* Mapcontainer::parent() {
@@ -42,12 +42,12 @@ void Mapcontainer::parent(root *p) {
 
 int Mapcontainer::width()
 {
-  return layers->at(0)->getWidth();
+  return getLayers()->at(0)->getWidth();
 }
 
 int Mapcontainer::height ()
 {
-  return layers->at(0)->getHeight();
+  return getLayers()->at(0)->getHeight();
 }
 
 int Mapcontainer::getRenderId()
@@ -74,14 +74,14 @@ obj* tileToObj(Tile &tile)
 void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 {
 
-  for(int l = 0; l < layers->size(); l++) {
+  for(int l = 0; l < getLayers()->size(); l++) {
     for(int x = 0; x < width(); x++) {
       for(int y = 0; y < height(); y++) {
-	Layer *layer = layers->at(l);
+	Layer *layer = getLayers()->at(l);
 
 	if(!layer->getVisible()) continue;
 	
-	Tile tile = layer->tiles->at(x).at(y);
+	Tile tile = layer->getTiles()->at(x).at(y);
 
 	if(tile.getTileset() != "" && layer->getOpacity() > 0) {
 	  obj *tile_to_render = tileToObj(tile);
@@ -92,7 +92,7 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 	  tile_to_render->rotate = toRadians(tile.getRotation());
 
 	  if(l > 0) {
-	    Tile subTile = layers->at(l-1)->tiles->at(x).at(y);
+	    Tile subTile = getLayers()->at(l-1)->getTiles()->at(x).at(y);
 	    tile_to_render->subObj = tileToObj(subTile);
 	  }	  
 	    
@@ -123,37 +123,37 @@ void Mapcontainer::resize (int w,
     if(w_diff < 0) {
       // then add
       if(h_anchor == LEFT) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  int layer_h = (*layer)->getHeight();
 	  for(int i = 0; i < abs(w_diff); i++) {
 	    qDebug() << "Inserting to left";
-	    (*layer)->tiles->insert((*layer)->tiles->begin(),
+	    (*layer)->getTiles()->insert((*layer)->getTiles()->begin(),
 				    (std::vector<Tile>(layer_h, Tile())));
 	  }
 	}
       }
       else if (h_anchor == RIGHT) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  qDebug() << "Inserting to right";
 	  int layer_h = (*layer)->getHeight();
 	  for(int i = 0; i < abs(w_diff); i++) {
-	    (*layer)->tiles->push_back(std::vector<Tile>(layer_h, Tile()));
+	    (*layer)->getTiles()->push_back(std::vector<Tile>(layer_h, Tile()));
 	  }
 	}
       }
     }
     else if (w_diff > 0) {
       if(h_anchor == LEFT) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  for(int i = 0; i < w_diff; i++) {
-	    (*layer)->tiles->erase((*layer)->tiles->begin());
+	    (*layer)->getTiles()->erase((*layer)->getTiles()->begin());
 	  }
 	}
       }
       else if (h_anchor == RIGHT) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  for(int i = 0; i < w_diff; i++) {
-	    (*layer)->tiles->pop_back();
+	    (*layer)->getTiles()->pop_back();
 	  }
 	}
       }
@@ -168,24 +168,24 @@ void Mapcontainer::resize (int w,
     if(h_diff < 0) {
       // then add
       if(v_anchor == TOP) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  int layer_w = (*layer)->getWidth();
 	  for(int x = 0; x < layer_w; x++) {
 	    for(int i = 0; i < abs(h_diff); i++) {
 	      qDebug() << "Inserting to top";
-	      (*layer)->tiles->at(x).insert((*layer)->tiles->at(x).begin(),
+	      (*layer)->getTiles()->at(x).insert((*layer)->getTiles()->at(x).begin(),
 					    Tile());
 	    }
 	  }
 	}
       }
       else if (v_anchor == BOTTOM) {
-    	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+    	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  int layer_w = (*layer)->getWidth();
 	  for(int x = 0; x < layer_w; x++) {
 	    for(int i = 0; i < abs(h_diff); i++) {
 	      qDebug() << "Inserting to bottom";
-	      (*layer)->tiles->at(x).push_back(Tile());
+	      (*layer)->getTiles()->at(x).push_back(Tile());
 	    }
 	  }
 	}
@@ -193,21 +193,21 @@ void Mapcontainer::resize (int w,
     }
     else if (h_diff > 0) {
       if(v_anchor == TOP) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  int layer_w = (*layer)->getWidth();
 	  for(int x = 0; x < layer_w; x++) {
 	    for(int i = 0; i < abs(h_diff); i++) {
-	      (*layer)->tiles->at(x).erase((*layer)->tiles->at(x).begin());
+	      (*layer)->getTiles()->at(x).erase((*layer)->getTiles()->at(x).begin());
 	    }
 	  }
 	}
       }
       else if (v_anchor == BOTTOM) {
-	for(auto layer = layers->begin(); layer < layers->end(); layer++) {
+	for(auto layer = getLayers()->begin(); layer < getLayers()->end(); layer++) {
 	  int layer_w = (*layer)->getWidth();
 	  for(int x = 0; x < layer_w; x++) {
 	    for(int i = 0; i < abs(h_diff); i++) {
-	      (*layer)->tiles->at(x).pop_back();
+	      (*layer)->getTiles()->at(x).pop_back();
 	    }
 	  }
 	}

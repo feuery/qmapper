@@ -407,9 +407,16 @@ return;
                                       (map-vals (fn [{:keys [class-name]}]
                                                   [class-name (symbol (str (name class-name) "*"))])
                                                 all-classes)))
-        _ (locking *out*
-            (println "all classes: ")
-            (clojure.pprint/pprint compiled-classes))
+        collection-of-compiled-classes (set (mapcat (fn [class-sym]
+                                                      (map symbol 
+                                                           [(str "std__vector<" (name class-sym) ">*")
+                                                            (str "std__vector<" (name class-sym) "*>*")
+                                                            (str "std__vector<std__vector<" (name class-sym) ">>*")
+                                                            (str "std__vector<std__vector<" (name class-sym) "*>>*")])) compiled-classes))
+        
+        ;; _ (locking *out*
+        ;;     (println "all classes: ")
+        ;;     (clojure.pprint/pprint collection-of-compiled-classes))
         props (conj (get-properties tokenized-class)
                     {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})        
         props-by-types (->> props
@@ -527,7 +534,10 @@ virtual %s get%s() const;
     void to_json(json& j, const " class-name "& c);
     void from_json(const json& j, " class-name "& c);
     void to_json(json& j, const " class-name "* c);
-    void from_json(const json& j, " class-name "* c);"
+    void from_json(const json& j, " class-name "* c);
+    void to_json(json& j, const std::vector<" class-name "*>* v);
+    void to_json(json& j, const std::vector<std::vector<" class-name "*>>* v);
+    void to_json(json& j, const std::vector<std::vector<" class-name ">>* v);"
                            "\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
 #include <json.hpp>
@@ -583,6 +593,7 @@ nlohmann::json j {
 (->> props
      (filter (fn [{[type] :form}]
                (or (contains? compiled-classes type)
+                   (contains? collection-of-compiled-classes type)
                    (contains? #{'std__string
                                 'flyweight<std__string>
                                 'int
@@ -620,6 +631,38 @@ using nlohmann::json;
       else
         j = json::parse(\"{\\\"error\\\": \\\"c is null\\\"}\");
     }
+
+    void to_json(json& j, const std::vector<" class-name "*>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           j.push_back(*a);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<" class-name ">>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<" class-name "*>>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
 
     void from_json(const json& j, " class-name "* c) {
         c->fromJSON(j.get<std::string>().c_str());

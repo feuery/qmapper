@@ -57,4 +57,7 @@ root* toRoot(Propertierbase *b);
     void from_json(const json& j, root& c);
     void to_json(json& j, const root* c);
     void from_json(const json& j, root* c);
+    void to_json(json& j, const std::vector<root*>* v);
+    void to_json(json& j, const std::vector<std::vector<root*>>* v);
+    void to_json(json& j, const std::vector<std::vector<root>>* v);
 #endif

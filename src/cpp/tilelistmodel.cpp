@@ -25,7 +25,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(parent);
-    return m->layers->size();
+    return m->getLayers()->size();
   }
   else if (strcmp(type, "root") == 0) {
     root *r = static_cast<root*>(parent);
@@ -67,7 +67,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
   
   if(type == "Map") {
     Map *m = static_cast<Map*>(base);
-    Layer *l =  m->layers->at(row);
+    Layer *l =  m->getLayers()->at(row);
     return createIndex(row, column, l);
   }
   else if(type == "root") {
@@ -148,7 +148,7 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
       qDebug() << "Layer " << l << " has invalid parent " << p;
       return QModelIndex();
     }
-    int row = indexOf<Layer*>(p->layers,l);
+    int row = indexOf<Layer*>(p->getLayers(),l);
     
     return createIndex(row, 0, p);
   }
@@ -187,7 +187,7 @@ void Tilelistmodel::beginMap(int map_row)
   auto root = QModelIndex();
   QModelIndex parent_index = index(map_row, 0, root);
   auto map = Root->registryToList({}).at(map_row);
-  int count = toMap(map)->layers->size();
+  int count = toMap(map)->getLayers()->size();
   beginInsertRows(parent_index, count, count+1);
 }
 

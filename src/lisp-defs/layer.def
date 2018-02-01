@@ -1,12 +1,11 @@
 (defcppclass Layer ("<tile.h>" "<string>" "<vector>" "<map.h>")
   (declare-class "Map" "Tile")
   (public
-   (fields
-    (std__vector<std__vector<Tile>>* tiles nullptr))
    (properties
     (std__string name "")
     (unsigned_char opacity 255)
-    (bool visible true)) 
+    (bool visible true)
+    (std__vector<std__vector<Tile>>* tiles nullptr)) 
    (functions
     (void set_parent (Map* p))
     (int getWidth ())

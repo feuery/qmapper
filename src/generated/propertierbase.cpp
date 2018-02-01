@@ -90,6 +90,24 @@ horizontalAnchor Propertierbase::get(flyweight<std::string>propertyname, bool *s
 {
 
 }
+void Propertierbase::set(flyweight<std::string>propertyname, std::vector<std::vector<Tile>>* value) 
+{
+
+}
+
+std::vector<std::vector<Tile>>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const
+{
+
+}
+void Propertierbase::set(flyweight<std::string>propertyname, std::vector<Layer*>* value) 
+{
+
+}
+
+std::vector<Layer*>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<Layer*>* type_helper) const
+{
+
+}
 void Propertierbase::set(flyweight<std::string>propertyname, unsigned char value) 
 {
 

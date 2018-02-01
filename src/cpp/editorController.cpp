@@ -32,7 +32,7 @@ void editorController::populateMaps() {
       Layercontainer *l = new Layercontainer(10 + 10*x, 10 + 10*x);
       l->setName(std::to_string(x)+"th layer");
       l->set_parent(m);
-      m->layers->push_back(l);
+      m->getLayers()->push_back(l);
     }
     flyweight<std::string> id = m->getId();
     Propertierbase *b = m;
@@ -145,7 +145,7 @@ void editorController::setTileAt(int x, int y)
 
   qDebug() << "Setting tile at " << indexOfChosenLayer << ", " << x << ", " << y;
   
-  m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y) = selectedTileData;
+  m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y) = selectedTileData;
 }
 
 
@@ -154,7 +154,7 @@ void editorController::setTileRotation(int x, int y, int deg_angl) {
 
   check_chosen_layer;
 
-  Tile &t = m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y);
+  Tile &t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
   t.setRotation(deg_angl);    
 }
 
@@ -163,7 +163,7 @@ void editorController::rotateTile90Deg(int x, int y) {
 
   check_chosen_layer;
 
-  Tile &t = m->layers->at(indexOfChosenLayer)->tiles->at(x).at(y);
+  Tile &t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
   int new_rot = (t.getRotation() + 90);
   t.setRotation(new_rot);
 }

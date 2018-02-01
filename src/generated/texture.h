@@ -59,4 +59,7 @@ Texture* toTexture(Propertierbase *b);
     void from_json(const json& j, Texture& c);
     void to_json(json& j, const Texture* c);
     void from_json(const json& j, Texture* c);
+    void to_json(json& j, const std::vector<Texture*>* v);
+    void to_json(json& j, const std::vector<std::vector<Texture*>>* v);
+    void to_json(json& j, const std::vector<std::vector<Texture>>* v);
 #endif

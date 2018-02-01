@@ -5,16 +5,16 @@ Layercontainer::Layercontainer(int w, int h):Layer()
 {
   this->w = w;
   this->h = h;
-  tiles = new std::vector<std::vector<Tile>>(w, std::vector<Tile>(h, Tile()));
+  setTiles(new std::vector<std::vector<Tile>>(w, std::vector<Tile>(h, Tile())));
   if(editorController::instance->tiles)
-    for(int x = 0; x < tiles->size(); x++) {
-      for(int y = 0; y < tiles->at(x).size(); y ++)
-	editorController::instance->tiles->push_back(&tiles->at(x)[y]);
+    for(int x = 0; x < getTiles()->size(); x++) {
+      for(int y = 0; y < getTiles()->at(x).size(); y ++)
+	editorController::instance->tiles->push_back(&getTiles()->at(x)[y]);
     }
 }
 
 Layercontainer::~Layercontainer() {
-  delete tiles;
+  delete getTiles();
 }
 
 void Layercontainer::set_parent(Map* p)
@@ -28,9 +28,9 @@ Map* Layercontainer::parent(void)
 
 int Layercontainer::getWidth(void)
 {
-  return tiles->size();
+  return getTiles()->size();
 }
 int Layercontainer::getHeight(void)
 {
-  return tiles->at(0).size();
+  return getTiles()->at(0).size();
 }

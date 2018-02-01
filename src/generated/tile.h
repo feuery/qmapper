@@ -82,4 +82,7 @@ Tile* toTile(Propertierbase *b);
     void from_json(const json& j, Tile& c);
     void to_json(json& j, const Tile* c);
     void from_json(const json& j, Tile* c);
+    void to_json(json& j, const std::vector<Tile*>* v);
+    void to_json(json& j, const std::vector<std::vector<Tile*>>* v);
+    void to_json(json& j, const std::vector<std::vector<Tile>>* v);
 #endif

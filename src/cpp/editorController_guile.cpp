@@ -26,7 +26,7 @@ extern "C" {
     Rootcontainer &r = static_cast<Rootcontainer&>(editorController::instance->document);
     
     Map *m =  r.nth<Map>(std::string("Map"), map_i);
-    int c = m->layers->size();
+    int c = m->getLayers()->size();
     
     // map *m = editorController::instance->document->all_maps->at(map_i);
 
@@ -35,7 +35,7 @@ extern "C" {
     Layercontainer *l = new Layercontainer(m->width(), m->height());
     l->set_parent(m);
     l->setName(QString("Layer %1").arg(c).toStdString());
-    m->layers->push_back(l);
+    m->getLayers()->push_back(l);
 
     editorController::instance->documentTreeModel->end();
 
@@ -69,7 +69,7 @@ extern "C" {
     if(! (map_index >= 0 && map_index < r.registrySize())) return SCM_BOOL_F;
 
     editorController::instance->documentTreeModel->beginMap(map_index);
-    std::vector<Layer*>* layerset = r.nth<Map>("Map", map_index)->layers;
+    std::vector<Layer*>* layerset = r.nth<Map>("Map", map_index)->getLayers();
 
     if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
 

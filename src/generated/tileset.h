@@ -91,4 +91,7 @@ Tileset* toTileset(Propertierbase *b);
     void from_json(const json& j, Tileset& c);
     void to_json(json& j, const Tileset* c);
     void from_json(const json& j, Tileset* c);
+    void to_json(json& j, const std::vector<Tileset*>* v);
+    void to_json(json& j, const std::vector<std::vector<Tileset*>>* v);
+    void to_json(json& j, const std::vector<std::vector<Tileset>>* v);
 #endif

@@ -1,6 +1,6 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-02-01T09:49:48.753Z
+////// generated at 2018-02-01T11:28:50.238Z
 
 
 void Tileset::setName(std::string value) { 
@@ -50,7 +50,8 @@ nlohmann::json j {
 {"Id", getId().get()},
 {"Name", getName()},
 {"Vertexshader", getVertexshader()},
-{"Fragmentshader", getFragmentshader()}
+{"Fragmentshader", getFragmentshader()},
+{"Tiles", getTiles()}
 };
 return j.dump();
 }
@@ -74,6 +75,38 @@ using nlohmann::json;
       else
         j = json::parse("{\"error\": \"c is null\"}");
     }
+
+    void to_json(json& j, const std::vector<Tileset*>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           j.push_back(*a);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<Tileset>>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<Tileset*>>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
 
     void from_json(const json& j, Tileset* c) {
         c->fromJSON(j.get<std::string>().c_str());

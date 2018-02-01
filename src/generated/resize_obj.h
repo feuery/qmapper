@@ -85,4 +85,7 @@ resize_data* toResize_data(Propertierbase *b);
     void from_json(const json& j, resize_data& c);
     void to_json(json& j, const resize_data* c);
     void from_json(const json& j, resize_data* c);
+    void to_json(json& j, const std::vector<resize_data*>* v);
+    void to_json(json& j, const std::vector<std::vector<resize_data*>>* v);
+    void to_json(json& j, const std::vector<std::vector<resize_data>>* v);
 #endif

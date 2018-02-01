@@ -1,6 +1,6 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-02-01T09:49:48.772Z
+////// generated at 2018-02-01T11:28:50.271Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -73,6 +73,38 @@ using nlohmann::json;
       else
         j = json::parse("{\"error\": \"c is null\"}");
     }
+
+    void to_json(json& j, const std::vector<resize_data*>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           j.push_back(*a);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<resize_data>>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
+
+    void to_json(json& j, const std::vector<std::vector<resize_data*>>* v) {
+    if(v) {
+         for(auto a = v->begin(); a != v->end(); a++) {
+           json j2;
+           for(auto o = a->begin(); o != a->end(); o++) {
+             j2.push_back(*o);
+           }
+           j.push_back(j2);
+         }
+    }
+}
 
     void from_json(const json& j, resize_data* c) {
         c->fromJSON(j.get<std::string>().c_str());
