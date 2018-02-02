@@ -114,16 +114,20 @@
        (mapcat (partial drop 1))))
 
 (defn tokenize [[_ class-name include-list :as def]]
-  {:class-name class-name
-   :includes include-list
-   :declared-classes (pick-declared-classes def)
-   :forms (->> def
-               (filter seq?)
-               (filter (fn [[s & lol]]
-                         (contains? #{'public 'private 'protected} s)))
+  (let [forms (->> def
+                   (filter seq?)
+                   (filter (fn [[s & lol]]
+                             (contains? #{'public 'private 'protected} s)))
 
-               (mapcat tokenize-privacy-level)
-               (reduce concat))})
+                   (mapcat tokenize-privacy-level)
+                   (reduce concat))]
+    {:class-name class-name
+     :includes include-list
+     :declared-classes (pick-declared-classes def)
+     :abstract? (contains? (->> forms
+                                (map :type)
+                                set) 'functions)
+     :forms forms}))
    
 
 ;; (tokenize test-data)
@@ -181,8 +185,8 @@
   (->> types
        (map typesymbol->str)
        (map (fn [type]
-              (format "virtual void set(flyweight<std::string>propertyname, %s value);
-virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper) const;\n" type type type)))
+              (format "virtual void set(std::string propertyname, %s value);
+virtual %s get(std::string propertyname, bool *success, %s type_helper) const;\n" type type type)))
        (str/join "")))
 
 (defn typefy-param-list [param-list]
@@ -217,12 +221,12 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
   (->> types
        (map typesymbol->str)
        (map (fn [type]
-              (format "void Propertierbase::set(flyweight<std::string>propertyname, %s value) 
+              (format "void Propertierbase::set(std::string propertyname, %s value) 
 {
 
 }
 
-%s Propertierbase::get(flyweight<std::string>propertyname, bool *success, %s type_helper) const
+%s Propertierbase::get(std::string propertyname, bool *success, %s type_helper) const
 {
 
 }\n" type type type)))
@@ -251,51 +255,52 @@ virtual %s get(flyweight<std::string>propertyname, bool *success, %s type_helper
 
 #include <cstdlib>
 
-#include<boost/flyweight.hpp>
+#include<json.hpp>
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
 
 #include <unordered_map>
 
-using namespace boost::flyweights;
 %s
 class Propertierbase 
 {
 public:
 Propertierbase ();
 virtual ~Propertierbase ();
-  virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const = 0;
-  virtual std::vector<flyweight<std::string>> names() = 0;
-  virtual flyweight<std::string> type_identifier() = 0;
+  virtual std::string type_name(std::string propertyname) const = 0;
+  virtual std::vector<std::string> names() = 0;
+  virtual std::string type_identifier() = 0;
   virtual int property_count() = 0;
 
-  virtual flyweight<std::string> getId() const
+  virtual std::string getId() const
   {
     return Id_field;
   }
 
-  virtual void setId(flyweight<std::string> v) 
+  virtual void setId(std::string v) 
   {
     Id_field = v;
   }
 
-  void set(flyweight<std::string> propName, Propertierbase *b);
-  Propertierbase* get(flyweight<std::string>propertyname) const;
+  void set(std::string propName, Propertierbase *b);
+  Propertierbase* get(std::string propertyname) const;
 
 %s
 
   std::unordered_map<std::string, std::vector<std::string>> field_error_map;
 
-  std::string getErrorsOf(flyweight<std::string> field);
-  void clearErrorsOf(flyweight<std::string> field);
+  std::string getErrorsOf(std::string field);
+  void clearErrorsOf(std::string field);
 
   virtual std::string toJSON() const = 0;
   virtual void fromJSON(const char* json) = 0;
 
 protected:
-  flyweight<std::string> Id_field = flyweight<std::string>(std::to_string(rand()));
+  std::string Id_field = std::string(std::to_string(rand()));
 
 };
+
+using nlohmann::json;
 
 Q_DECLARE_METATYPE(Propertierbase*);
 
@@ -329,27 +334,27 @@ Propertierbase::~Propertierbase()
 
 %s
 
-void Propertierbase::set(flyweight<std::string> propName, Propertierbase *b)
+void Propertierbase::set(std::string propName, Propertierbase *b)
 {
   auto prop_typename = type_name(propName);
   %s
   else {
-    printf(\"Invalid type %%s\\n\", prop_typename.get().c_str());
+    printf(\"Invalid type %%s\\n\", prop_typename.c_str());
     throw \"\";
   }
 }
 
-Propertierbase* Propertierbase::get(flyweight<std::string> propertyname) const
+Propertierbase* Propertierbase::get(std::string propertyname) const
 {
   auto prop_typename = type_name(propertyname);
   %s
   return nullptr;
 }
 
-std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
+std::string Propertierbase::getErrorsOf(std::string field) {
  std::string result;
 
- std::vector<std::string> vec = field_error_map[field.get()];
+ std::vector<std::string> vec = field_error_map[field];
  for(auto i = vec.begin(); i < vec.end(); i++) {
    result += *i + \"\\n\";
  }
@@ -357,8 +362,8 @@ std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
  return result ;
 }
 
-void Propertierbase::clearErrorsOf(flyweight<std::string> field) {
- field_error_map[field.get()].clear();
+void Propertierbase::clearErrorsOf(std::string field) {
+ field_error_map[field].clear();
 }
 "
                     (-> props
@@ -372,7 +377,7 @@ void Propertierbase::clearErrorsOf(flyweight<std::string> field) {
                                                                      (str/replace #"\*" "")
                                                                      symbol))))
                          (map (fn [class]
-                                (str "if(prop_typename == flyweight<std::string>(std::string(\"" (-> class
+                                (str "if(prop_typename == std::string(std::string(\"" (-> class
                                                                                                      name
                                                                                                      (str/replace #"\*" "")) "\"))) {
 " class " t = reinterpret_cast<" class ">(b);
@@ -388,7 +393,7 @@ return;
                                                                      (str/replace #"\*" "")
                                                                      symbol))))
                          (map (fn [class]
-                                (str "if(prop_typename == flyweight<std::string>(std::string(\"" (-> class
+                                (str "if(prop_typename == std::string(std::string(\"" (-> class
                                                                                                      name
                                                                                                      (str/replace #"\*" "")) "\"))) {
     bool success = false;
@@ -401,8 +406,11 @@ return;
     {:header header
      :implementation cpp}))
 
+;; https://rosettacode.org/wiki/Count_occurrences_of_a_substring#Clojure
+(defn count-substring [txt sub]
+  (count (re-seq (re-pattern sub) txt)))
 
-(defn codegen [all-classes {:keys [forms class-name declared-classes includes filename] :as tokenized-class}]
+(defn codegen [all-classes {:keys [forms abstract? class-name declared-classes includes filename] :as tokenized-class}]
   (let [compiled-classes (set (mapcat second
                                       (map-vals (fn [{:keys [class-name]}]
                                                   [class-name (symbol (str (name class-name) "*"))])
@@ -413,12 +421,16 @@ return;
                                                             (str "std__vector<" (name class-sym) "*>*")
                                                             (str "std__vector<std__vector<" (name class-sym) ">>*")
                                                             (str "std__vector<std__vector<" (name class-sym) "*>>*")])) compiled-classes))
+        is-class-abstract? (into {}
+                                 (map second
+                                      (map-vals (fn [{:keys [class-name abstract?]}]
+                                                  [class-name abstract?]) all-classes)))
         
         ;; _ (locking *out*
         ;;     (println "all classes: ")
-        ;;     (clojure.pprint/pprint collection-of-compiled-classes))
+        ;;     (clojure.pprint/pprint is-class-abstract?))
         props (conj (get-properties tokenized-class)
-                    {:form '[flyweight<std__string> Id ""], :privacy 'public, :type 'properties})        
+                    {:form '[std__string Id ""], :privacy 'public, :type 'properties})        
         props-by-types (->> props
                             (group-by (comp first :form))
                             (map-keys typesymbol->str))
@@ -429,7 +441,7 @@ return;
         
         set-contents (->> props-by-types
                           (map (fn [[type props]]
-                                   (str "virtual void set(flyweight<std::string> propertyname, " type " value) {
+                                   (str "virtual void set(std::string propertyname, " type " value) {
 " (->> props
        (map (fn [{:keys [form validators]}]
               (let [[prop-type prop-name _] form]
@@ -450,7 +462,7 @@ return;
                           (str/join "\n"))
         get-contents (->> props-by-types
                           (map (fn [[type props]]
-                                 (str "virtual " type " get(flyweight<std::string> propertyname, bool *success, " type " type_helper) const {
+                                 (str "virtual " type " get(std::string propertyname, bool *success, " type " type_helper) const {
 "
                                       (->> props
                                            (map (fn [{:keys [form]}]
@@ -468,8 +480,6 @@ return;
                            "\n#include<propertierbase.h>\n"
                            "\n#include<json.hpp>\n"
                            "\nusing nlohmann::json;\n"
-                           "\n#include<boost/flyweight.hpp>\n"
-                           "using namespace boost::flyweights;\n"
                        (->> includes
                             (map (partial str "#include" ))
                             (str/join "\n"))
@@ -513,20 +523,20 @@ virtual %s get%s() const;
                            "\npublic: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);"
                            "\npublic: " class-name "();\n"
-                           "\nstd::vector<flyweight<std::string>> r;"
-                           "\nstd::vector<flyweight<std::string>> names() { return r; }\n"
-                           "\nvirtual flyweight<std::string> type_identifier() { return flyweight<std::string>(\"" class-name "\"); }"
+                           "\nstd::vector<std::string> r;"
+                           "\nstd::vector<std::string> names() { return r; }\n"
+                           "\nvirtual std::string type_identifier() { return std::string(\"" class-name "\"); }"
                            "\nvirtual int property_count() { return " (count props) "; }"
-                           "\nvirtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const {\n"
+                           "\nvirtual std::string type_name(std::string propertyname) const {\n"
 
                            (->> props-by-types
                                 (map (fn [[type props]]
                                        (->> props
                                             (map (fn [{[_ prop-name _] :form}]
-                                                   (str "if(propertyname == std::string(\"" prop-name "\")) return flyweight<std::string>(\"" (str/replace type #"\*" "") "\");")))
+                                                   (str "if(propertyname == std::string(\"" prop-name "\")) return std::string(\"" (str/replace type #"\*" "") "\");")))
                                             (str/join "\n"))))
                                 (str/join "\n"))
-                           "return flyweight<std::string>(\"\");\n}\n"
+                           "return std::string(\"\");\n}\n"
                            
                            "\n};\n\n"
                            class-name "* to" (str/capitalize class-name) "(Propertierbase *b);"
@@ -535,12 +545,15 @@ virtual %s get%s() const;
     void from_json(const json& j, " class-name "& c);
     void to_json(json& j, const " class-name "* c);
     void from_json(const json& j, " class-name "* c);
-    void to_json(json& j, const std::vector<" class-name "*>* v);
-    void to_json(json& j, const std::vector<std::vector<" class-name "*>>* v);
+    void to_json(json& j, const std::vector<" class-name "*>* v); "
+"    void to_json(json& j, const std::vector<std::vector<" class-name "*>>* v);
     void to_json(json& j, const std::vector<std::vector<" class-name ">>* v);"
                            "\n#endif")
-        cpp-content (str "#include <" (str/replace filename #".def" ".h") ">
-#include <json.hpp>
+        cpp-content (str "#include <" (str/replace filename #".def" ".h") ">\n"
+                         (if abstract? 
+                           (str "#include <" (str/lower-case class-name) "Container.h>\n")
+                           "")
+"#include <json.hpp>
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
 
 "
@@ -572,7 +585,7 @@ return " prop-name "_field;
 "
                          (->> props
                               (map-indexed (fn [index {[_ prop-name] :form}]
-                                             (str "r.push_back(flyweight<std::string>(std::string(\"" prop-name "\")));")))
+                                             (str "r.push_back(std::string(std::string(\"" prop-name "\")));")))
                               (str/join "\n")) "
 }"
 class-name "* to" (str/capitalize class-name) "(Propertierbase *b)
@@ -581,7 +594,7 @@ if(b->type_identifier() == std::string(\"" class-name "\")) {
   return static_cast<" class-name "*>(b);
 }
 else {
-printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().get().c_str());
+printf(\"\\\"to" (str/capitalize class-name) " called with \\\"%s\\\"\\n\", b->type_identifier().c_str());
 throw \"\";
 }
 }
@@ -595,7 +608,6 @@ nlohmann::json j {
                (or (contains? compiled-classes type)
                    (contains? collection-of-compiled-classes type)
                    (contains? #{'std__string
-                                'flyweight<std__string>
                                 'int
                                 'float
                                 'double
@@ -605,15 +617,69 @@ nlohmann::json j {
      (map (fn [{:keys [form]}]
             (let [[type prop-name & _] form
                   prop-name ((comp str/capitalize name) prop-name)]
-              (str "{\"" prop-name "\", get" prop-name "()" (if (= type 'flyweight<std__string>)
-                     ".get()}"
-                     "}")))))
+              (str "{\"" prop-name "\", get" prop-name "()" 
+                   "}"))))
      (str/join ",\n")) "\n};
 return j.dump();
 }
-void " class-name "::fromJSON(const char* json)
+void " class-name "::fromJSON(const char* json_str)
 {
+json j = json::parse(json_str);
+"
+(->> props
+     (filter (fn [{[type] :form}]
+               (or (contains? compiled-classes type)
+                   (contains? collection-of-compiled-classes type)
+                   (contains? #{'std__string
+                                'int
+                                'float
+                                'double
+                                'unsigned_char
+                                'short
+                                'long} type))))
+     (map (fn [{[type prop-name] :form}]
+            (let [collection? (.startsWith (name type) "std__vector")
+                  _ (println "Type o " type " (" (class type) ", mutta onko se collection?" (pr-str collection?))
+                  pointer? (.endsWith (name type) "*")
+                  prop-name ((comp str/capitalize name) prop-name)
+                  type (-> (typesymbol->str type)
+                           (str/replace #"\*$" ""))]
+              (if collection?
 
+                (let [amount-of-vectors (count-substring type "std::vector") ;; This could be assumed to be max 2
+                      type (-> type
+                               (str/replace #"std::vector<" "")
+                               (str/replace #">*\*?" "")
+                               #_(str/replace #"\*$" "container"))
+                      abstract? (is-class-abstract? (symbol type))]
+                  (println "Amount-of-vectors: " amount-of-vectors)
+                  (str/join "\n"
+                            (concat (reverse
+                                     (map (fn [count]
+                                            (let [id (- amount-of-vectors count)]
+                                              (condp = count
+                                                0 (str (if abstract?
+                                                         (str type " *o = new " type "container;\n")
+                                                         (str type " o;\n"))
+                                                       "from_json(*it" (dec id) ", " (if abstract? "*" "") "o); /* amount-of-vectors: " amount-of-vectors " */"
+                                                       (if (> amount-of-vectors 1)
+                                                         (str
+"                                                       vec.push_back(o);
+}
+                                                       get" prop-name "()->push_back(vec);")
+                                                         "\n}"))
+                                                (dec amount-of-vectors) (str "for(auto it" id " = it" (dec id) "->begin(); it" id " != it" (dec id) "->end(); it" id "++) {")
+                                                ;; else
+                                                (str "for(auto it" id " = j[\"" prop-name "\"].begin(); it" id " != j[\"" prop-name "\"].end(); it" id "++) {
+" (if (> amount-of-vectors 1 )
+    (str "std::vector<" type "> vec;\n ")))))) (range (inc amount-of-vectors))))
+                                    (repeat (dec amount-of-vectors) "}\n"))))
+
+                (if pointer?
+                  (str "*get" prop-name "() = j[\"" prop-name "\"].get<" type ">();")
+                  (str "set" prop-name "(j[\"" prop-name "\"]);"))))))
+     (str/join "\n"))
+"
 }
 
 using nlohmann::json;
@@ -639,7 +705,6 @@ using nlohmann::json;
          }
     }
 }
-
     void to_json(json& j, const std::vector<std::vector<" class-name ">>* v) {
     if(v) {
          for(auto a = v->begin(); a != v->end(); a++) {

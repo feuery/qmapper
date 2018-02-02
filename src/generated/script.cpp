@@ -1,6 +1,6 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-02-01T11:28:50.231Z
+////// generated at 2018-02-02T20:57:11.249Z
 
 
 void Script::setContents(std::string value) { 
@@ -31,18 +31,18 @@ Script_type_field = value;
 return Script_type_field;
 }
 Script::Script() {
-r.push_back(flyweight<std::string>(std::string("Id")));
-r.push_back(flyweight<std::string>(std::string("contents")));
-r.push_back(flyweight<std::string>(std::string("name")));
-r.push_back(flyweight<std::string>(std::string("ns")));
-r.push_back(flyweight<std::string>(std::string("script_type")));
+r.push_back(std::string(std::string("Id")));
+r.push_back(std::string(std::string("contents")));
+r.push_back(std::string(std::string("name")));
+r.push_back(std::string(std::string("ns")));
+r.push_back(std::string(std::string("script_type")));
 }Script* toScript(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Script")) {
   return static_cast<Script*>(b);
 }
 else {
-printf("\"toScript called with \"%s\"\n", b->type_identifier().get().c_str());
+printf("\"toScript called with \"%s\"\n", b->type_identifier().c_str());
 throw "";
 }
 }
@@ -50,16 +50,20 @@ throw "";
 std::string Script::toJSON() const
 {
 nlohmann::json j {
-{"Id", getId().get()},
+{"Id", getId()},
 {"Contents", getContents()},
 {"Name", getName()},
 {"Ns", getNs()}
 };
 return j.dump();
 }
-void Script::fromJSON(const char* json)
+void Script::fromJSON(const char* json_str)
 {
-
+json j = json::parse(json_str);
+setId(j["Id"]);
+setContents(j["Contents"]);
+setName(j["Name"]);
+setNs(j["Ns"]);
 }
 
 using nlohmann::json;
@@ -85,7 +89,6 @@ using nlohmann::json;
          }
     }
 }
-
     void to_json(json& j, const std::vector<std::vector<Script>>* v) {
     if(v) {
          for(auto a = v->begin(); a != v->end(); a++) {

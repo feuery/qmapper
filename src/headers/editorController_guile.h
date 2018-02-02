@@ -15,6 +15,7 @@ extern "C" {
   SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor);
   SCM toggle_rendering();
   SCM print_json(SCM row);
+  SCM to_json(SCM json);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

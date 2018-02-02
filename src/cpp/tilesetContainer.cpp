@@ -19,7 +19,7 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
   
   for(int x = 0; x < tiles_w; x++) {
     tiles[x] = new obj*[tiles_h];
-    std::vector<Tile*> tileRow;
+    std::vector<Tile> tileRow;
     
     for(int y = 0; y < tiles_h; y++) {
       QImage copy = root_img.copy(x * 50,
@@ -29,10 +29,10 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
       qDebug() << "Loading tiletexture at " << o;
       tiles[x][y] = o;
 
-      Tile *t = new Tile;
-      t->setX(x);
-      t->setY(y);
-      t->setTileset(getId());
+      Tile t;
+      t.setX(x);
+      t.setY(y);
+      t.setTileset(getId());
       tileRow.push_back(t);
     }
     try {
@@ -46,13 +46,13 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
 }
 
 tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(){
-  setTiles(new std::vector<std::vector<Tile*>>);
+  setTiles(new std::vector<std::vector<Tile>>);
   load_texture_splitted(r, tilesetPath);
   r->owned_objects[id] = this;
   if(!editorController::instance->firstLoadedTileset) {
     for(int i = 0; i < editorController::instance->tiles->size(); i++) {
       Tile *t = editorController::instance->tiles->at(i);
-      t->setTileset(getId().get());
+      t->setTileset(getId());
     }
     
     editorController::instance->firstLoadedTileset = this;

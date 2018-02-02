@@ -33,7 +33,7 @@ private:
   QFormLayout *data;
   QVBoxLayout *l;
 
-  void editingStdStringFinished(Propertierbase *base, flyweight<std::string> internedPropname, QLineEdit *edit);
+  void editingStdStringFinished(Propertierbase *base, std::string internedPropname, QLineEdit *edit);
 
 };
 

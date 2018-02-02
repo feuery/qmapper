@@ -4,6 +4,7 @@
 #include <QImage>
 
 #include <editorController.h>
+#include <SOIL/SOIL.h>
 
 GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
 {

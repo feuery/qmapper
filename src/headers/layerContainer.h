@@ -8,6 +8,7 @@ class Layercontainer: public Layer{
 public:
   // in tiles
   Layercontainer(int w, int h);
+  Layercontainer();
   ~Layercontainer();
 
   virtual void set_parent(Map* p) override;

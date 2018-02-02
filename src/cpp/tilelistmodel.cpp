@@ -2,7 +2,6 @@
 #include <map.h>
 #include <tilelistmodel.h>
 #include <script.h>
-#include <texture.h>
 #include <tilesetContainer.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
@@ -21,7 +20,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   if(parent == nullptr) {
     throw "";
   }
-  const char* type = parent->type_identifier().get().c_str();
+  const char* type = parent->type_identifier().c_str();
   
   if(strcmp(type, "Map") == 0) {
     Map *m = static_cast<Map*>(parent);
@@ -34,7 +33,6 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   else if(strcmp(type, "Layer") == 0 ||
 	  strcmp(type, "Script") == 0 ||
-	  strcmp(type, "Texture") == 0 ||
 	  strcmp(type, "Tileset") == 0) {
     return 0;
   }
@@ -63,7 +61,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
 {
   Propertierbase *base = getparent(qparent);
   
-  auto type = base->type_identifier().get();
+  auto type = base->type_identifier();
   
   if(type == "Map") {
     Map *m = static_cast<Map*>(base);
@@ -88,7 +86,7 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(role != Qt::DisplayRole) return QVariant();
   
   Propertierbase *base = getparent(index);
-  std::string type = base->type_identifier().get();
+  std::string type = base->type_identifier();
   int row = index.row();
 
   std::string helper;
@@ -131,7 +129,7 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   Propertierbase *obj = getparent(index);
   if(obj == Root) return QModelIndex();
 
-  std::string type = obj->type_identifier().get();
+  std::string type = obj->type_identifier();
 
   auto reg = Root->registryToList({});
   
@@ -155,10 +153,6 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   else if (type == "Script") {
     Script *s = static_cast<Script*>(obj);
     return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(s)), 0, Root);
-  }
-  else if(type == "Texture" ) {
-    Texture *t = static_cast<Texture*>(obj);
-    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(t)), 0, Root);
   }
   else if(type == "Tileset" ) {
     Tileset *t = static_cast<Tileset*>(obj);

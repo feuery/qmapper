@@ -6,9 +6,6 @@
 #include<json.hpp>
 
 using nlohmann::json;
-
-#include<boost/flyweight.hpp>
-using namespace boost::flyweights;
 #include<tile.h>
 #include<string>
 #include<vector>
@@ -35,40 +32,37 @@ public: virtual int getHeight () = 0;
 public: virtual Map* parent () = 0;
 protected: int w = 0;
 protected: int h = 0;
-protected: Map* p = nullptr;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, std::string value) {
+protected: Map* p = nullptr;virtual void set(std::string propertyname, std::string value) {
+if(propertyname == std::string("Id") ) { Id_field = value; return; }
 if(propertyname == std::string("name") ) { Name_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, unsigned char value) {
+virtual void set(std::string propertyname, unsigned char value) {
 if(propertyname == std::string("opacity") ) { Opacity_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, bool value) {
+virtual void set(std::string propertyname, bool value) {
 if(propertyname == std::string("visible") ) { Visible_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, std::vector<std::vector<Tile>>* value) {
-if(propertyname == std::string("tiles") ) { Tiles_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) const {
+virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value) {
+if(propertyname == std::string("tiles") ) { Tiles_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;
-} *success = false; flyweight<std::string> invalid_data; return invalid_data;
 }
-virtual std::string get(flyweight<std::string> propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("name")) {
   *success = true;
   return Name_field;
 } *success = false; std::string invalid_data; return invalid_data;
 }
-virtual unsigned char get(flyweight<std::string> propertyname, bool *success, unsigned char type_helper) const {
+virtual unsigned char get(std::string propertyname, bool *success, unsigned char type_helper) const {
 if(propertyname == std::string("opacity")) {
   *success = true;
   return Opacity_field;
 } *success = false; unsigned char invalid_data; return invalid_data;
 }
-virtual bool get(flyweight<std::string> propertyname, bool *success, bool type_helper) const {
+virtual bool get(std::string propertyname, bool *success, bool type_helper) const {
 if(propertyname == std::string("visible")) {
   *success = true;
   return Visible_field;
 } *success = false; bool invalid_data; return invalid_data;
 }
-virtual std::vector<std::vector<Tile>>* get(flyweight<std::string> propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
+virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
 if(propertyname == std::string("tiles")) {
   *success = true;
   return Tiles_field;
@@ -78,17 +72,17 @@ public: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);
 public: Layer();
 
-std::vector<flyweight<std::string>> r;
-std::vector<flyweight<std::string>> names() { return r; }
+std::vector<std::string> r;
+std::vector<std::string> names() { return r; }
 
-virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("Layer"); }
+virtual std::string type_identifier() { return std::string("Layer"); }
 virtual int property_count() { return 5; }
-virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const {
-if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
-if(propertyname == std::string("name")) return flyweight<std::string>("std::string");
-if(propertyname == std::string("opacity")) return flyweight<std::string>("unsigned char");
-if(propertyname == std::string("visible")) return flyweight<std::string>("bool");
-if(propertyname == std::string("tiles")) return flyweight<std::string>("std::vector<std::vector<Tile>>");return flyweight<std::string>("");
+virtual std::string type_name(std::string propertyname) const {
+if(propertyname == std::string("Id")) return std::string("std::string");
+if(propertyname == std::string("name")) return std::string("std::string");
+if(propertyname == std::string("opacity")) return std::string("unsigned char");
+if(propertyname == std::string("visible")) return std::string("bool");
+if(propertyname == std::string("tiles")) return std::string("std::vector<std::vector<Tile>>");return std::string("");
 }
 
 };
@@ -99,7 +93,6 @@ Layer* toLayer(Propertierbase *b);
     void from_json(const json& j, Layer& c);
     void to_json(json& j, const Layer* c);
     void from_json(const json& j, Layer* c);
-    void to_json(json& j, const std::vector<Layer*>* v);
-    void to_json(json& j, const std::vector<std::vector<Layer*>>* v);
+    void to_json(json& j, const std::vector<Layer*>* v);     void to_json(json& j, const std::vector<std::vector<Layer*>>* v);
     void to_json(json& j, const std::vector<std::vector<Layer>>* v);
 #endif

@@ -1,6 +1,6 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-02-01T11:28:50.271Z
+////// generated at 2018-02-02T20:57:11.258Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -28,18 +28,18 @@ Horizontal_anchor_field = value;
 return Horizontal_anchor_field;
 }
 resize_data::resize_data() {
-r.push_back(flyweight<std::string>(std::string("Id")));
-r.push_back(flyweight<std::string>(std::string("new_width")));
-r.push_back(flyweight<std::string>(std::string("new_height")));
-r.push_back(flyweight<std::string>(std::string("vertical_anchor")));
-r.push_back(flyweight<std::string>(std::string("horizontal_anchor")));
+r.push_back(std::string(std::string("Id")));
+r.push_back(std::string(std::string("new_width")));
+r.push_back(std::string(std::string("new_height")));
+r.push_back(std::string(std::string("vertical_anchor")));
+r.push_back(std::string(std::string("horizontal_anchor")));
 }resize_data* toResize_data(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("resize_data")) {
   return static_cast<resize_data*>(b);
 }
 else {
-printf("\"toResize_data called with \"%s\"\n", b->type_identifier().get().c_str());
+printf("\"toResize_data called with \"%s\"\n", b->type_identifier().c_str());
 throw "";
 }
 }
@@ -47,15 +47,18 @@ throw "";
 std::string resize_data::toJSON() const
 {
 nlohmann::json j {
-{"Id", getId().get()},
+{"Id", getId()},
 {"New_width", getNew_width()},
 {"New_height", getNew_height()}
 };
 return j.dump();
 }
-void resize_data::fromJSON(const char* json)
+void resize_data::fromJSON(const char* json_str)
 {
-
+json j = json::parse(json_str);
+setId(j["Id"]);
+setNew_width(j["New_width"]);
+setNew_height(j["New_height"]);
 }
 
 using nlohmann::json;
@@ -81,7 +84,6 @@ using nlohmann::json;
          }
     }
 }
-
     void to_json(json& j, const std::vector<std::vector<resize_data>>* v) {
     if(v) {
          for(auto a = v->begin(); a != v->end(); a++) {

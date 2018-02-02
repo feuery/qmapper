@@ -1,6 +1,7 @@
 #include <map.h>
+#include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-01T11:28:50.279Z
+////// generated at 2018-02-02T20:57:11.259Z
 
 
 void Map::setName(std::string value) { 
@@ -9,12 +10,6 @@ Name_field = value;
                                                         std::string Map::getName() const {
 return Name_field;
 }
-void Map::setText(Texture* value) { 
-Text_field = value;
-}
-                                                        Texture* Map::getText() const {
-return Text_field;
-}
 void Map::setLayers(std::vector<Layer*>* value) { 
 Layers_field = value;
 }
@@ -22,17 +17,16 @@ Layers_field = value;
 return Layers_field;
 }
 Map::Map() {
-r.push_back(flyweight<std::string>(std::string("Id")));
-r.push_back(flyweight<std::string>(std::string("name")));
-r.push_back(flyweight<std::string>(std::string("text")));
-r.push_back(flyweight<std::string>(std::string("layers")));
+r.push_back(std::string(std::string("Id")));
+r.push_back(std::string(std::string("name")));
+r.push_back(std::string(std::string("layers")));
 }Map* toMap(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Map")) {
   return static_cast<Map*>(b);
 }
 else {
-printf("\"toMap called with \"%s\"\n", b->type_identifier().get().c_str());
+printf("\"toMap called with \"%s\"\n", b->type_identifier().c_str());
 throw "";
 }
 }
@@ -40,16 +34,22 @@ throw "";
 std::string Map::toJSON() const
 {
 nlohmann::json j {
-{"Id", getId().get()},
+{"Id", getId()},
 {"Name", getName()},
-{"Text", getText()},
 {"Layers", getLayers()}
 };
 return j.dump();
 }
-void Map::fromJSON(const char* json)
+void Map::fromJSON(const char* json_str)
 {
+json j = json::parse(json_str);
+setId(j["Id"]);
+setName(j["Name"]);
+for(auto it0 = j["Layers"].begin(); it0 != j["Layers"].end(); it0++) {
 
+Layer *o = new Layercontainer;
+from_json(*it0, *o); /* amount-of-vectors: 1 */
+}
 }
 
 using nlohmann::json;
@@ -75,7 +75,6 @@ using nlohmann::json;
          }
     }
 }
-
     void to_json(json& j, const std::vector<std::vector<Map>>* v) {
     if(v) {
          for(auto a = v->begin(); a != v->end(); a++) {

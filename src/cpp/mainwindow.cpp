@@ -47,7 +47,7 @@ void MainWindow::setupTree()
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 	if(!index.isValid()) return;
 	Propertierbase *b = static_cast<Propertierbase*>(index.internalPointer());
-	std::string type = b->type_identifier().get();
+	std::string type = b->type_identifier();
 
 	if(type == "Tileset") {
 	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
@@ -152,12 +152,11 @@ void MainWindow::setupTreeCtxMenu()
 
   QAction *glsl = new QAction("&GLSL", this),
     *scheme = new QAction("&Scheme", this),
-    *texture = new QAction("&Texture", this),
+
     *tileset = new QAction("T&ileset", this);
   
   glsl->setStatusTip("New GLSL-script asset");
   scheme->setStatusTip("New Scheme asset");
-  texture->setStatusTip("New texture asset");
   tileset->setStatusTip("New tileset");
 
   connect(glsl, &QAction::triggered, []() {
@@ -165,30 +164,13 @@ void MainWindow::setupTreeCtxMenu()
     });
   connect(scheme, &QAction::triggered, []() {
       add_scheme_script();
-    });
-  connect(texture, &QAction::triggered, [=]() {
-      QString textLoc = getTextureLocation();
-      auto f = map_view->context()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-      if(!f) {
-	puts("Couldn't fetch an active QOpenGLContext");
-	return;
-      }
-
-      ec->documentTreeModel->begin();
-      
-      Texture *text = new textureContainer(textLoc, f);
-      text->parent(&ec->document);
-      ec->document.doRegister("Texture", text->getId(), text);
-
-      ec->documentTreeModel->end();
-    });
+    });;
 
   connect(tileset, &QAction::triggered, this, &MainWindow::newTileset) ;
 
   newMenu->addAction(glsl);
   newMenu->addAction(scheme);
   newMenu->addSeparator();
-  newMenu->addAction(texture);
   newMenu->addAction(tileset);
 
   QAction *newMenu_act = new QAction("&New", this);

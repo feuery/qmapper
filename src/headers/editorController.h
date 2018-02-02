@@ -5,7 +5,6 @@
 #include <vector>
 #include <mainwindow.h>
 
-#include <textureContainer.h>
 #include <tilesetContainer.h>
 #include <renderer.h>
 #include <tileview_renderer.h>

@@ -9,148 +9,118 @@ Propertierbase::~Propertierbase()
 
 }
 
-void Propertierbase::set(flyweight<std::string>propertyname, bool value) 
+void Propertierbase::set(std::string propertyname, bool value) 
 {
 
 }
 
-bool Propertierbase::get(flyweight<std::string>propertyname, bool *success, bool type_helper) const
+bool Propertierbase::get(std::string propertyname, bool *success, bool type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, Script* value) 
-{
-
-}
-
-Script* Propertierbase::get(flyweight<std::string>propertyname, bool *success, Script* type_helper) const
-{
-
-}
-void Propertierbase::set(flyweight<std::string>propertyname, std::string value) 
+void Propertierbase::set(std::string propertyname, Script* value) 
 {
 
 }
 
-std::string Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::string type_helper) const
+Script* Propertierbase::get(std::string propertyname, bool *success, Script* type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, scriptTypes value) 
-{
-
-}
-
-scriptTypes Propertierbase::get(flyweight<std::string>propertyname, bool *success, scriptTypes type_helper) const
-{
-
-}
-void Propertierbase::set(flyweight<std::string>propertyname, verticalAnchor value) 
+void Propertierbase::set(std::string propertyname, std::string value) 
 {
 
 }
 
-verticalAnchor Propertierbase::get(flyweight<std::string>propertyname, bool *success, verticalAnchor type_helper) const
+std::string Propertierbase::get(std::string propertyname, bool *success, std::string type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, Texture* value) 
-{
-
-}
-
-Texture* Propertierbase::get(flyweight<std::string>propertyname, bool *success, Texture* type_helper) const
-{
-
-}
-void Propertierbase::set(flyweight<std::string>propertyname, std::vector<std::vector<Tile*>>* value) 
+void Propertierbase::set(std::string propertyname, scriptTypes value) 
 {
 
 }
 
-std::vector<std::vector<Tile*>>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper) const
+scriptTypes Propertierbase::get(std::string propertyname, bool *success, scriptTypes type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, int value) 
-{
-
-}
-
-int Propertierbase::get(flyweight<std::string>propertyname, bool *success, int type_helper) const
-{
-
-}
-void Propertierbase::set(flyweight<std::string>propertyname, horizontalAnchor value) 
+void Propertierbase::set(std::string propertyname, verticalAnchor value) 
 {
 
 }
 
-horizontalAnchor Propertierbase::get(flyweight<std::string>propertyname, bool *success, horizontalAnchor type_helper) const
+verticalAnchor Propertierbase::get(std::string propertyname, bool *success, verticalAnchor type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, std::vector<std::vector<Tile>>* value) 
-{
-
-}
-
-std::vector<std::vector<Tile>>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const
-{
-
-}
-void Propertierbase::set(flyweight<std::string>propertyname, std::vector<Layer*>* value) 
+void Propertierbase::set(std::string propertyname, int value) 
 {
 
 }
 
-std::vector<Layer*>* Propertierbase::get(flyweight<std::string>propertyname, bool *success, std::vector<Layer*>* type_helper) const
+int Propertierbase::get(std::string propertyname, bool *success, int type_helper) const
 {
 
 }
-void Propertierbase::set(flyweight<std::string>propertyname, unsigned char value) 
+void Propertierbase::set(std::string propertyname, horizontalAnchor value) 
 {
 
 }
 
-unsigned char Propertierbase::get(flyweight<std::string>propertyname, bool *success, unsigned char type_helper) const
+horizontalAnchor Propertierbase::get(std::string propertyname, bool *success, horizontalAnchor type_helper) const
+{
+
+}
+void Propertierbase::set(std::string propertyname, std::vector<std::vector<Tile>>* value) 
+{
+
+}
+
+std::vector<std::vector<Tile>>* Propertierbase::get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const
+{
+
+}
+void Propertierbase::set(std::string propertyname, std::vector<Layer*>* value) 
+{
+
+}
+
+std::vector<Layer*>* Propertierbase::get(std::string propertyname, bool *success, std::vector<Layer*>* type_helper) const
+{
+
+}
+void Propertierbase::set(std::string propertyname, unsigned char value) 
+{
+
+}
+
+unsigned char Propertierbase::get(std::string propertyname, bool *success, unsigned char type_helper) const
 {
 
 }
 
 
-void Propertierbase::set(flyweight<std::string> propName, Propertierbase *b)
+void Propertierbase::set(std::string propName, Propertierbase *b)
 {
   auto prop_typename = type_name(propName);
-  if(prop_typename == flyweight<std::string>(std::string("Script"))) {
+  if(prop_typename == std::string(std::string("Script"))) {
 Script* t = reinterpret_cast<Script*>(b);
 set(propName, t);
 return;
 }
-if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
-Texture* t = reinterpret_cast<Texture*>(b);
-set(propName, t);
-return;
-}
   else {
-    printf("Invalid type %s\n", prop_typename.get().c_str());
+    printf("Invalid type %s\n", prop_typename.c_str());
     throw "";
   }
 }
 
-Propertierbase* Propertierbase::get(flyweight<std::string> propertyname) const
+Propertierbase* Propertierbase::get(std::string propertyname) const
 {
   auto prop_typename = type_name(propertyname);
-  if(prop_typename == flyweight<std::string>(std::string("Script"))) {
+  if(prop_typename == std::string(std::string("Script"))) {
     bool success = false;
     Script* b = nullptr;
-    b = get(propertyname, &success, b);
-    if(success) return (Propertierbase*)b;
-    else return nullptr;
-  }
-if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
-    bool success = false;
-    Texture* b = nullptr;
     b = get(propertyname, &success, b);
     if(success) return (Propertierbase*)b;
     else return nullptr;
@@ -158,10 +128,10 @@ if(prop_typename == flyweight<std::string>(std::string("Texture"))) {
   return nullptr;
 }
 
-std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
+std::string Propertierbase::getErrorsOf(std::string field) {
  std::string result;
 
- std::vector<std::string> vec = field_error_map[field.get()];
+ std::vector<std::string> vec = field_error_map[field];
  for(auto i = vec.begin(); i < vec.end(); i++) {
    result += *i + "\n";
  }
@@ -169,6 +139,6 @@ std::string Propertierbase::getErrorsOf(flyweight<std::string> field) {
  return result ;
 }
 
-void Propertierbase::clearErrorsOf(flyweight<std::string> field) {
- field_error_map[field.get()].clear();
+void Propertierbase::clearErrorsOf(std::string field) {
+ field_error_map[field].clear();
 }

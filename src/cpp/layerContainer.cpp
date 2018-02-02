@@ -13,6 +13,13 @@ Layercontainer::Layercontainer(int w, int h):Layer()
     }
 }
 
+Layercontainer::Layercontainer():Layer()
+{
+  w = h = 0;
+  // For JSON mapping purposes, 
+  setTiles(new std::vector<std::vector<Tile>>(w, std::vector<Tile>(h, Tile())));
+}
+
 Layercontainer::~Layercontainer() {
   delete getTiles();
 }

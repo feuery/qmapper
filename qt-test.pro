@@ -36,12 +36,10 @@ HEADERS += src/headers/files.h \
            src/generated/map.h \
            src/generated/tileset.h \
            src/generated/script.h \
-           src/generated/texture.h \
            src/generated/resize_obj.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
-           src/headers/textureContainer.h \
            src/headers/layerContainer.h \
            src/headers/mapContainer.h \
            src/headers/rootContainer.h \
@@ -74,7 +72,6 @@ SOURCES += src/cpp/files.cpp \
            src/generated/root.cpp \
            src/generated/tileset.cpp \
            src/generated/script.cpp \
-           src/generated/texture.cpp \
            src/generated/resize_obj.cpp \
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
@@ -83,7 +80,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/mapContainer.cpp \
            src/cpp/rootContainer.cpp \
            src/cpp/propertyEditor.cpp \
-           src/cpp/textureContainer.cpp \
            src/cpp/doc-server.cpp \
            src/cpp/nsValidators.cpp \
            src/cpp/tileview_renderer.cpp \

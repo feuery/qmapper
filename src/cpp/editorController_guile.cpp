@@ -154,7 +154,13 @@ extern "C" {
     editorController *ec = editorController::instance;
 
     Propertierbase *b = ec->document.registryToList({}).at(row_i);
-    qDebug() << "Row " << row_i << "'s (" << b->type_identifier().get().c_str() << ") json: " << b->toJSON().c_str();
+    qDebug() << "Row " << row_i << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
     return SCM_BOOL_T;
+  }
+
+  SCM to_json(SCM json)
+  {
+    const char *json_c = scm_to_locale_string(json);
+    
   }
 }

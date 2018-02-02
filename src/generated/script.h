@@ -6,9 +6,6 @@
 #include<json.hpp>
 
 using nlohmann::json;
-
-#include<boost/flyweight.hpp>
-using namespace boost::flyweights;
 #include<string>
 #include<script-types.h>
 #include<nsValidators.h>
@@ -26,23 +23,20 @@ virtual std::string getNs() const;
 std::string Ns_field = "user";
 public: virtual void setScript_type(scriptTypes val);
 virtual scriptTypes getScript_type() const;
-scriptTypes Script_type_field = scheme;virtual void set(flyweight<std::string> propertyname, flyweight<std::string> value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, std::string value) {
+scriptTypes Script_type_field = scheme;virtual void set(std::string propertyname, std::string value) {
+if(propertyname == std::string("Id") ) { Id_field = value; return; }
 if(propertyname == std::string("contents") ) { Contents_field = value; return; }
 if(propertyname == std::string("name") ) { Name_field = value; return; }
 auto error_reporter = [&](std::string msg) {
     std::vector<std::string>& vec = field_error_map[std::string("ns")];
 	printf("Pushing error %s\n", msg.c_str());
 	vec.push_back(msg);};if(propertyname == std::string("ns")  && doesntContainNs(value, error_reporter)) { Ns_field = value; return; } }
-virtual void set(flyweight<std::string> propertyname, scriptTypes value) {
-if(propertyname == std::string("script_type") ) { Script_type_field = value; return; } }virtual flyweight<std::string> get(flyweight<std::string> propertyname, bool *success, flyweight<std::string> type_helper) const {
+virtual void set(std::string propertyname, scriptTypes value) {
+if(propertyname == std::string("script_type") ) { Script_type_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;
-} *success = false; flyweight<std::string> invalid_data; return invalid_data;
 }
-virtual std::string get(flyweight<std::string> propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("contents")) {
   *success = true;
   return Contents_field;
@@ -56,7 +50,7 @@ if(propertyname == std::string("ns")) {
   return Ns_field;
 } *success = false; std::string invalid_data; return invalid_data;
 }
-virtual scriptTypes get(flyweight<std::string> propertyname, bool *success, scriptTypes type_helper) const {
+virtual scriptTypes get(std::string propertyname, bool *success, scriptTypes type_helper) const {
 if(propertyname == std::string("script_type")) {
   *success = true;
   return Script_type_field;
@@ -66,17 +60,17 @@ public: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);
 public: Script();
 
-std::vector<flyweight<std::string>> r;
-std::vector<flyweight<std::string>> names() { return r; }
+std::vector<std::string> r;
+std::vector<std::string> names() { return r; }
 
-virtual flyweight<std::string> type_identifier() { return flyweight<std::string>("Script"); }
+virtual std::string type_identifier() { return std::string("Script"); }
 virtual int property_count() { return 5; }
-virtual flyweight<std::string> type_name(flyweight<std::string> propertyname) const {
-if(propertyname == std::string("Id")) return flyweight<std::string>("flyweight<std::string>");
-if(propertyname == std::string("contents")) return flyweight<std::string>("std::string");
-if(propertyname == std::string("name")) return flyweight<std::string>("std::string");
-if(propertyname == std::string("ns")) return flyweight<std::string>("std::string");
-if(propertyname == std::string("script_type")) return flyweight<std::string>("scriptTypes");return flyweight<std::string>("");
+virtual std::string type_name(std::string propertyname) const {
+if(propertyname == std::string("Id")) return std::string("std::string");
+if(propertyname == std::string("contents")) return std::string("std::string");
+if(propertyname == std::string("name")) return std::string("std::string");
+if(propertyname == std::string("ns")) return std::string("std::string");
+if(propertyname == std::string("script_type")) return std::string("scriptTypes");return std::string("");
 }
 
 };
@@ -87,7 +81,6 @@ Script* toScript(Propertierbase *b);
     void from_json(const json& j, Script& c);
     void to_json(json& j, const Script* c);
     void from_json(const json& j, Script* c);
-    void to_json(json& j, const std::vector<Script*>* v);
-    void to_json(json& j, const std::vector<std::vector<Script*>>* v);
+    void to_json(json& j, const std::vector<Script*>* v);     void to_json(json& j, const std::vector<std::vector<Script*>>* v);
     void to_json(json& j, const std::vector<std::vector<Script>>* v);
 #endif

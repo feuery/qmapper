@@ -34,13 +34,13 @@ void editorController::populateMaps() {
       l->set_parent(m);
       m->getLayers()->push_back(l);
     }
-    flyweight<std::string> id = m->getId();
+    auto id = m->getId();
     Propertierbase *b = m;
     document.doRegister("Map", id, b);
   }
 }
 
-editorController::editorController(): indexOfChosenTileset(flyweight<std::string>("")), t(new Pen)
+editorController::editorController(): indexOfChosenTileset(std::string("")), t(new Pen)
 {
 
   if(instance) {
