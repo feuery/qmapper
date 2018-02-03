@@ -1,6 +1,7 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
+#include <QDebug>
 ////// generated at 2018-02-02T20:57:11.259Z
 
 
@@ -42,14 +43,16 @@ return j.dump();
 }
 void Map::fromJSON(const char* json_str)
 {
-json j = json::parse(json_str);
-setId(j["Id"]);
-setName(j["Name"]);
-for(auto it0 = j["Layers"].begin(); it0 != j["Layers"].end(); it0++) {
-
-Layer *o = new Layercontainer;
-from_json(*it0, *o); /* amount-of-vectors: 1 */
-}
+  json j = json::parse(json_str);
+  setId(j["Id"]);
+  setName(j["Name"]);
+  for(auto it0 = j["Layers"].begin(); it0 != j["Layers"].end(); it0++) {
+    Layer *o = new Layercontainer;
+    std::string lol = it0->dump();
+    const char *a = lol.c_str();
+    o->fromJSON(a);
+    getLayers()->push_back(o);
+  }
 }
 
 using nlohmann::json;

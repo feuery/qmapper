@@ -1,5 +1,6 @@
 #include <editorController_guile.h>
 #include <script.h>
+#include <files.h>
 
 extern "C" { 
 
@@ -158,9 +159,48 @@ extern "C" {
     return SCM_BOOL_T;
   }
 
-  SCM to_json(SCM json)
+  SCM g_from_json(SCM type_name, SCM s_row)
   {
-    const char *json_c = scm_to_locale_string(json);
+    toggle_rendering();
+    const char *type_cstr = scm_to_locale_string(type_name);
+    std::string type = type_cstr;
+    int row = scm_to_int(s_row);
     
+    if (type == "Layer") {
+      
+    }
+    else if (type == "Map") {
+      Propertierbase *b = editorController::instance->document.registryToList().at(row);
+      Map *m = new Mapcontainer;
+      const char *lol = b->toJSON().c_str();
+      m->fromJSON(lol);
+      std::string other_js = b->toJSON();
+      
+      if (m->toJSON() == other_js) {
+	qDebug() << "Maps do match";
+      }
+      else {
+	qDebug () << "Maps don't match";
+	qDebug() << "Loaded json: " << m->toJSON().c_str();
+	qDebug() << "Documented json: " << other_js.c_str();
+      }
+      
+    }
+    else if (type == "root") {
+      
+    }
+    else if (type == "Script") {
+      
+    }
+    else if (type == "Tile") {
+      
+    }
+    else if (type == "Tileset") {
+      
+    }
+    else qDebug() << "Didn't recognize type " << type_cstr;
+    toggle_rendering();
+
+    return SCM_BOOL_T;
   }
 }
