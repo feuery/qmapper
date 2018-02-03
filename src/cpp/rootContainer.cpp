@@ -125,7 +125,9 @@ std::vector<Propertierbase*> Rootcontainer::registryToList(std::vector<std::stri
 
 std::vector<Propertierbase*> Rootcontainer::registryOf (std::string type) {
 
-  if(type == "std::string") return {};
+  if(type == "std::string" ||
+     type == "std::vector<std::vector<Tile>>" ||
+     type == "std::vector<Layer>") return {};
   
   std::vector<Propertierbase*> r;
 
