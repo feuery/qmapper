@@ -1,8 +1,7 @@
 #include <layer.h>
 #include <layerContainer.h>
-#include <QDebug>
 #include <json.hpp>
-////// generated at 2018-02-02T20:57:11.254Z
+////// generated at 2018-02-03T18:35:42.789Z
 
 
 void Layer::setName(std::string value) { 
@@ -58,35 +57,21 @@ return j.dump();
 }
 void Layer::fromJSON(const char* json_str)
 {
-  // try {
-    // qDebug() << "Ongelma nro -1";
-    // qDebug() << "Parsing: " << json_str;
-    // if(*json_str == 0) puts("Btw json_str on null");
-  json j = json::parse(json_str);
-  // qDebug() << "Ongelma nro 0";
-  setId(j["Id"]);
-  // qDebug() << "Ongelma nro 1";
-  setName(j["Name"]);
-  // qDebug() << "Ongelma nro 2";
-  setOpacity(j["Opacity"]);
-  // qDebug() << "Ongelma nro 3";
-    for(auto it0 = j["Tiles"].begin(); it0 != j["Tiles"].end(); it0++) {
-      std::vector<Tile> vec;
+json j = json::parse(json_str);
+setId(j["Id"]);
+setName(j["Name"]);
+setOpacity(j["Opacity"]);
+for(auto it0 = j["Tiles"].begin(); it0 != j["Tiles"].end(); it0++) {
+std::vector<Tile> vec;
  
-      for(auto it1 = it0->begin(); it1 != it0->end(); it1++) {
-	Tile o;
-     
-	o.fromJSON(it1->dump().c_str());
-	// from_json(*it1, o); /* amount-of-vectors: 2 */
-	vec.push_back(o);
-      }
-      getTiles()->push_back(vec);
-    }
-  // }
-  // catch(...) {
-  //   puts("Lol");
-  //   throw "";
-  // }
+for(auto it1 = it0->begin(); it1 != it0->end(); it1++) {
+Tile o;
+std::string tmp = it1->dump();
+const char *c_tmp = tmp.c_str();
+o.fromJSON(c_tmp);                                                       vec.push_back(o);
+}
+                                                       getTiles()->push_back(vec);
+}
 
 }
 
@@ -97,10 +82,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Layer& c) {
-      puts("Lolling rolling!");
-      auto dumpd = j.dump().c_str();
-      puts("Got dump");
-      c.fromJSON(dumpd);
+        c.fromJSON(j.get<std::string>().c_str());
     }
     void to_json(json& j, const Layer* c) {
       if(c)
@@ -141,5 +123,5 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, Layer* c) {
-        c->fromJSON(j.dump().c_str());
+        c->fromJSON(j.get<std::string>().c_str());
 }

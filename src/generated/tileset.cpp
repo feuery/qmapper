@@ -1,6 +1,6 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-02-02T20:57:11.250Z
+////// generated at 2018-02-03T18:35:42.787Z
 
 
 void Tileset::setName(std::string value) { 
@@ -67,7 +67,9 @@ std::vector<Tile> vec;
  
 for(auto it1 = it0->begin(); it1 != it0->end(); it1++) {
 Tile o;
-from_json(*it1, o); /* amount-of-vectors: 2 */                                                       vec.push_back(o);
+std::string tmp = it1->dump();
+const char *c_tmp = tmp.c_str();
+o.fromJSON(c_tmp);                                                       vec.push_back(o);
 }
                                                        getTiles()->push_back(vec);
 }

@@ -639,8 +639,10 @@ json j = json::parse(json_str);
                                 'long} type))))
      (map (fn [{[type prop-name] :form}]
             (let [collection? (.startsWith (name type) "std__vector")
-                  _ (println "Type o " type " (" (class type) ", mutta onko se collection?" (pr-str collection?))
                   pointer? (.endsWith (name type) "*")
+                  collection-pointer? (and collection?
+                                           (re-matches #"\*>+$" (name type)))
+                  ;; _ (println "Type o " type " (" (class type) "), mutta onko se pointah?" (pr-str collection-pointer?))
                   prop-name ((comp str/capitalize name) prop-name)
                   type (-> (typesymbol->str type)
                            (str/replace #"\*$" ""))]
@@ -661,13 +663,16 @@ json j = json::parse(json_str);
                                                 0 (str (if abstract?
                                                          (str type " *o = new " type "container;\n")
                                                          (str type " o;\n"))
-                                                       "from_json(*it" (dec id) ", " (if abstract? "*" "") "o); /* amount-of-vectors: " amount-of-vectors " */"
+"std::string tmp = it" (dec id) "->dump();
+const char *c_tmp = tmp.c_str();
+o" (if (or collection-pointer? abstract?) "->" ".") "fromJSON(c_tmp);"
+                                                       
                                                        (if (> amount-of-vectors 1)
                                                          (str
 "                                                       vec.push_back(o);
 }
                                                        get" prop-name "()->push_back(vec);")
-                                                         "\n}"))
+                                                         (str "get" prop-name "()->push_back(o);\n}")))
                                                 (dec amount-of-vectors) (str "for(auto it" id " = it" (dec id) "->begin(); it" id " != it" (dec id) "->end(); it" id "++) {")
                                                 ;; else
                                                 (str "for(auto it" id " = j[\"" prop-name "\"].begin(); it" id " != j[\"" prop-name "\"].end(); it" id "++) {
