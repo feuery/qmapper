@@ -152,12 +152,13 @@ void MainWindow::setupTreeCtxMenu()
 
   QAction *glsl = new QAction("&GLSL", this),
     *scheme = new QAction("&Scheme", this),
-
-    *tileset = new QAction("T&ileset", this);
+    *tileset = new QAction("T&ileset", this),
+    *sprite = new QAction("S&prite", this);
   
   glsl->setStatusTip("New GLSL-script asset");
   scheme->setStatusTip("New Scheme asset");
   tileset->setStatusTip("New tileset");
+  sprite->setStatusTip("Load a new sprite");
 
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
@@ -172,6 +173,7 @@ void MainWindow::setupTreeCtxMenu()
   newMenu->addAction(scheme);
   newMenu->addSeparator();
   newMenu->addAction(tileset);
+  newMenu->addAction(sprite);
 
   QAction *newMenu_act = new QAction("&New", this);
   newMenu_act->setMenu(newMenu);
