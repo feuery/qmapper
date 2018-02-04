@@ -654,7 +654,6 @@ json j = json::parse(json_str);
                                (str/replace #">*\*?" "")
                                #_(str/replace #"\*$" "container"))
                       abstract? (is-class-abstract? (symbol type))]
-                  (println "Amount-of-vectors: " amount-of-vectors)
                   (str/join "\n"
                             (concat (reverse
                                      (map (fn [count]
