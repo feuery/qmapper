@@ -230,7 +230,7 @@ const char* formatToStr(QImage::Format format)
   return "Not recognized";
 }
 
-obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
+obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
 {
   auto ec = editorController::instance;
   text_w = text_h = 50.0f;
@@ -251,7 +251,7 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img)
   f->glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-obj::obj(Renderer *r, const char *texture_path,  bool skipTexture)
+obj::obj(Renderer *r, const char *texture_path,  bool skipTexture): parent(r)
 {
   auto ec = editorController::instance;
   auto fns = r->getGlFns();

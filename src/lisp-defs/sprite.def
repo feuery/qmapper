@@ -1,0 +1,13 @@
+(defcppclass Sprite ("<new_obj.h>" "<renderer.h>" "<string>")
+  (public
+   (functions
+    (void setX (int newX))
+    (int getX ())
+    (void setY (int newY))
+    (int getY ())
+    ;; 0.0f - 360.0f
+    (void setAngle (float newangle))
+    (float getAngle ()))
+   (properties
+    (std__string parentMapId ""))))
+    

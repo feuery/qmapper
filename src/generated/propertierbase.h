@@ -1,12 +1,13 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-02-03T18:35:42.786Z
+//// generated at 2018-02-04T14:09:14.782Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
 #include<QString>
 #include<nsValidators.h>
 #include<either.h>
+#include<new_obj.h>
 #include<string>
 #include<QOpenGLFunctions_4_3_Core>
 #include<map>

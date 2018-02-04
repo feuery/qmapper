@@ -2,6 +2,7 @@
 #include<tilesetContainer.h>
 #include<editorController.h>
 #include <cmath>
+#include <spriteContainer.h>
 
 double toRadians(int deg)
 {
@@ -71,6 +72,16 @@ obj* tileToObj(Tile &tile)
   return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
 }
 
+std::vector<Renderable*> Mapcontainer::getDrawQueue() {
+  std::vector<Spritecontainer*> v = editorController::instance->document.typeRegistry<Spritecontainer>("Sprite");
+  std::vector<Renderable*> vv;
+
+  for(auto a: v)
+    if(a->getParentmapid() == getId())
+      vv.push_back(static_cast<Renderable*>(a));
+  return vv;
+}
+
 void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 {
 
@@ -100,6 +111,11 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 	}
       }
     }
+  }
+
+  // Render sprite-queue
+  for(auto sprite: getDrawQueue()) {
+    sprite->render(f);
   }
 }
 

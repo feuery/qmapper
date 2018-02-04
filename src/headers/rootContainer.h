@@ -19,6 +19,16 @@ public:
 
   Propertierbase* fetchRegister (std::string Type, std::string id);
   void doRegister (std::string Type, std::string id, Propertierbase* object);
+  template <typename T>
+  std::vector<T*>typeRegistry(std::string type_name) {
+    std::vector<T*> vec;
+    auto reg = registryOf(type_name);
+    for(auto t: reg) {
+      vec.push_back(static_cast<T*>(t));
+    }
+
+    return vec;
+  }
 
   int registrySize();
   int typeRegistrySize(std::string type_name);

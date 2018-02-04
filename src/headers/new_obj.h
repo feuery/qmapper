@@ -27,6 +27,8 @@ public:
   GLuint shader, texture;
   GLuint VAO;
 
+  Renderer *parent;
+
   QImage copy;
 
   int text_w, text_h;
@@ -49,11 +51,11 @@ public:
 
   obj* subObj = nullptr;
 
-private:
-
+protected:
   obj(Renderer *r, const char *texture_path, bool skipTexture = false);
   obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img);
-  
+
+private:
   void prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec);
   void prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec);
 };

@@ -32,6 +32,7 @@ public:
 private:
 
   root *R;
+  std::vector<Renderable*> getDrawQueue();
 };
 #else
 class Mapcontainer;
