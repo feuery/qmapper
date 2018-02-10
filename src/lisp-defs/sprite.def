@@ -7,6 +7,8 @@
     (int getY ())
     ;; 0.0f - 360.0f
     (void setAngle (float newangle))
+    (void render (QOpenGLFunctions_4_3_Core* f))
+    (void render (Renderer *parent))
     (float getAngle ()))
    (properties
     (std__string parentMapId "")

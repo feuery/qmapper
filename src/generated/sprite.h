@@ -17,6 +17,8 @@ public: virtual int getX () = 0;
 public: virtual void setY (int newY) = 0;
 public: virtual int getY () = 0;
 public: virtual void setAngle (float newangle) = 0;
+public: virtual void render (QOpenGLFunctions_4_3_Core* f) = 0;
+public: virtual void render (Renderer *parent) = 0;
 public: virtual float getAngle () = 0;
 public: virtual void setParentmapid(std::string val);
 virtual std::string getParentmapid() const;
@@ -45,10 +47,7 @@ public: virtual std::string toJSON() const;
 public: Sprite();
 
 std::vector<std::string> r;
-std::vector<std::string> names()
-  {
-    return r;
-  }
+std::vector<std::string> names() { return r; }
 
 virtual std::string type_identifier() { return std::string("Sprite"); }
 virtual int property_count() { return 3; }

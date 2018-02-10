@@ -17,7 +17,7 @@ public:
   void setAngle (float newangle) override;
   float getAngle () override;
 
-  void render(QOpenGLFunctions_4_3_Core *f) override;
+  virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   void render(Renderer *parent) override;
   int getRenderId() override;
 

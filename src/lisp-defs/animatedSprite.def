@@ -1,0 +1,19 @@
+(defcppclass animatedsprite ("<sprite.h>" "<vector>")
+  (public
+   (properties
+    (std__string parentMapId "")
+    (std__string name "")
+    (int currentFrameId 0)
+    (int msPerFrame 25))    
+   (functions
+    (void setX (int newX))
+    (int getX ())
+    (void setY (int newY))
+    (int getY ())
+    (int maxFrames ())
+    (void advanceFrame ())
+    (void setAngle (float newangle))
+    (float getAngle ())))
+  (protected
+   (fields
+    (std__vector<Sprite*>* sprites nullptr))))

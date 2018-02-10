@@ -45,7 +45,9 @@
       name
       (str/replace #"___" ", ")
       (str/replace #"__" "::")
-      (str/replace #"_" " ")))
+      (str/replace #"_" " ")
+      ;; TODO parametrize the special cases
+      (str/replace #"QOpenGLFunctions 4 3 Core" "QOpenGLFunctions_4_3_Core")))
 
 (def test-data '(defcppclass Script ("<string>" "<script-types.h>" "<nsDoesnExistHeader.h>")
   (public

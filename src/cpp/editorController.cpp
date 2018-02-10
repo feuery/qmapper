@@ -3,6 +3,7 @@
 #include <layerContainer.h>
 #include <editorController.h>
 #include <spriteContainer.h>
+#include <animatedspriteContainer.h>
 
 #include <new_obj.h>
 #include <script.h>

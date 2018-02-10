@@ -37,6 +37,7 @@ HEADERS += src/headers/files.h \
            src/generated/script.h \
            src/generated/resize_obj.h \
            src/generated/sprite.h \
+           src/generated/animatedSprite.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
@@ -56,7 +57,8 @@ HEADERS += src/headers/files.h \
            src/headers/scroll.h \
            src/headers/resize-enums.h \
            src/headers/json.hpp \
-           src/headers/spritecontainer.h
+           src/headers/spritecontainer.h \
+           src/headers/animatedspriteContainer.h 
            
 FORMS += \
     src/forms/main.ui 
@@ -75,6 +77,7 @@ SOURCES += src/cpp/files.cpp \
            src/generated/script.cpp \
            src/generated/resize_obj.cpp \
            src/generated/sprite.cpp \
+           src/generated/animatedSprite.cpp\
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
            src/cpp/tilelistmodel.cpp \
@@ -91,4 +94,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/rotater.cpp \
            src/cpp/tool_list.cpp \
            src/cpp/scroll.cpp \
-           src/cpp/spritecontainer.cpp
+           src/cpp/spritecontainer.cpp \
+           src/cpp/animatedspriteContainer.cpp
+

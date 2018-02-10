@@ -1,7 +1,7 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-04T16:23:50.981Z
+////// generated at 2018-02-10T19:17:23.280Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -17,9 +17,9 @@ Name_field = value;
 return Name_field;
 }
 Sprite::Sprite() {
-r.push_back(std::string("Id"));
-r.push_back(std::string("parentMapId"));
-r.push_back(std::string("name"));
+r.push_back(std::string(std::string("Id")));
+r.push_back(std::string(std::string("parentMapId")));
+r.push_back(std::string(std::string("name")));
 }Sprite* toSprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Sprite")) {
