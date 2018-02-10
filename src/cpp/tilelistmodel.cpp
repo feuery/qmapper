@@ -2,6 +2,7 @@
 #include <map.h>
 #include <tilelistmodel.h>
 #include <script.h>
+#include <sprite.h>
 #include <tilesetContainer.h>
 
 Propertierbase* Tilelistmodel::getparent(const QModelIndex &parent) const {
@@ -33,6 +34,7 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   else if(strcmp(type, "Layer") == 0 ||
 	  strcmp(type, "Script") == 0 ||
+	  strcmp(type, "Sprite") == 0 ||
 	  strcmp(type, "Tileset") == 0) {
     return 0;
   }
@@ -114,6 +116,10 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
     Tileset *s = static_cast<Tileset*>(base);
     return QString(s->getName().c_str());
   }
+  else if(type == "Sprite") {
+    Sprite *spr = static_cast<Sprite*>(base);
+    return QString(spr->getName().c_str());
+  }
   else {
     type_err_print;
     throw "";
@@ -158,8 +164,12 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
     Tileset *t = static_cast<Tileset*>(obj);
     return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(t)), 0, Root);
   }
+  else if(type == "Sprite") {
+    Sprite* spr = static_cast<Sprite*>(obj);
+    return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(spr)), 0, Root);
+  }
   else {
-    printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type);
+    printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type.c_str());
     throw "";
   }
   return QModelIndex();

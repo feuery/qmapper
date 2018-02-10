@@ -2,6 +2,7 @@
 #include <mapContainer.h>
 #include <layerContainer.h>
 #include <editorController.h>
+#include <spriteContainer.h>
 
 #include <new_obj.h>
 #include <script.h>
@@ -10,13 +11,6 @@
 #include <tilesetContainer.h>
 
 editorController* editorController::instance;
-
-// editorController* editorController::getInstance()
-// {
-//   if(!instance)
-//     instance = new editorController();
-//   return instance;
-// }
 
 void editorController::registerWindow(MainWindow *w)
 {
@@ -166,4 +160,10 @@ void editorController::rotateTile90Deg(int x, int y) {
   Tile &t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
   int new_rot = (t.getRotation() + 90);
   t.setRotation(new_rot);
+}
+
+void editorController::loadSprite(const char* path) {
+  documentTreeModel->begin();
+  Spritecontainer::make(w->map_view, path);
+  documentTreeModel->end();
 }

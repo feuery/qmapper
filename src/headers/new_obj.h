@@ -58,6 +58,8 @@ protected:
 private:
   void prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec);
   void prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec);
+
+  GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *text_w, int *text_h);
 };
 
 #else

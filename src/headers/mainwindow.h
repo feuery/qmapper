@@ -23,8 +23,6 @@ public:
   ~MainWindow();
 
   void registerController(editorController *ec);
-  
-private:
 
   void newTileset();
 

@@ -11,9 +11,9 @@ Rootcontainer::Rootcontainer(): root()
   (*registry)["Map"];
   (*registry)["Root"];
   (*registry)["Script"];
-  (*registry)["Texture"];
   (*registry)["Tile"];
   (*registry)["Tileset"];
+  (*registry)["Sprite"];
 }
 
 Rootcontainer::~Rootcontainer()

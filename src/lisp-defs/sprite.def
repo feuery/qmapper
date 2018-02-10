@@ -9,5 +9,6 @@
     (void setAngle (float newangle))
     (float getAngle ()))
    (properties
-    (std__string parentMapId ""))))
+    (std__string parentMapId "")
+    (std__string name ""))))
     

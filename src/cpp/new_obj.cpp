@@ -4,7 +4,6 @@
 #include <QImage>
 
 #include <editorController.h>
-#include <SOIL/SOIL.h>
 
 GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
 {
@@ -101,7 +100,7 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
   return p;
 }
 
-std::string getScript(flyweight<std::string> id) {
+std::string getScript(std::string id) {
   Script *obj = toScript(editorController::instance->document.fetchRegister("Script", id));
   if(!obj) {
     puts("Obj is null");
@@ -145,7 +144,7 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 
   if(!success) {
     f->glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    printf("Loading fragment shader (%s) failed: %s\n", fr_c_smells, infoLog);
+    printf("Loading fragment shader (%s) failed: %s\n", fr_c_smells.c_str(), infoLog);
   }
 
   GLuint p = CreateShaderProgram(f, vertexShader, fragmentShader);
@@ -156,7 +155,12 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
   return p;
 }
 
-GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *text_w, int *text_h) {
+GLuint obj::load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *text_w, int *text_h) {
+
+  copy.load(QString(filename));
+  *text_w = copy.width();
+  *text_h = copy.height();
+  
   GLuint texture;
   f->glGenTextures(1, &texture);
   f->glBindTexture(GL_TEXTURE_2D, texture);
@@ -166,10 +170,8 @@ GLuint load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *tex
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  unsigned char* img = SOIL_load_image(filename, text_w, text_h, 0, SOIL_LOAD_RGB);  
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, *text_w, *text_h, 0, GL_RGBA, GL_UNSIGNED_BYTE, img);
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
-  SOIL_free_image_data(img);
   f->glBindTexture(GL_TEXTURE_2D, 0);
 
   return texture;
@@ -180,6 +182,7 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat paren
   shader = createShader(fns, ec);
   VAO = getVAO(fns, parentw, parenth, shader);
   position = glm::vec2(0.0f, 0.0f);
+  qDebug()<<"Text size: " << text_w << " * " << text_h;
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -191,44 +194,45 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController 
   shader = createShader(fns, ec);
   VAO = getVAO(fns, r->width(), r->height(), shader);
   position = glm::vec2(0.0f, 0.0f);
+  qDebug()<<"Text size: " << text_w << " * " << text_h;
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
   opacity = 255;
 }
 
-const char* formatToStr(QImage::Format format)
-{
-  switch(format) {
-  case QImage::Format_Invalid: return "Format_Invalid";
-  case QImage::Format_Mono: return "Format_Mono";
-  case QImage::Format_MonoLSB: return "Format_MonoLSB";
-  case QImage::Format_Indexed8: return "Format_Indexed8";
-  case QImage::Format_RGB32: return "Format_RGB32";
-  case QImage::Format_ARGB32: return "Format_ARGB32";
-  case QImage::Format_ARGB32_Premultiplied: return "Format_ARGB32_Premultiplied";
-  case QImage::Format_RGB16: return "Format_RGB16";
-  case QImage::Format_ARGB8565_Premultiplied: return "Format_ARGB8565_Premultiplied";
-  case QImage::Format_RGB666: return "Format_RGB666";
-  case QImage::Format_ARGB6666_Premultiplied: return "Format_ARGB6666_Premultiplied";
-  case QImage::Format_RGB555: return "Format_RGB555";
-  case QImage::Format_ARGB8555_Premultiplied: return "Format_ARGB8555_Premultiplied";
-  case QImage::Format_RGB888: return "Format_RGB888";
-  case QImage::Format_RGB444: return "Format_RGB444";
-  case QImage::Format_ARGB4444_Premultiplied: return "Format_ARGB4444_Premultiplied";
-  case QImage::Format_RGBX8888: return "Format_RGBX8888";
-  case QImage::Format_RGBA8888: return "Format_RGBA8888";
-  case QImage::Format_RGBA8888_Premultiplied: return "Format_RGBA8888_Premultiplied";
-  case QImage::Format_BGR30: return "Format_BGR30";
-  case QImage::Format_A2BGR30_Premultiplied: return "Format_A2BGR30_Premultiplied";
-  case QImage::Format_RGB30: return "Format_RGB30";
-  case QImage::Format_A2RGB30_Premultiplied: return "Format_A2RGB30_Premultiplied";
-  case QImage::Format_Alpha8: return "Format_Alpha8";
-  case QImage::Format_Grayscale8: return "Format_Grayscale8";
-  }
+// const char* formatToStr(QImage::Format format)
+// {
+//   switch(format) {
+//   case QImage::Format_Invalid: return "Format_Invalid";
+//   case QImage::Format_Mono: return "Format_Mono";
+//   case QImage::Format_MonoLSB: return "Format_MonoLSB";
+//   case QImage::Format_Indexed8: return "Format_Indexed8";
+//   case QImage::Format_RGB32: return "Format_RGB32";
+//   case QImage::Format_ARGB32: return "Format_ARGB32";
+//   case QImage::Format_ARGB32_Premultiplied: return "Format_ARGB32_Premultiplied";
+//   case QImage::Format_RGB16: return "Format_RGB16";
+//   case QImage::Format_ARGB8565_Premultiplied: return "Format_ARGB8565_Premultiplied";
+//   case QImage::Format_RGB666: return "Format_RGB666";
+//   case QImage::Format_ARGB6666_Premultiplied: return "Format_ARGB6666_Premultiplied";
+//   case QImage::Format_RGB555: return "Format_RGB555";
+//   case QImage::Format_ARGB8555_Premultiplied: return "Format_ARGB8555_Premultiplied";
+//   case QImage::Format_RGB888: return "Format_RGB888";
+//   case QImage::Format_RGB444: return "Format_RGB444";
+//   case QImage::Format_ARGB4444_Premultiplied: return "Format_ARGB4444_Premultiplied";
+//   case QImage::Format_RGBX8888: return "Format_RGBX8888";
+//   case QImage::Format_RGBA8888: return "Format_RGBA8888";
+//   case QImage::Format_RGBA8888_Premultiplied: return "Format_RGBA8888_Premultiplied";
+//   case QImage::Format_BGR30: return "Format_BGR30";
+//   case QImage::Format_A2BGR30_Premultiplied: return "Format_A2BGR30_Premultiplied";
+//   case QImage::Format_RGB30: return "Format_RGB30";
+//   case QImage::Format_A2RGB30_Premultiplied: return "Format_A2RGB30_Premultiplied";
+//   case QImage::Format_Alpha8: return "Format_Alpha8";
+//   case QImage::Format_Grayscale8: return "Format_Grayscale8";
+//   }
 
-  return "Not recognized";
-}
+//   return "Not recognized";
+// }
 
 obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
 {
@@ -255,10 +259,11 @@ obj::obj(Renderer *r, const char *texture_path,  bool skipTexture): parent(r)
 {
   auto ec = editorController::instance;
   auto fns = r->getGlFns();
-  
-  prepare(fns, r, ec);
-  
+
   texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
+  if(skipTexture)
+    qDebug() << "skipTexture is false. Object might not render";
+  prepare(fns, r, ec);
 
   r->freeCtx();
 }
@@ -276,13 +281,16 @@ void obj::render(Renderer *parent) {
 void obj::render(QOpenGLFunctions_4_3_Core *f)
 {
   f->glUseProgram(shader);
+  qDebug() << "Position " << position.x << ", " << position.y;
   glm::mat4 model;
   model = glm::translate(model, glm::vec3(position, 0.0f));
 
   //Move pivot point to center
+  qDebug() << "Size: " << size.x << " * " << size.y;
   model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
 
   //Rotate if needed
+  qDebug() << "Rotate: " << rotate;
   model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f));
 
   //Move object
@@ -300,6 +308,7 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
     qDebug() << "No opacity location found";
     throw "";
   }
+  qDebug() << "Opacity" << opacity;
   float op = (float)opacity / 255.0f;
 
   f->glUniform4f(op_loc, op, op, op, op);
@@ -380,7 +389,7 @@ obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
     r->owned_objects[id] = o;
   }
 
-  return static_cast<obj*>(rr->owned_objects[id]);
+  return rr? static_cast<obj*>(rr->owned_objects[id]): static_cast<obj*>(editorController::instance->renderers.at(0)->owned_objects[id]);
 }
 
 int obj::getRenderId() {

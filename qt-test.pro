@@ -15,7 +15,6 @@ QT += opengl
 QT += network
 
 LIBS += -L/opt/local/lib
-LIBS += -lSOIL
 LIBS += `guile-config link`
 
 QMAKE_CXXFLAGS += `guile-config compile`

@@ -5,7 +5,7 @@
 #include <QOpenGLFunctions_4_3_Core>
 #include <QTimer>
 #include <QVector>
-#include <QMap>
+#include <QHash>
 #include <new_obj.h>
 #include <functional>
 #include <QMouseEvent>
@@ -28,7 +28,7 @@ public:
 
   virtual QVector<Renderable*>& getDrawQueue();
 
-  QMap<int, Renderable*> owned_objects;
+  QHash<int, Renderable*> owned_objects;
   std::string name;
 
   friend class Scroll;

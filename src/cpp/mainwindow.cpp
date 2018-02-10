@@ -168,6 +168,10 @@ void MainWindow::setupTreeCtxMenu()
     });;
 
   connect(tileset, &QAction::triggered, this, &MainWindow::newTileset) ;
+  connect(sprite, &QAction::triggered, [=]() {
+        QString texture_path = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
+	editorController::instance->loadSprite(texture_path.toStdString().c_str());
+    });
 
   newMenu->addAction(glsl);
   newMenu->addAction(scheme);

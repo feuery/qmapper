@@ -16,6 +16,7 @@ extern "C" {
   SCM toggle_rendering();
   SCM print_json(SCM row);
   SCM g_from_json(SCM type_name, SCM s_row);
+
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

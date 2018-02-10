@@ -1,38 +1,65 @@
 #include <spriteContainer.h>
+#include <editorController.h>
 
-Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
-  return new Spritecontainer(parent, text_path);
+obj* Spritecontainer::getObject() {
+  return static_cast<obj*>(parent->owned_objects[renderId] );
 }
 
-Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): obj(parent, text_path) {
+Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
+  Spritecontainer* sprite = new Spritecontainer(parent, text_path);
+
+  editorController::instance->document.doRegister("Sprite", sprite->getId(), sprite);
   
+  return sprite;
+}
+
+Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Sprite(), parent(parent) {
+  // Such memory leak. References to these are kept under Renderers
+  obj* obj = obj::make(parent, text_path);
+  renderId = obj->getRenderId();
+  setX(0);
+  setY(0);
+}
+
+Spritecontainer::~Spritecontainer() {
 }
 
 void Spritecontainer::setX (int newX)
 {
-  float y = position.y,
-    newXf = newX/parent->width();
+  float y = getObject()->position.y,
+    newXf = newX/getObject()->parent->width();
   
-  position = glm::vec2(newXf, y);
+  getObject()->position = glm::vec2(newXf, y);
 
 }
 int Spritecontainer::getX ()  {
-  float x = position.x;
-  return static_cast<int>(x * parent->width());
+  float x = getObject()->position.x;
+  return static_cast<int>(x * getObject()->parent->width());
 }
 void Spritecontainer::setY (int newY)  {
-  float x = position.x,
-    newYf = newY/parent->height();
+  float x = getObject()->position.x,
+    newYf = newY/getObject()->parent->height();
   
-  position = glm::vec2(x, newYf);
+  getObject()->position = glm::vec2(x, newYf);
 }
 int Spritecontainer::getY () {
-  float y = position.y;
-  return static_cast<int>(y * parent->height());
+  float y = getObject()->position.y;
+  return static_cast<int>(y * getObject()->parent->height());
 }
 void Spritecontainer::setAngle (float newangle)  {
-  rotate = newangle;
+  getObject()->rotate = newangle;
 }
 float Spritecontainer::getAngle ()  {
-  return rotate;
+  return getObject()->rotate;
+}
+
+
+void Spritecontainer::render(QOpenGLFunctions_4_3_Core *f)  {
+  getObject()->render(f);
+}
+void Spritecontainer::render(Renderer *parent)  {
+  getObject()->render(parent);
+}
+int Spritecontainer::getRenderId()  {
+  return getObject()->getRenderId();
 }

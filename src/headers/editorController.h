@@ -46,6 +46,8 @@ public:
   void setTileRotation(int x, int y, int deg_angl);
   void rotateTile90Deg(int x, int y);
 
+  void loadSprite(const char *path);
+
   tilesetContainer *firstLoadedTileset = nullptr;
   std::vector<Tile*>* tiles = new std::vector<Tile*>;
 
@@ -67,7 +69,6 @@ public:
   QOpenGLFunctions_4_3_Core* getGlFns();
   void freeCtx();
   
-private:
 
   MainWindow *w;
 

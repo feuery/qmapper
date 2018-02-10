@@ -1,7 +1,7 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-04T14:09:14.795Z
+////// generated at 2018-02-04T16:23:50.981Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -10,9 +10,16 @@ Parentmapid_field = value;
                                                         std::string Sprite::getParentmapid() const {
 return Parentmapid_field;
 }
+void Sprite::setName(std::string value) { 
+Name_field = value;
+}
+                                                        std::string Sprite::getName() const {
+return Name_field;
+}
 Sprite::Sprite() {
-r.push_back(std::string(std::string("Id")));
-r.push_back(std::string(std::string("parentMapId")));
+r.push_back(std::string("Id"));
+r.push_back(std::string("parentMapId"));
+r.push_back(std::string("name"));
 }Sprite* toSprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Sprite")) {
@@ -28,7 +35,8 @@ std::string Sprite::toJSON() const
 {
 nlohmann::json j {
 {"Id", getId()},
-{"Parentmapid", getParentmapid()}
+{"Parentmapid", getParentmapid()},
+{"Name", getName()}
 };
 return j.dump();
 }
@@ -37,6 +45,7 @@ void Sprite::fromJSON(const char* json_str)
 json j = json::parse(json_str);
 setId(j["Id"]);
 setParentmapid(j["Parentmapid"]);
+setName(j["Name"]);
 }
 
 using nlohmann::json;
