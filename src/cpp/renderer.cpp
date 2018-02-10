@@ -67,6 +67,11 @@ void Renderer::paintGL()
       }
     }
   }
+
+  while(!glLambdas.empty()) {
+    auto lambda = glLambdas.dequeue();
+    lambda();
+  }
 }
 
 QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {

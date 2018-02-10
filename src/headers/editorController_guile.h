@@ -17,6 +17,7 @@ extern "C" {
   SCM print_json(SCM row);
   SCM g_from_json(SCM type_name, SCM s_row);
 
+  SCM load_sprite(SCM s_path);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

@@ -2,6 +2,7 @@
 #define RENDERER_H
 
 #include <QOpenGLWidget>
+#include <QQueue>
 #include <QOpenGLFunctions_4_3_Core>
 #include <QTimer>
 #include <QVector>
@@ -32,6 +33,8 @@ public:
   std::string name;
 
   friend class Scroll;
+
+  QQueue<std::function<void()>> glLambdas;
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;

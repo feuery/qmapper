@@ -203,4 +203,12 @@ extern "C" {
 
     return SCM_BOOL_T;
   }
+
+  SCM load_sprite(SCM s_path) {
+    const char *path = scm_to_locale_string(s_path);
+    editorController::instance->map_view->glLambdas.enqueue([=]() {
+	editorController::instance->loadSprite(path);
+      });
+    return SCM_BOOL_T;
+  }
 }

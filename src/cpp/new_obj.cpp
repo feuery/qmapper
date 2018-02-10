@@ -281,16 +281,16 @@ void obj::render(Renderer *parent) {
 void obj::render(QOpenGLFunctions_4_3_Core *f)
 {
   f->glUseProgram(shader);
-  qDebug() << "Position " << position.x << ", " << position.y;
+  // qDebug() << "Position " << position.x << ", " << position.y;
   glm::mat4 model;
   model = glm::translate(model, glm::vec3(position, 0.0f));
 
   //Move pivot point to center
-  qDebug() << "Size: " << size.x << " * " << size.y;
+  // qDebug() << "Size: " << size.x << " * " << size.y;
   model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
 
   //Rotate if needed
-  qDebug() << "Rotate: " << rotate;
+  // qDebug() << "Rotate: " << rotate;
   model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f));
 
   //Move object
@@ -308,7 +308,7 @@ void obj::render(QOpenGLFunctions_4_3_Core *f)
     qDebug() << "No opacity location found";
     throw "";
   }
-  qDebug() << "Opacity" << opacity;
+  // qDebug() << "Opacity" << opacity;
   float op = (float)opacity / 255.0f;
 
   f->glUniform4f(op_loc, op, op, op, op);
