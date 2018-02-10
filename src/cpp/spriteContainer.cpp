@@ -1,5 +1,6 @@
 #include <spriteContainer.h>
 #include <editorController.h>
+#include <QFileInfo>
 
 obj* Spritecontainer::getObject() {
   return static_cast<obj*>(parent->owned_objects[renderId] );
@@ -7,6 +8,9 @@ obj* Spritecontainer::getObject() {
 
 Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
   Spritecontainer* sprite = new Spritecontainer(parent, text_path);
+  QString p = text_path;
+  QFileInfo finfo(p);
+  sprite->setName(("Sprite: " + finfo.fileName().toStdString()).c_str());
 
   editorController::instance->document.doRegister("Sprite", sprite->getId(), sprite);
   
