@@ -58,10 +58,12 @@ HEADERS += src/headers/files.h \
            src/headers/resize-enums.h \
            src/headers/json.hpp \
            src/headers/spritecontainer.h \
-           src/headers/animatedspriteContainer.h 
+           src/headers/animatedspriteContainer.h  \
+           src/headers/animationLoaderUi.h
            
 FORMS += \
-    src/forms/main.ui 
+    src/forms/main.ui \ 
+    src/forms/animationloader.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/main.cpp \
            src/cpp/mainwindow.cpp \
@@ -95,5 +97,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/tool_list.cpp \
            src/cpp/scroll.cpp \
            src/cpp/spritecontainer.cpp \
-           src/cpp/animatedspriteContainer.cpp
-
+           src/cpp/animatedspriteContainer.cpp \
+           src/cpp/animationLoaderUi.cpp

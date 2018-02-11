@@ -19,6 +19,7 @@
 
 #include <tool_list.h>
 #include <resize_obj.h>
+#include <animationLoaderUi.h>
 
 #define btnW 200
 #define btnH 25
@@ -153,12 +154,14 @@ void MainWindow::setupTreeCtxMenu()
   QAction *glsl = new QAction("&GLSL", this),
     *scheme = new QAction("&Scheme", this),
     *tileset = new QAction("T&ileset", this),
-    *sprite = new QAction("S&prite", this);
+    *sprite = new QAction("S&prite", this),
+    *animation = new QAction("&Animation", this);
   
   glsl->setStatusTip("New GLSL-script asset");
   scheme->setStatusTip("New Scheme asset");
   tileset->setStatusTip("New tileset");
   sprite->setStatusTip("Load a new sprite");
+  animation->setStatusTip("Load a new animation");
 
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
@@ -173,11 +176,17 @@ void MainWindow::setupTreeCtxMenu()
 	editorController::instance->loadSprite(texture_path.toStdString().c_str());
     });
 
+  connect(animation, &QAction::triggered, [=]() {
+      animationLoader *l = new animationLoader;
+      l->show();
+    });
+
   newMenu->addAction(glsl);
   newMenu->addAction(scheme);
   newMenu->addSeparator();
   newMenu->addAction(tileset);
   newMenu->addAction(sprite);
+  newMenu->addAction(animation);
 
   QAction *newMenu_act = new QAction("&New", this);
   newMenu_act->setMenu(newMenu);
