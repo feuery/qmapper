@@ -211,4 +211,17 @@ extern "C" {
       });
     return SCM_BOOL_T;
   }
+
+  SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime)
+  {
+    const char *path = scm_to_locale_string(s_path);
+    int framecount = scm_to_int(s_framecount),
+      frameLifeTime = scm_to_int(s_frameLifeTime);
+
+    editorController::instance->map_view->glLambdas.enqueue([=]() {
+	editorController::instance->loadAnimation(path, framecount, frameLifeTime);
+      });
+
+    return SCM_BOOL_T;
+  }
 }

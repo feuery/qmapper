@@ -18,6 +18,7 @@ extern "C" {
   SCM g_from_json(SCM type_name, SCM s_row);
 
   SCM load_sprite(SCM s_path);
+  SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H
