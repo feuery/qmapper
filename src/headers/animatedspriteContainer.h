@@ -30,7 +30,7 @@ public:
   static void make(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime);
 
 private:
-
+  QImage root;
   void advanceFrameIfNeeded();
 
 };

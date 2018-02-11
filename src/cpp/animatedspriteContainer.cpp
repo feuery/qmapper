@@ -3,16 +3,18 @@
 #include <QFileInfo>
 #include <editorController.h>
 
-Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(time(nullptr)) {
-  sprites = new std::vector<Sprite*>(frameCount);
-  QImage root;
+int MsTime() {
+  return time(nullptr) * 1000;
+}
+
+Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(MsTime()) {
+  sprites = new std::vector<Sprite*>;
   root.load(QString(spriteSheetPath));
   int frameW = root.width() / frameCount,
     frameH = root.height();
   
-  for(int i = 0; i < frameCount; i++) {
-    QImage copy = root.copy( i * frameW, 0, frameW, frameH);
-    sprites->push_back(new Spritecontainer(parent, copy));
+  for(int i = 0; i < frameCount; i++) {    
+    sprites->push_back(new Spritecontainer(parent, root.copy( i * frameW, 0, frameW, frameH)));
   }
 
   setMsperframe(frameLifeTime);
@@ -33,14 +35,24 @@ void Animatedspritecontainer::make(Renderer *parent, const char *spriteSheetPath
 
 void Animatedspritecontainer::advanceFrameIfNeeded() {
   if(getAnimationplaying() &&
-     time(nullptr) > last_changed + getMsperframe()) {
+     // This overflows like hell
+     // But despite the sign, it works as expected
+     // If this breaks, difftime might be a useful replacement for this expression
+     MsTime() > last_changed + getMsperframe()) {
     advanceFrame();
+    last_changed = MsTime();
   }
 }
 
 void Animatedspritecontainer::render(QOpenGLFunctions_4_3_Core *f){
   advanceFrameIfNeeded();
-  sprites->at(getCurrentframeid())->render(f);
+  auto sprite = 
+    sprites->at(getCurrentframeid());
+  if(sprite) sprite->render(f);
+  else {
+    qDebug() << "Trying to render a null sprite at Animatedspritecontainer::render(QOpenGLFunctions_4_3_Core*)";
+    advanceFrame();
+  }
 }
 
 void Animatedspritecontainer::render(Renderer *parent){
@@ -75,7 +87,7 @@ int Animatedspritecontainer::maxFrames () {
   return sprites->size();
 }
 void Animatedspritecontainer::advanceFrame () {
-  int newId = getCurrentframeid() % maxFrames();
+  int newId = (getCurrentframeid() + 1) % maxFrames();
   setCurrentframeid(newId);
 }
 void Animatedspritecontainer::setAngle (float newangle) {

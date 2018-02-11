@@ -1,7 +1,7 @@
 #include <layer.h>
 #include <layerContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-11T07:23:28.869Z
+////// generated at 2018-02-11T11:48:51.550Z
 
 
 void Layer::setName(std::string value) { 

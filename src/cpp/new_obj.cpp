@@ -204,7 +204,8 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController 
 obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
 {
   auto ec = editorController::instance;
-  text_w = text_h = 50.0f;
+  text_w = img.width();
+  text_h = img.height();
   prepare(f, r->width(), r->height(), ec);
 
   copy = img;

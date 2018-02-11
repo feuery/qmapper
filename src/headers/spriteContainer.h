@@ -29,5 +29,6 @@ private:
   Renderer *parent;
   obj* getObject();
 };
-
+#else
+class Spritecontainer;
 #endif //SPRITECONTAINER_H

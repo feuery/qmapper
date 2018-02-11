@@ -3,6 +3,7 @@
 #include<editorController.h>
 #include <cmath>
 #include <spriteContainer.h>
+#include <animatedspriteContainer.h>
 
 double toRadians(int deg)
 {
@@ -74,9 +75,14 @@ obj* tileToObj(Tile &tile)
 
 std::vector<Renderable*> Mapcontainer::getDrawQueue() {
   std::vector<Spritecontainer*> v = editorController::instance->document.typeRegistry<Spritecontainer>("Sprite");
+  std::vector<Animatedspritecontainer*> av = editorController::instance->document.typeRegistry<Animatedspritecontainer>("AnimatedSprite");
   std::vector<Renderable*> vv;
 
   for(auto a: v)
+    if(a->getParentmapid() == getId())
+      vv.push_back(static_cast<Renderable*>(a));
+
+  for(auto a: av)
     if(a->getParentmapid() == getId())
       vv.push_back(static_cast<Renderable*>(a));
   return vv;
