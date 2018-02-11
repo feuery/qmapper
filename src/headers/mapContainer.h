@@ -6,6 +6,7 @@
 
 #include<layerContainer.h>
 #include<new_obj.h>
+#include <animatedspriteContainer.h>
 
 class Mapcontainer: public Map, public Renderable{
 public:
@@ -29,6 +30,8 @@ public:
 	       horizontalAnchor h_anchor) override;
   int id ;
   int getRenderId() override;
+
+  either<animatedsprite*, Sprite*> findNearest(int x, int y) override;
 private:
 
   root *R;

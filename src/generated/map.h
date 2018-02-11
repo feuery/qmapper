@@ -11,6 +11,7 @@ using nlohmann::json;
 #include<vector>
 #include<string>
 #include<resize-enums.h>
+#include<animatedSprite.h>
 #include<cstring>
 class root;
 class Layer;
@@ -22,6 +23,7 @@ std::string Name_field = "Map 1";
 public: virtual void setLayers(std::vector<Layer*>* val);
 virtual std::vector<Layer*>* getLayers() const;
 std::vector<Layer*>* Layers_field = nullptr;
+public: virtual either<animatedsprite*, Sprite*> findNearest (int x, int y) = 0;
 public: virtual void parent (root* p) = 0;
 public: virtual int width () = 0;
 public: virtual int height () = 0;

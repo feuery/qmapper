@@ -39,24 +39,25 @@ Spritecontainer::~Spritecontainer() {
 void Spritecontainer::setX (int newX)
 {
   float y = getObject()->position.y,
-    newXf = newX/getObject()->parent->width();
+    newXf = newX;
+
+  obj* o = getObject();
   
-  getObject()->position = glm::vec2(newXf, y);
+  o->position = glm::vec2(newXf, y);
 
 }
 int Spritecontainer::getX ()  {
-  float x = getObject()->position.x;
-  return static_cast<int>(x * getObject()->parent->width());
+  return ceil(getObject()->position.x);
+  
 }
 void Spritecontainer::setY (int newY)  {
   float x = getObject()->position.x,
-    newYf = newY/getObject()->parent->height();
+    newYf = newY;
   
   getObject()->position = glm::vec2(x, newYf);
 }
 int Spritecontainer::getY () {
-  float y = getObject()->position.y;
-  return static_cast<int>(y * getObject()->parent->height());
+  return ceil(getObject()->position.y);
 }
 void Spritecontainer::setAngle (float newangle)  {
   getObject()->rotate = newangle;
@@ -67,7 +68,8 @@ float Spritecontainer::getAngle ()  {
 
 
 void Spritecontainer::render(QOpenGLFunctions_4_3_Core *f)  {
-  getObject()->render(f);
+  obj* o = getObject();
+  o->render(f);
 }
 void Spritecontainer::render(Renderer *parent)  {
   getObject()->render(parent);

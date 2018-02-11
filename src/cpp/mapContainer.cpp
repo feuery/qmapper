@@ -3,7 +3,6 @@
 #include<editorController.h>
 #include <cmath>
 #include <spriteContainer.h>
-#include <animatedspriteContainer.h>
 
 double toRadians(int deg)
 {
@@ -123,6 +122,72 @@ void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
     sprite->render(f);
   }
 }
+
+
+
+int distance(int x1, int y1,
+		  int x2, int y2) {
+  return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+}
+
+either<animatedsprite*, Sprite*> Mapcontainer::findNearest(int x, int y) {
+  either<animatedsprite*, Sprite*> toret;
+  toret.a = nullptr;
+  toret.b = nullptr;
+  int minDistance = 99999;
+
+  qDebug() << "Entering findNearest loop";
+
+  std::vector<Renderable*> q = getDrawQueue();
+
+  if(q.size() == 0) qDebug() << "Drawqueue is empty. We'll crash";
+  else qDebug() << "DrawQueue is ok";
+  
+  for(Renderable* spr: q) {
+    Propertierbase *b = dynamic_cast<Propertierbase*>(spr);
+    std::string type = b->type_identifier();
+
+    qDebug() << "Type is " << type.c_str();
+
+    if(type == "Sprite") {
+      Sprite *sprite = static_cast<Sprite*>(b);
+      int d = distance(x, y,
+		       sprite->getX(), sprite->getY());
+
+      if(d < 0)
+	qDebug() << x << ", " << y << ", " << sprite->getX() << ", " <<  sprite->getY();
+
+      assert(d >= 0);
+
+      if(d < minDistance) {
+	qDebug() << "Found sprite where d is " << d << " and minDistance " << minDistance;
+	minDistance = d;
+	toret.b = sprite;
+	toret.a = nullptr;
+      }
+      else qDebug() << d << " !< " << minDistance;
+    }
+    else {
+      animatedsprite *a = static_cast<animatedsprite*>(b);
+            int d = distance(x, y,
+				  a->getX(), a->getY());
+
+      if(d < minDistance) {
+	qDebug() << "Found animation where d is " << d << " and minDistance " << minDistance;
+	minDistance = d;
+	toret.a = a;
+	toret.b = nullptr;
+      }
+    }
+  }
+
+  qDebug() << "Leaving findNearest loop";
+
+  assert(toret.a || toret.b);
+  
+  return toret;
+}
+
 
 
 void Mapcontainer::resize (int w,

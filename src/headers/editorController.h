@@ -30,12 +30,12 @@ public:
 
   void populateMaps();
 
-  flyweight<std::string> indexOfChosenTileset;
-  flyweight<std::string> indexOfChosenMap;
+  std::string indexOfChosenTileset;
+  std::string indexOfChosenMap;
   int indexOfChosenLayer;
 
-  flyweight<std::string> indexOfStdVertexShader;
-  flyweight<std::string> indexOfStdFragmentShader, indexOfStdTileviewFragShader;
+  std::string indexOfStdVertexShader;
+  std::string indexOfStdFragmentShader, indexOfStdTileviewFragShader;
   std::vector<Renderer*> renderers;
 
   int selectedTileX = 0, selectedTileY = 0;
@@ -48,6 +48,8 @@ public:
 
   void loadSprite(const char *path);
   void loadAnimation(const char *path, int frameCount, int frameLifetime = 25);
+
+
 
   tilesetContainer *firstLoadedTileset = nullptr;
   std::vector<Tile*>* tiles = new std::vector<Tile*>;

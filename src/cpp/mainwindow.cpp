@@ -271,7 +271,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
     });
 
   map_view->mouseDownEvents.push_back([=](QMouseEvent *e) {
-      ec->t->mouseDown(ec);
+      ec->t->mouseDown(e, ec);
     });
 
   map_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
@@ -281,6 +281,9 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
       ec->t->doUse(e, x, y, ec);
       ec->t->registerDrag(x, y);
+    });
+  map_view->mouseUpEvents.push_back([=](QMouseEvent *E) {
+      ec->t->mouseUp(E);
     });
 
   QWidget *tb = new QWidget(this);
