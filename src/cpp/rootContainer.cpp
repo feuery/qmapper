@@ -14,6 +14,7 @@ Rootcontainer::Rootcontainer(): root()
   (*registry)["Tile"];
   (*registry)["Tileset"];
   (*registry)["Sprite"];
+  (*registry)["AnimatedSprite"];
 }
 
 Rootcontainer::~Rootcontainer()

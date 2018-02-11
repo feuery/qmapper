@@ -1,5 +1,7 @@
 #include <animatedspriteContainer.h>
 #include <QDebug>
+#include <QFileInfo>
+#include <editorController.h>
 
 Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(time(nullptr)) {
   sprites = new std::vector<Sprite*>(frameCount);
@@ -14,6 +16,11 @@ Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *s
   }
 
   setMsperframe(frameLifeTime);
+
+  QString p = spriteSheetPath;
+  QFileInfo finfo(p);
+  setName(("Animation: " + finfo.fileName().toStdString()).c_str());
+  editorController::instance->document.doRegister("AnimatedSprite", getId(), this);
 }
 
 Animatedspritecontainer::~Animatedspritecontainer() {
@@ -21,7 +28,7 @@ Animatedspritecontainer::~Animatedspritecontainer() {
 }
 
 void Animatedspritecontainer::make(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime) {
-  
+  new Animatedspritecontainer(parent, spriteSheetPath, frameCount, frameLifeTime);
 }
 
 void Animatedspritecontainer::advanceFrameIfNeeded() {

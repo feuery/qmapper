@@ -35,7 +35,8 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   else if(strcmp(type, "Layer") == 0 ||
 	  strcmp(type, "Script") == 0 ||
 	  strcmp(type, "Sprite") == 0 ||
-	  strcmp(type, "Tileset") == 0) {
+	  strcmp(type, "Tileset") == 0 ||
+	  strcmp(type, "animatedsprite") == 0) {
     return 0;
   }
   else {
@@ -167,6 +168,9 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   else if(type == "Sprite") {
     Sprite* spr = static_cast<Sprite*>(obj);
     return createIndex(indexOf<Propertierbase*>(&reg, static_cast<Propertierbase*>(spr)), 0, Root);
+  }
+  else if(type == "animatedsprite") {
+    return createIndex(indexOf<Propertierbase*>(&reg, obj), 0, Root);
   }
   else {
     printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type.c_str());
