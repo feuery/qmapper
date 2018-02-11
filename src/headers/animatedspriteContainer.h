@@ -9,7 +9,7 @@
 class Animatedspritecontainer: public animatedsprite, public Renderable{
 public:
 
-  Animatedspritecontainer();
+  Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime);
   ~Animatedspritecontainer();
 
   void setX (int newX);
@@ -26,6 +26,8 @@ public:
   virtual int getRenderId() override;
 
   time_t last_changed;
+
+  static void make(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime);
 
 private:
 

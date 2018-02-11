@@ -1,12 +1,27 @@
 #include <animatedspriteContainer.h>
 #include <QDebug>
 
-Animatedspritecontainer::Animatedspritecontainer(): last_changed(time(nullptr)) {
-  sprites = new std::vector<Sprite*>;
+Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(time(nullptr)) {
+  sprites = new std::vector<Sprite*>(frameCount);
+  QImage root;
+  root.load(QString(spriteSheetPath));
+  int frameW = root.width() / frameCount,
+    frameH = root.height();
+  
+  for(int i = 0; i < frameCount; i++) {
+    QImage copy = root.copy( i * frameW, 0, frameW, frameH);
+    sprites->push_back(new Spritecontainer(parent, copy));
+  }
+
+  setMsperframe(frameLifeTime);
 }
 
 Animatedspritecontainer::~Animatedspritecontainer() {
   delete sprites;
+}
+
+void Animatedspritecontainer::make(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime) {
+  
 }
 
 void Animatedspritecontainer::advanceFrameIfNeeded() {

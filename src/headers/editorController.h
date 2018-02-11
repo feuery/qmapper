@@ -47,6 +47,7 @@ public:
   void rotateTile90Deg(int x, int y);
 
   void loadSprite(const char *path);
+  void loadAnimation(const char *path, int frameCount, int frameLifetime = 25);
 
   tilesetContainer *firstLoadedTileset = nullptr;
   std::vector<Tile*>* tiles = new std::vector<Tile*>;

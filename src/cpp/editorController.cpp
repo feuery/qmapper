@@ -168,3 +168,9 @@ void editorController::loadSprite(const char* path) {
   Spritecontainer::make(w->map_view, path);
   documentTreeModel->end();
 }
+
+void editorController::loadAnimation(const char *path, int frameCount, int frameLifeTime) {
+  documentTreeModel->begin();
+  Animatedspritecontainer::make(w->map_view, path, frameCount, frameLifeTime);
+  documentTreeModel->end();  
+}

@@ -25,6 +25,14 @@ Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Spri
   setY(0);
 }
 
+Spritecontainer::Spritecontainer( Renderer *parent, QImage img): Sprite(), parent(parent) {
+  // Such memory leak. References to these are kept under Renderers
+  obj* obj = obj::make(parent, img);
+  renderId = obj->getRenderId();
+  setX(0);
+  setY(0);
+}
+
 Spritecontainer::~Spritecontainer() {
 }
 

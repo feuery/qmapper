@@ -21,6 +21,8 @@ public:
   void render(Renderer *parent) override;
   int getRenderId() override;
 
+  Spritecontainer(Renderer *parent, QImage img);
+
 private:
   Spritecontainer(Renderer *parent, const char *text_path);
 
