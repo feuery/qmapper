@@ -60,7 +60,8 @@ HEADERS += src/headers/files.h \
            src/headers/spritecontainer.h \
            src/headers/animatedspriteContainer.h  \
            src/headers/animationLoaderUi.h \
-           src/headers/spriteMover.cpp
+           src/headers/spriteMover.h \
+           src/headers/spriteRotater.h
            
 FORMS += \
     src/forms/main.ui \ 
@@ -100,4 +101,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/spritecontainer.cpp \
            src/cpp/animatedspriteContainer.cpp \
            src/cpp/animationLoaderUi.cpp \
-           src/cpp/spriteMover.cpp
+           src/cpp/spriteMover.cpp \
+           src/cpp/spriteRotater.cpp 
