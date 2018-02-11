@@ -4,7 +4,8 @@
     (std__string parentMapId "")
     (std__string name "")
     (int currentFrameId 0)
-    (int msPerFrame 25))    
+    (int msPerFrame 25)
+    (bool animationPlaying true))
    (functions
     (void setX (int newX))
     (int getX ())

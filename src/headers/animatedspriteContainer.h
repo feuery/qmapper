@@ -4,6 +4,7 @@
 #include <animatedSprite.h>
 #include <spriteContainer.h>
 #include <renderable.h>
+#include <ctime>
 
 class Animatedspritecontainer: public animatedsprite, public Renderable{
 public:
@@ -24,7 +25,11 @@ public:
   virtual void render(Renderer *parent) override;
   virtual int getRenderId() override;
 
+  time_t last_changed;
+
 private:
+
+  void advanceFrameIfNeeded();
 
 };
 

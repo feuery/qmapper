@@ -1,7 +1,7 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-10T19:17:23.280Z
+////// generated at 2018-02-11T07:23:28.876Z
 
 
 void Sprite::setParentmapid(std::string value) { 

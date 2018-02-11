@@ -1,7 +1,7 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-10T19:17:23.283Z
+////// generated at 2018-02-11T07:23:28.880Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -28,12 +28,19 @@ Msperframe_field = value;
                                                         int animatedsprite::getMsperframe() const {
 return Msperframe_field;
 }
+void animatedsprite::setAnimationplaying(bool value) { 
+Animationplaying_field = value;
+}
+                                                        bool animatedsprite::getAnimationplaying() const {
+return Animationplaying_field;
+}
 animatedsprite::animatedsprite() {
 r.push_back(std::string(std::string("Id")));
 r.push_back(std::string(std::string("parentMapId")));
 r.push_back(std::string(std::string("name")));
 r.push_back(std::string(std::string("currentFrameId")));
 r.push_back(std::string(std::string("msPerFrame")));
+r.push_back(std::string(std::string("animationPlaying")));
 }animatedsprite* toAnimatedsprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("animatedsprite")) {

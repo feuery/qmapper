@@ -23,6 +23,9 @@ int Currentframeid_field = 0;
 public: virtual void setMsperframe(int val);
 virtual int getMsperframe() const;
 int Msperframe_field = 25;
+public: virtual void setAnimationplaying(bool val);
+virtual bool getAnimationplaying() const;
+bool Animationplaying_field = true;
 public: virtual void setX (int newX) = 0;
 public: virtual int getX () = 0;
 public: virtual void setY (int newY) = 0;
@@ -37,7 +40,9 @@ if(propertyname == std::string("parentMapId") ) { Parentmapid_field = value; ret
 if(propertyname == std::string("name") ) { Name_field = value; return; } }
 virtual void set(std::string propertyname, int value) {
 if(propertyname == std::string("currentFrameId") ) { Currentframeid_field = value; return; }
-if(propertyname == std::string("msPerFrame") ) { Msperframe_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("msPerFrame") ) { Msperframe_field = value; return; } }
+virtual void set(std::string propertyname, bool value) {
+if(propertyname == std::string("animationPlaying") ) { Animationplaying_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
   return Id_field;
@@ -61,6 +66,12 @@ if(propertyname == std::string("msPerFrame")) {
   return Msperframe_field;
 } *success = false; int invalid_data; return invalid_data;
 }
+virtual bool get(std::string propertyname, bool *success, bool type_helper) const {
+if(propertyname == std::string("animationPlaying")) {
+  *success = true;
+  return Animationplaying_field;
+} *success = false; bool invalid_data; return invalid_data;
+}
 public: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);
 public: animatedsprite();
@@ -69,13 +80,14 @@ std::vector<std::string> r;
 std::vector<std::string> names() { return r; }
 
 virtual std::string type_identifier() { return std::string("animatedsprite"); }
-virtual int property_count() { return 5; }
+virtual int property_count() { return 6; }
 virtual std::string type_name(std::string propertyname) const {
 if(propertyname == std::string("Id")) return std::string("std::string");
 if(propertyname == std::string("parentMapId")) return std::string("std::string");
 if(propertyname == std::string("name")) return std::string("std::string");
 if(propertyname == std::string("currentFrameId")) return std::string("int");
-if(propertyname == std::string("msPerFrame")) return std::string("int");return std::string("");
+if(propertyname == std::string("msPerFrame")) return std::string("int");
+if(propertyname == std::string("animationPlaying")) return std::string("bool");return std::string("");
 }
 
 };
