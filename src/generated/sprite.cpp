@@ -1,25 +1,34 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.090Z
+////// generated at 2018-02-20T18:59:10.032Z
 
 
 void Sprite::setParentmapid(std::string value) { 
 Parentmapid_field = value;
+for(auto fn: event_map["Parentmapid"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Sprite::getParentmapid() const {
 return Parentmapid_field;
 }
 void Sprite::setName(std::string value) { 
 Name_field = value;
+for(auto fn: event_map["Name"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Sprite::getName() const {
 return Name_field;
 }
 Sprite::Sprite() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("parentMapId")));
+event_map["parentMapId"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("name")));
+event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }Sprite* toSprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Sprite")) {

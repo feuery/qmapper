@@ -1,11 +1,12 @@
 #include <root.h>
 #include <rootContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.083Z
+////// generated at 2018-02-20T18:59:10.026Z
 
 
 root::root() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }root* toRoot(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("root")) {

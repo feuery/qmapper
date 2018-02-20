@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-02-11T13:26:52.074Z
+//// generated at 2018-02-20T18:59:10.013Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -41,6 +41,16 @@ virtual ~Propertierbase ();
   virtual std::vector<std::string> names() = 0;
   virtual std::string type_identifier() = 0;
   virtual int property_count() = 0;
+
+  std::unordered_map<std::string, std::unordered_map<int, std::function<void(Propertierbase*)>>> event_map;
+
+  virtual int addEvent(std::string prop, std::function<void(Propertierbase*)> fn) {
+     int id = rand();
+     event_map[prop][id] = fn;
+  }
+  virtual void dropEvent(std::string prop, int id) {
+    event_map[prop].erase(id);
+  }
 
   virtual std::string getId() const
   {

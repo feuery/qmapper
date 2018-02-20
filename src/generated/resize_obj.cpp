@@ -1,38 +1,55 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.078Z
+////// generated at 2018-02-20T18:59:10.020Z
 
 
 void resize_data::setNew_width(int value) { 
 New_width_field = value;
+for(auto fn: event_map["New_width"]) { 
+  fn.second(this);
+}
 }
                                                         int resize_data::getNew_width() const {
 return New_width_field;
 }
 void resize_data::setNew_height(int value) { 
 New_height_field = value;
+for(auto fn: event_map["New_height"]) { 
+  fn.second(this);
+}
 }
                                                         int resize_data::getNew_height() const {
 return New_height_field;
 }
 void resize_data::setVertical_anchor(verticalAnchor value) { 
 Vertical_anchor_field = value;
+for(auto fn: event_map["Vertical_anchor"]) { 
+  fn.second(this);
+}
 }
                                                         verticalAnchor resize_data::getVertical_anchor() const {
 return Vertical_anchor_field;
 }
 void resize_data::setHorizontal_anchor(horizontalAnchor value) { 
 Horizontal_anchor_field = value;
+for(auto fn: event_map["Horizontal_anchor"]) { 
+  fn.second(this);
+}
 }
                                                         horizontalAnchor resize_data::getHorizontal_anchor() const {
 return Horizontal_anchor_field;
 }
 resize_data::resize_data() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("new_width")));
+event_map["new_width"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("new_height")));
+event_map["new_height"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("vertical_anchor")));
+event_map["vertical_anchor"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("horizontal_anchor")));
+event_map["horizontal_anchor"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }resize_data* toResize_data(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("resize_data")) {

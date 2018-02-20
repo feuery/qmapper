@@ -1,16 +1,22 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.077Z
+////// generated at 2018-02-20T18:59:10.018Z
 
 
 void Script::setContents(std::string value) { 
 Contents_field = value;
+for(auto fn: event_map["Contents"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Script::getContents() const {
 return Contents_field;
 }
 void Script::setName(std::string value) { 
 Name_field = value;
+for(auto fn: event_map["Name"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Script::getName() const {
 return Name_field;
@@ -20,22 +26,33 @@ auto error_reporter = [&](std::string msg) {
     std::vector<std::string>& vec = field_error_map[std::string("Ns")];
 	printf("Pushing error %s\n", msg.c_str());
 	vec.push_back(msg);};if(doesntContainNs(value, error_reporter))Ns_field = value;
+for(auto fn: event_map["Ns"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Script::getNs() const {
 return Ns_field;
 }
 void Script::setScript_type(scriptTypes value) { 
 Script_type_field = value;
+for(auto fn: event_map["Script_type"]) { 
+  fn.second(this);
+}
 }
                                                         scriptTypes Script::getScript_type() const {
 return Script_type_field;
 }
 Script::Script() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("contents")));
+event_map["contents"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("name")));
+event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("ns")));
+event_map["ns"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("script_type")));
+event_map["script_type"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }Script* toScript(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Script")) {

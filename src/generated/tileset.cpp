@@ -1,38 +1,55 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.093Z
+////// generated at 2018-02-20T18:59:10.034Z
 
 
 void Tileset::setName(std::string value) { 
 Name_field = value;
+for(auto fn: event_map["Name"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Tileset::getName() const {
 return Name_field;
 }
 void Tileset::setVertexshader(Script* value) { 
 Vertexshader_field = value;
+for(auto fn: event_map["Vertexshader"]) { 
+  fn.second(this);
+}
 }
                                                         Script* Tileset::getVertexshader() const {
 return Vertexshader_field;
 }
 void Tileset::setFragmentshader(Script* value) { 
 Fragmentshader_field = value;
+for(auto fn: event_map["Fragmentshader"]) { 
+  fn.second(this);
+}
 }
                                                         Script* Tileset::getFragmentshader() const {
 return Fragmentshader_field;
 }
 void Tileset::setTiles(std::vector<std::vector<Tile>>* value) { 
 Tiles_field = value;
+for(auto fn: event_map["Tiles"]) { 
+  fn.second(this);
+}
 }
                                                         std::vector<std::vector<Tile>>* Tileset::getTiles() const {
 return Tiles_field;
 }
 Tileset::Tileset() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("name")));
+event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("vertexShader")));
+event_map["vertexShader"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("fragmentShader")));
+event_map["fragmentShader"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("tiles")));
+event_map["tiles"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }Tileset* toTileset(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Tileset")) {

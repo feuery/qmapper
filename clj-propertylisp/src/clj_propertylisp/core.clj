@@ -274,6 +274,16 @@ virtual ~Propertierbase ();
   virtual std::string type_identifier() = 0;
   virtual int property_count() = 0;
 
+  std::unordered_map<std::string, std::unordered_map<int, std::function<void(Propertierbase*)>>> event_map;
+
+  virtual int addEvent(std::string prop, std::function<void(Propertierbase*)> fn) {
+     int id = rand();
+     event_map[prop][id] = fn;
+  }
+  virtual void dropEvent(std::string prop, int id) {
+    event_map[prop].erase(id);
+  }
+
   virtual std::string getId() const
   {
     return Id_field;
@@ -575,6 +585,9 @@ virtual %s get%s() const;
                                                                               "if(" (str/join " && "
                                                                                                                                                 (map validator-gen validators)) ")"))
                                                            prop-name "_field = value;
+for(auto fn: event_map[\"" prop-name "\"]) { 
+  fn.second(this);
+}
 }
                                                         " type " " class-name "::get" prop-name "() const {
 return " prop-name "_field;
@@ -587,7 +600,8 @@ return " prop-name "_field;
 "
                          (->> props
                               (map-indexed (fn [index {[_ prop-name] :form}]
-                                             (str "r.push_back(std::string(std::string(\"" prop-name "\")));")))
+                                             (str "r.push_back(std::string(std::string(\"" prop-name "\")));
+event_map[\"" prop-name "\"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();")))
                               (str/join "\n")) "
 }"
 class-name "* to" (str/capitalize class-name) "(Propertierbase *b)

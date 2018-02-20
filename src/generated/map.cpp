@@ -1,25 +1,34 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.085Z
+////// generated at 2018-02-20T18:59:10.028Z
 
 
 void Map::setName(std::string value) { 
 Name_field = value;
+for(auto fn: event_map["Name"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Map::getName() const {
 return Name_field;
 }
 void Map::setLayers(std::vector<Layer*>* value) { 
 Layers_field = value;
+for(auto fn: event_map["Layers"]) { 
+  fn.second(this);
+}
 }
                                                         std::vector<Layer*>* Map::getLayers() const {
 return Layers_field;
 }
 Map::Map() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("name")));
+event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("layers")));
+event_map["layers"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }Map* toMap(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Map")) {

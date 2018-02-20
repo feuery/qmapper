@@ -1,38 +1,55 @@
 #include <tile.h>
 #include <json.hpp>
-////// generated at 2018-02-11T13:26:52.088Z
+////// generated at 2018-02-20T18:59:10.030Z
 
 
 void Tile::setTileset(std::string value) { 
 Tileset_field = value;
+for(auto fn: event_map["Tileset"]) { 
+  fn.second(this);
+}
 }
                                                         std::string Tile::getTileset() const {
 return Tileset_field;
 }
 void Tile::setX(int value) { 
 X_field = value;
+for(auto fn: event_map["X"]) { 
+  fn.second(this);
+}
 }
                                                         int Tile::getX() const {
 return X_field;
 }
 void Tile::setY(int value) { 
 Y_field = value;
+for(auto fn: event_map["Y"]) { 
+  fn.second(this);
+}
 }
                                                         int Tile::getY() const {
 return Y_field;
 }
 void Tile::setRotation(int value) { 
 Rotation_field = value;
+for(auto fn: event_map["Rotation"]) { 
+  fn.second(this);
+}
 }
                                                         int Tile::getRotation() const {
 return Rotation_field;
 }
 Tile::Tile() {
 r.push_back(std::string(std::string("Id")));
+event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("x")));
+event_map["x"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("y")));
+event_map["y"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("tileset")));
+event_map["tileset"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 r.push_back(std::string(std::string("rotation")));
+event_map["rotation"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
 }Tile* toTile(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Tile")) {
