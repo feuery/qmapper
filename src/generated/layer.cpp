@@ -1,7 +1,7 @@
 #include <layer.h>
 #include <layerContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.029Z
+////// generated at 2018-02-21T17:34:31.132Z
 
 
 void Layer::setName(std::string value) { 
@@ -42,15 +42,15 @@ return Tiles_field;
 }
 Layer::Layer() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
-event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["name"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("opacity")));
-event_map["opacity"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["opacity"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("visible")));
-event_map["visible"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["visible"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("tiles")));
-event_map["tiles"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["tiles"] = std::unordered_map<int, FUN>();
 }Layer* toLayer(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Layer")) {

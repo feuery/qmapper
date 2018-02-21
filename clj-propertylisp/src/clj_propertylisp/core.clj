@@ -257,6 +257,8 @@ virtual %s get(std::string propertyname, bool *success, %s type_helper) const;\n
 
 #include <cstdlib>
 
+#include <libguile.h>
+
 #include<json.hpp>
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
@@ -264,6 +266,32 @@ virtual %s get(std::string propertyname, bool *success, %s type_helper) const;\n
 #include <unordered_map>
 
 %s
+
+class Propertierbase;
+
+class FUN {
+public:
+  bool call_guile = false;
+
+  SCM guile;
+  std::function<void(Propertierbase*)> cpp;
+
+  FUN& operator=(FUN& f) {
+     guile = f.guile;
+     cpp = f.cpp;
+     call_guile = f.call_guile;
+     return f;
+  }
+
+  void operator()(Propertierbase *b) {
+    if(call_guile) {
+      SCM bb = scm_from_pointer(b, nullptr);
+      scm_call_1(guile, bb);
+    }
+    else cpp(b);
+  }
+};
+
 class Propertierbase 
 {
 public:
@@ -274,9 +302,9 @@ virtual ~Propertierbase ();
   virtual std::string type_identifier() = 0;
   virtual int property_count() = 0;
 
-  std::unordered_map<std::string, std::unordered_map<int, std::function<void(Propertierbase*)>>> event_map;
+  std::unordered_map<std::string, std::unordered_map<int, FUN>> event_map;
 
-  virtual int addEvent(std::string prop, std::function<void(Propertierbase*)> fn) {
+  virtual int addEvent(std::string prop, FUN fn) {
      int id = rand();
      event_map[prop][id] = fn;
   }
@@ -601,7 +629,7 @@ return " prop-name "_field;
                          (->> props
                               (map-indexed (fn [index {[_ prop-name] :form}]
                                              (str "r.push_back(std::string(std::string(\"" prop-name "\")));
-event_map[\"" prop-name "\"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();")))
+event_map[\"" prop-name "\"] = std::unordered_map<int, FUN>();")))
                               (str/join "\n")) "
 }"
 class-name "* to" (str/capitalize class-name) "(Propertierbase *b)

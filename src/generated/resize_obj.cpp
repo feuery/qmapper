@@ -1,6 +1,6 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.020Z
+////// generated at 2018-02-21T17:34:31.127Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -41,15 +41,15 @@ return Horizontal_anchor_field;
 }
 resize_data::resize_data() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("new_width")));
-event_map["new_width"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["new_width"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("new_height")));
-event_map["new_height"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["new_height"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("vertical_anchor")));
-event_map["vertical_anchor"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["vertical_anchor"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("horizontal_anchor")));
-event_map["horizontal_anchor"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["horizontal_anchor"] = std::unordered_map<int, FUN>();
 }resize_data* toResize_data(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("resize_data")) {

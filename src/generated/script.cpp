@@ -1,6 +1,6 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.018Z
+////// generated at 2018-02-21T17:34:31.127Z
 
 
 void Script::setContents(std::string value) { 
@@ -44,15 +44,15 @@ return Script_type_field;
 }
 Script::Script() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("contents")));
-event_map["contents"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["contents"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
-event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["name"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("ns")));
-event_map["ns"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["ns"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("script_type")));
-event_map["script_type"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["script_type"] = std::unordered_map<int, FUN>();
 }Script* toScript(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Script")) {

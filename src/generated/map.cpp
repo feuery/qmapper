@@ -1,7 +1,7 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.028Z
+////// generated at 2018-02-21T17:34:31.131Z
 
 
 void Map::setName(std::string value) { 
@@ -24,11 +24,11 @@ return Layers_field;
 }
 Map::Map() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
-event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["name"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("layers")));
-event_map["layers"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["layers"] = std::unordered_map<int, FUN>();
 }Map* toMap(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Map")) {

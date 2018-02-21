@@ -1,7 +1,7 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.033Z
+////// generated at 2018-02-21T17:34:31.135Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -51,17 +51,17 @@ return Animationplaying_field;
 }
 animatedsprite::animatedsprite() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("parentMapId")));
-event_map["parentMapId"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["parentMapId"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
-event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["name"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("currentFrameId")));
-event_map["currentFrameId"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["currentFrameId"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("msPerFrame")));
-event_map["msPerFrame"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["msPerFrame"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("animationPlaying")));
-event_map["animationPlaying"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["animationPlaying"] = std::unordered_map<int, FUN>();
 }animatedsprite* toAnimatedsprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("animatedsprite")) {

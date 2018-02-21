@@ -1,6 +1,6 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-02-20T18:59:10.034Z
+////// generated at 2018-02-21T17:34:31.135Z
 
 
 void Tileset::setName(std::string value) { 
@@ -41,15 +41,15 @@ return Tiles_field;
 }
 Tileset::Tileset() {
 r.push_back(std::string(std::string("Id")));
-event_map["Id"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
-event_map["name"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["name"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("vertexShader")));
-event_map["vertexShader"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["vertexShader"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("fragmentShader")));
-event_map["fragmentShader"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["fragmentShader"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("tiles")));
-event_map["tiles"] = std::unordered_map<int, std::function<void(Propertierbase*)>>();
+event_map["tiles"] = std::unordered_map<int, FUN>();
 }Tileset* toTileset(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("Tileset")) {

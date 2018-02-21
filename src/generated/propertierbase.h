@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-02-20T18:59:10.013Z
+//// generated at 2018-02-21T17:34:31.126Z
 
 #include<renderer.h>
 #include<boost/flyweight.hpp>
@@ -19,6 +19,8 @@
 
 #include <cstdlib>
 
+#include <libguile.h>
+
 #include<json.hpp>
 #include<QOpenGLFunctions_4_3_Core>
 #include<QOpenGLFunctions>
@@ -32,6 +34,32 @@ class Layer;
 class Tile;
 class Texture;
 
+
+class Propertierbase;
+
+class FUN {
+public:
+  bool call_guile = false;
+
+  SCM guile;
+  std::function<void(Propertierbase*)> cpp;
+
+  FUN& operator=(FUN& f) {
+     guile = f.guile;
+     cpp = f.cpp;
+     call_guile = f.call_guile;
+     return f;
+  }
+
+  void operator()(Propertierbase *b) {
+    if(call_guile) {
+      SCM bb = scm_from_pointer(b, nullptr);
+      scm_call_1(guile, bb);
+    }
+    else cpp(b);
+  }
+};
+
 class Propertierbase 
 {
 public:
@@ -42,9 +70,9 @@ virtual ~Propertierbase ();
   virtual std::string type_identifier() = 0;
   virtual int property_count() = 0;
 
-  std::unordered_map<std::string, std::unordered_map<int, std::function<void(Propertierbase*)>>> event_map;
+  std::unordered_map<std::string, std::unordered_map<int, FUN>> event_map;
 
-  virtual int addEvent(std::string prop, std::function<void(Propertierbase*)> fn) {
+  virtual int addEvent(std::string prop, FUN fn) {
      int id = rand();
      event_map[prop][id] = fn;
   }
