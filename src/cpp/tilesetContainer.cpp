@@ -78,6 +78,12 @@ void tilesetContainer::render(Renderer *parent)
 
 void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
 {
+  render();
+}
+
+void tilesetContainer::render()
+{
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   for(int x = 0; x < tiles_w; x++) {
     for(int y = 0; y < tiles_h; y++) {
       obj* tile = tiles[x][y];

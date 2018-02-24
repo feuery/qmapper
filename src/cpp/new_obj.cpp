@@ -4,6 +4,9 @@
 #include <QImage>
 
 #include <editorController.h>
+#define GL_GLEXT_PROTOTYPES
+#include <GL/gl.h>
+#include <GL/glext.h>
 
 GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
 {
@@ -242,12 +245,16 @@ obj::~obj()
 }
 
 void obj::render(Renderer *parent) {
-  render(parent->getGlFns());
-  parent->freeCtx();
+  render();
 }
 
 void obj::render(QOpenGLFunctions_4_3_Core *f)
 {
+  render();
+}
+void obj::render()
+{
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   f->glUseProgram(shader);
   // qDebug() << "Position " << position.x << ", " << position.y;
   glm::mat4 model;

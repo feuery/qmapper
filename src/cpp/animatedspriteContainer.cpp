@@ -55,6 +55,10 @@ void Animatedspritecontainer::render(QOpenGLFunctions_4_3_Core *f){
   }
 }
 
+void Animatedspritecontainer::render(){
+  render(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>());
+}
+
 void Animatedspritecontainer::render(Renderer *parent){
   advanceFrameIfNeeded();
   sprites->at(getCurrentframeid())->render(parent);

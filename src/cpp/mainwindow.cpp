@@ -20,6 +20,7 @@
 #include <tool_list.h>
 #include <resize_obj.h>
 #include <animationLoaderUi.h>
+#include <engine.h>
 
 #define btnW 200
 #define btnH 25
@@ -212,6 +213,24 @@ void MainWindow::newTileset() {
   // }
 }
 
+void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
+{
+  QPushButton *start = new QPushButton("Start engine");
+  setSize(start);
+
+  toolbox_layout->addSpacing(10);
+  toolbox_layout->addWidget(start);
+
+  connect(start, &QPushButton::clicked,
+	  [&]() {
+	    qDebug() << "Starting engine...";
+	    Engine *e = new Engine(ec);
+	    e->er->drawQueue = map_view->getDrawQueue();
+	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
+	    e->show();
+	  });
+}
+
 void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 {
   QPushButton *btn = new QPushButton("Resize map");
@@ -298,6 +317,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   
   prepare_server_button(toolbox_layout);
   prepareResizeBtn(toolbox_layout);
+  prepareStartEngine(toolbox_layout);
 
   setupTree();
   setupTreeCtxMenu();

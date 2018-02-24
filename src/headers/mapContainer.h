@@ -23,6 +23,7 @@ public:
   int height() override;
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
+  virtual void render() override;
   virtual void render(Renderer *parent) override;
   void resize (int w,
 	       int h,

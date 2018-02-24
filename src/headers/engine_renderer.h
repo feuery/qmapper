@@ -1,42 +1,31 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#ifndef ENGINE_RENDERER_H
+#define ENGINE_RENDERER_H
 
 #include <QOpenGLWidget>
-#include <QOpenGLFunctions_4_3_Core>
 #include <QQueue>
 #include <QTimer>
 #include <QVector>
-#include <QHash>
 #include <new_obj.h>
-#include <functional>
 #include <QMouseEvent>
 
-#include <scroll.h>
 
-class Renderable;
-
-class Renderer : public QOpenGLWidget {
+class Engine_Renderer: public QOpenGLWidget{
   Q_OBJECT
 public:
-  Renderer();
-  ~Renderer();
 
-  QOpenGLFunctions_4_3_Core* getGlFns();
-  void freeCtx();
+  Engine_Renderer(QWidget *parent);
+  ~Engine_Renderer();
+
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseDownEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;
 
-  virtual QVector<Renderable*>& getDrawQueue();
-
-  QHash<int, Renderable*> owned_objects;
-  std::string name;
-
-  friend class Scroll;
+  // virtual QVector<Renderable*>& getDrawQueue();
+  QVector<Renderable*> drawQueue;
 
   QQueue<std::function<void()>> glLambdas;
 
-protected:
+  protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
   virtual void mousePressEvent(QMouseEvent *e) override;
   virtual void mouseReleaseEvent(QMouseEvent *e) override;
@@ -47,13 +36,8 @@ protected slots:
   virtual void initializeGL();
 
 private:
-  QVector<Renderable*> drawQueue;
-  float r = 0.0f;
   QTimer timer;
+
 };
 
-#else
-
-class Renderer;
-
-#endif //RENDERER_H
+#endif //ENGINE_RENDERER_H

@@ -87,8 +87,15 @@ std::vector<Renderable*> Mapcontainer::getDrawQueue() {
   return vv;
 }
 
+
 void Mapcontainer::render(QOpenGLFunctions_4_3_Core *f)
 {
+  render();
+}
+
+void Mapcontainer::render()
+{
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   for(int l = 0; l < getLayers()->size(); l++) {
     for(int x = 0; x < width(); x++) {
       for(int y = 0; y < height(); y++) {

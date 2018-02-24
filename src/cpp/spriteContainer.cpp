@@ -71,6 +71,12 @@ void Spritecontainer::render(QOpenGLFunctions_4_3_Core *f)  {
   obj* o = getObject();
   o->render(f);
 }
+
+void Spritecontainer::render()  {
+  obj* o = getObject();
+  o->render();
+}
+
 void Spritecontainer::render(Renderer *parent)  {
   getObject()->render(parent);
 }

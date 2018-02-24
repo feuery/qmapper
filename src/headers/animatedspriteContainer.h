@@ -23,6 +23,8 @@ public:
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render(Renderer *parent) override;
+  virtual void render() override;
+  
   virtual int getRenderId() override;
 
   time_t last_changed;

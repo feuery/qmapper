@@ -44,6 +44,7 @@ public:
 
   virtual void render(QOpenGLFunctions_4_3_Core *f);
   virtual void render(Renderer *parent) override;
+  virtual void render() override;
   void reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId);
   bool load_new_texture(const char *path, Renderer *r);
 

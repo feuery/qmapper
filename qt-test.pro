@@ -61,11 +61,14 @@ HEADERS += src/headers/files.h \
            src/headers/animatedspriteContainer.h  \
            src/headers/animationLoaderUi.h \
            src/headers/spriteMover.h \
-           src/headers/spriteRotater.h
+           src/headers/spriteRotater.h \
+           src/headers/engine.h \
+           src/headers/engine_renderer.h
            
 FORMS += \
     src/forms/main.ui \ 
-    src/forms/animationloader.ui
+    src/forms/animationloader.ui \
+    src/forms/engine.ui
 SOURCES += src/cpp/files.cpp \
            src/cpp/main.cpp \
            src/cpp/mainwindow.cpp \
@@ -102,4 +105,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/animatedspriteContainer.cpp \
            src/cpp/animationLoaderUi.cpp \
            src/cpp/spriteMover.cpp \
-           src/cpp/spriteRotater.cpp 
+           src/cpp/spriteRotater.cpp \
+           src/cpp/engine.cpp \
+           src/cpp/engine_renderer.cpp
