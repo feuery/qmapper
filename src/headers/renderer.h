@@ -12,13 +12,14 @@
 #include <QMouseEvent>
 
 #include <scroll.h>
+#include <unordered_map>
 
 class Renderable;
 
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
 public:
-  Renderer();
+  Renderer(QWidget *parent);
   ~Renderer();
 
   QOpenGLFunctions_4_3_Core* getGlFns();
@@ -29,12 +30,14 @@ public:
 
   virtual QVector<Renderable*>& getDrawQueue();
 
-  QHash<int, Renderable*> owned_objects;
+  std::unordered_map<int, Renderable*> owned_objects;
   std::string name;
 
   friend class Scroll;
 
   QQueue<std::function<void()>> glLambdas;
+
+  void addToDrawQueue(QVector<Renderable*>&);
 
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;

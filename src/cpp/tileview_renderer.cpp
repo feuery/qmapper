@@ -48,7 +48,7 @@ static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
   return p;  
 }
 
-tileview_renderer::tileview_renderer()
+tileview_renderer::tileview_renderer(QWidget *parent): Renderer(parent)
 {
   size = glm::vec2(50.0f, 50.0f);
   position = glm::vec2(0.0f, 0.0f);

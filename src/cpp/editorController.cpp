@@ -70,6 +70,10 @@ editorController::editorController(): indexOfChosenTileset(std::string("")), t(n
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\nuniform vec2 selectedTileCoord; // <- in tile-coords\n\nvoid main() {\n  vec4 texel = // vec4(spriteColor, 1.0) * \n texture(image, TexCoord + (selectedTileCoord));\n if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
   document.doRegister("Script", scr->getId(), scr);
   indexOfStdTileviewFragShader = scr->getId();
+
+  e = new Engine(this);
+  // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
+  e->show();
 }
 
 editorController::~editorController()

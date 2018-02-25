@@ -224,10 +224,16 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
   connect(start, &QPushButton::clicked,
 	  [&]() {
 	    qDebug() << "Starting engine...";
-	    Engine *e = new Engine(ec);
-	    e->er->drawQueue = map_view->getDrawQueue();
+
+	    auto e = ec->e;
+	    
+	    e->er->getDrawQueue().clear();
+	    for(auto& dq: map_view->getDrawQueue()) {
+	      e->er->getDrawQueue().push_back(dq);
+	    }
+	    
 	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
-	    e->show();
+	    e->showFullScreen();
 	  });
 }
 
@@ -260,20 +266,16 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   ui.setupUi(this);
   ec->registerWindow(this);
 
-  map_view = new Renderer;
+  map_view = new Renderer(this);
   map_view->name = "MAP VIEW";
   ec->map_view = map_view;
   ec->populateMaps();
   
-  tileset_view = new Renderer;
+  tileset_view = new Renderer(this);
   tileset_view->name = "TILESET VIEW";
   
-  auto _tileview = new tileview_renderer;
+  auto _tileview = new tileview_renderer(this);
   _tileview->name = "TILE VIEW";
-
-  ec->renderers.push_back(map_view);
-  ec->renderers.push_back(tileset_view);
-  ec->renderers.push_back(_tileview);
   
   _tileview->setMinimumSize(50,50);
   _tileview->setMaximumSize(50,50);

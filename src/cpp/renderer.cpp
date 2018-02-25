@@ -7,7 +7,7 @@
 #include <renderer.h>
 #include <editorController.h>
 
-Renderer::Renderer(): QOpenGLWidget()
+Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
 {  
 
   connect(&timer, SIGNAL(timeout()), this, SLOT(repaint()));
@@ -28,6 +28,8 @@ Renderer::Renderer(): QOpenGLWidget()
   setMaximumWidth(w);
   setMaximumHeight(h);
   resize(w, h);
+
+  editorController::instance->renderers.push_back(this);
 }
 
 float distance(float x1, float y1, float x2, float y2)
@@ -62,8 +64,9 @@ void Renderer::paintGL()
       if (o) 
 	o->render(this);
       else {
-	qDebug () << "Couldn't find object-to-render with id " << (*i)->getRenderId();
-	throw "";
+	// It's probably a mapcontainer in the engine window
+	// If we're incorrect about that, I guess we'll perish
+	(*i)->render(f);
       }
     }
   }
@@ -101,4 +104,9 @@ void Renderer::resizeGL(int w, int h)
 QVector<Renderable*>& Renderer::getDrawQueue()
 {
   return drawQueue;
+}
+
+void Renderer::addToDrawQueue(QVector<Renderable*>& v)
+{
+  drawQueue << v;
 }

@@ -9,7 +9,7 @@ class tileview_renderer: public Renderer {
   Q_OBJECT
 public:
 
-  tileview_renderer();
+  tileview_renderer(QWidget *parent);
   void setSelectedTile(obj *selectedTile);
 								      
 protected slots:

@@ -12,6 +12,8 @@
 #include <tile.h>
 #include <tool.h>
 
+#include <engine.h>
+
 class MainWindow;
 class Renderer;
 
@@ -37,6 +39,8 @@ public:
   std::string indexOfStdVertexShader;
   std::string indexOfStdFragmentShader, indexOfStdTileviewFragShader;
   std::vector<Renderer*> renderers;
+
+  Engine *e;
 
   int selectedTileX = 0, selectedTileY = 0;
   Tile selectedTileData;

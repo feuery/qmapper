@@ -21,4 +21,8 @@ private:
 
 };
 
+#else
+
+class Engine;
+
 #endif //ENGINE_H
