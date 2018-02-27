@@ -33,6 +33,8 @@ public:
   int getRenderId() override;
 
   either<animatedsprite*, Sprite*> findNearest(int x, int y) override;
+
+  virtual Renderable* copy();
 private:
 
   root *R;

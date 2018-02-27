@@ -61,7 +61,8 @@ void tileview_renderer::initializeGL()
     if(!f) return;
 
     shader = createShader(f);
-    VAO = getVAO(f, 50.0f, 50.0f, shader);
+    VAO = getVAO(f, shader);
+    doProjection(f, 50.0f, 50.0f, shader);
 
     f->glClearColor(0.0f, 0.5f, 1.0f, 0.0f);
   

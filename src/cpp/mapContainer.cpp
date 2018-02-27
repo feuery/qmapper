@@ -63,6 +63,15 @@ void Mapcontainer::render(Renderer *parent)
   parent->freeCtx();
 }
 
+obj* tileToObj(Tile &tile, Renderer* parent)
+{
+  if(tile.getTileset() == "") return nullptr;
+  flyweight<std::string> id (tile.getTileset());
+  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
+  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
+  return static_cast<obj*>(parent->owned_objects[tile_to_render_id]);
+}
+
 obj* tileToObj(Tile &tile)
 {
   if(tile.getTileset() == "") return nullptr;
@@ -195,7 +204,24 @@ either<animatedsprite*, Sprite*> Mapcontainer::findNearest(int x, int y) {
   return toret;
 }
 
+Renderable* Mapcontainer::copy() {
+  Mapcontainer *m = new Mapcontainer;
+  
+  for(int l = 0; l < getLayers()->size(); l++) {
+    Layercontainer *layer = new Layercontainer(width(), height());
+    for(int x = 0; x < width(); x++) {
+      for(int y = 0; y < height(); y++) {
+	
+	Tile tile = getLayers()->at(l)->getTiles()->at(x).at(y);
+	layer->getTiles()->at(x).at(y) = tile;
+      }
+    }
+    m->getLayers()->push_back(layer);
+  }
 
+  qDebug() << "Copied mapcontainer";
+  return m;
+}
 
 void Mapcontainer::resize (int w,
 			   int h,

@@ -4,6 +4,11 @@
 Engine_Renderer::Engine_Renderer(QWidget *parent): Renderer(parent)
 {  
   name = "ENGINE_RENDERER";
+  const int w = 9999;
+  const int h = w;
+  setMaximumWidth(w);
+  setMaximumHeight(h);
+  resize(w, h);
 }
 
 // Engine_Renderer::~Engine_Renderer()

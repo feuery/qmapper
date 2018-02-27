@@ -1,4 +1,5 @@
 #include <engine.h>
+#include <scroll.h>
 
 Engine::Engine(editorController *ec):ec(ec) {
     ui.setupUi(this);
@@ -9,8 +10,11 @@ Engine::Engine(editorController *ec):ec(ec) {
 
     connect(btn, &QPushButton::clicked, [&](){close();});
 
+    Scroll *s = new Scroll(this);
+    s->setWidget(er);
+
     QVBoxLayout *vb = new QVBoxLayout(this);
-    vb->addWidget(er);
+    vb->addWidget(s);
     vb->addWidget(btn);
 
     

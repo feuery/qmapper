@@ -12,7 +12,8 @@
 using namespace boost::flyweights;
 
 GLuint CreateShaderProgram(QOpenGLFunctions_4_3_Core *f, GLuint vertex_shader, GLuint fragment_shader);
-GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
+void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
+GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLuint shader);
 
 class Renderer;
 class editorController;
@@ -29,7 +30,7 @@ public:
 
   Renderer *parent;
 
-  QImage copy;
+  QImage qi_copy;
 
   int text_w, text_h;
 
@@ -39,6 +40,11 @@ public:
 
   static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false);
   static obj* make(Renderer *parent, QImage img);
+
+  // Cached for copying purposes:
+  const char *text_path;
+  bool skipTexture;
+  bool qi_copied = false;
 
   ~obj();
 
@@ -51,6 +57,8 @@ public:
   int getRenderId() override;
 
   obj* subObj = nullptr;
+
+  Renderable* copy();
 
 protected:
   obj(Renderer *r, const char *texture_path, bool skipTexture = false);

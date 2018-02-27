@@ -8,7 +8,24 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 
-GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
+void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
+{
+  //Create orho-projection from window dimensions.
+  glm::mat4 projection = glm::ortho(0.0f, window_w, window_h, 0.0f, -1.0f, 1.0f);
+
+  // qDebug() << "Making an ortho projection with dimensions " << window_w << window_h ;
+
+  //Move ortho projection to 2dshader
+  f->glUseProgram(shader);
+  f->glUniform1i(f->glGetUniformLocation(shader, "image"), 0);
+  f->glUniform1i(f->glGetUniformLocation(shader, "subTile"), 1);
+
+  f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+  f->glUseProgram(0);
+
+}
+
+GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLuint shader)
 {
   GLuint VAO, VBO;
   //Create vertexes to be used in 2d rendering.
@@ -36,15 +53,6 @@ GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, 
   f->glBindBuffer(GL_ARRAY_BUFFER, 0);
   f->glBindVertexArray(0);
 
-  //Create orho-projection from window dimensions.
-  glm::mat4 projection = glm::ortho(0.0f, window_w, window_h, 0.0f, -1.0f, 1.0f);
-
-  //Move ortho projection to 2dshader
-  f->glUseProgram(shader);
-  f->glUniform1i(f->glGetUniformLocation(shader, "image"), 0);
-  f->glUniform1i(f->glGetUniformLocation(shader, "subTile"), 1);
-
-  f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   return VAO;
 }
 
@@ -160,9 +168,9 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 
 GLuint obj::load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int *text_w, int *text_h) {
 
-  copy.load(QString(filename));
-  *text_w = copy.width();
-  *text_h = copy.height();
+  qi_copy.load(QString(filename));
+  *text_w = qi_copy.width();
+  *text_h = qi_copy.height();
   
   GLuint texture;
   f->glGenTextures(1, &texture);
@@ -173,7 +181,7 @@ GLuint obj::load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, copy.bits());
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, qi_copy.width(), qi_copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, qi_copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glBindTexture(GL_TEXTURE_2D, 0);
 
@@ -182,8 +190,10 @@ GLuint obj::load_texture(QOpenGLFunctions_4_3_Core *f, const char *filename, int
 
 void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat parenth, editorController *ec)
 {
-  shader = createShader(fns, ec);
-  VAO = getVAO(fns, parentw, parenth, shader);
+  shader = createShader(fns, ec);  
+  VAO = getVAO(fns, shader);
+  doProjection(fns, parentw, parenth, shader);
+  qDebug() << "Created VAO " << VAO;
   position = glm::vec2(0.0f, 0.0f);
   qDebug()<<"Text size: " << text_w << " * " << text_h;
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
@@ -195,7 +205,8 @@ void obj::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfloat paren
 void obj::prepare(QOpenGLFunctions_4_3_Core *fns, Renderer *r, editorController *ec)
 {
   shader = createShader(fns, ec);
-  VAO = getVAO(fns, r->width(), r->height(), shader);
+  VAO = getVAO(fns, shader);
+  doProjection(fns, r->width(), r->height(), shader);
   position = glm::vec2(0.0f, 0.0f);
   qDebug()<<"Text size: " << text_w << " * " << text_h;
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
@@ -211,7 +222,7 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
   text_h = img.height();
   prepare(f, r->width(), r->height(), ec);
 
-  copy = img;
+  qi_copy = img;
 
   f->glGenTextures(1, &texture);
   f->glBindTexture(GL_TEXTURE_2D, texture);
@@ -221,7 +232,7 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   f->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   
-  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, copy.width(), copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, copy.bits());
+  f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, qi_copy.width(), qi_copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, qi_copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -348,6 +359,7 @@ obj* obj::make(Renderer *parent, QImage img) {
     
     obj *o = new obj(parent, f, img);
     o->id = id;
+    o->qi_copied = true;
     r->owned_objects[id] = o;
     r->freeCtx();
   }
@@ -362,6 +374,8 @@ obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
     obj *o = new obj(r, texture_path, skipTexture);
     o->id = id;
     r->owned_objects[id] = o;
+    o->text_path = texture_path;
+    o->skipTexture = skipTexture;
   }
 
   return rr? static_cast<obj*>(rr->owned_objects[id]): static_cast<obj*>(editorController::instance->renderers.at(0)->owned_objects[id]);
@@ -369,4 +383,10 @@ obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
 
 int obj::getRenderId() {
   return id;
+}
+
+Renderable* obj::copy() {
+  if(qi_copied) 
+    return make(parent, qi_copy);
+  else return make(parent, text_path, skipTexture);
 }

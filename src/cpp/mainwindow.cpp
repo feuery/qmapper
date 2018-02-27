@@ -228,12 +228,20 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	    auto e = ec->e;
 	    
 	    e->er->getDrawQueue().clear();
-	    for(auto& dq: map_view->getDrawQueue()) {
-	      e->er->getDrawQueue().push_back(dq);
+	    int w = e->er->width(),
+	      h = e->er->height();
+	    auto f = e->er->getGlFns();
+	    
+	    for(Renderable *dq: map_view->getDrawQueue()) {
+	      Renderable *to_render = dq->copy();
+	      // to_render->redoMatrices(e->er, f, w, h);
+	      e->er->getDrawQueue().push_back(to_render);
 	    }
+
+	    e->er->freeCtx();
 	    
 	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
-	    e->showFullScreen();
+	    e->show();
 	  });
 }
 
