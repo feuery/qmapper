@@ -18,6 +18,12 @@ public:
   Engine_Renderer(QWidget *parent);
   virtual void initializeGL();
 
+  std::unordered_map<int, bool> keyMap;
+
+protected:
+  virtual void keyPressEvent(QKeyEvent *event) override;
+  virtual void keyReleaseEvent(QKeyEvent *event) override;
+
 };
 
 #endif //ENGINE_RENDERER_H

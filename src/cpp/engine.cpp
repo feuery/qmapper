@@ -4,6 +4,7 @@
 Engine::Engine(editorController *ec):ec(ec) {
     ui.setupUi(this);
     er = new Engine_Renderer(this);
+    er->setFocusPolicy(Qt::StrongFocus);
 
     QPushButton *btn = new QPushButton(this);
     btn->setText("Close");
