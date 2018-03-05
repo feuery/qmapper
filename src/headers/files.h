@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string>
+#include <QCoreApplication>
 
 long filesize(FILE* f);
 std::string read_source(const char* f);

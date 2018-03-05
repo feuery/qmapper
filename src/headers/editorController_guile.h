@@ -4,6 +4,7 @@
 #include <libguile.h>
 #include <editorController.h>
 #include <mapContainer.h>
+#include <guile_qt_keymapping.h>
 
 extern "C" {
   SCM add_map(SCM s_w, SCM s_h, SCM s_layerCount);
@@ -19,6 +20,8 @@ extern "C" {
 
   SCM load_sprite(SCM s_path);
   SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime);
+
+  SCM keyDown(SCM key);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

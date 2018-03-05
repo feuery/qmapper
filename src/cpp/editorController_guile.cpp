@@ -224,4 +224,9 @@ extern "C" {
 
     return SCM_BOOL_T;
   }
+
+  SCM keyDown(SCM key) {
+    Qt::Key k = scm_qt_key_pairs[key];
+    return editorController::instance->keyMap.at(k)? SCM_BOOL_T: SCM_BOOL_F;
+  }
 }

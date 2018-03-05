@@ -41,6 +41,7 @@ public:
   std::vector<Renderer*> renderers;
 
   Engine *e;
+  std::unordered_map<Qt::Key, bool> keyMap;
 
   int selectedTileX = 0, selectedTileY = 0;
   Tile selectedTileData;

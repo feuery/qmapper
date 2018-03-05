@@ -16,9 +16,9 @@ void Engine_Renderer::initializeGL() {
 }
 
 void Engine_Renderer::keyPressEvent(QKeyEvent *e) {
-  keyMap[e->key()] = true;
+  editorController::instance->keyMap[static_cast<Qt::Key>(e->key())] = true;
 }
 
 void Engine_Renderer::keyReleaseEvent(QKeyEvent *e) {
-  keyMap[e->key()] = false;
+  editorController::instance->keyMap[static_cast<Qt::Key>(e->key())] = false;
 }

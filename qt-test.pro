@@ -19,6 +19,9 @@ LIBS += `guile-config link`
 
 QMAKE_CXXFLAGS += `guile-config compile`
 
+DESTDIR = ./bin
+
+QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR})
 
 # Input
 HEADERS += src/headers/files.h \
@@ -63,7 +66,8 @@ HEADERS += src/headers/files.h \
            src/headers/spriteMover.h \
            src/headers/spriteRotater.h \
            src/headers/engine.h \
-           src/headers/engine_renderer.h
+           src/headers/engine_renderer.h \
+           src/headers/guile_qt_keymapping.h
            
 FORMS += \
     src/forms/main.ui \ 
@@ -107,4 +111,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/spriteMover.cpp \
            src/cpp/spriteRotater.cpp \
            src/cpp/engine.cpp \
-           src/cpp/engine_renderer.cpp
+           src/cpp/engine_renderer.cpp \
+           src/cpp/guile_qt_keymapping.cpp
