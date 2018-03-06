@@ -9,6 +9,13 @@ Engine_Renderer::Engine_Renderer(QWidget *parent): Renderer(parent)
   setMaximumWidth(w);
   setMaximumHeight(h);
   resize(w, h);
+
+  setMouseTracking(true);
+
+  mouseMoveEvents.push_back([](QMouseEvent* e) {
+      editorController::instance->mouseX = e->x();
+      editorController::instance->mouseY = e->y();
+    });
 }
 
 void Engine_Renderer::initializeGL() {

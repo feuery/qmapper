@@ -42,6 +42,7 @@ public:
 
   Engine *e;
   std::unordered_map<Qt::Key, bool> keyMap;
+  int mouseX, mouseY;
 
   int selectedTileX = 0, selectedTileY = 0;
   Tile selectedTileData;

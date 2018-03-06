@@ -20,6 +20,7 @@ static void* register_functions(void* data) {
   scm_c_define_gsubr("load-sprite!", 1, 0, 0, reinterpret_cast<scm_t_subr>(load_sprite));
   scm_c_define_gsubr("load-animation!", 3, 0, 0, reinterpret_cast<scm_t_subr>(load_animation));
   scm_c_define_gsubr("key-down?", 1, 0, 0, reinterpret_cast<scm_t_subr>(keyDown));
+  scm_c_define_gsubr("get-mouse", 0, 0, 0, reinterpret_cast<scm_t_subr>(getMouse));
   
   return NULL;
 }

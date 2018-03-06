@@ -22,6 +22,8 @@ extern "C" {
   SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime);
 
   SCM keyDown(SCM key);
+
+  SCM getMouse();
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

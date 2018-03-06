@@ -229,4 +229,10 @@ extern "C" {
     Qt::Key k = scm_qt_key_pairs[key];
     return editorController::instance->keyMap.at(k)? SCM_BOOL_T: SCM_BOOL_F;
   }
+
+  SCM getMouse() {
+    auto ec = editorController::instance;
+    SCM list = scm_list_2(scm_from_int(ec->mouseX), scm_from_int(ec->mouseY));
+    return list;
+  }
 }
