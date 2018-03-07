@@ -1,5 +1,5 @@
-(define-module (qmapper-std)
-  #:export (dec range str set-timeout))
+;; (define-module (qmapper-std)
+;;   #:export (dec range str set-timeout))
 
 (use-modules (srfi srfi-1))
 (use-modules (srfi srfi-18))
