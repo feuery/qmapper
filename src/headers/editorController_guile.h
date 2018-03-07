@@ -24,6 +24,7 @@ extern "C" {
   SCM keyDown(SCM key);
 
   SCM getMouse();
+  SCM getMouseButtonState(); 
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

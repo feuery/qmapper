@@ -235,4 +235,14 @@ extern "C" {
     SCM list = scm_list_2(scm_from_int(ec->mouseX), scm_from_int(ec->mouseY));
     return list;
   }
+
+  SCM getMouseButtonState() {
+    auto ec = editorController::instance;
+
+    auto btns = QGuiApplication::mouseButtons();
+    bool left = btns & Qt::LeftButton,
+      right = btns & Qt::RightButton;
+
+    return scm_list_2(scm_from_bool(left), scm_from_bool(right));
+  }
 }
