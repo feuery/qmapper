@@ -851,9 +851,34 @@ using nlohmann::json;
                   :handler #'handler}])
    (start-compiler-backend!)))
 
+(defn get-every-prop-type [input-dir]
+  (->> input-dir
+       io/file
+       file-seq
+       (filter (fn [f]
+                 (let [name (.getName f)]
+                   (and (not (re-find #"#" name))
+                        (re-find #"\.def$" name)))))
+       
+       (mapcat (fn [f]
+              (->> (slurp f)
+                   read-string-report-fail
+                   tokenize
+                   :forms
+                   (filter (fn [{:keys [type]}]
+                             (= type 'properties)))
+                   (map (comp first :form))
+                   set)))
+       (map typesymbol->str)              
+       set))
+
 (defn -main [input output]
-  (println "Starting compilation daemon which compiles " input "->" output)
-  (start-compilation-d! input output))
+  (cond
+    (= input "--get-every-prop-type") (doseq [type (get-every-prop-type output)]
+                                        (println type ", "))
+    :else (do
+            (println "Starting compilation daemon which compiles " input "->" output)
+            (start-compilation-d! input output))))
 
 (def tile '(defcppclass Tile ()
   (public
