@@ -27,6 +27,7 @@ extern "C" {
   SCM getMouseButtonState();
 
   SCM getProp(SCM id, SCM type, SCM propname);
+  SCM setProp(SCM id, SCM type, SCM propname, SCM value);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

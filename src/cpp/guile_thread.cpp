@@ -23,7 +23,8 @@ static void* register_functions(void* data) {
   scm_c_define_gsubr("get-mouse", 0, 0, 0, reinterpret_cast<scm_t_subr>(getMouse));
   scm_c_define_gsubr("get-mouse-buttons", 0, 0, 0, reinterpret_cast<scm_t_subr>(getMouseButtonState));
   scm_c_define_gsubr("get-prop", 3, 0, 0, reinterpret_cast<scm_t_subr>(getProp));
-  
+  scm_c_define_gsubr("set-prop", 4, 0, 0, reinterpret_cast<scm_t_subr>(setProp));
+    
   return NULL;
 }
 

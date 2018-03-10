@@ -296,4 +296,61 @@ extern "C" {
 
     return SCM_BOOL_F;
   }
+
+  #define setVal obj->set(c_prop, val)
+
+  SCM setProp(SCM id, SCM type, SCM propname, SCM value)
+  {
+    auto ec = editorController::instance;
+
+    const char *c_type = scm_to_locale_string(type),
+      *c_prop = scm_to_locale_string(propname),
+      *c_id = scm_to_locale_string(id);
+    
+    std::string cc_type = c_type;
+    bool lol = false;
+
+    Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+    std::string proptype = obj->type_name(c_prop);
+
+    std::string result = "";
+
+    ec->documentTreeModel->begin();
+    
+    if(proptype == "std::string") {
+      std::string val = scm_to_locale_string(value);
+      setVal;
+    }
+    else if (proptype == "int") {
+      int val = scm_to_int(value);
+      setVal;
+    }
+    else if (proptype == "bool") {
+      bool val = scm_to_bool(value);
+      setVal;
+    }
+    else if (proptype == "unsigned char") {
+      int lol = scm_to_int(value);
+      unsigned char val = static_cast<unsigned char>(lol);
+      setVal;
+    }
+    else if (proptype == "Script*") {
+      Script* scr;
+      scr = obj->get(c_prop, &lol, scr);
+
+      const char *content = scm_to_locale_string(value);
+      scr->setContents(content);
+    }
+    else if(proptype == "scriptTypes") {
+      const char *result = scm_to_locale_string(scm_symbol_to_string(value));
+      std::string r = result;
+      scriptTypes val = r == "glsl"? glsl: scheme;
+      setVal;      
+    }
+    else
+      qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
+    ec->documentTreeModel->end();
+
+    return SCM_BOOL_T;
+  }
 }
