@@ -245,4 +245,55 @@ extern "C" {
 
     return scm_list_2(scm_from_bool(left), scm_from_bool(right));
   }
+
+  #define returnResult const char *res = result.c_str();\
+    return scm_from_locale_string(res);
+
+  SCM getProp(SCM id, SCM type, SCM propname) {
+    auto ec = editorController::instance;
+
+    const char *c_type = scm_to_locale_string(type),
+      *c_prop = scm_to_locale_string(propname),
+      *c_id = scm_to_locale_string(id);
+    
+    std::string cc_type = c_type;
+    bool lol = false;
+
+    Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+    std::string proptype = obj->type_name(c_prop);
+
+    std::string result = "";
+    if(proptype == "std::string") {
+      result = obj->get(c_prop, &lol, result);
+      returnResult;
+    }
+    else if (proptype == "int") {
+      int i = 42;
+
+      return scm_from_int(obj->get(c_prop, &lol, i));
+    }
+    else if (proptype == "bool") {
+      return scm_from_bool(obj->get(c_prop, &lol, lol));
+    }
+    else if (proptype == "unsigned char") {
+      unsigned char trol = -1;
+      int result = obj->get(c_prop, &lol, trol);
+      return scm_from_int(result);
+    }
+    else if (proptype == "Script*") {
+      Script* scr;
+      scr = obj->get(c_prop, &lol, scr);
+      result = scr->getContents();
+      returnResult;
+    }
+    else if(proptype == "scriptTypes") {
+      scriptTypes t;
+      t = obj->get(c_prop, &lol, t);
+      return scm_string_to_symbol(scm_from_locale_string(t == glsl? "glsl" : "scheme"));
+    }
+
+    qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
+
+    return SCM_BOOL_F;
+  }
 }
