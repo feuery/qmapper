@@ -1,5 +1,5 @@
 (defcppclass root ("<propertierbase.h>" "<map>"
-					"<string>" "<boost/flyweight.hpp>"
+					"<string>"
 					"<QString>" "<either.h>")
   (declare-class "Map")
   (protected

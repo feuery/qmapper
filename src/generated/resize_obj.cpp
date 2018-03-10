@@ -1,6 +1,6 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-03-10T15:42:38.925Z
+////// generated at 2018-03-10T17:38:04.412Z
 
 
 void resize_data::setNew_width(int value) { 

@@ -9,7 +9,6 @@ using nlohmann::json;
 #include<propertierbase.h>
 #include<map>
 #include<string>
-#include<boost/flyweight.hpp>
 #include<QString>
 #include<either.h>
 #include<cstring>

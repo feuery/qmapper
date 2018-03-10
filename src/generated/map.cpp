@@ -1,7 +1,7 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-10T15:42:38.938Z
+////// generated at 2018-03-10T17:38:04.430Z
 
 
 void Map::setName(std::string value) { 
