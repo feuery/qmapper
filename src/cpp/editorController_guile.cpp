@@ -361,4 +361,26 @@ extern "C" {
 
     return SCM_BOOL_T;
   }
+
+  SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda)
+  {
+    auto ec = editorController::instance;
+
+    const char *c_type = scm_to_locale_string(type),
+      *c_prop = scm_to_locale_string(propname),
+      *c_id = scm_to_locale_string(id);
+
+    std::string _prop = c_prop;
+    
+    std::string cc_type = c_type;
+    bool lol = false;
+
+    Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+    FUN f;
+    f.call_guile = true;
+    f.guile = lambda;
+
+    obj->addEvent(_prop, f);
+    return SCM_BOOL_T;
+  }
 }

@@ -45,6 +45,7 @@ void Spritecontainer::setX (int newX)
   
   o->position = glm::vec2(newXf, y);
 
+  handleEvents("X");
 }
 int Spritecontainer::getX () const  {
   return ceil(getObject()->position.x);
@@ -55,12 +56,15 @@ void Spritecontainer::setY (int newY)  {
     newYf = newY;
   
   getObject()->position = glm::vec2(x, newYf);
+
+  handleEvents("Y");
 }
 int Spritecontainer::getY () const {
   return ceil(getObject()->position.y);
 }
 void Spritecontainer::setAngle (float newangle)  {
   getObject()->rotate = newangle;
+  handleEvents("Angle");
 }
 float Spritecontainer::getAngle () const  {
   return getObject()->rotate;

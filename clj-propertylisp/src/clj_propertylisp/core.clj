@@ -312,6 +312,12 @@ virtual ~Propertierbase ();
     event_map[prop].erase(id);
   }
 
+  void handleEvents(std::string prop) {
+    for(auto fn: event_map[prop]) { 
+      fn.second(this);
+    }
+  }
+
   virtual std::string getId() const
   {
     return Id_field;

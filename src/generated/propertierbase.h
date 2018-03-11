@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-11T12:02:13.443Z
+//// generated at 2018-03-11T13:11:30.802Z
 
 #include<renderer.h>
 #include<QString>
@@ -77,6 +77,12 @@ virtual ~Propertierbase ();
   }
   virtual void dropEvent(std::string prop, int id) {
     event_map[prop].erase(id);
+  }
+
+  void handleEvents(std::string prop) {
+    for(auto fn: event_map[prop]) { 
+      fn.second(this);
+    }
   }
 
   virtual std::string getId() const

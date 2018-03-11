@@ -74,6 +74,8 @@ void Animatedspritecontainer::setX (int newX) {
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setX(newX);
   }
+
+  handleEvents("X");
 }
 int Animatedspritecontainer::getX () const {
   return (*sprites->begin())->getX();
@@ -82,6 +84,8 @@ void Animatedspritecontainer::setY (int newY) {
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setY(newY);
   }
+
+  handleEvents("Y");
 }
 int Animatedspritecontainer::getY () const {
     return (*sprites->begin())->getY();
@@ -98,6 +102,8 @@ void Animatedspritecontainer::setAngle (float newangle) {
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setAngle(newangle);
   }
+
+  handleEvents("Angle");
 }
 float Animatedspritecontainer::getAngle () const {
   return (*sprites->begin())->getAngle();
