@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-10T17:38:04.338Z
+//// generated at 2018-03-11T12:02:13.443Z
 
 #include<renderer.h>
 #include<QString>
@@ -106,6 +106,8 @@ virtual void set(std::string propertyname, int value);
 virtual int get(std::string propertyname, bool *success, int type_helper) const;
 virtual void set(std::string propertyname, horizontalAnchor value);
 virtual horizontalAnchor get(std::string propertyname, bool *success, horizontalAnchor type_helper) const;
+virtual void set(std::string propertyname, float value);
+virtual float get(std::string propertyname, bool *success, float type_helper) const;
 virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value);
 virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const;
 virtual void set(std::string propertyname, std::vector<Layer*>* value);

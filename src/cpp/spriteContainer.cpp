@@ -2,7 +2,7 @@
 #include <editorController.h>
 #include <QFileInfo>
 
-obj* Spritecontainer::getObject() {
+obj* Spritecontainer::getObject() const {
   return static_cast<obj*>(parent->owned_objects[renderId] );
 }
 
@@ -46,7 +46,7 @@ void Spritecontainer::setX (int newX)
   o->position = glm::vec2(newXf, y);
 
 }
-int Spritecontainer::getX ()  {
+int Spritecontainer::getX () const  {
   return ceil(getObject()->position.x);
   
 }
@@ -56,13 +56,13 @@ void Spritecontainer::setY (int newY)  {
   
   getObject()->position = glm::vec2(x, newYf);
 }
-int Spritecontainer::getY () {
+int Spritecontainer::getY () const {
   return ceil(getObject()->position.y);
 }
 void Spritecontainer::setAngle (float newangle)  {
   getObject()->rotate = newangle;
 }
-float Spritecontainer::getAngle ()  {
+float Spritecontainer::getAngle () const  {
   return getObject()->rotate;
 }
 

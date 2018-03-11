@@ -28,36 +28,36 @@ Script* Fragmentshader_field = nullptr;
 public: virtual void setTiles(std::vector<std::vector<Tile>>* val);
 virtual std::vector<std::vector<Tile>>* getTiles() const;
 std::vector<std::vector<Tile>>* Tiles_field = nullptr;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; }
-if(propertyname == std::string("name") ) { Name_field = value; return; } }
+if(propertyname == std::string("Id") ) { setId(value); return; }
+if(propertyname == std::string("name") ) { setName(value); return; } }
 virtual void set(std::string propertyname, Script* value) {
-if(propertyname == std::string("vertexShader") ) { Vertexshader_field = value; return; }
-if(propertyname == std::string("fragmentShader") ) { Fragmentshader_field = value; return; } }
+if(propertyname == std::string("vertexShader") ) { setVertexshader(value); return; }
+if(propertyname == std::string("fragmentShader") ) { setFragmentshader(value); return; } }
 virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value) {
-if(propertyname == std::string("tiles") ) { Tiles_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("tiles") ) { setTiles(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 }
 if(propertyname == std::string("name")) {
   *success = true;
-  return Name_field;
+  return getName();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 virtual Script* get(std::string propertyname, bool *success, Script* type_helper) const {
 if(propertyname == std::string("vertexShader")) {
   *success = true;
-  return Vertexshader_field;
+  return getVertexshader();
 }
 if(propertyname == std::string("fragmentShader")) {
   *success = true;
-  return Fragmentshader_field;
+  return getFragmentshader();
 } *success = false; Script* invalid_data; return invalid_data;
 }
 virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
 if(propertyname == std::string("tiles")) {
   *success = true;
-  return Tiles_field;
+  return getTiles();
 } *success = false; std::vector<std::vector<Tile>>* invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

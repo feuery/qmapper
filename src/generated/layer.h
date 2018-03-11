@@ -33,39 +33,39 @@ public: virtual Map* parent () = 0;
 protected: int w = 0;
 protected: int h = 0;
 protected: Map* p = nullptr;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; }
-if(propertyname == std::string("name") ) { Name_field = value; return; } }
+if(propertyname == std::string("Id") ) { setId(value); return; }
+if(propertyname == std::string("name") ) { setName(value); return; } }
 virtual void set(std::string propertyname, unsigned char value) {
-if(propertyname == std::string("opacity") ) { Opacity_field = value; return; } }
+if(propertyname == std::string("opacity") ) { setOpacity(value); return; } }
 virtual void set(std::string propertyname, bool value) {
-if(propertyname == std::string("visible") ) { Visible_field = value; return; } }
+if(propertyname == std::string("visible") ) { setVisible(value); return; } }
 virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value) {
-if(propertyname == std::string("tiles") ) { Tiles_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("tiles") ) { setTiles(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 }
 if(propertyname == std::string("name")) {
   *success = true;
-  return Name_field;
+  return getName();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 virtual unsigned char get(std::string propertyname, bool *success, unsigned char type_helper) const {
 if(propertyname == std::string("opacity")) {
   *success = true;
-  return Opacity_field;
+  return getOpacity();
 } *success = false; unsigned char invalid_data; return invalid_data;
 }
 virtual bool get(std::string propertyname, bool *success, bool type_helper) const {
 if(propertyname == std::string("visible")) {
   *success = true;
-  return Visible_field;
+  return getVisible();
 } *success = false; bool invalid_data; return invalid_data;
 }
 virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
 if(propertyname == std::string("tiles")) {
   *success = true;
-  return Tiles_field;
+  return getTiles();
 } *success = false; std::vector<std::vector<Tile>>* invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

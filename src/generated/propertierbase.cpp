@@ -72,6 +72,15 @@ horizontalAnchor Propertierbase::get(std::string propertyname, bool *success, ho
 {
 
 }
+void Propertierbase::set(std::string propertyname, float value) 
+{
+
+}
+
+float Propertierbase::get(std::string propertyname, bool *success, float type_helper) const
+{
+
+}
 void Propertierbase::set(std::string propertyname, std::vector<std::vector<Tile>>* value) 
 {
 

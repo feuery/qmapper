@@ -22,39 +22,39 @@ verticalAnchor Vertical_anchor_field = TOP;
 public: virtual void setHorizontal_anchor(horizontalAnchor val);
 virtual horizontalAnchor getHorizontal_anchor() const;
 horizontalAnchor Horizontal_anchor_field = LEFT;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; } }
+if(propertyname == std::string("Id") ) { setId(value); return; } }
 virtual void set(std::string propertyname, int value) {
-if(propertyname == std::string("new_width") ) { New_width_field = value; return; }
-if(propertyname == std::string("new_height") ) { New_height_field = value; return; } }
+if(propertyname == std::string("new_width") ) { setNew_width(value); return; }
+if(propertyname == std::string("new_height") ) { setNew_height(value); return; } }
 virtual void set(std::string propertyname, verticalAnchor value) {
-if(propertyname == std::string("vertical_anchor") ) { Vertical_anchor_field = value; return; } }
+if(propertyname == std::string("vertical_anchor") ) { setVertical_anchor(value); return; } }
 virtual void set(std::string propertyname, horizontalAnchor value) {
-if(propertyname == std::string("horizontal_anchor") ) { Horizontal_anchor_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("horizontal_anchor") ) { setHorizontal_anchor(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 virtual int get(std::string propertyname, bool *success, int type_helper) const {
 if(propertyname == std::string("new_width")) {
   *success = true;
-  return New_width_field;
+  return getNew_width();
 }
 if(propertyname == std::string("new_height")) {
   *success = true;
-  return New_height_field;
+  return getNew_height();
 } *success = false; int invalid_data; return invalid_data;
 }
 virtual verticalAnchor get(std::string propertyname, bool *success, verticalAnchor type_helper) const {
 if(propertyname == std::string("vertical_anchor")) {
   *success = true;
-  return Vertical_anchor_field;
+  return getVertical_anchor();
 } *success = false; verticalAnchor invalid_data; return invalid_data;
 }
 virtual horizontalAnchor get(std::string propertyname, bool *success, horizontalAnchor type_helper) const {
 if(propertyname == std::string("horizontal_anchor")) {
   *success = true;
-  return Horizontal_anchor_field;
+  return getHorizontal_anchor();
 } *success = false; horizontalAnchor invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

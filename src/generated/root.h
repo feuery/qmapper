@@ -26,10 +26,10 @@ public: virtual either<scriptTypes, std::string> findNs (std::string ns) = 0;
 public: virtual void saveNs (std::string ns, std::string content) = 0;
 public: virtual bool containsNs (std::string ns) = 0;
 public: virtual std::vector<Propertierbase*> registryOf (std::string type) = 0;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("Id") ) { setId(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

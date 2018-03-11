@@ -291,6 +291,10 @@ extern "C" {
       t = obj->get(c_prop, &lol, t);
       return scm_string_to_symbol(scm_from_locale_string(t == glsl? "glsl" : "scheme"));
     }
+    else if(proptype == "float") {
+      float val = obj->get(c_prop, &lol, 2.2f);
+      return scm_from_double(val);
+    }
 
     qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
 
@@ -346,6 +350,10 @@ extern "C" {
       std::string r = result;
       scriptTypes val = r == "glsl"? glsl: scheme;
       setVal;      
+    }
+    else if(proptype == "float") {
+      float val = scm_to_double(value);
+      setVal;
     }
     else
       qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();

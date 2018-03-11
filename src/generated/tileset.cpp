@@ -1,6 +1,6 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-03-10T17:38:04.446Z
+////// generated at 2018-03-11T12:02:13.459Z
 
 
 void Tileset::setName(std::string value) { 

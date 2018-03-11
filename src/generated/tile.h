@@ -22,33 +22,33 @@ std::string Tileset_field;
 public: virtual void setRotation(int val);
 virtual int getRotation() const;
 int Rotation_field = 0;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; }
-if(propertyname == std::string("tileset") ) { Tileset_field = value; return; } }
+if(propertyname == std::string("Id") ) { setId(value); return; }
+if(propertyname == std::string("tileset") ) { setTileset(value); return; } }
 virtual void set(std::string propertyname, int value) {
-if(propertyname == std::string("x") ) { X_field = value; return; }
-if(propertyname == std::string("y") ) { Y_field = value; return; }
-if(propertyname == std::string("rotation") ) { Rotation_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("x") ) { setX(value); return; }
+if(propertyname == std::string("y") ) { setY(value); return; }
+if(propertyname == std::string("rotation") ) { setRotation(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 }
 if(propertyname == std::string("tileset")) {
   *success = true;
-  return Tileset_field;
+  return getTileset();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 virtual int get(std::string propertyname, bool *success, int type_helper) const {
 if(propertyname == std::string("x")) {
   *success = true;
-  return X_field;
+  return getX();
 }
 if(propertyname == std::string("y")) {
   *success = true;
-  return Y_field;
+  return getY();
 }
 if(propertyname == std::string("rotation")) {
   *success = true;
-  return Rotation_field;
+  return getRotation();
 } *success = false; int invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

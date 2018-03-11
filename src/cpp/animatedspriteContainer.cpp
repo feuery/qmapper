@@ -75,7 +75,7 @@ void Animatedspritecontainer::setX (int newX) {
     (*i)->setX(newX);
   }
 }
-int Animatedspritecontainer::getX () {
+int Animatedspritecontainer::getX () const {
   return (*sprites->begin())->getX();
 }
 void Animatedspritecontainer::setY (int newY) {
@@ -83,7 +83,7 @@ void Animatedspritecontainer::setY (int newY) {
     (*i)->setY(newY);
   }
 }
-int Animatedspritecontainer::getY () {
+int Animatedspritecontainer::getY () const {
     return (*sprites->begin())->getY();
 }
 
@@ -99,6 +99,6 @@ void Animatedspritecontainer::setAngle (float newangle) {
     (*i)->setAngle(newangle);
   }
 }
-float Animatedspritecontainer::getAngle () {
+float Animatedspritecontainer::getAngle () const {
   return (*sprites->begin())->getAngle();
 }

@@ -1,7 +1,7 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-10T17:38:04.444Z
+////// generated at 2018-03-11T12:02:13.459Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -40,6 +40,24 @@ for(auto fn: event_map["Msperframe"]) {
                                                         int animatedsprite::getMsperframe() const {
 return Msperframe_field;
 }
+void animatedsprite::setX(int value) { 
+X_field = value;
+for(auto fn: event_map["X"]) { 
+  fn.second(this);
+}
+}
+                                                        int animatedsprite::getX() const {
+return X_field;
+}
+void animatedsprite::setY(int value) { 
+Y_field = value;
+for(auto fn: event_map["Y"]) { 
+  fn.second(this);
+}
+}
+                                                        int animatedsprite::getY() const {
+return Y_field;
+}
 void animatedsprite::setAnimationplaying(bool value) { 
 Animationplaying_field = value;
 for(auto fn: event_map["Animationplaying"]) { 
@@ -48,6 +66,15 @@ for(auto fn: event_map["Animationplaying"]) {
 }
                                                         bool animatedsprite::getAnimationplaying() const {
 return Animationplaying_field;
+}
+void animatedsprite::setAngle(float value) { 
+Angle_field = value;
+for(auto fn: event_map["Angle"]) { 
+  fn.second(this);
+}
+}
+                                                        float animatedsprite::getAngle() const {
+return Angle_field;
 }
 animatedsprite::animatedsprite() {
 r.push_back(std::string(std::string("Id")));
@@ -62,6 +89,12 @@ r.push_back(std::string(std::string("msPerFrame")));
 event_map["msPerFrame"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("animationPlaying")));
 event_map["animationPlaying"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("x")));
+event_map["x"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("y")));
+event_map["y"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("angle")));
+event_map["angle"] = std::unordered_map<int, FUN>();
 }animatedsprite* toAnimatedsprite(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("animatedsprite")) {
@@ -80,7 +113,10 @@ nlohmann::json j {
 {"Parentmapid", getParentmapid()},
 {"Name", getName()},
 {"Currentframeid", getCurrentframeid()},
-{"Msperframe", getMsperframe()}
+{"Msperframe", getMsperframe()},
+{"X", getX()},
+{"Y", getY()},
+{"Angle", getAngle()}
 };
 return j.dump();
 }
@@ -92,6 +128,9 @@ setParentmapid(j["Parentmapid"]);
 setName(j["Name"]);
 setCurrentframeid(j["Currentframeid"]);
 setMsperframe(j["Msperframe"]);
+setX(j["X"]);
+setY(j["Y"]);
+setAngle(j["Angle"]);
 }
 
 using nlohmann::json;

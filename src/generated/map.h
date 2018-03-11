@@ -29,23 +29,23 @@ public: virtual int width () = 0;
 public: virtual int height () = 0;
 public: virtual void resize (int w, int h, verticalAnchor vAnchor, horizontalAnchor hAnchor) = 0;
 public: virtual root* parent () = 0;virtual void set(std::string propertyname, std::string value) {
-if(propertyname == std::string("Id") ) { Id_field = value; return; }
-if(propertyname == std::string("name") ) { Name_field = value; return; } }
+if(propertyname == std::string("Id") ) { setId(value); return; }
+if(propertyname == std::string("name") ) { setName(value); return; } }
 virtual void set(std::string propertyname, std::vector<Layer*>* value) {
-if(propertyname == std::string("layers") ) { Layers_field = value; return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
+if(propertyname == std::string("layers") ) { setLayers(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
-  return Id_field;
+  return getId();
 }
 if(propertyname == std::string("name")) {
   *success = true;
-  return Name_field;
+  return getName();
 } *success = false; std::string invalid_data; return invalid_data;
 }
 virtual std::vector<Layer*>* get(std::string propertyname, bool *success, std::vector<Layer*>* type_helper) const {
 if(propertyname == std::string("layers")) {
   *success = true;
-  return Layers_field;
+  return getLayers();
 } *success = false; std::vector<Layer*>* invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;

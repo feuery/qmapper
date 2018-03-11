@@ -13,13 +13,13 @@ public:
   ~Animatedspritecontainer();
 
   void setX (int newX);
-  int getX ();
+  int getX () const override;
   void setY (int newY);
-  int getY ();
+  int getY () const override;
   int maxFrames ();
   void advanceFrame ();
   void setAngle (float newangle);
-  float getAngle ();
+  float getAngle () const override;;
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render(Renderer *parent) override;

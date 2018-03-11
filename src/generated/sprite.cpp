@@ -1,7 +1,7 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-10T17:38:04.440Z
+////// generated at 2018-03-11T12:02:13.458Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -22,9 +22,42 @@ for(auto fn: event_map["Name"]) {
                                                         std::string Sprite::getName() const {
 return Name_field;
 }
+void Sprite::setX(int value) { 
+X_field = value;
+for(auto fn: event_map["X"]) { 
+  fn.second(this);
+}
+}
+                                                        int Sprite::getX() const {
+return X_field;
+}
+void Sprite::setY(int value) { 
+Y_field = value;
+for(auto fn: event_map["Y"]) { 
+  fn.second(this);
+}
+}
+                                                        int Sprite::getY() const {
+return Y_field;
+}
+void Sprite::setAngle(float value) { 
+Angle_field = value;
+for(auto fn: event_map["Angle"]) { 
+  fn.second(this);
+}
+}
+                                                        float Sprite::getAngle() const {
+return Angle_field;
+}
 Sprite::Sprite() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("x")));
+event_map["x"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("y")));
+event_map["y"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("angle")));
+event_map["angle"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("parentMapId")));
 event_map["parentMapId"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
@@ -44,6 +77,9 @@ std::string Sprite::toJSON() const
 {
 nlohmann::json j {
 {"Id", getId()},
+{"X", getX()},
+{"Y", getY()},
+{"Angle", getAngle()},
 {"Parentmapid", getParentmapid()},
 {"Name", getName()}
 };
@@ -53,6 +89,9 @@ void Sprite::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
 setId(j["Id"]);
+setX(j["X"]);
+setY(j["Y"]);
+setAngle(j["Angle"]);
 setParentmapid(j["Parentmapid"]);
 setName(j["Name"]);
 }

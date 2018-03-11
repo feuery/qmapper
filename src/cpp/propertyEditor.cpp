@@ -1,6 +1,7 @@
 #include <QDebug>
 #include <QLabel>
 #include <propertyEditor.h>
+#include <limits>
 #include <QComboBox>
 #include <QCheckBox>
 #include <root.h>
@@ -12,6 +13,7 @@
 #include <script.h>
 #include <tileset.h>
 #include <tilesetContainer.h>
+#include <QDoubleValidator>
 
 either<bool, std::string> getStringProp(Propertierbase* base, std::string internedPropname) {
   if(internedPropname == "Id") return {true, base->getId()};
@@ -261,6 +263,38 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       	      [=]() { if(result.a) {
 		  qDebug() << "Basen tyyppi: " << base->type_identifier().c_str();
 		  editingNmbrStringFinished<int>(base, properties.at(i), edit);
+		}});
+
+      std::string fieldName = properties.at(i);
+      std::string errors = base->getErrorsOf(fieldName);
+
+      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      error_field->setStyleSheet("QLabel { color: red; }");
+
+      field_errorlabel_mapping[properties.at(i)] = error_field;
+      
+      data->addRow(QString(properties.at(i).c_str()), edit);
+      data->addRow(QString(""), error_field);
+    }
+    else if (type == "float") {
+      auto result = getNumericProp<float>(base, properties.at(i));
+
+      if(!result.a) {
+	qDebug() << "Couldn't find float - prop " << properties.at(i).c_str();
+	throw "";
+      }
+
+      float v = result.b;
+      
+      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
+	new QLineEdit("Failed getting prop", this);
+
+      // edit->setValidator(new QDoubleValidator(std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), 15, this));
+
+      connect(edit, &QLineEdit::editingFinished,
+      	      [=]() { if(result.a) {
+		  qDebug() << "Basen tyyppi: " << base->type_identifier().c_str();
+		  editingNmbrStringFinished<float>(base, properties.at(i), edit);
 		}});
 
       std::string fieldName = properties.at(i);

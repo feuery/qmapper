@@ -128,7 +128,8 @@ std::vector<Propertierbase*> Rootcontainer::registryOf (std::string type) {
 
   if(type == "std::string" ||
      type == "std::vector<std::vector<Tile>>" ||
-     type == "std::vector<Layer>") return {};
+     type == "std::vector<Layer>" ||
+     type == "float") return {};
   
   std::vector<Propertierbase*> r;
 

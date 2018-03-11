@@ -11,11 +11,11 @@ public:
   ~Spritecontainer();
 
   void setX (int newX) override;
-  int getX () override;
+  int getX () const override;
   void setY (int newY) override;
-  int getY () override;
+  int getY () const override;
   void setAngle (float newangle) override;
-  float getAngle () override;
+  float getAngle () const override;
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render() override;
@@ -28,7 +28,7 @@ private:
   Spritecontainer(Renderer *parent, const char *text_path);
 
   Renderer *parent;
-  obj* getObject();
+  obj* getObject() const;
 };
 #else
 class Spritecontainer;

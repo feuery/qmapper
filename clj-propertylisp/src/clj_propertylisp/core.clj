@@ -496,7 +496,7 @@ return;
                  (if validators
                    (str " && " (str/join " && "
                                          (map validator-gen validators))))
-                 ") { " (-> prop-name name str/capitalize) "_field = value; return; }"))))
+                 ") { set" (-> prop-name name str/capitalize) "(value); return; }"))))
        (str/join "\n"))
                                         " }")))
                           (str/join "\n"))
@@ -509,7 +509,7 @@ return;
                                                   (let [[_ prop-name _ ] form]
                                                     (str "if(propertyname == std::string(\"" prop-name "\")) {
   *success = true;
-  return " (-> prop-name name str/capitalize) "_field;
+  return get" (-> prop-name name str/capitalize) "();
 }"))))
                                            (str/join "\n"))
                                       " *success = false; " type " invalid_data; return invalid_data;

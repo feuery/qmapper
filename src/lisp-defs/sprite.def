@@ -1,16 +1,13 @@
 (defcppclass Sprite ("<new_obj.h>" "<renderer.h>" "<string>")
   (public
    (functions
-    (void setX (int newX))
-    (int getX ())
-    (void setY (int newY))
-    (int getY ())
-    ;; 0.0f - 360.0f
-    (void setAngle (float newangle))
     (void render (QOpenGLFunctions_4_3_Core* f))
-    (void render (Renderer *parent))
-    (float getAngle ()))
+    (void render (Renderer *parent)))
    (properties
+    (int x 0)
+    (int y 0)
+    (float angle 0.0)
+    
     (std__string parentMapId "")
     (std__string name ""))))
     
