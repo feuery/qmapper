@@ -27,3 +27,19 @@
 				   seconds)))
 		(fn)))))
     (touch fut)))
+
+
+;; Testikoodi enginelle:
+
+;; (define (keyloop)
+;;   (when (key-down? 'Key_Right)
+;;     (let ((x (get-prop "2001100545" "Sprite" "x")))
+;;       (set-prop "2001100545" "Sprite" "x" (+ x 10))))
+;;   (set-timeout 1 keyloop))
+
+;; (add-event "2001100545" "Sprite" "x" (lambda (id)
+;; 				       (let ((x (get-prop id "Sprite" "x")))
+;; 					 (if (> x 200)
+;; 					     (display "Voitit pelin")))))
+
+;; (keyloop)

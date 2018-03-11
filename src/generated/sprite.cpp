@@ -1,13 +1,13 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.835Z
+////// generated at 2018-03-11T19:00:55.120Z
 
 
 void Sprite::setParentmapid(std::string value) { 
 Parentmapid_field = value;
 for(auto fn: event_map["Parentmapid"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Sprite::getParentmapid() const {
@@ -16,7 +16,7 @@ return Parentmapid_field;
 void Sprite::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Sprite::getName() const {
@@ -25,7 +25,7 @@ return Name_field;
 void Sprite::setX(int value) { 
 X_field = value;
 for(auto fn: event_map["X"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int Sprite::getX() const {
@@ -34,7 +34,7 @@ return X_field;
 void Sprite::setY(int value) { 
 Y_field = value;
 for(auto fn: event_map["Y"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int Sprite::getY() const {
@@ -43,7 +43,7 @@ return Y_field;
 void Sprite::setAngle(float value) { 
 Angle_field = value;
 for(auto fn: event_map["Angle"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         float Sprite::getAngle() const {

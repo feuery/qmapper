@@ -1,13 +1,13 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.831Z
+////// generated at 2018-03-11T19:00:55.117Z
 
 
 void Map::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Map::getName() const {
@@ -16,7 +16,7 @@ return Name_field;
 void Map::setLayers(std::vector<Layer*>* value) { 
 Layers_field = value;
 for(auto fn: event_map["Layers"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::vector<Layer*>* Map::getLayers() const {

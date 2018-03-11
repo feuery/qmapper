@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-11T13:11:30.802Z
+//// generated at 2018-03-11T19:00:55.105Z
 
 #include<renderer.h>
 #include<QString>
@@ -41,7 +41,7 @@ public:
   bool call_guile = false;
 
   SCM guile;
-  std::function<void(Propertierbase*)> cpp;
+  std::function<void(std::string)> cpp;
 
   FUN& operator=(FUN& f) {
      guile = f.guile;
@@ -50,12 +50,12 @@ public:
      return f;
   }
 
-  void operator()(Propertierbase *b) {
+  void operator()(std::string id) {
     if(call_guile) {
-      SCM bb = scm_from_pointer(b, nullptr);
+      SCM bb = scm_from_locale_string(id.c_str());
       scm_call_1(guile, bb);
     }
-    else cpp(b);
+    else cpp(id);
   }
 };
 
@@ -81,7 +81,7 @@ virtual ~Propertierbase ();
 
   void handleEvents(std::string prop) {
     for(auto fn: event_map[prop]) { 
-      fn.second(this);
+      fn.second(this->getId());
     }
   }
 

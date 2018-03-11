@@ -1,12 +1,12 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.837Z
+////// generated at 2018-03-11T19:00:55.121Z
 
 
 void Tileset::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Tileset::getName() const {
@@ -15,7 +15,7 @@ return Name_field;
 void Tileset::setVertexshader(Script* value) { 
 Vertexshader_field = value;
 for(auto fn: event_map["Vertexshader"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         Script* Tileset::getVertexshader() const {
@@ -24,7 +24,7 @@ return Vertexshader_field;
 void Tileset::setFragmentshader(Script* value) { 
 Fragmentshader_field = value;
 for(auto fn: event_map["Fragmentshader"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         Script* Tileset::getFragmentshader() const {
@@ -33,7 +33,7 @@ return Fragmentshader_field;
 void Tileset::setTiles(std::vector<std::vector<Tile>>* value) { 
 Tiles_field = value;
 for(auto fn: event_map["Tiles"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::vector<std::vector<Tile>>* Tileset::getTiles() const {

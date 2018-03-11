@@ -1,12 +1,12 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.818Z
+////// generated at 2018-03-11T19:00:55.110Z
 
 
 void Script::setContents(std::string value) { 
 Contents_field = value;
 for(auto fn: event_map["Contents"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Script::getContents() const {
@@ -15,7 +15,7 @@ return Contents_field;
 void Script::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Script::getName() const {
@@ -27,7 +27,7 @@ auto error_reporter = [&](std::string msg) {
 	printf("Pushing error %s\n", msg.c_str());
 	vec.push_back(msg);};if(doesntContainNs(value, error_reporter))Ns_field = value;
 for(auto fn: event_map["Ns"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Script::getNs() const {
@@ -36,7 +36,7 @@ return Ns_field;
 void Script::setScript_type(scriptTypes value) { 
 Script_type_field = value;
 for(auto fn: event_map["Script_type"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         scriptTypes Script::getScript_type() const {

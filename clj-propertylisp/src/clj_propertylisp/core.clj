@@ -274,7 +274,7 @@ public:
   bool call_guile = false;
 
   SCM guile;
-  std::function<void(Propertierbase*)> cpp;
+  std::function<void(std::string)> cpp;
 
   FUN& operator=(FUN& f) {
      guile = f.guile;
@@ -283,12 +283,12 @@ public:
      return f;
   }
 
-  void operator()(Propertierbase *b) {
+  void operator()(std::string id) {
     if(call_guile) {
-      SCM bb = scm_from_pointer(b, nullptr);
+      SCM bb = scm_from_locale_string(id.c_str());
       scm_call_1(guile, bb);
     }
-    else cpp(b);
+    else cpp(id);
   }
 };
 
@@ -314,7 +314,7 @@ virtual ~Propertierbase ();
 
   void handleEvents(std::string prop) {
     for(auto fn: event_map[prop]) { 
-      fn.second(this);
+      fn.second(this->getId());
     }
   }
 
@@ -620,7 +620,7 @@ virtual %s get%s() const;
                                                                                                                                                 (map validator-gen validators)) ")"))
                                                            prop-name "_field = value;
 for(auto fn: event_map[\"" prop-name "\"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         " type " " class-name "::get" prop-name "() const {

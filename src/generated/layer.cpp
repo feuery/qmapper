@@ -1,13 +1,13 @@
 #include <layer.h>
 #include <layerContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.833Z
+////// generated at 2018-03-11T19:00:55.118Z
 
 
 void Layer::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Layer::getName() const {
@@ -16,7 +16,7 @@ return Name_field;
 void Layer::setOpacity(unsigned char value) { 
 Opacity_field = value;
 for(auto fn: event_map["Opacity"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         unsigned char Layer::getOpacity() const {
@@ -25,7 +25,7 @@ return Opacity_field;
 void Layer::setVisible(bool value) { 
 Visible_field = value;
 for(auto fn: event_map["Visible"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         bool Layer::getVisible() const {
@@ -34,7 +34,7 @@ return Visible_field;
 void Layer::setTiles(std::vector<std::vector<Tile>>* value) { 
 Tiles_field = value;
 for(auto fn: event_map["Tiles"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::vector<std::vector<Tile>>* Layer::getTiles() const {

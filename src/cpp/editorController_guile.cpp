@@ -227,7 +227,7 @@ extern "C" {
 
   SCM keyDown(SCM key) {
     Qt::Key k = scm_qt_key_pairs[key];
-    return editorController::instance->keyMap.at(k)? SCM_BOOL_T: SCM_BOOL_F;
+    return editorController::instance->keyMap[k]? SCM_BOOL_T: SCM_BOOL_F;
   }
 
   SCM getMouse() {

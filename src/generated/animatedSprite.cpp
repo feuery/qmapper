@@ -1,13 +1,13 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.836Z
+////// generated at 2018-03-11T19:00:55.121Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
 Parentmapid_field = value;
 for(auto fn: event_map["Parentmapid"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string animatedsprite::getParentmapid() const {
@@ -16,7 +16,7 @@ return Parentmapid_field;
 void animatedsprite::setName(std::string value) { 
 Name_field = value;
 for(auto fn: event_map["Name"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string animatedsprite::getName() const {
@@ -25,7 +25,7 @@ return Name_field;
 void animatedsprite::setCurrentframeid(int value) { 
 Currentframeid_field = value;
 for(auto fn: event_map["Currentframeid"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int animatedsprite::getCurrentframeid() const {
@@ -34,7 +34,7 @@ return Currentframeid_field;
 void animatedsprite::setMsperframe(int value) { 
 Msperframe_field = value;
 for(auto fn: event_map["Msperframe"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int animatedsprite::getMsperframe() const {
@@ -43,7 +43,7 @@ return Msperframe_field;
 void animatedsprite::setX(int value) { 
 X_field = value;
 for(auto fn: event_map["X"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int animatedsprite::getX() const {
@@ -52,7 +52,7 @@ return X_field;
 void animatedsprite::setY(int value) { 
 Y_field = value;
 for(auto fn: event_map["Y"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int animatedsprite::getY() const {
@@ -61,7 +61,7 @@ return Y_field;
 void animatedsprite::setAnimationplaying(bool value) { 
 Animationplaying_field = value;
 for(auto fn: event_map["Animationplaying"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         bool animatedsprite::getAnimationplaying() const {
@@ -70,7 +70,7 @@ return Animationplaying_field;
 void animatedsprite::setAngle(float value) { 
 Angle_field = value;
 for(auto fn: event_map["Angle"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         float animatedsprite::getAngle() const {

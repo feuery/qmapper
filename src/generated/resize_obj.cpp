@@ -1,12 +1,12 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.822Z
+////// generated at 2018-03-11T19:00:55.110Z
 
 
 void resize_data::setNew_width(int value) { 
 New_width_field = value;
 for(auto fn: event_map["New_width"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int resize_data::getNew_width() const {
@@ -15,7 +15,7 @@ return New_width_field;
 void resize_data::setNew_height(int value) { 
 New_height_field = value;
 for(auto fn: event_map["New_height"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int resize_data::getNew_height() const {
@@ -24,7 +24,7 @@ return New_height_field;
 void resize_data::setVertical_anchor(verticalAnchor value) { 
 Vertical_anchor_field = value;
 for(auto fn: event_map["Vertical_anchor"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         verticalAnchor resize_data::getVertical_anchor() const {
@@ -33,7 +33,7 @@ return Vertical_anchor_field;
 void resize_data::setHorizontal_anchor(horizontalAnchor value) { 
 Horizontal_anchor_field = value;
 for(auto fn: event_map["Horizontal_anchor"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         horizontalAnchor resize_data::getHorizontal_anchor() const {

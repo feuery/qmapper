@@ -1,12 +1,12 @@
 #include <tile.h>
 #include <json.hpp>
-////// generated at 2018-03-11T13:11:30.833Z
+////// generated at 2018-03-11T19:00:55.119Z
 
 
 void Tile::setTileset(std::string value) { 
 Tileset_field = value;
 for(auto fn: event_map["Tileset"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         std::string Tile::getTileset() const {
@@ -15,7 +15,7 @@ return Tileset_field;
 void Tile::setX(int value) { 
 X_field = value;
 for(auto fn: event_map["X"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int Tile::getX() const {
@@ -24,7 +24,7 @@ return X_field;
 void Tile::setY(int value) { 
 Y_field = value;
 for(auto fn: event_map["Y"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int Tile::getY() const {
@@ -33,7 +33,7 @@ return Y_field;
 void Tile::setRotation(int value) { 
 Rotation_field = value;
 for(auto fn: event_map["Rotation"]) { 
-  fn.second(this);
+  fn.second(this->getId());
 }
 }
                                                         int Tile::getRotation() const {
