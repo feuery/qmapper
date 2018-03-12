@@ -383,4 +383,10 @@ extern "C" {
     obj->addEvent(_prop, f);
     return SCM_BOOL_T;
   }
+
+  SCM qscm_puts(SCM str)
+  {
+    puts(scm_to_locale_string(str));
+    return SCM_BOOL_T;
+  }
 }

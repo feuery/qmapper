@@ -28,18 +28,25 @@
 		(fn)))))
     (touch fut)))
 
+(define (qloop l)
+  (future
+   (begin
+     (while #t
+       (l)
+       (thread-sleep! (seconds->time (+ (time->seconds (current-time)) 0.1)))))))
 
 ;; Testikoodi enginelle:
 
-;; (define (keyloop)
-;;   (when (key-down? 'Key_Right)
-;;     (let ((x (get-prop "2001100545" "Sprite" "x")))
-;;       (set-prop "2001100545" "Sprite" "x" (+ x 10))))
-;;   (set-timeout 1 keyloop))
-
-;; (add-event "2001100545" "Sprite" "x" (lambda (id)
+;; (add-event "2001100545" "Sprite" "X" (lambda (id)
 ;; 				       (let ((x (get-prop id "Sprite" "x")))
 ;; 					 (if (> x 200)
-;; 					     (display "Voitit pelin")))))
+;; 					     (scm-puts "Voitit pelin")
+;; 					     (begin
+;; 					       (scm-puts "Lol äxä on: ")
+;; 					       (scm-puts (object->string x)))))))
 
-;; (keyloop)
+
+;; (qloop (lambda ()
+;; 	 (when (key-down? 'Key_Right)
+;; 	   (let ((x (get-prop "2001100545" "Sprite" "x")))
+;; 	     (set-prop "2001100545" "Sprite" "x" (+ x 10))))))

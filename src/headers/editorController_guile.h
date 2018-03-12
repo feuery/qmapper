@@ -29,6 +29,7 @@ extern "C" {
   SCM getProp(SCM id, SCM type, SCM propname);
   SCM setProp(SCM id, SCM type, SCM propname, SCM value);
   SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda);
+  SCM qscm_puts(SCM str);
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

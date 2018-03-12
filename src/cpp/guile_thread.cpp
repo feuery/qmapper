@@ -25,6 +25,7 @@ static void* register_functions(void* data) {
   scm_c_define_gsubr("get-prop", 3, 0, 0, reinterpret_cast<scm_t_subr>(getProp));
   scm_c_define_gsubr("set-prop", 4, 0, 0, reinterpret_cast<scm_t_subr>(setProp));
   scm_c_define_gsubr("add-event", 4, 0, 0, reinterpret_cast<scm_t_subr>(addEvent));
+  scm_c_define_gsubr("scm-puts", 1, 0, 0, reinterpret_cast<scm_t_subr>(qscm_puts));
     
   return NULL;
 }
