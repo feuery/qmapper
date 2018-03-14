@@ -77,7 +77,8 @@ public:
 
   QOpenGLFunctions_4_3_Core* getGlFns();
   void freeCtx();
-  
+
+  void saveTo(QString filename);
 
   MainWindow *w;
 

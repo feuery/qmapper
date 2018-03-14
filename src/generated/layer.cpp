@@ -1,7 +1,7 @@
 #include <layer.h>
 #include <layerContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T19:00:55.118Z
+////// generated at 2018-03-13T16:43:45.012Z
 
 
 void Layer::setName(std::string value) { 
@@ -68,6 +68,7 @@ nlohmann::json j {
 {"Id", getId()},
 {"Name", getName()},
 {"Opacity", getOpacity()},
+{"Visible", getVisible()},
 {"Tiles", getTiles()}
 };
 return j.dump();
@@ -78,6 +79,7 @@ json j = json::parse(json_str);
 setId(j["Id"]);
 setName(j["Name"]);
 setOpacity(j["Opacity"]);
+setVisible(j["Visible"]);
 for(auto it0 = j["Tiles"].begin(); it0 != j["Tiles"].end(); it0++) {
 std::vector<Tile> vec;
  

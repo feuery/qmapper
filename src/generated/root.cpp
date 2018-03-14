@@ -1,12 +1,26 @@
+#include <QDebug>
 #include <root.h>
 #include <rootContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T19:00:55.115Z
+#include <tileset.h>
+#include <map.h>
+////// generated at 2018-03-13T16:43:45.008Z
 
 
+void root::setRegistry(std::map<std::string, std::map<std::string, Propertierbase*>>* value) { 
+Registry_field = value;
+for(auto fn: event_map["Registry"]) { 
+  fn.second(this->getId());
+}
+}
+                                                        std::map<std::string, std::map<std::string, Propertierbase*>>* root::getRegistry() const {
+return Registry_field;
+}
 root::root() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
+r.push_back(std::string(std::string("registry")));
+event_map["registry"] = std::unordered_map<int, FUN>();
 }root* toRoot(Propertierbase *b)
  {
 if(b->type_identifier() == std::string("root")) {
@@ -21,7 +35,8 @@ throw "";
 std::string root::toJSON() const
 {
 nlohmann::json j {
-{"Id", getId()}
+{"Id", getId()},
+{"Registry", getRegistry()}
 };
 return j.dump();
 }
@@ -29,6 +44,9 @@ void root::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
 setId(j["Id"]);
+ puts("TODO IMPLEMENT");
+ throw "";
+// *getRegistry() = j["Registry"].get<std::map<std::string, std::map<std::string, Propertierbase*>>>();
 }
 
 using nlohmann::json;
@@ -80,4 +98,43 @@ using nlohmann::json;
 
     void from_json(const json& j, root* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, Propertierbase*& b)
+{
+  std::string t = b->type_identifier();
+  if(t == "root") {
+    to_json(j, static_cast<root*>(b));
+
+  }
+  else if (t == "Map") {
+    to_json(j, static_cast<Map*>(b));
+  }
+  else if(t == "Script") {
+    to_json(j, static_cast<Script*>(b));
+  }
+  else if(t == "Tileset") {
+    to_json(j, static_cast<Tileset*>(b));
+  }
+  else {
+    qDebug() << "Didn't recogniza type " << t.c_str() << " at " << __FILE__ << ":" << __LINE__;
+  }
+}
+
+void to_json(json& j, const std::map<std::string, std::map<std::string, Propertierbase*> >* m)
+{
+  for(auto a = m->begin(); a != m->end(); a++) {
+    std::string k1 = a->first;
+    json j2;
+    for(auto a2: a->second) {
+      std::string k2 = a2.first;
+      j2[k2] = a2.second;
+    }
+    j[k1] = j2;
+  }
+}
+
+void from_json(const json& j, std::map<std::string, std::map<std::string, Propertierbase*> >* m) {
+  puts("Don't call me yet, TODO IMPLEMENT");
+  throw "";
 }

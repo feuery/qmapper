@@ -1,6 +1,6 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-03-11T19:00:55.110Z
+////// generated at 2018-03-13T16:43:44.998Z
 
 
 void Script::setContents(std::string value) { 

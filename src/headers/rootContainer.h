@@ -47,7 +47,7 @@ private:
 
 template <typename T>
 T* Rootcontainer::nth(std::string type_name, int i) {
-  auto r = registry->at(type_name);
+  auto r = getRegistry()->at(type_name);
   int index = 0;
   for(auto iterator: r) {
     index++;

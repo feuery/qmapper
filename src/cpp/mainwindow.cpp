@@ -331,6 +331,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   setupTree();
   setupTreeCtxMenu();
+  setupMainMenu();
   toolbox_layout->addWidget(&tree);
 
   QPushButton *close = new QPushButton("Close", this);
@@ -370,4 +371,21 @@ void MainWindow::registerController(editorController *ec)
 
   puts("Controller registered");
   ec->registerWindow(this);
+}
+
+void MainWindow::setupMainMenu()
+{
+  auto filemenu = menuBar()->addMenu("File");
+  QAction *save = new QAction("Save project", this);
+  connect(save, &QAction::triggered, [=]() {
+      QString save_file = QFileDialog::getSaveFileName(this, "Save project file", ".", "QMapper projects (*.qmapper)");
+
+      if(save_file == "") return;
+      
+      if(!save_file.endsWith(".qmapper"))
+	save_file = save_file + ".qmapper";
+      ec->saveTo(save_file);
+    });
+
+  filemenu->addAction(save);
 }

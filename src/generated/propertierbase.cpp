@@ -54,6 +54,15 @@ verticalAnchor Propertierbase::get(std::string propertyname, bool *success, vert
 {
 
 }
+void Propertierbase::set(std::string propertyname, std::map<std::string, std::map<std::string, Propertierbase*>>* value) 
+{
+
+}
+
+std::map<std::string, std::map<std::string, Propertierbase*>>* Propertierbase::get(std::string propertyname, bool *success, std::map<std::string, std::map<std::string, Propertierbase*>>* type_helper) const
+{
+
+}
 void Propertierbase::set(std::string propertyname, int value) 
 {
 

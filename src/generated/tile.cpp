@@ -1,6 +1,6 @@
 #include <tile.h>
 #include <json.hpp>
-////// generated at 2018-03-11T19:00:55.119Z
+////// generated at 2018-03-13T16:43:45.013Z
 
 
 void Tile::setTileset(std::string value) { 

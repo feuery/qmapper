@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-11T19:00:55.105Z
+//// generated at 2018-03-13T16:43:44.982Z
 
 #include<renderer.h>
 #include<QString>
@@ -108,6 +108,8 @@ virtual void set(std::string propertyname, scriptTypes value);
 virtual scriptTypes get(std::string propertyname, bool *success, scriptTypes type_helper) const;
 virtual void set(std::string propertyname, verticalAnchor value);
 virtual verticalAnchor get(std::string propertyname, bool *success, verticalAnchor type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, std::map<std::string, Propertierbase*>>* value);
+virtual std::map<std::string, std::map<std::string, Propertierbase*>>* get(std::string propertyname, bool *success, std::map<std::string, std::map<std::string, Propertierbase*>>* type_helper) const;
 virtual void set(std::string propertyname, int value);
 virtual int get(std::string propertyname, bool *success, int type_helper) const;
 virtual void set(std::string propertyname, horizontalAnchor value);

@@ -1,7 +1,7 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-11T19:00:55.121Z
+////// generated at 2018-03-13T16:43:45.016Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -114,6 +114,7 @@ nlohmann::json j {
 {"Name", getName()},
 {"Currentframeid", getCurrentframeid()},
 {"Msperframe", getMsperframe()},
+{"Animationplaying", getAnimationplaying()},
 {"X", getX()},
 {"Y", getY()},
 {"Angle", getAngle()}
@@ -128,6 +129,7 @@ setParentmapid(j["Parentmapid"]);
 setName(j["Name"]);
 setCurrentframeid(j["Currentframeid"]);
 setMsperframe(j["Msperframe"]);
+setAnimationplaying(j["Animationplaying"]);
 setX(j["X"]);
 setY(j["Y"]);
 setAngle(j["Angle"]);

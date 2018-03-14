@@ -10,6 +10,9 @@
 #include <pen.h>
 
 #include <tilesetContainer.h>
+#include <libzippp.h>
+
+using namespace libzippp;
 
 editorController* editorController::instance;
 
@@ -177,4 +180,13 @@ void editorController::loadAnimation(const char *path, int frameCount, int frame
   documentTreeModel->begin();
   Animatedspritecontainer::make(w->map_view, path, frameCount, frameLifeTime);
   documentTreeModel->end();  
+}
+
+void editorController::saveTo(QString filename) {
+  ZipArchive arch(filename.toStdString());
+  arch.open(ZipArchive::WRITE);
+  std::string rootJson = document.toJSON();
+  arch.addData("root.json", rootJson.c_str(), rootJson.size());
+  arch.close();
+  qDebug() << "Saved root to " << filename;
 }

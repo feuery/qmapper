@@ -2,9 +2,9 @@
 					"<string>"
 					"<QString>" "<either.h>")
   (declare-class "Map")
-  (protected
-   (fields
-    (std__map<std__string___std__map<std__string___Propertierbase*>>* registry nullptr)))
+  (public   
+   (properties
+    (std__map<std__string___std__map<std__string___Propertierbase*>>* registry nullptr)))  
   
   (public
    (functions
