@@ -10,11 +10,14 @@ INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui
 INCLUDEPATH += ./src/generated
 INCLUDEPATH += /opt/local/include
+INCLUDEPATH += ./libzippp/src
 QT += widgets
 QT += opengl
 QT += network
 
 LIBS += -L/opt/local/lib
+LIBS += -lzip
+OBJECTS = ./libzippp/obj/libzippp.o
 LIBS += `guile-config link`
 
 QMAKE_CXXFLAGS += `guile-config compile`
