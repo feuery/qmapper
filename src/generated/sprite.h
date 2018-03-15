@@ -84,6 +84,7 @@ if(propertyname == std::string("y")) return std::string("int");
 if(propertyname == std::string("angle")) return std::string("float");return std::string("");
 }
 
+ virtual obj* getObject() const = 0;
 };
 
 Sprite* toSprite(Propertierbase *b);

@@ -1,3 +1,6 @@
+#include <QByteArray>
+#include <QBuffer>
+
 #include <propertierbase.h>
 #include <mapContainer.h>
 #include <layerContainer.h>
@@ -10,8 +13,7 @@
 #include <pen.h>
 
 #include <tilesetContainer.h>
-#include <libzippp.h>
-
+#include <QTemporaryFile>
 using namespace libzippp;
 
 editorController* editorController::instance;
@@ -182,11 +184,40 @@ void editorController::loadAnimation(const char *path, int frameCount, int frame
   documentTreeModel->end();  
 }
 
+static std::vector<QTemporaryFile*> tempFiles;
+
+void editorController::dumpTextures(ZipArchive &arch) {
+  auto tilesets = document.typeRegistry<Tileset>("Tileset");
+  auto sprites = document.typeRegistry<Sprite>("Sprite");
+  auto animations = document.typeRegistry<animatedsprite>("AnimatedSprite");
+
+  for(auto sprite: sprites) {
+    obj* spr = sprite->getObject();
+    QImage &img = spr->qi_copy;
+
+    QTemporaryFile *f = new QTemporaryFile();
+    tempFiles.push_back(f);
+    
+    f->open();
+    if(img.save(f, "PNG")) {
+      arch.addFile(sprite->getId() + ".png", f->fileName().toStdString());
+      qDebug() << "Saved " << sprite->getId().c_str() << " to the zip";
+    }
+    else qDebug() << "Saving " << sprite->getId().c_str() << ".png failed";
+  }
+}
+
 void editorController::saveTo(QString filename) {
   ZipArchive arch(filename.toStdString());
   arch.open(ZipArchive::WRITE);
   std::string rootJson = document.toJSON();
   arch.addData("root.json", rootJson.c_str(), rootJson.size());
+  dumpTextures(arch);
   arch.close();
+  for(auto tmp: tempFiles) {
+    tmp->close();
+    delete tmp;
+  }
+  tempFiles.clear();
   qDebug() << "Saved root to " << filename;
 }

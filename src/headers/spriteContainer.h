@@ -28,7 +28,7 @@ private:
   Spritecontainer(Renderer *parent, const char *text_path);
 
   Renderer *parent;
-  obj* getObject() const;
+  obj* getObject() const override;
 };
 #else
 class Spritecontainer;

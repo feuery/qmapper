@@ -116,6 +116,9 @@ void to_json(json& j, Propertierbase*& b)
   else if(t == "Tileset") {
     to_json(j, static_cast<Tileset*>(b));
   }
+  else if (t == "Sprite") {
+    to_json(j, static_cast<Sprite*>(b));
+  }
   else {
     qDebug() << "Didn't recogniza type " << t.c_str() << " at " << __FILE__ << ":" << __LINE__;
   }

@@ -13,6 +13,7 @@
 #include <tool.h>
 
 #include <engine.h>
+#include <libzippp.h>
 
 class MainWindow;
 class Renderer;
@@ -81,6 +82,9 @@ public:
   void saveTo(QString filename);
 
   MainWindow *w;
+
+private:
+  void dumpTextures(libzippp::ZipArchive &arch);
 
 };
 
