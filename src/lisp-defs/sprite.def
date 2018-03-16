@@ -2,12 +2,12 @@
   (public
    (functions
     (void render (QOpenGLFunctions_4_3_Core* f))
-    (void render (Renderer *parent)))
+    (void render (Renderer *parent))
+    (obj* getObject () const))
    (properties
     (int x 0)
     (int y 0)
     (float angle 0.0)
     
     (std__string parentMapId "")
-    (std__string name ""))))
-    
+    (std__string name ""))))    

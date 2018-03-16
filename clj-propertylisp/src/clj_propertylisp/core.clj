@@ -348,6 +348,11 @@ protected:
 
 using nlohmann::json;
 
+void to_json(json& j, Propertierbase*& b);
+void to_json(json& j, const std::map<std::string, std::map<std::string, Propertierbase*>>* m);
+void from_json(const json& j, std::map<std::string, std::map<std::string, Propertierbase*>>* m);
+void to_json(json& j, std::map<std::string, Propertierbase*> m);
+
 Q_DECLARE_METATYPE(Propertierbase*);
 
 #endif"
@@ -368,6 +373,12 @@ Q_DECLARE_METATYPE(Propertierbase*);
                            get-set-strs)
                        )
         cpp (format "#include<propertierbase.h>
+#include <QDebug>
+#include <root.h>
+#include <map.h>
+#include <script.h>
+#include <tileset.h>
+
 Propertierbase::Propertierbase() 
 {
 
@@ -410,6 +421,53 @@ std::string Propertierbase::getErrorsOf(std::string field) {
 
 void Propertierbase::clearErrorsOf(std::string field) {
  field_error_map[field].clear();
+}
+
+void to_json(json& j, Propertierbase*& b) // TODO rewrite the compiler to output these for all compiled classes
+{
+  std::string t = b->type_identifier();
+  if(t == \"root\") {
+    to_json(j, static_cast<root*>(b));
+
+  }
+  else if (t == \"Map\") {
+    to_json(j, static_cast<Map*>(b));
+  }
+  else if(t == \"Script\") {
+    to_json(j, static_cast<Script*>(b));
+  }
+  else if(t == \"Tileset\") {
+    to_json(j, static_cast<Tileset*>(b));
+  }
+  else {
+    qDebug() << \"Didn't recogniza type \" << t.c_str() << \" at \" << __FILE__ << \":\" << __LINE__;
+  }
+}
+
+void to_json(json& j, std::map<std::string, Propertierbase*> m) {
+  for(auto a = m.begin(); a != m.end(); a++) {
+    j[a->first] = a->second;
+  }
+}
+
+//TODO write this for arbitrary deep std::map<K, V>'s
+void to_json(json& j, const std::map<std::string, std::map<std::string, Propertierbase*>>* m) 
+{
+  for(auto a = m->begin(); a != m->end(); a++) {
+    std::string k1 = a->first;
+    json j2;
+    for(auto a2: a->second) {
+      std::string k2 = a2.first;
+      j2[k2] = a2.second;
+    }
+    j[k1] = j2;
+  }
+}
+
+void from_json(const json& j, std::map<std::string, std::map<std::string, Propertierbase*>>* m)
+{
+  puts(\"Don't call me yet, TODO IMPLEMENT\");
+  throw \"\";
 }
 "
                     (-> props
@@ -455,6 +513,16 @@ return;
 ;; https://rosettacode.org/wiki/Count_occurrences_of_a_substring#Clojure
 (defn count-substring [txt sub]
   (count (re-seq (re-pattern sub) txt)))
+
+;; (defn destruct-std-map [map-descr map-name]
+;;   (let [t (typesymbol->str map-descr)
+;;         count-of-maps (count-substring t "std::map")]
+;;     (condp = count-of-maps
+;;       0 (str "for(auto pair: " map-name ") {
+
+
+;; (destruct-std-map "std__map<std__string___std__map<std__string___Propertierbase*>>*" "m")
+           
 
 (defn codegen [all-classes {:keys [forms abstract? class-name declared-classes includes filename] :as tokenized-class}]
   (let [compiled-classes (set (mapcat second
@@ -543,11 +611,17 @@ return;
                                                                                                                     (typesymbol->str type)
                                                                                                                     name
                                                                                                                     default-val))
-                                                                                                   functions (let [[return-type name param-list] form]
-                                                                                                               (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
-                                                                                                                       name
-                                                                                                                       (typefy-param-list 
-                                                                                                                        param-list)))
+                                                                                                   functions (let [[return-type name param-list & rst] form]
+                                                                                                               (if-not rst
+                                                                                                                 (format "virtual %s %s %s = 0;" (typesymbol->str return-type)
+                                                                                                                         name
+                                                                                                                         (typefy-param-list 
+                                                                                                                          param-list))
+                                                                                                                 (format "virtual %s %s %s %s = 0;" (typesymbol->str return-type)
+                                                                                                                         name
+                                                                                                                         (typefy-param-list 
+                                                                                                                          param-list)
+                                                                                                                         (reduce str rst))))
 
                                                                                                    properties (let [[prop-type prop-name default-val] form
                                                                                                                     prop-type (typesymbol->str prop-type)
@@ -663,6 +737,8 @@ nlohmann::json j {
                                 'double
                                 'unsigned_char
                                 'short
+                                'bool
+                                'std__map<std__string___std__map<std__string___Propertierbase*>>*
                                 'long} type))))
      (map (fn [{:keys [form]}]
             (let [[type prop-name & _] form
@@ -686,6 +762,8 @@ json j = json::parse(json_str);
                                 'double
                                 'unsigned_char
                                 'short
+                                'bool
+                                'std__map<std__string___std__map<std__string___Propertierbase*>>*
                                 'long} type))))
      (map (fn [{[type prop-name] :form}]
             (let [collection? (.startsWith (name type) "std__vector")
