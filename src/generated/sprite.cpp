@@ -1,7 +1,14 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.015Z
+
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.716Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -75,14 +82,26 @@ throw "";
 
 std::string Sprite::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"X", getX()},
-{"Y", getY()},
-{"Angle", getAngle()},
-{"Parentmapid", getParentmapid()},
-{"Name", getName()}
-};
+nlohmann::json j;
+auto G__5406 = getId();
+ j["Id"] = G__5406;
+
+auto G__5407 = getX();
+ j["X"] = G__5407;
+
+auto G__5408 = getY();
+ j["Y"] = G__5408;
+
+auto G__5409 = getAngle();
+ j["Angle"] = G__5409;
+
+auto G__5410 = getParentmapid();
+ j["Parentmapid"] = G__5410;
+
+auto G__5411 = getName();
+ j["Name"] = G__5411;
+
+;
 return j.dump();
 }
 void Sprite::fromJSON(const char* json_str)
@@ -145,4 +164,22 @@ using nlohmann::json;
 
     void from_json(const json& j, Sprite* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, Sprite*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, Sprite*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    Sprite *r = new Spritecontainer;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

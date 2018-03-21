@@ -5,21 +5,18 @@
 
 Rootcontainer::Rootcontainer(): root()
 {
-  // TODO replace with a vector<unique_pointer<map*>> or smthng which doesn't leak like a sieve
-  setRegistry(new std::map<std::string, std::map<std::string, Propertierbase*>>);
-  // (*registry)["Layer"];
-  (*(getRegistry()))["Map"];
-  (*(getRegistry()))["Root"];
-  (*(getRegistry()))["Script"];
-  (*(getRegistry()))["Tile"];
-  (*(getRegistry()))["Tileset"];
-  (*(getRegistry()))["Sprite"];
-  (*(getRegistry()))["AnimatedSprite"];
+  setAnimatedsprites(new std::map<std::string, animatedsprite*>);
+  setLayers(new std::map<std::string, Layer*>);
+  setMaps(new std::map<std::string, Map*>);
+  setScripts(new std::map<std::string, Script*>);
+  setSprites(new std::map<std::string, Sprite*>);
+  setTiles(new std::map<std::string, Tile*>);
+  setTilesets(new std::map<std::string, Tileset*>);
 }
 
 Rootcontainer::~Rootcontainer()
 {
-  delete getRegistry();
+  // delete getRegistry();
 }
 
 either<scriptTypes, std::string> Rootcontainer::findNs(std::string ns)
@@ -28,7 +25,7 @@ either<scriptTypes, std::string> Rootcontainer::findNs(std::string ns)
 
   either<scriptTypes, std::string> result;
 
-  for(auto iter = getRegistry()->at("Script").begin(); iter != getRegistry()->at("Script").end(); iter++) {
+  for(auto iter = getScripts()->begin(); iter != getScripts()->end(); iter++) {
     Script *s = toScript(iter->second);
       if(s->getNs() == ns) {
 	result.a = s->getScript_type();
@@ -44,7 +41,7 @@ either<scriptTypes, std::string> Rootcontainer::findNs(std::string ns)
 
 void Rootcontainer::saveNs (std::string ns, std::string content)
 {
-  for(auto iter = getRegistry()->at("Script").begin(); iter != getRegistry()->at("Script").end(); iter++) {
+  for(auto iter = getScripts()->begin(); iter != getScripts()->end(); iter++) {
     Script *scr = toScript(iter->second);
     if(scr->getNs() == ns) {
       scr->setContents(content);
@@ -54,7 +51,7 @@ void Rootcontainer::saveNs (std::string ns, std::string content)
 }
 
 bool Rootcontainer::containsNs (std::string ns) {
-  for(auto iter = getRegistry()->at("Script").begin(); iter != getRegistry()->at("Script").end(); iter++) {
+  for(auto iter = getScripts()->begin(); iter != getScripts()->end(); iter++) {
     Script *scr = toScript(iter->second);
     if(scr->getNs() == ns) return true;
   }
@@ -63,78 +60,94 @@ bool Rootcontainer::containsNs (std::string ns) {
 }
 
 Propertierbase* Rootcontainer::fetchRegister(std::string type, std::string id) {
-  return getRegistry()->at(type).at(id);
+  if(type == "AnimatedSprite") return (*getAnimatedsprites()).at(id);
+  else if(type == "Layer") return (*getLayers()).at(id);
+  else if (type == "Map") return (*getMaps()).at(id);
+  else if (type == "Script") return (*getScripts()).at(id);
+  else if (type == "Sprite") return (*getSprites()).at(id);
+  else if (type == "Tile") return (*getTiles()).at(id);
+  else if (type == "Tileset") return (*getTilesets()).at(id);
+
+  qDebug() << "Didn't recognize type " << type.c_str();
+
+  return nullptr;
 }
   
-void Rootcontainer::doRegister(std::string type, std::string id, Propertierbase *o) {
-  (*(getRegistry()))[type][id] = o;
+int Rootcontainer::registrySize() {
+  return getAnimatedsprites()->size() + 
+    getLayers()->size() + 
+    getMaps()->size() + 
+    getScripts()->size() + 
+    getSprites()->size() + 
+    getTiles()->size() + 
+    getTilesets()->size();
 }
 
-int Rootcontainer::registrySize() {
-  int sum = 0;
-  for(auto i = getRegistry()->begin(); i != getRegistry()->end(); i++) {
-    sum += i->second.size();
+template <typename T>
+void addToList(std::vector<Propertierbase*> &vec, std::map<std::string, T*>* m) {
+  for(auto a = m->begin(); a != m->end(); a++) {
+    vec.push_back(a->second);
   }
-  return sum;
+}
+
+template <typename T>
+void addToList(std::vector<Propertierbase*> *vec, std::map<std::string, T*>* m) {
+  for(auto a = m->begin(); a != m->end(); a++) {
+    vec->push_back(a->second);
+  }
 }
 		     
-int Rootcontainer::typeRegistrySize(std::string type_name) {
-  return getRegistry()->at(type_name).size();
-}
-
-void Rootcontainer::erase(std::string type, std::string id) {
-  getRegistry()->at(type).erase(id);
-}
-
-void Rootcontainer::erase(std::string type, int id) {
-  int counter = 0;
-  for (auto i = getRegistry()->at(type).begin();
-       i != getRegistry()->at(type).end() && counter < id;
-       i++, counter++) {
-    if(counter == id) {
-      getRegistry()->at(type).erase(i);
-      return;
-    }
-  }
-}
-
 std::vector<Propertierbase*> Rootcontainer::registryToList() {
-  std::vector<Propertierbase*> v;
+  std::vector<Propertierbase*> vec;
 
-  return std::accumulate(getRegistry()->begin(),
-			 getRegistry()->end(),
-			 v,
-			 [](std::vector<Propertierbase*>& v, auto subreg_i) {
-			   std::map<std::string, Propertierbase*> &subreg = subreg_i.second;
-			   for(auto i: subreg) {
-			     v.push_back(i.second);
-			   }
-			   return v;});
+  addToList<animatedsprite>(vec, getAnimatedsprites());
+  addToList<Layer>(vec, getLayers());
+  addToList<Map>(vec, getMaps());
+  addToList<Script>(vec, getScripts());
+  addToList<Sprite>(vec, getSprites());
+  addToList<Tile>(vec, getTiles());
+  addToList<Tileset>(vec, getTilesets());
+
+  return vec;
 }
 
-std::vector<Propertierbase*> Rootcontainer::registryToList(std::vector<std::string> filterTypes) {
-  std::vector<Propertierbase*> v;
+#define addData(X) { addToList(vec, X); return vec; }
 
-  for(auto i = getRegistry()->begin(); i != getRegistry()->end(); i++) {
-    if(std::find(filterTypes.begin(), filterTypes.end(), i->first) != filterTypes.end()) continue;
-
-    for(auto i2: i->second)
-      v.push_back(i2.second);
-  }
-  return v;
-}
-
-std::vector<Propertierbase*> Rootcontainer::registryOf (std::string type) {
+std::vector<Propertierbase*>* Rootcontainer::registryOf (std::string type) {
 
   if(type == "std::string" ||
      type == "std::vector<std::vector<Tile>>" ||
      type == "std::vector<Layer>" ||
-     type == "float") return {};
-  
-  std::vector<Propertierbase*> r;
+     type == "float") return nullptr;
 
-  for(auto i: getRegistry()->at(type)){
-    r.push_back(i.second);
+  std::vector<Propertierbase*>* vec = new std::vector<Propertierbase*>;
+
+  if(type == "AnimatedSprite") {
+    addToList(vec, getAnimatedsprites());
+    return vec;
   }
-  return r;
+  else if(type == "Layer")  addData(getLayers())
+  else if (type == "Map") addData(getMaps())
+  else if (type == "Script") addData(getScripts())
+  else if (type == "Sprite") addData(getSprites())
+  else if (type == "Tile") addData(getTiles())
+  else if (type == "Tileset") addData(getTilesets())
+
+  qDebug() << "Didn't recognize type " << type.c_str() << " at " << __FILE__ << ": " << __LINE__;
+  throw "";
+  return nullptr;
+}
+
+template <>
+animatedsprite* Rootcontainer::nth(int i) {
+  auto it = getAnimatedsprites()->begin();
+  for(int ii=0; ii < i; ii++); it++;
+  return (*it).second;
+}
+
+template <>
+Map* Rootcontainer::nth(int i) {
+  auto it = getMaps()->begin();
+  for(int ii=0; ii < i; ii++); it++;
+  return (*it).second;
 }

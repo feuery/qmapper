@@ -73,4 +73,9 @@ Map* toMap(Propertierbase *b);
     void from_json(const json& j, Map* c);
     void to_json(json& j, const std::vector<Map*>* v);     void to_json(json& j, const std::vector<std::vector<Map*>>* v);
     void to_json(json& j, const std::vector<std::vector<Map>>* v);
+void to_json(json& j, std::map<std::string, Map*>* m);
+void from_json(const json& j, std::map<std::string, Map*>* m);
+
+#else 
+class Map;
 #endif

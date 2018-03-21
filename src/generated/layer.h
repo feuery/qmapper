@@ -23,9 +23,9 @@ unsigned char Opacity_field = 255;
 public: virtual void setVisible(bool val);
 virtual bool getVisible() const;
 bool Visible_field = true;
-public: virtual void setTiles(std::vector<std::vector<Tile>>* val);
-virtual std::vector<std::vector<Tile>>* getTiles() const;
-std::vector<std::vector<Tile>>* Tiles_field = nullptr;
+public: virtual void setTiles(std::vector<std::vector<Tile*>>* val);
+virtual std::vector<std::vector<Tile*>>* getTiles() const;
+std::vector<std::vector<Tile*>>* Tiles_field = nullptr;
 public: virtual void set_parent (Map* p) = 0;
 public: virtual int getWidth () = 0;
 public: virtual int getHeight () = 0;
@@ -39,7 +39,7 @@ virtual void set(std::string propertyname, unsigned char value) {
 if(propertyname == std::string("opacity") ) { setOpacity(value); return; } }
 virtual void set(std::string propertyname, bool value) {
 if(propertyname == std::string("visible") ) { setVisible(value); return; } }
-virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value) {
+virtual void set(std::string propertyname, std::vector<std::vector<Tile*>>* value) {
 if(propertyname == std::string("tiles") ) { setTiles(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
@@ -62,11 +62,11 @@ if(propertyname == std::string("visible")) {
   return getVisible();
 } *success = false; bool invalid_data; return invalid_data;
 }
-virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
+virtual std::vector<std::vector<Tile*>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper) const {
 if(propertyname == std::string("tiles")) {
   *success = true;
   return getTiles();
-} *success = false; std::vector<std::vector<Tile>>* invalid_data; return invalid_data;
+} *success = false; std::vector<std::vector<Tile*>>* invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);
@@ -95,4 +95,9 @@ Layer* toLayer(Propertierbase *b);
     void from_json(const json& j, Layer* c);
     void to_json(json& j, const std::vector<Layer*>* v);     void to_json(json& j, const std::vector<std::vector<Layer*>>* v);
     void to_json(json& j, const std::vector<std::vector<Layer>>* v);
+void to_json(json& j, std::map<std::string, Layer*>* m);
+void from_json(const json& j, std::map<std::string, Layer*>* m);
+
+#else 
+class Layer;
 #endif

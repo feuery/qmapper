@@ -12,10 +12,12 @@ Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) 
   QFileInfo finfo(p);
   sprite->setName(("Sprite: " + finfo.fileName().toStdString()).c_str());
 
-  editorController::instance->document.doRegister("Sprite", sprite->getId(), sprite);
+  (*editorController::instance->document.getSprites())[sprite->getId()] = sprite;
   
   return sprite;
 }
+
+Spritecontainer::Spritecontainer() {}
 
 Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers

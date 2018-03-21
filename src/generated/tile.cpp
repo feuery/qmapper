@@ -1,6 +1,12 @@
 #include <tile.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.013Z
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.715Z
 
 
 void Tile::setTileset(std::string value) { 
@@ -63,13 +69,23 @@ throw "";
 
 std::string Tile::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"X", getX()},
-{"Y", getY()},
-{"Tileset", getTileset()},
-{"Rotation", getRotation()}
-};
+nlohmann::json j;
+auto G__5401 = getId();
+ j["Id"] = G__5401;
+
+auto G__5402 = getX();
+ j["X"] = G__5402;
+
+auto G__5403 = getY();
+ j["Y"] = G__5403;
+
+auto G__5404 = getTileset();
+ j["Tileset"] = G__5404;
+
+auto G__5405 = getRotation();
+ j["Rotation"] = G__5405;
+
+;
 return j.dump();
 }
 void Tile::fromJSON(const char* json_str)
@@ -131,4 +147,22 @@ using nlohmann::json;
 
     void from_json(const json& j, Tile* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, Tile*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, Tile*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    Tile *r = new Tile;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

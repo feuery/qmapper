@@ -83,4 +83,9 @@ Script* toScript(Propertierbase *b);
     void from_json(const json& j, Script* c);
     void to_json(json& j, const std::vector<Script*>* v);     void to_json(json& j, const std::vector<std::vector<Script*>>* v);
     void to_json(json& j, const std::vector<std::vector<Script>>* v);
+void to_json(json& j, std::map<std::string, Script*>* m);
+void from_json(const json& j, std::map<std::string, Script*>* m);
+
+#else 
+class Script;
 #endif

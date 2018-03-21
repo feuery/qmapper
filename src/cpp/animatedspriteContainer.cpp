@@ -7,6 +7,8 @@ int MsTime() {
   return time(nullptr) * 1000;
 }
 
+Animatedspritecontainer::Animatedspritecontainer() { }
+
 Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(MsTime()) {
   sprites = new std::vector<Sprite*>;
   root.load(QString(spriteSheetPath));
@@ -22,7 +24,7 @@ Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *s
   QString p = spriteSheetPath;
   QFileInfo finfo(p);
   setName(("Animation: " + finfo.fileName().toStdString()).c_str());
-  editorController::instance->document.doRegister("AnimatedSprite", getId(), this);
+  (*editorController::instance->document.getAnimatedsprites())[getId()] = this;
 }
 
 Animatedspritecontainer::~Animatedspritecontainer() {

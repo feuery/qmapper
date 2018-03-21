@@ -9,6 +9,7 @@ public:
   static Spritecontainer* make(Renderer *parent, const char *text_path);
 
   ~Spritecontainer();
+  Spritecontainer();
 
   void setX (int newX) override;
   int getX () const override;

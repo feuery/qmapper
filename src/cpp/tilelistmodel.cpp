@@ -72,7 +72,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
     return createIndex(row, column, l);
   }
   else if(type == "root") {
-    auto reg = Root->registryToList({});
+    auto reg = Root->registryToList();
     return createIndex(row, column, reg.at(row));
   }
   else {
@@ -138,7 +138,7 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 
   std::string type = obj->type_identifier();
 
-  auto reg = Root->registryToList({});
+  auto reg = Root->registryToList();
   
   if(type == "Map") {
     Map *m = static_cast<Map*>(obj);
@@ -194,7 +194,7 @@ void Tilelistmodel::beginMap(int map_row)
 {
   auto root = QModelIndex();
   QModelIndex parent_index = index(map_row, 0, root);
-  auto map = Root->registryToList({}).at(map_row);
+  auto map = Root->registryToList().at(map_row);
   int count = toMap(map)->getLayers()->size();
   beginInsertRows(parent_index, count, count+1);
 }

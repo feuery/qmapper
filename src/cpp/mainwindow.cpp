@@ -203,7 +203,7 @@ void MainWindow::newTileset() {
   
   // if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
   ec->documentTreeModel->begin();
-  ec->document.doRegister("Tileset", t->getId(), t);
+  (*ec->document.getTilesets())[t->getId()] = t;
   ec->documentTreeModel->end();
   // }
   // else {
@@ -380,10 +380,14 @@ void MainWindow::setupMainMenu()
   connect(save, &QAction::triggered, [=]() {
       QString save_file = QFileDialog::getSaveFileName(this, "Save project file", ".", "QMapper projects (*.qmapper)");
 
-      if(save_file == "") return;
+      if(save_file == "") {
+	qDebug() << "Got empty save_file_path";
+	return;
+      }
       
       if(!save_file.endsWith(".qmapper"))
 	save_file = save_file + ".qmapper";
+      qDebug() << "Trying to save to " << save_file;
       ec->saveTo(save_file);
     });
 

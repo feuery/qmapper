@@ -1,7 +1,17 @@
 #include <animatedSprite.h>
 #include <animatedspriteContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.016Z
+
+
+
+
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.717Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -108,17 +118,35 @@ throw "";
 
 std::string animatedsprite::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"Parentmapid", getParentmapid()},
-{"Name", getName()},
-{"Currentframeid", getCurrentframeid()},
-{"Msperframe", getMsperframe()},
-{"Animationplaying", getAnimationplaying()},
-{"X", getX()},
-{"Y", getY()},
-{"Angle", getAngle()}
-};
+nlohmann::json j;
+auto G__5412 = getId();
+ j["Id"] = G__5412;
+
+auto G__5413 = getParentmapid();
+ j["Parentmapid"] = G__5413;
+
+auto G__5414 = getName();
+ j["Name"] = G__5414;
+
+auto G__5415 = getCurrentframeid();
+ j["Currentframeid"] = G__5415;
+
+auto G__5416 = getMsperframe();
+ j["Msperframe"] = G__5416;
+
+auto G__5417 = getAnimationplaying();
+ j["Animationplaying"] = G__5417;
+
+auto G__5418 = getX();
+ j["X"] = G__5418;
+
+auto G__5419 = getY();
+ j["Y"] = G__5419;
+
+auto G__5420 = getAngle();
+ j["Angle"] = G__5420;
+
+;
 return j.dump();
 }
 void animatedsprite::fromJSON(const char* json_str)
@@ -184,4 +212,22 @@ using nlohmann::json;
 
     void from_json(const json& j, animatedsprite* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, animatedsprite*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, animatedsprite*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    animatedsprite *r = new Animatedspritecontainer;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

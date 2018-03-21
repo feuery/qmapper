@@ -1,7 +1,11 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.010Z
+
+
+
+#include <layerContainer.h>
+////// generated at 2018-03-21T17:37:13.711Z
 
 
 void Map::setName(std::string value) { 
@@ -42,11 +46,17 @@ throw "";
 
 std::string Map::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"Name", getName()},
-{"Layers", getLayers()}
-};
+nlohmann::json j;
+auto G__5393 = getId();
+ j["Id"] = G__5393;
+
+auto G__5394 = getName();
+ j["Name"] = G__5394;
+
+auto G__5395 = getLayers();
+if(G__5395)  j["Layers"] = *G__5395;
+
+;
 return j.dump();
 }
 void Map::fromJSON(const char* json_str)
@@ -112,4 +122,22 @@ using nlohmann::json;
 
     void from_json(const json& j, Map* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, Map*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, Map*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    Map *r = new Mapcontainer;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

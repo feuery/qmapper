@@ -14,6 +14,7 @@ using nlohmann::json;
 class Sprite: public Propertierbase {
  public: virtual void render (QOpenGLFunctions_4_3_Core* f) = 0;
 public: virtual void render (Renderer *parent) = 0;
+public: virtual obj* getObject () const = 0;
 public: virtual void setX(int val);
 virtual int getX() const;
 int X_field = 0;
@@ -84,7 +85,6 @@ if(propertyname == std::string("y")) return std::string("int");
 if(propertyname == std::string("angle")) return std::string("float");return std::string("");
 }
 
- virtual obj* getObject() const = 0;
 };
 
 Sprite* toSprite(Propertierbase *b);
@@ -95,4 +95,9 @@ Sprite* toSprite(Propertierbase *b);
     void from_json(const json& j, Sprite* c);
     void to_json(json& j, const std::vector<Sprite*>* v);     void to_json(json& j, const std::vector<std::vector<Sprite*>>* v);
     void to_json(json& j, const std::vector<std::vector<Sprite>>* v);
+void to_json(json& j, std::map<std::string, Sprite*>* m);
+void from_json(const json& j, std::map<std::string, Sprite*>* m);
+
+#else 
+class Sprite;
 #endif

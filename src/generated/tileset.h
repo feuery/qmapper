@@ -25,15 +25,15 @@ Script* Vertexshader_field = nullptr;
 public: virtual void setFragmentshader(Script* val);
 virtual Script* getFragmentshader() const;
 Script* Fragmentshader_field = nullptr;
-public: virtual void setTiles(std::vector<std::vector<Tile>>* val);
-virtual std::vector<std::vector<Tile>>* getTiles() const;
-std::vector<std::vector<Tile>>* Tiles_field = nullptr;virtual void set(std::string propertyname, std::string value) {
+public: virtual void setTiles(std::vector<std::vector<Tile*>>* val);
+virtual std::vector<std::vector<Tile*>>* getTiles() const;
+std::vector<std::vector<Tile*>>* Tiles_field = nullptr;virtual void set(std::string propertyname, std::string value) {
 if(propertyname == std::string("Id") ) { setId(value); return; }
 if(propertyname == std::string("name") ) { setName(value); return; } }
 virtual void set(std::string propertyname, Script* value) {
 if(propertyname == std::string("vertexShader") ) { setVertexshader(value); return; }
 if(propertyname == std::string("fragmentShader") ) { setFragmentshader(value); return; } }
-virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value) {
+virtual void set(std::string propertyname, std::vector<std::vector<Tile*>>* value) {
 if(propertyname == std::string("tiles") ) { setTiles(value); return; } }virtual std::string get(std::string propertyname, bool *success, std::string type_helper) const {
 if(propertyname == std::string("Id")) {
   *success = true;
@@ -54,11 +54,11 @@ if(propertyname == std::string("fragmentShader")) {
   return getFragmentshader();
 } *success = false; Script* invalid_data; return invalid_data;
 }
-virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const {
+virtual std::vector<std::vector<Tile*>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper) const {
 if(propertyname == std::string("tiles")) {
   *success = true;
   return getTiles();
-} *success = false; std::vector<std::vector<Tile>>* invalid_data; return invalid_data;
+} *success = false; std::vector<std::vector<Tile*>>* invalid_data; return invalid_data;
 }
 public: virtual std::string toJSON() const;
  virtual void fromJSON(const char* json);
@@ -87,4 +87,9 @@ Tileset* toTileset(Propertierbase *b);
     void from_json(const json& j, Tileset* c);
     void to_json(json& j, const std::vector<Tileset*>* v);     void to_json(json& j, const std::vector<std::vector<Tileset*>>* v);
     void to_json(json& j, const std::vector<std::vector<Tileset>>* v);
+void to_json(json& j, std::map<std::string, Tileset*>* m);
+void from_json(const json& j, std::map<std::string, Tileset*>* m);
+
+#else 
+class Tileset;
 #endif

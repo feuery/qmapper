@@ -134,14 +134,18 @@ QStandardItemModel* dump_to_model(horizontalAnchor v_a) {
   return model;
 }
 
-QStandardItemModel* dump_to_model(std::vector<Propertierbase*> prop_objs)
+QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
 {
+  if(!prop_objs) {
+    qDebug() << "prop_objs is null at " << __FILE__ << ": " << __LINE__;
+    throw "";
+  }
   QStandardItemModel *model = new QStandardItemModel;
 
   QStandardItem *empty = new QStandardItem("Empty");
   model->appendRow(empty);
 
-  for(auto m = prop_objs.begin(); m < prop_objs.end(); m++) {
+  for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
     either<bool, std::string> result = getStringProp(*m, std::string(std::string("name")));
     
     QStandardItem *map_item = new QStandardItem(result.b.c_str());
@@ -176,6 +180,8 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
 
   for(int i =0; i<base->property_count(); i++) {
     std::string type = base->type_name(properties.at(i));
+
+    if(type.find("std::vector") != std::string::npos) continue;
     
     if(type == std::string("std::string")) {
       auto any = getStringProp(base, properties.at(i));
@@ -389,7 +395,11 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
       }
       if(!nameResult.a) continue;
       
-      std::vector<Propertierbase*> kids = r->registryOf(type);
+      std::vector<Propertierbase*>* kids = r->registryOf(type);
+      if(!kids) {
+	qDebug() << "Kids of " << type.c_str() << " is null at " << __FILE__ << ": " << __LINE__;
+	throw "";
+      }
 
       QComboBox *cb = new QComboBox(this);
       QStandardItemModel *m = dump_to_model(kids);
@@ -403,7 +413,7 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
 	      [&](int index) {
 		index--;
 		if(index >= 0) {
-		  Propertierbase *b = kids.at(index);
+		  Propertierbase *b = kids->at(index);
 		  if(!b) {
 		    qDebug() << "invalid b in QComboBox::currentIndexChanged";
 		    return;
@@ -423,7 +433,7 @@ QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
 
 void Propertyeditor::resetLayout(Propertierbase *base) {
   root *r = &editorController::instance->document;
-  auto reg = r->registryToList({});
+  auto reg = r->registryToList();
   l = new QVBoxLayout;
   
   data = makeLayout(base);

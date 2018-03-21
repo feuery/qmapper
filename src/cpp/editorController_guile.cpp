@@ -15,7 +15,7 @@ extern "C" {
     mc->setName(QString("Map %1").arg(count).toStdString());
 
     editorController::instance->documentTreeModel->begin(count);
-    editorController::instance->document.doRegister("Map", mc->getId(), mc);
+    (*editorController::instance->document.getMaps())[mc->getId()] = mc;
     editorController::instance->documentTreeModel->end();
   
     return SCM_BOOL_T;
@@ -26,7 +26,7 @@ extern "C" {
     int map_i = scm_to_int(map_index);
     Rootcontainer &r = static_cast<Rootcontainer&>(editorController::instance->document);
     
-    Map *m =  r.nth<Map>(std::string("Map"), map_i);
+    Map *m =  r.nth<Map>(map_i);
     int c = m->getLayers()->size();
     
     // map *m = editorController::instance->document->all_maps->at(map_i);
@@ -44,22 +44,6 @@ extern "C" {
     
   }
 
-  SCM delete_root_index(SCM index_scm, SCM type_name)
-  {
-    char *type = scm_to_locale_string(type_name);
-    std::string tyype = type;
-    int index = scm_to_int(index_scm);
-    root &r = editorController::instance->document;
-    if(! (index >= 0 && index < r.typeRegistrySize(tyype))) return SCM_BOOL_F;
-    editorController::instance->documentTreeModel->begin(index);
-    
-    r.erase(tyype, index);
-    editorController::instance->documentTreeModel->end();
-
-    free(type);
-    return SCM_BOOL_T;
-  }
-
   SCM delete_layer(SCM map_index_scm, SCM layer_index_scm)
   {
     int map_index = scm_to_int(map_index_scm),
@@ -70,7 +54,7 @@ extern "C" {
     if(! (map_index >= 0 && map_index < r.registrySize())) return SCM_BOOL_F;
 
     editorController::instance->documentTreeModel->beginMap(map_index);
-    std::vector<Layer*>* layerset = r.nth<Map>("Map", map_index)->getLayers();
+    std::vector<Layer*>* layerset = r.nth<Map>(map_index)->getLayers();
 
     if(! (layer_index >= 0 && layer_index < layerset->size())) return SCM_BOOL_F;
 
@@ -94,7 +78,7 @@ extern "C" {
     std::string ns = genNs();
     scrpt->setNs(ns);
     
-    editorController::instance->document.doRegister("Script", scrpt->getId(), scrpt);
+    (*editorController::instance->document.getScripts())[scrpt->getId()] = scrpt;
     editorController::instance->documentTreeModel->end();
 
     return SCM_BOOL_T;
@@ -110,7 +94,7 @@ extern "C" {
     std::string ns = genNs();
     scrpt->setNs(ns);
     
-    editorController::instance->document.doRegister("Script", scrpt->getId(), scrpt);
+    (*editorController::instance->document.getScripts())[scrpt->getId()] = scrpt;
     editorController::instance->documentTreeModel->end();
 
     return SCM_BOOL_T;
@@ -149,58 +133,16 @@ extern "C" {
     return SCM_BOOL_T;
   }
 
-  SCM print_json(SCM row)
+  SCM print_json(SCM type, SCM id)
   {
-    int row_i = scm_to_int(row);
+    const char *c_id = scm_to_locale_string(id),
+      *c_type = scm_to_locale_string(type);
+    std::string cc_id = c_id,
+      cc_type = c_type;
     editorController *ec = editorController::instance;
 
-    Propertierbase *b = ec->document.registryToList({}).at(row_i);
-    qDebug() << "Row " << row_i << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
-    return SCM_BOOL_T;
-  }
-
-  SCM g_from_json(SCM type_name, SCM s_row)
-  {
-    toggle_rendering();
-    const char *type_cstr = scm_to_locale_string(type_name);
-    std::string type = type_cstr;
-    int row = scm_to_int(s_row);
-    
-    if (type == "Layer") {
-      
-    }
-    else if (type == "Map") {
-      Propertierbase *b = editorController::instance->document.registryToList().at(row);
-      Map *m = new Mapcontainer;
-      const char *lol = b->toJSON().c_str();
-      m->fromJSON(lol);
-      std::string other_js = b->toJSON();
-      
-      if (m->toJSON() == other_js) {
-	qDebug() << "Maps do match";
-      }
-      else {
-	qDebug () << "Maps don't match";
-	qDebug() << "Loaded json: " << m->toJSON().c_str();
-	qDebug() << "Documented json: " << other_js.c_str();
-      }
-      
-    }
-    else if (type == "root") {
-      
-    }
-    else if (type == "Script") {
-      
-    }
-    else if (type == "Tile") {
-      
-    }
-    else if (type == "Tileset") {
-      
-    }
-    else qDebug() << "Didn't recognize type " << type_cstr;
-    toggle_rendering();
-
+    Propertierbase *b = ec->document.fetchRegister(cc_type, cc_id);
+    qDebug() << "Id " << c_id << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
     return SCM_BOOL_T;
   }
 

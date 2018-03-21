@@ -10,6 +10,7 @@ class Animatedspritecontainer: public animatedsprite, public Renderable{
 public:
 
   Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime);
+  Animatedspritecontainer();
   ~Animatedspritecontainer();
 
   void setX (int newX);

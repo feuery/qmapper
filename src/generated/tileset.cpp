@@ -1,6 +1,12 @@
 #include <tileset.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.016Z
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.718Z
 
 
 void Tileset::setName(std::string value) { 
@@ -30,13 +36,13 @@ for(auto fn: event_map["Fragmentshader"]) {
                                                         Script* Tileset::getFragmentshader() const {
 return Fragmentshader_field;
 }
-void Tileset::setTiles(std::vector<std::vector<Tile>>* value) { 
+void Tileset::setTiles(std::vector<std::vector<Tile*>>* value) { 
 Tiles_field = value;
 for(auto fn: event_map["Tiles"]) { 
   fn.second(this->getId());
 }
 }
-                                                        std::vector<std::vector<Tile>>* Tileset::getTiles() const {
+                                                        std::vector<std::vector<Tile*>>* Tileset::getTiles() const {
 return Tiles_field;
 }
 Tileset::Tileset() {
@@ -63,13 +69,23 @@ throw "";
 
 std::string Tileset::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"Name", getName()},
-{"Vertexshader", getVertexshader()},
-{"Fragmentshader", getFragmentshader()},
-{"Tiles", getTiles()}
-};
+nlohmann::json j;
+auto G__5421 = getId();
+ j["Id"] = G__5421;
+
+auto G__5422 = getName();
+ j["Name"] = G__5422;
+
+auto G__5423 = getVertexshader();
+if(G__5423)  j["Vertexshader"] = *G__5423;
+
+auto G__5424 = getFragmentshader();
+if(G__5424)  j["Fragmentshader"] = *G__5424;
+
+auto G__5425 = getTiles();
+if(G__5425)  j["Tiles"] = *G__5425;
+
+;
 return j.dump();
 }
 void Tileset::fromJSON(const char* json_str)
@@ -80,13 +96,13 @@ setName(j["Name"]);
 *getVertexshader() = j["Vertexshader"].get<Script>();
 *getFragmentshader() = j["Fragmentshader"].get<Script>();
 for(auto it0 = j["Tiles"].begin(); it0 != j["Tiles"].end(); it0++) {
-std::vector<Tile> vec;
+std::vector<Tile*> vec;
  
 for(auto it1 = it0->begin(); it1 != it0->end(); it1++) {
-Tile o;
+Tile *o = new Tile;
 std::string tmp = it1->dump();
 const char *c_tmp = tmp.c_str();
-o.fromJSON(c_tmp);                                                       vec.push_back(o);
+o->fromJSON(c_tmp);                                                       vec.push_back(o);
 }
                                                        getTiles()->push_back(vec);
 }
@@ -142,4 +158,22 @@ using nlohmann::json;
 
     void from_json(const json& j, Tileset* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, Tileset*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, Tileset*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    Tileset *r = new Tileset;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

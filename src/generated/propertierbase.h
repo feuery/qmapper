@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-13T16:43:44.982Z
+//// generated at 2018-03-21T17:37:13.698Z
 
 #include<renderer.h>
 #include<QString>
@@ -27,9 +27,12 @@
 #include <unordered_map>
 
 class Script;
+class Sprite;
 class Map;
+class animatedsprite;
 class root;
 class Layer;
+class Tileset;
 class Tile;
 class Texture;
 
@@ -100,6 +103,10 @@ virtual ~Propertierbase ();
 
 virtual void set(std::string propertyname, bool value);
 virtual bool get(std::string propertyname, bool *success, bool type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Layer*>* value);
+virtual std::map<std::string, Layer*>* get(std::string propertyname, bool *success, std::map<std::string, Layer*>* type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Script*>* value);
+virtual std::map<std::string, Script*>* get(std::string propertyname, bool *success, std::map<std::string, Script*>* type_helper) const;
 virtual void set(std::string propertyname, Script* value);
 virtual Script* get(std::string propertyname, bool *success, Script* type_helper) const;
 virtual void set(std::string propertyname, std::string value);
@@ -108,20 +115,28 @@ virtual void set(std::string propertyname, scriptTypes value);
 virtual scriptTypes get(std::string propertyname, bool *success, scriptTypes type_helper) const;
 virtual void set(std::string propertyname, verticalAnchor value);
 virtual verticalAnchor get(std::string propertyname, bool *success, verticalAnchor type_helper) const;
-virtual void set(std::string propertyname, std::map<std::string, std::map<std::string, Propertierbase*>>* value);
-virtual std::map<std::string, std::map<std::string, Propertierbase*>>* get(std::string propertyname, bool *success, std::map<std::string, std::map<std::string, Propertierbase*>>* type_helper) const;
+virtual void set(std::string propertyname, std::vector<std::vector<Tile*>>* value);
+virtual std::vector<std::vector<Tile*>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile*>>* type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, animatedsprite*>* value);
+virtual std::map<std::string, animatedsprite*>* get(std::string propertyname, bool *success, std::map<std::string, animatedsprite*>* type_helper) const;
 virtual void set(std::string propertyname, int value);
 virtual int get(std::string propertyname, bool *success, int type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Sprite*>* value);
+virtual std::map<std::string, Sprite*>* get(std::string propertyname, bool *success, std::map<std::string, Sprite*>* type_helper) const;
 virtual void set(std::string propertyname, horizontalAnchor value);
 virtual horizontalAnchor get(std::string propertyname, bool *success, horizontalAnchor type_helper) const;
 virtual void set(std::string propertyname, float value);
 virtual float get(std::string propertyname, bool *success, float type_helper) const;
-virtual void set(std::string propertyname, std::vector<std::vector<Tile>>* value);
-virtual std::vector<std::vector<Tile>>* get(std::string propertyname, bool *success, std::vector<std::vector<Tile>>* type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Map*>* value);
+virtual std::map<std::string, Map*>* get(std::string propertyname, bool *success, std::map<std::string, Map*>* type_helper) const;
 virtual void set(std::string propertyname, std::vector<Layer*>* value);
 virtual std::vector<Layer*>* get(std::string propertyname, bool *success, std::vector<Layer*>* type_helper) const;
 virtual void set(std::string propertyname, unsigned char value);
 virtual unsigned char get(std::string propertyname, bool *success, unsigned char type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Tileset*>* value);
+virtual std::map<std::string, Tileset*>* get(std::string propertyname, bool *success, std::map<std::string, Tileset*>* type_helper) const;
+virtual void set(std::string propertyname, std::map<std::string, Tile*>* value);
+virtual std::map<std::string, Tile*>* get(std::string propertyname, bool *success, std::map<std::string, Tile*>* type_helper) const;
 
 
   std::unordered_map<std::string, std::vector<std::string>> field_error_map;
@@ -138,6 +153,11 @@ protected:
 };
 
 using nlohmann::json;
+
+void to_json(json& j, Propertierbase*& b);
+void to_json(json& j, const std::map<std::string, std::map<std::string, Propertierbase*>>* m);
+void from_json(const json& j, std::map<std::string, std::map<std::string, Propertierbase*>>* m);
+void to_json(json& j, std::map<std::string, Propertierbase*> m);
 
 Q_DECLARE_METATYPE(Propertierbase*);
 

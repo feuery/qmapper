@@ -124,4 +124,9 @@ animatedsprite* toAnimatedsprite(Propertierbase *b);
     void from_json(const json& j, animatedsprite* c);
     void to_json(json& j, const std::vector<animatedsprite*>* v);     void to_json(json& j, const std::vector<std::vector<animatedsprite*>>* v);
     void to_json(json& j, const std::vector<std::vector<animatedsprite>>* v);
+void to_json(json& j, std::map<std::string, animatedsprite*>* m);
+void from_json(const json& j, std::map<std::string, animatedsprite*>* m);
+
+#else 
+class animatedsprite;
 #endif

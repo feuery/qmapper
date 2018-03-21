@@ -1,6 +1,12 @@
 #include <script.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:44.998Z
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.703Z
 
 
 void Script::setContents(std::string value) { 
@@ -66,12 +72,20 @@ throw "";
 
 std::string Script::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"Contents", getContents()},
-{"Name", getName()},
-{"Ns", getNs()}
-};
+nlohmann::json j;
+auto G__5378 = getId();
+ j["Id"] = G__5378;
+
+auto G__5379 = getContents();
+ j["Contents"] = G__5379;
+
+auto G__5380 = getName();
+ j["Name"] = G__5380;
+
+auto G__5381 = getNs();
+ j["Ns"] = G__5381;
+
+;
 return j.dump();
 }
 void Script::fromJSON(const char* json_str)
@@ -132,4 +146,22 @@ using nlohmann::json;
 
     void from_json(const json& j, Script* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, Script*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, Script*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    Script *r = new Script;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

@@ -667,13 +667,32 @@ virtual %s get%s() const;
     void from_json(const json& j, " class-name "* c);
     void to_json(json& j, const std::vector<" class-name "*>* v); "
 "    void to_json(json& j, const std::vector<std::vector<" class-name "*>>* v);
-    void to_json(json& j, const std::vector<std::vector<" class-name ">>* v);"
-                           "\n#endif")
+    void to_json(json& j, const std::vector<std::vector<" class-name ">>* v);
+void to_json(json& j, std::map<std::string, " class-name "*>* m);
+void from_json(const json& j, std::map<std::string, " class-name "*>* m);
+
+#else 
+class " class-name ";\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">\n"
                          (if abstract? 
                            (str "#include <" (str/lower-case class-name) "Container.h>\n")
                            "")
 "#include <json.hpp>
+
+"
+(->> props
+     (map (fn [{[type ] :form}]
+            (let [type (-> type
+                           typesymbol->str
+                           (str/replace #"\*$" "")
+                           (str/replace #"std::vector<" "")
+                           (str/replace #">*\*?" ""))
+                  abstract? (is-class-abstract? (symbol type))]
+              (if abstract?
+                (str "#include <" (str/lower-case type) "Container.h>")))))
+     (str/join "\n"))
+
+"
 ////// generated at " (tf/unparse (tf/formatter :date-time) (t/now)) "
 
 "
@@ -725,7 +744,7 @@ throw \"\";
 
 std::string " class-name "::toJSON() const
 {
-nlohmann::json j {
+nlohmann::json j;
 "
 (->> props
      (filter (fn [{[type] :form}]
@@ -739,13 +758,20 @@ nlohmann::json j {
                                 'short
                                 'bool
                                 'std__map<std__string___std__map<std__string___Propertierbase*>>*
-                                'long} type))))
+                                'long} type)
+                   (.contains (name type) "std__map"))))
      (map (fn [{:keys [form]}]
             (let [[type prop-name & _] form
-                  prop-name ((comp str/capitalize name) prop-name)]
-              (str "{\"" prop-name "\", get" prop-name "()" 
-                   "}"))))
-     (str/join ",\n")) "\n};
+                  prop-name ((comp str/capitalize name) prop-name)
+                  ptr? (.endsWith (name type) "*")
+                  s (gensym)]
+              (str "auto " s " = get" prop-name "();
+"
+                   (if ptr?
+                     (str "if(" s ") ")) " j[\"" prop-name "\"] = " (if ptr?
+                                     "*"
+                                     "") s ";\n"))))
+     (str/join "\n")) "\n;
 return j.dump();
 }
 void " class-name "::fromJSON(const char* json_str)
@@ -764,8 +790,9 @@ json j = json::parse(json_str);
                                 'short
                                 'bool
                                 'std__map<std__string___std__map<std__string___Propertierbase*>>*
-                                'long} type))))
-     (map (fn [{[type prop-name] :form}]
+                                'long} type)
+                   (.contains (name type) "std__map"))))
+     (map (fn [{[type prop-name] :form}]            
             (let [collection? (.startsWith (name type) "std__vector")
                   pointer? (.endsWith (name type) "*")
                   collection-pointer? (and collection?
@@ -774,25 +801,28 @@ json j = json::parse(json_str);
                   prop-name ((comp str/capitalize name) prop-name)
                   type (-> (typesymbol->str type)
                            (str/replace #"\*$" ""))]
-              (if collection?
-
+              (cond
+                (.contains (name type) "std::map") (str "from_json(j[\"" prop-name "\"], get" prop-name "());")
+                collection?
                 (let [amount-of-vectors (count-substring type "std::vector") ;; This could be assumed to be max 2
                       type (-> type
                                (str/replace #"std::vector<" "")
                                (str/replace #">*\*?" "")
                                #_(str/replace #"\*$" "container"))
                       abstract? (is-class-abstract? (symbol type))]
+                    
                   (str/join "\n"
                             (concat (reverse
                                      (map (fn [count]
                                             (let [id (- amount-of-vectors count)]
                                               (condp = count
-                                                0 (str (if abstract?
-                                                         (str type " *o = new " type "container;\n")
-                                                         (str type " o;\n"))
+                                                0 (str type " *o = new " (str/capitalize type)
+                                                       (if abstract?
+                                                         "container;\n"
+                                                         ";\n")
 "std::string tmp = it" (dec id) "->dump();
 const char *c_tmp = tmp.c_str();
-o" (if (or collection-pointer? abstract?) "->" ".") "fromJSON(c_tmp);"
+o->fromJSON(c_tmp);"
                                                        
                                                        (if (> amount-of-vectors 1)
                                                          (str
@@ -804,12 +834,10 @@ o" (if (or collection-pointer? abstract?) "->" ".") "fromJSON(c_tmp);"
                                                 ;; else
                                                 (str "for(auto it" id " = j[\"" prop-name "\"].begin(); it" id " != j[\"" prop-name "\"].end(); it" id "++) {
 " (if (> amount-of-vectors 1 )
-    (str "std::vector<" type "> vec;\n ")))))) (range (inc amount-of-vectors))))
+    (str "std::vector<" type "*> vec;\n ")))))) (range (inc amount-of-vectors))))
                                     (repeat (dec amount-of-vectors) "}\n"))))
-
-                (if pointer?
-                  (str "*get" prop-name "() = j[\"" prop-name "\"].get<" type ">();")
-                  (str "set" prop-name "(j[\"" prop-name "\"]);"))))))
+                pointer? (str "*get" prop-name "() = j[\"" prop-name "\"].get<" type ">();")
+                :t (str "set" prop-name "(j[\"" prop-name "\"]);")))))
      (str/join "\n"))
 "
 }
@@ -864,7 +892,26 @@ using nlohmann::json;
     void from_json(const json& j, " class-name "* c) {
         c->fromJSON(j.get<std::string>().c_str());
 }
-"
+
+void to_json(json& j, std::map<std::string, " class-name "*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, " class-name "*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    " class-name " *r = new " (if (is-class-abstract? class-name)
+                                (str (str/capitalize class-name) "container")
+                                class-name) ";
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
+}"
 )]
     {:header class-content
      :implementation cpp-content}))

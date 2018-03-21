@@ -34,9 +34,7 @@ void editorController::populateMaps() {
       l->set_parent(m);
       m->getLayers()->push_back(l);
     }
-    auto id = m->getId();
-    Propertierbase *b = m;
-    document.doRegister("Map", id, b);
+    (*document.getMaps())[m->getId()] = m;
   }
 }
 
@@ -57,7 +55,7 @@ editorController::editorController(): indexOfChosenTileset(std::string("")), t(n
   scr->setNs("defaultVertex");
   scr->setName("Standard vertex shader");
   scr->setContents("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n");
-  document.doRegister("Script", scr->getId(), scr);
+  (*document.getScripts())[scr->getId()] = scr;
   indexOfStdVertexShader = scr->getId();
 
   scr = new Script;
@@ -65,7 +63,7 @@ editorController::editorController(): indexOfChosenTileset(std::string("")), t(n
   scr->setName("Standard fragment shader");
   scr->setNs("defaultShader");
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}");
-  document.doRegister("Script", scr->getId(), scr);
+  (*document.getScripts())[scr->getId()] = scr;
   indexOfStdFragmentShader = scr->getId();
 
   scr = new Script;
@@ -73,7 +71,7 @@ editorController::editorController(): indexOfChosenTileset(std::string("")), t(n
   scr->setName("Standard selected tile - view's fragmentshader");
   scr->setNs("default.tileView");
   scr->setContents("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform vec3 spriteColor;\nuniform vec2 selectedTileCoord; // <- in tile-coords\n\nvoid main() {\n  vec4 texel = // vec4(spriteColor, 1.0) * \n texture(image, TexCoord + (selectedTileCoord));\n if(texel.a < 0.5) discard;\n\n  color = texel;\n}");
-  document.doRegister("Script", scr->getId(), scr);
+  (*document.getScripts())[scr->getId()] = scr;
   indexOfStdTileviewFragShader = scr->getId();
 
   e = new Engine(this);
@@ -149,7 +147,7 @@ void editorController::setTileAt(int x, int y)
 
   qDebug() << "Setting tile at " << indexOfChosenLayer << ", " << x << ", " << y;
   
-  m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y) = selectedTileData;
+  m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y) = &selectedTileData;
 }
 
 
@@ -158,8 +156,8 @@ void editorController::setTileRotation(int x, int y, int deg_angl) {
 
   check_chosen_layer;
 
-  Tile &t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
-  t.setRotation(deg_angl);    
+  Tile *t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
+  t->setRotation(deg_angl);    
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
@@ -167,9 +165,9 @@ void editorController::rotateTile90Deg(int x, int y) {
 
   check_chosen_layer;
 
-  Tile &t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
-  int new_rot = (t.getRotation() + 90);
-  t.setRotation(new_rot);
+  Tile *t = m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y);
+  int new_rot = (t->getRotation() + 90);
+  t->setRotation(new_rot);
 }
 
 void editorController::loadSprite(const char* path) {
@@ -210,7 +208,11 @@ void editorController::dumpTextures(ZipArchive &arch) {
 void editorController::saveTo(QString filename) {
   ZipArchive arch(filename.toStdString());
   arch.open(ZipArchive::WRITE);
+  qDebug() << "Trying root.toJSON();";
   std::string rootJson = document.toJSON();
+
+  qDebug() << "Got root json";
+  
   arch.addData("root.json", rootJson.c_str(), rootJson.size());
   dumpTextures(arch);
   arch.close();

@@ -1,6 +1,12 @@
 #include <resize_obj.h>
 #include <json.hpp>
-////// generated at 2018-03-13T16:43:45.001Z
+
+
+
+
+
+
+////// generated at 2018-03-21T17:37:13.705Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -63,11 +69,17 @@ throw "";
 
 std::string resize_data::toJSON() const
 {
-nlohmann::json j {
-{"Id", getId()},
-{"New_width", getNew_width()},
-{"New_height", getNew_height()}
-};
+nlohmann::json j;
+auto G__5382 = getId();
+ j["Id"] = G__5382;
+
+auto G__5383 = getNew_width();
+ j["New_width"] = G__5383;
+
+auto G__5384 = getNew_height();
+ j["New_height"] = G__5384;
+
+;
 return j.dump();
 }
 void resize_data::fromJSON(const char* json_str)
@@ -127,4 +139,22 @@ using nlohmann::json;
 
     void from_json(const json& j, resize_data* c) {
         c->fromJSON(j.get<std::string>().c_str());
+}
+
+void to_json(json& j, std::map<std::string, resize_data*>* m) {
+  for(auto b = m->begin(); b != m->end(); m++) {
+    json j2;
+    to_json(j2, b->second);
+    
+    j[b->first] = j2;
+  }
+}
+void from_json(const json& j, std::map<std::string, resize_data*>* m)
+{
+  for(auto b = j.begin(); b != j.end(); b++) {
+    json j2 = b.value();
+    resize_data *r = new resize_data;
+    from_json(j2, r);
+    (*m)[b.key()] = r;
+  }
 }

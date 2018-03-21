@@ -72,12 +72,12 @@ obj* tileToObj(Tile &tile, Renderer* parent)
   return static_cast<obj*>(parent->owned_objects[tile_to_render_id]);
 }
 
-obj* tileToObj(Tile &tile)
+obj* tileToObj(Tile *tile)
 {
-  if(tile.getTileset() == "") return nullptr;
-  flyweight<std::string> id (tile.getTileset());
+  if(tile->getTileset() == "") return nullptr;
+  flyweight<std::string> id (tile->getTileset());
   tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
-  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
+  int tile_to_render_id = tileset->tiles[tile->getX()][tile->getY()]->getRenderId();
   return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
 }
 
@@ -112,18 +112,18 @@ void Mapcontainer::render()
 
 	if(!layer->getVisible()) continue;
 	
-	Tile tile = layer->getTiles()->at(x).at(y);
+	Tile* tile = layer->getTiles()->at(x).at(y);
 
-	if(tile.getTileset() != "" && layer->getOpacity() > 0) {
+	if(tile->getTileset() != "" && layer->getOpacity() > 0) {
 	  obj *tile_to_render = tileToObj(tile);
 	  tile_to_render->opacity = layer->getOpacity();
 	  tile_to_render->position = glm::vec2(x * 50.0f, y * 50.0f);
 
 	  // Completely unlike the glm documentation claims, the rotation has to be in radians
-	  tile_to_render->rotate = toRadians(tile.getRotation());
+	  tile_to_render->rotate = toRadians(tile->getRotation());
 
 	  if(l > 0) {
-	    Tile subTile = getLayers()->at(l-1)->getTiles()->at(x).at(y);
+	    Tile *subTile = getLayers()->at(l-1)->getTiles()->at(x).at(y);
 	    tile_to_render->subObj = tileToObj(subTile);
 	  }	  
 	    
@@ -212,7 +212,7 @@ Renderable* Mapcontainer::copy() {
     for(int x = 0; x < width(); x++) {
       for(int y = 0; y < height(); y++) {
 	
-	Tile tile = getLayers()->at(l)->getTiles()->at(x).at(y);
+	Tile* tile = getLayers()->at(l)->getTiles()->at(x).at(y);
 	layer->getTiles()->at(x).at(y) = tile;
       }
     }
@@ -247,7 +247,7 @@ void Mapcontainer::resize (int w,
 	  for(int i = 0; i < abs(w_diff); i++) {
 	    qDebug() << "Inserting to left";
 	    (*layer)->getTiles()->insert((*layer)->getTiles()->begin(),
-				    (std::vector<Tile>(layer_h, Tile())));
+				    (std::vector<Tile*>(layer_h, new Tile())));
 	  }
 	}
       }
@@ -256,7 +256,7 @@ void Mapcontainer::resize (int w,
 	  qDebug() << "Inserting to right";
 	  int layer_h = (*layer)->getHeight();
 	  for(int i = 0; i < abs(w_diff); i++) {
-	    (*layer)->getTiles()->push_back(std::vector<Tile>(layer_h, Tile()));
+	    (*layer)->getTiles()->push_back(std::vector<Tile*>(layer_h, new Tile()));
 	  }
 	}
       }
@@ -293,7 +293,7 @@ void Mapcontainer::resize (int w,
 	    for(int i = 0; i < abs(h_diff); i++) {
 	      qDebug() << "Inserting to top";
 	      (*layer)->getTiles()->at(x).insert((*layer)->getTiles()->at(x).begin(),
-					    Tile());
+					    new Tile());
 	    }
 	  }
 	}
@@ -304,7 +304,7 @@ void Mapcontainer::resize (int w,
 	  for(int x = 0; x < layer_w; x++) {
 	    for(int i = 0; i < abs(h_diff); i++) {
 	      qDebug() << "Inserting to bottom";
-	      (*layer)->getTiles()->at(x).push_back(Tile());
+	      (*layer)->getTiles()->at(x).push_back(new Tile());
 	    }
 	  }
 	}

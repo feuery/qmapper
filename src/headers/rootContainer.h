@@ -5,6 +5,7 @@
 #include<tilelistmodel.h>
 #include <QStandardItemModel>
 #include <either.h>
+#include <QDebug>
 
 class Rootcontainer: public root{
 public:
@@ -17,12 +18,11 @@ public:
 
   bool containsNs (std::string ns);
 
-  Propertierbase* fetchRegister (std::string Type, std::string id);
-  void doRegister (std::string Type, std::string id, Propertierbase* object);
+  Propertierbase* fetchRegister (std::string Type, std::string id) override;
   template <typename T>
   std::vector<T*>typeRegistry(std::string type_name) {
     std::vector<T*> vec;
-    auto reg = registryOf(type_name);
+    auto reg = *registryOf(type_name);
     for(auto t: reg) {
       vec.push_back(static_cast<T*>(t));
     }
@@ -31,30 +31,19 @@ public:
   }
 
   int registrySize();
-  int typeRegistrySize(std::string type_name);
-  void erase(std::string type, std::string id) override;
-  void erase(std::string type, int id) override;
-  std::vector<Propertierbase*> registryOf (std::string type) override;
+  std::vector<Propertierbase*>* registryOf (std::string type) override;
 
-  std::vector<Propertierbase*> registryToList();
-  std::vector<Propertierbase*> registryToList(std::vector<std::string> filterTypes);
+  std::vector<Propertierbase*> registryToList() override;
   template<typename T>
-  T* nth(std::string type_name, int i);
+  T* nth(int i);
 
 private:
 
 };
 
 template <typename T>
-T* Rootcontainer::nth(std::string type_name, int i) {
-  auto r = getRegistry()->at(type_name);
-  int index = 0;
-  for(auto iterator: r) {
-    index++;
-    if(index == i)
-      return static_cast<T*>(iterator.second);
-  }
-  return nullptr;
+T* Rootcontainer::nth(int i) {
+  qDebug() << QString("Specialized ::nth wrong");
 }
 
 #endif //ROOTCONTAINER_H

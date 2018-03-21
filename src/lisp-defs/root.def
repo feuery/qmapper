@@ -1,21 +1,25 @@
 (defcppclass root ("<propertierbase.h>" "<map>"
+					"<layer.h>" "<map.h>"
+					"<animatedSprite.h>" "<sprite.h>"
+					"<tileset.h>"
+					"<script.h>"
 					"<string>"
 					"<QString>" "<either.h>")
-  (declare-class "Map")
+  (declare-class "Map" "Sprite" "Tileset" "animatedsprite")
   (public   
    (properties
-    (std__map<std__string___std__map<std__string___Propertierbase*>>* registry nullptr)))  
-  
-  (public
+    (std__map<std__string___animatedsprite*>* animatedSprites  nullptr)
+    (std__map<std__string___Layer*>* layers  nullptr)
+    (std__map<std__string___Map*>* maps  nullptr)
+    (std__map<std__string___Script*>* scripts  nullptr)
+    (std__map<std__string___Sprite*>* sprites  nullptr)
+    (std__map<std__string___Tile*>* tiles  nullptr)
+    (std__map<std__string___Tileset*>* tilesets  nullptr))
    (functions
     (int registrySize ())
-    (int typeRegistrySize (std__string type_name))
-    (void erase (std__string type std__string id))
-    (void erase (std__string type int id))
-    (Propertierbase* fetchRegister (std__string Type, std__string id))
-    (void doRegister (std__string Type, std__string id, Propertierbase* object))
-    (std__vector<Propertierbase*> registryToList(std__vector<std__string> filterTypes)) 
+    (Propertierbase* fetchRegister (std__string Type, std__string id)) 
     (either<scriptTypes___std__string> findNs (std__string ns))
     (void saveNs (std__string ns std__string content))
     (bool containsNs (std__string ns))
-    (std__vector<Propertierbase*> registryOf (std__string type)))))
+    (std__vector<Propertierbase*>* registryOf (std__string type)) 
+    (std__vector<Propertierbase*> registryToList ()))))   

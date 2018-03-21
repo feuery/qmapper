@@ -5,4 +5,4 @@
     (std__string name "")
     (Script* vertexShader nullptr)
     (Script* fragmentShader nullptr)
-    (std__vector<std__vector<Tile>>* tiles nullptr))))
+    (std__vector<std__vector<Tile*>>* tiles nullptr))))
