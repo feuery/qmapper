@@ -7,7 +7,7 @@
 
 
 
-////// generated at 2018-03-22T16:54:01.381Z
+////// generated at 2018-03-22T17:33:33.061Z
 
 
 void Layer::setName(std::string value) { 
@@ -79,20 +79,20 @@ throw "";
 std::string Layer::toJSON() const
 {
 nlohmann::json j;
-auto G__6889 = getId();
- j["Id"] = G__6889;
+auto G__6985 = getId();
+ j["Id"] = G__6985;
 
-auto G__6890 = getName();
- j["Name"] = G__6890;
+auto G__6986 = getName();
+ j["Name"] = G__6986;
 
-auto G__6891 = getOpacity();
- j["Opacity"] = G__6891;
+auto G__6987 = getOpacity();
+ j["Opacity"] = G__6987;
 
-auto G__6892 = getVisible();
- j["Visible"] = G__6892;
+auto G__6988 = getVisible();
+ j["Visible"] = G__6988;
 
-auto G__6893 = getTiles();
-if(G__6893)  j["Tiles"] = *G__6893;
+auto G__6989 = getTiles();
+if(G__6989)  j["Tiles"] = *G__6989;
 
 ;
 return j.dump();

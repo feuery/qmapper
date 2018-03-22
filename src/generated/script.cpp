@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-22T16:54:01.373Z
+////// generated at 2018-03-22T17:33:33.056Z
 
 
 void Script::setContents(std::string value) { 
@@ -81,17 +81,17 @@ throw "";
 std::string Script::toJSON() const
 {
 nlohmann::json j;
-auto G__6871 = getId();
- j["Id"] = G__6871;
+auto G__6967 = getId();
+ j["Id"] = G__6967;
 
-auto G__6872 = getContents();
- j["Contents"] = G__6872;
+auto G__6968 = getContents();
+ j["Contents"] = G__6968;
 
-auto G__6873 = getName();
- j["Name"] = G__6873;
+auto G__6969 = getName();
+ j["Name"] = G__6969;
 
-auto G__6874 = getNs();
- j["Ns"] = G__6874;
+auto G__6970 = getNs();
+ j["Ns"] = G__6970;
 
 ;
 return j.dump();

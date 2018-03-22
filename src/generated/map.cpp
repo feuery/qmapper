@@ -5,7 +5,7 @@
 
 
 #include <layerContainer.h>
-////// generated at 2018-03-22T16:54:01.380Z
+////// generated at 2018-03-22T17:33:33.060Z
 
 
 void Map::setName(std::string value) { 
@@ -53,14 +53,14 @@ throw "";
 std::string Map::toJSON() const
 {
 nlohmann::json j;
-auto G__6886 = getId();
- j["Id"] = G__6886;
+auto G__6982 = getId();
+ j["Id"] = G__6982;
 
-auto G__6887 = getName();
- j["Name"] = G__6887;
+auto G__6983 = getName();
+ j["Name"] = G__6983;
 
-auto G__6888 = getLayers();
-if(G__6888)  j["Layers"] = *G__6888;
+auto G__6984 = getLayers();
+if(G__6984)  j["Layers"] = *G__6984;
 
 ;
 return j.dump();

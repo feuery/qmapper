@@ -12,7 +12,6 @@
     (float angle 0.0))
    (functions
     (int maxFrames ())
-    (void advanceFrame ())))
-  (protected
+    (void advanceFrame ()))
    (fields
     (std__vector<Sprite*>* sprites nullptr))))

@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-22T16:54:01.384Z
+////// generated at 2018-03-22T17:33:33.064Z
 
 
 void Tileset::setName(std::string value) { 
@@ -78,20 +78,20 @@ throw "";
 std::string Tileset::toJSON() const
 {
 nlohmann::json j;
-auto G__6914 = getId();
- j["Id"] = G__6914;
+auto G__7010 = getId();
+ j["Id"] = G__7010;
 
-auto G__6915 = getName();
- j["Name"] = G__6915;
+auto G__7011 = getName();
+ j["Name"] = G__7011;
 
-auto G__6916 = getVertexshader();
-if(G__6916)  j["Vertexshader"] = *G__6916;
+auto G__7012 = getVertexshader();
+if(G__7012)  j["Vertexshader"] = *G__7012;
 
-auto G__6917 = getFragmentshader();
-if(G__6917)  j["Fragmentshader"] = *G__6917;
+auto G__7013 = getFragmentshader();
+if(G__7013)  j["Fragmentshader"] = *G__7013;
 
-auto G__6918 = getTiles();
-if(G__6918)  j["Tiles"] = *G__6918;
+auto G__7014 = getTiles();
+if(G__7014)  j["Tiles"] = *G__7014;
 
 ;
 return j.dump();

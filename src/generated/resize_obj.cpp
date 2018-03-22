@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-22T16:54:01.374Z
+////// generated at 2018-03-22T17:33:33.056Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -78,14 +78,14 @@ throw "";
 std::string resize_data::toJSON() const
 {
 nlohmann::json j;
-auto G__6875 = getId();
- j["Id"] = G__6875;
+auto G__6971 = getId();
+ j["Id"] = G__6971;
 
-auto G__6876 = getNew_width();
- j["New_width"] = G__6876;
+auto G__6972 = getNew_width();
+ j["New_width"] = G__6972;
 
-auto G__6877 = getNew_height();
- j["New_height"] = G__6877;
+auto G__6973 = getNew_height();
+ j["New_height"] = G__6973;
 
 ;
 return j.dump();

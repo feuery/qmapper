@@ -37,7 +37,7 @@ virtual float getAngle() const;
 float Angle_field = 0.0;
 public: virtual int maxFrames () = 0;
 public: virtual void advanceFrame () = 0;
-protected: std::vector<Sprite*>* sprites = nullptr;virtual void set(std::string propertyname, std::string value) {
+public: std::vector<Sprite*>* sprites = nullptr;virtual void set(std::string propertyname, std::string value) {
 if(propertyname == std::string("Id") ) { setId(value); return; }
 if(propertyname == std::string("parentMapId") ) { setParentmapid(value); return; }
 if(propertyname == std::string("name") ) { setName(value); return; } }

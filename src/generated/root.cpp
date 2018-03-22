@@ -10,7 +10,7 @@
 
 
 
-////// generated at 2018-03-22T16:54:01.378Z
+////// generated at 2018-03-22T17:33:33.058Z
 
 
 void root::setAnimatedsprites(std::map<std::string, animatedsprite*>* value) { 
@@ -118,29 +118,29 @@ throw "";
 std::string root::toJSON() const
 {
 nlohmann::json j;
-auto G__6878 = getId();
- j["Id"] = G__6878;
+auto G__6974 = getId();
+ j["Id"] = G__6974;
 
-auto G__6879 = getAnimatedsprites();
-if(G__6879)  j["Animatedsprites"] = *G__6879;
+auto G__6975 = getAnimatedsprites();
+if(G__6975)  j["Animatedsprites"] = *G__6975;
 
-auto G__6880 = getLayers();
-if(G__6880)  j["Layers"] = *G__6880;
+auto G__6976 = getLayers();
+if(G__6976)  j["Layers"] = *G__6976;
 
-auto G__6881 = getMaps();
-if(G__6881)  j["Maps"] = *G__6881;
+auto G__6977 = getMaps();
+if(G__6977)  j["Maps"] = *G__6977;
 
-auto G__6882 = getScripts();
-if(G__6882)  j["Scripts"] = *G__6882;
+auto G__6978 = getScripts();
+if(G__6978)  j["Scripts"] = *G__6978;
 
-auto G__6883 = getSprites();
-if(G__6883)  j["Sprites"] = *G__6883;
+auto G__6979 = getSprites();
+if(G__6979)  j["Sprites"] = *G__6979;
 
-auto G__6884 = getTiles();
-if(G__6884)  j["Tiles"] = *G__6884;
+auto G__6980 = getTiles();
+if(G__6980)  j["Tiles"] = *G__6980;
 
-auto G__6885 = getTilesets();
-if(G__6885)  j["Tilesets"] = *G__6885;
+auto G__6981 = getTilesets();
+if(G__6981)  j["Tilesets"] = *G__6981;
 
 ;
 return j.dump();

@@ -182,6 +182,17 @@ void editorController::loadAnimation(const char *path, int frameCount, int frame
 
 static std::vector<QTemporaryFile*> tempFiles;
 
+void saveImg(ZipArchive &arch, QImage &img, std::string name) {
+  QTemporaryFile *f = new QTemporaryFile();
+  tempFiles.push_back(f);
+    
+  f->open();
+  if(img.save(f, "PNG")) {
+    arch.addFile(name, f->fileName().toStdString());
+    qDebug() << "Saved " << name.c_str() << " to the zip";
+  }
+}
+
 void editorController::dumpTextures(ZipArchive &arch) {
   auto tilesets = document.typeRegistry<Tileset>("Tileset");
   auto sprites = document.typeRegistry<Sprite>("Sprite");
@@ -190,16 +201,29 @@ void editorController::dumpTextures(ZipArchive &arch) {
   for(auto sprite: sprites) {
     obj* spr = sprite->getObject();
     QImage &img = spr->qi_copy;
+    saveImg(arch, img, sprite->getId() + ".png");
+  }
 
-    QTemporaryFile *f = new QTemporaryFile();
-    tempFiles.push_back(f);
-    
-    f->open();
-    if(img.save(f, "PNG")) {
-      arch.addFile(sprite->getId() + ".png", f->fileName().toStdString());
-      qDebug() << "Saved " << sprite->getId().c_str() << " to the zip";
+  for(auto animation: animations) {
+    int i = 0;
+    for(auto it = animation->sprites->begin(); it != animation->sprites->end(); it++) {
+      auto sprite = *it;
+      obj* spr = sprite->getObject();
+      QImage &img = spr->qi_copy;
+      saveImg(arch, img, animation->getId() + " - " + std::to_string(i) + ".png");
+      i++;
     }
-    else qDebug() << "Saving " << sprite->getId().c_str() << ".png failed";
+  }
+
+  for(auto tileset: tilesets) {
+    tilesetContainer *c_tileset = static_cast<tilesetContainer*>(tileset);
+    for(int x = 0; x < c_tileset->tiles_w; x++) {
+      for(int y = 0; y < c_tileset->tiles_h; y++) {
+	obj *tile_obj = c_tileset->tiles[x][y];
+	Tile *tile = c_tileset->getTiles()->at(x).at(y);
+	saveImg(arch, tile_obj->qi_copy, c_tileset->getId() + " - " + tile->getId() + ".png");	
+      }
+    }
   }
 }
 
