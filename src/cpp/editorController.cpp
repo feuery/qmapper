@@ -144,10 +144,8 @@ void editorController::setTileAt(int x, int y)
   Map* m = toMap(document.fetchRegister("Map", indexOfChosenMap));
 
   check_chosen_layer
-
-  qDebug() << "Setting tile at " << indexOfChosenLayer << ", " << x << ", " << y;
   
-  m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y) = &selectedTileData;
+  m->getLayers()->at(indexOfChosenLayer)->getTiles()->at(x).at(y) = toTile(selectedTileData.copy());
 }
 
 

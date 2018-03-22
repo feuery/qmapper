@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.715Z
+////// generated at 2018-03-22T16:54:01.382Z
 
 
 void Tile::setTileset(std::string value) { 
@@ -45,7 +45,15 @@ for(auto fn: event_map["Rotation"]) {
                                                         int Tile::getRotation() const {
 return Rotation_field;
 }
-Tile::Tile() {
+Propertierbase* Tile::copy() {
+  Tile* t = new Tile;
+t->setId(getId());
+t->setX(getX());
+t->setY(getY());
+t->setTileset(getTileset());
+t->setRotation(getRotation()); 
+return t;
+}Tile::Tile() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("x")));
@@ -70,20 +78,20 @@ throw "";
 std::string Tile::toJSON() const
 {
 nlohmann::json j;
-auto G__5401 = getId();
- j["Id"] = G__5401;
+auto G__6894 = getId();
+ j["Id"] = G__6894;
 
-auto G__5402 = getX();
- j["X"] = G__5402;
+auto G__6895 = getX();
+ j["X"] = G__6895;
 
-auto G__5403 = getY();
- j["Y"] = G__5403;
+auto G__6896 = getY();
+ j["Y"] = G__6896;
 
-auto G__5404 = getTileset();
- j["Tileset"] = G__5404;
+auto G__6897 = getTileset();
+ j["Tileset"] = G__6897;
 
-auto G__5405 = getRotation();
- j["Rotation"] = G__5405;
+auto G__6898 = getRotation();
+ j["Rotation"] = G__6898;
 
 ;
 return j.dump();

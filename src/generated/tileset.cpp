@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.718Z
+////// generated at 2018-03-22T16:54:01.384Z
 
 
 void Tileset::setName(std::string value) { 
@@ -45,7 +45,15 @@ for(auto fn: event_map["Tiles"]) {
                                                         std::vector<std::vector<Tile*>>* Tileset::getTiles() const {
 return Tiles_field;
 }
-Tileset::Tileset() {
+Propertierbase* Tileset::copy() {
+  Tileset* t = new Tileset;
+t->setId(getId());
+t->setName(getName());
+t->setVertexshader(getVertexshader());
+t->setFragmentshader(getFragmentshader());
+t->setTiles(getTiles()); 
+return t;
+}Tileset::Tileset() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
@@ -70,20 +78,20 @@ throw "";
 std::string Tileset::toJSON() const
 {
 nlohmann::json j;
-auto G__5421 = getId();
- j["Id"] = G__5421;
+auto G__6914 = getId();
+ j["Id"] = G__6914;
 
-auto G__5422 = getName();
- j["Name"] = G__5422;
+auto G__6915 = getName();
+ j["Name"] = G__6915;
 
-auto G__5423 = getVertexshader();
-if(G__5423)  j["Vertexshader"] = *G__5423;
+auto G__6916 = getVertexshader();
+if(G__6916)  j["Vertexshader"] = *G__6916;
 
-auto G__5424 = getFragmentshader();
-if(G__5424)  j["Fragmentshader"] = *G__5424;
+auto G__6917 = getFragmentshader();
+if(G__6917)  j["Fragmentshader"] = *G__6917;
 
-auto G__5425 = getTiles();
-if(G__5425)  j["Tiles"] = *G__5425;
+auto G__6918 = getTiles();
+if(G__6918)  j["Tiles"] = *G__6918;
 
 ;
 return j.dump();

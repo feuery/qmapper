@@ -304,6 +304,8 @@ virtual ~Propertierbase ();
 
   std::unordered_map<std::string, std::unordered_map<int, FUN>> event_map;
 
+  virtual Propertierbase* copy() = 0;
+
   virtual int addEvent(std::string prop, FUN fn) {
      int id = rand();
      event_map[prop][id] = fn;
@@ -644,8 +646,9 @@ virtual %s get%s() const;
  virtual void fromJSON(const char* json);"
                            "\npublic: " class-name "();\n"
                            "\nstd::vector<std::string> r;"
-                           "\nstd::vector<std::string> names() { return r; }\n"
-                           "\nvirtual std::string type_identifier() { return std::string(\"" class-name "\"); }"
+                           "\nstd::vector<std::string> names() { return r; }
+                              virtual Propertierbase* copy();
+                              virtual std::string type_identifier() { return std::string(\"" class-name "\"); }"
                            "\nvirtual int property_count() { return " (count props) "; }"
                            "\nvirtual std::string type_name(std::string propertyname) const {\n"
 
@@ -721,8 +724,21 @@ return " prop-name "_field;
 }")
                                                      ""))))
                                           (str/join "\n"))))
-                              (str/join "\n"))"
+                              (str/join "\n"))
+                         "
+Propertierbase* " class-name "::copy() {
+  " class-name "* t = new " (if (is-class-abstract? class-name)
+                              (str (str/capitalize class-name) "container")
+                              class-name) ";
 "
+                         (->> props
+                              (map (fn [{[_ prop-name] :form}]
+                                     (let [prop-name ((comp str/capitalize name) prop-name)]
+                                       (str "t->set" prop-name "(get" prop-name "());"))))
+                              (str/join "\n"))
+                        
+" \nreturn t;
+}"
                          class-name "::" class-name "() {
 "
                          (->> props

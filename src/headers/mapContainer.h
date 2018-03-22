@@ -34,7 +34,7 @@ public:
 
   either<animatedsprite*, Sprite*> findNearest(int x, int y) override;
 
-  virtual Renderable* copy();
+  virtual Renderable* copyRenderable();
 private:
 
   root *R;

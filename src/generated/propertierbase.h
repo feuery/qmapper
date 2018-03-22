@@ -1,6 +1,6 @@
 #ifndef propertierbasee
 #define propertierbasee
-//// generated at 2018-03-21T17:37:13.698Z
+//// generated at 2018-03-22T16:54:01.370Z
 
 #include<renderer.h>
 #include<QString>
@@ -73,6 +73,8 @@ virtual ~Propertierbase ();
   virtual int property_count() = 0;
 
   std::unordered_map<std::string, std::unordered_map<int, FUN>> event_map;
+
+  virtual Propertierbase* copy() = 0;
 
   virtual int addEvent(std::string prop, FUN fn) {
      int id = rand();

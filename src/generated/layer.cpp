@@ -7,7 +7,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.714Z
+////// generated at 2018-03-22T16:54:01.381Z
 
 
 void Layer::setName(std::string value) { 
@@ -46,7 +46,15 @@ for(auto fn: event_map["Tiles"]) {
                                                         std::vector<std::vector<Tile*>>* Layer::getTiles() const {
 return Tiles_field;
 }
-Layer::Layer() {
+Propertierbase* Layer::copy() {
+  Layer* t = new Layercontainer;
+t->setId(getId());
+t->setName(getName());
+t->setOpacity(getOpacity());
+t->setVisible(getVisible());
+t->setTiles(getTiles()); 
+return t;
+}Layer::Layer() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
@@ -71,20 +79,20 @@ throw "";
 std::string Layer::toJSON() const
 {
 nlohmann::json j;
-auto G__5396 = getId();
- j["Id"] = G__5396;
+auto G__6889 = getId();
+ j["Id"] = G__6889;
 
-auto G__5397 = getName();
- j["Name"] = G__5397;
+auto G__6890 = getName();
+ j["Name"] = G__6890;
 
-auto G__5398 = getOpacity();
- j["Opacity"] = G__5398;
+auto G__6891 = getOpacity();
+ j["Opacity"] = G__6891;
 
-auto G__5399 = getVisible();
- j["Visible"] = G__5399;
+auto G__6892 = getVisible();
+ j["Visible"] = G__6892;
 
-auto G__5400 = getTiles();
-if(G__5400)  j["Tiles"] = *G__5400;
+auto G__6893 = getTiles();
+if(G__6893)  j["Tiles"] = *G__6893;
 
 ;
 return j.dump();

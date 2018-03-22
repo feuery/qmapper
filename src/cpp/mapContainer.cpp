@@ -204,7 +204,7 @@ either<animatedsprite*, Sprite*> Mapcontainer::findNearest(int x, int y) {
   return toret;
 }
 
-Renderable* Mapcontainer::copy() {
+Renderable* Mapcontainer::copyRenderable() {
   Mapcontainer *m = new Mapcontainer;
   
   for(int l = 0; l < getLayers()->size(); l++) {

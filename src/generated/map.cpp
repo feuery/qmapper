@@ -5,7 +5,7 @@
 
 
 #include <layerContainer.h>
-////// generated at 2018-03-21T17:37:13.711Z
+////// generated at 2018-03-22T16:54:01.380Z
 
 
 void Map::setName(std::string value) { 
@@ -26,7 +26,13 @@ for(auto fn: event_map["Layers"]) {
                                                         std::vector<Layer*>* Map::getLayers() const {
 return Layers_field;
 }
-Map::Map() {
+Propertierbase* Map::copy() {
+  Map* t = new Mapcontainer;
+t->setId(getId());
+t->setName(getName());
+t->setLayers(getLayers()); 
+return t;
+}Map::Map() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("name")));
@@ -47,14 +53,14 @@ throw "";
 std::string Map::toJSON() const
 {
 nlohmann::json j;
-auto G__5393 = getId();
- j["Id"] = G__5393;
+auto G__6886 = getId();
+ j["Id"] = G__6886;
 
-auto G__5394 = getName();
- j["Name"] = G__5394;
+auto G__6887 = getName();
+ j["Name"] = G__6887;
 
-auto G__5395 = getLayers();
-if(G__5395)  j["Layers"] = *G__5395;
+auto G__6888 = getLayers();
+if(G__6888)  j["Layers"] = *G__6888;
 
 ;
 return j.dump();

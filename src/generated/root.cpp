@@ -10,7 +10,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.708Z
+////// generated at 2018-03-22T16:54:01.378Z
 
 
 void root::setAnimatedsprites(std::map<std::string, animatedsprite*>* value) { 
@@ -76,7 +76,18 @@ for(auto fn: event_map["Tilesets"]) {
                                                         std::map<std::string, Tileset*>* root::getTilesets() const {
 return Tilesets_field;
 }
-root::root() {
+Propertierbase* root::copy() {
+  root* t = new Rootcontainer;
+t->setId(getId());
+t->setAnimatedsprites(getAnimatedsprites());
+t->setLayers(getLayers());
+t->setMaps(getMaps());
+t->setScripts(getScripts());
+t->setSprites(getSprites());
+t->setTiles(getTiles());
+t->setTilesets(getTilesets()); 
+return t;
+}root::root() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("animatedSprites")));
@@ -107,29 +118,29 @@ throw "";
 std::string root::toJSON() const
 {
 nlohmann::json j;
-auto G__5385 = getId();
- j["Id"] = G__5385;
+auto G__6878 = getId();
+ j["Id"] = G__6878;
 
-auto G__5386 = getAnimatedsprites();
-if(G__5386)  j["Animatedsprites"] = *G__5386;
+auto G__6879 = getAnimatedsprites();
+if(G__6879)  j["Animatedsprites"] = *G__6879;
 
-auto G__5387 = getLayers();
-if(G__5387)  j["Layers"] = *G__5387;
+auto G__6880 = getLayers();
+if(G__6880)  j["Layers"] = *G__6880;
 
-auto G__5388 = getMaps();
-if(G__5388)  j["Maps"] = *G__5388;
+auto G__6881 = getMaps();
+if(G__6881)  j["Maps"] = *G__6881;
 
-auto G__5389 = getScripts();
-if(G__5389)  j["Scripts"] = *G__5389;
+auto G__6882 = getScripts();
+if(G__6882)  j["Scripts"] = *G__6882;
 
-auto G__5390 = getSprites();
-if(G__5390)  j["Sprites"] = *G__5390;
+auto G__6883 = getSprites();
+if(G__6883)  j["Sprites"] = *G__6883;
 
-auto G__5391 = getTiles();
-if(G__5391)  j["Tiles"] = *G__5391;
+auto G__6884 = getTiles();
+if(G__6884)  j["Tiles"] = *G__6884;
 
-auto G__5392 = getTilesets();
-if(G__5392)  j["Tilesets"] = *G__5392;
+auto G__6885 = getTilesets();
+if(G__6885)  j["Tilesets"] = *G__6885;
 
 ;
 return j.dump();

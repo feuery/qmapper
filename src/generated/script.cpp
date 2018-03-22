@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.703Z
+////// generated at 2018-03-22T16:54:01.373Z
 
 
 void Script::setContents(std::string value) { 
@@ -48,7 +48,15 @@ for(auto fn: event_map["Script_type"]) {
                                                         scriptTypes Script::getScript_type() const {
 return Script_type_field;
 }
-Script::Script() {
+Propertierbase* Script::copy() {
+  Script* t = new Script;
+t->setId(getId());
+t->setContents(getContents());
+t->setName(getName());
+t->setNs(getNs());
+t->setScript_type(getScript_type()); 
+return t;
+}Script::Script() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("contents")));
@@ -73,17 +81,17 @@ throw "";
 std::string Script::toJSON() const
 {
 nlohmann::json j;
-auto G__5378 = getId();
- j["Id"] = G__5378;
+auto G__6871 = getId();
+ j["Id"] = G__6871;
 
-auto G__5379 = getContents();
- j["Contents"] = G__5379;
+auto G__6872 = getContents();
+ j["Contents"] = G__6872;
 
-auto G__5380 = getName();
- j["Name"] = G__5380;
+auto G__6873 = getName();
+ j["Name"] = G__6873;
 
-auto G__5381 = getNs();
- j["Ns"] = G__5381;
+auto G__6874 = getNs();
+ j["Ns"] = G__6874;
 
 ;
 return j.dump();

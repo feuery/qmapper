@@ -73,8 +73,8 @@ public: Sprite();
 
 std::vector<std::string> r;
 std::vector<std::string> names() { return r; }
-
-virtual std::string type_identifier() { return std::string("Sprite"); }
+                              virtual Propertierbase* copy();
+                              virtual std::string type_identifier() { return std::string("Sprite"); }
 virtual int property_count() { return 6; }
 virtual std::string type_name(std::string propertyname) const {
 if(propertyname == std::string("Id")) return std::string("std::string");

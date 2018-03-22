@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.705Z
+////// generated at 2018-03-22T16:54:01.374Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -45,7 +45,15 @@ for(auto fn: event_map["Horizontal_anchor"]) {
                                                         horizontalAnchor resize_data::getHorizontal_anchor() const {
 return Horizontal_anchor_field;
 }
-resize_data::resize_data() {
+Propertierbase* resize_data::copy() {
+  resize_data* t = new resize_data;
+t->setId(getId());
+t->setNew_width(getNew_width());
+t->setNew_height(getNew_height());
+t->setVertical_anchor(getVertical_anchor());
+t->setHorizontal_anchor(getHorizontal_anchor()); 
+return t;
+}resize_data::resize_data() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("new_width")));
@@ -70,14 +78,14 @@ throw "";
 std::string resize_data::toJSON() const
 {
 nlohmann::json j;
-auto G__5382 = getId();
- j["Id"] = G__5382;
+auto G__6875 = getId();
+ j["Id"] = G__6875;
 
-auto G__5383 = getNew_width();
- j["New_width"] = G__5383;
+auto G__6876 = getNew_width();
+ j["New_width"] = G__6876;
 
-auto G__5384 = getNew_height();
- j["New_height"] = G__5384;
+auto G__6877 = getNew_height();
+ j["New_height"] = G__6877;
 
 ;
 return j.dump();

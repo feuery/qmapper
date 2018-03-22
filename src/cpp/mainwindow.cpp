@@ -233,7 +233,7 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	    auto f = e->er->getGlFns();
 	    
 	    for(Renderable *dq: map_view->getDrawQueue()) {
-	      Renderable *to_render = dq->copy();
+	      Renderable *to_render = dq->copyRenderable();
 	      // to_render->redoMatrices(e->er, f, w, h);
 	      e->er->getDrawQueue().push_back(to_render);
 	    }

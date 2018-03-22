@@ -9,7 +9,7 @@ public:
   virtual void render(Renderer *parent) = 0;
   virtual void render() = 0;
   virtual int getRenderId() = 0;
-  virtual Renderable* copy() { puts("Don't call Renderable::copy"); throw ""; }
+  virtual Renderable* copyRenderable() { puts("Don't call Renderable::copyRenderable"); throw ""; }
 };
 #else
 class Renderable;

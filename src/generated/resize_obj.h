@@ -63,8 +63,8 @@ public: resize_data();
 
 std::vector<std::string> r;
 std::vector<std::string> names() { return r; }
-
-virtual std::string type_identifier() { return std::string("resize_data"); }
+                              virtual Propertierbase* copy();
+                              virtual std::string type_identifier() { return std::string("resize_data"); }
 virtual int property_count() { return 5; }
 virtual std::string type_name(std::string propertyname) const {
 if(propertyname == std::string("Id")) return std::string("std::string");

@@ -11,7 +11,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.717Z
+////// generated at 2018-03-22T16:54:01.384Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -86,7 +86,19 @@ for(auto fn: event_map["Angle"]) {
                                                         float animatedsprite::getAngle() const {
 return Angle_field;
 }
-animatedsprite::animatedsprite() {
+Propertierbase* animatedsprite::copy() {
+  animatedsprite* t = new Animatedspritecontainer;
+t->setId(getId());
+t->setParentmapid(getParentmapid());
+t->setName(getName());
+t->setCurrentframeid(getCurrentframeid());
+t->setMsperframe(getMsperframe());
+t->setAnimationplaying(getAnimationplaying());
+t->setX(getX());
+t->setY(getY());
+t->setAngle(getAngle()); 
+return t;
+}animatedsprite::animatedsprite() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("parentMapId")));
@@ -119,32 +131,32 @@ throw "";
 std::string animatedsprite::toJSON() const
 {
 nlohmann::json j;
-auto G__5412 = getId();
- j["Id"] = G__5412;
+auto G__6905 = getId();
+ j["Id"] = G__6905;
 
-auto G__5413 = getParentmapid();
- j["Parentmapid"] = G__5413;
+auto G__6906 = getParentmapid();
+ j["Parentmapid"] = G__6906;
 
-auto G__5414 = getName();
- j["Name"] = G__5414;
+auto G__6907 = getName();
+ j["Name"] = G__6907;
 
-auto G__5415 = getCurrentframeid();
- j["Currentframeid"] = G__5415;
+auto G__6908 = getCurrentframeid();
+ j["Currentframeid"] = G__6908;
 
-auto G__5416 = getMsperframe();
- j["Msperframe"] = G__5416;
+auto G__6909 = getMsperframe();
+ j["Msperframe"] = G__6909;
 
-auto G__5417 = getAnimationplaying();
- j["Animationplaying"] = G__5417;
+auto G__6910 = getAnimationplaying();
+ j["Animationplaying"] = G__6910;
 
-auto G__5418 = getX();
- j["X"] = G__5418;
+auto G__6911 = getX();
+ j["X"] = G__6911;
 
-auto G__5419 = getY();
- j["Y"] = G__5419;
+auto G__6912 = getY();
+ j["Y"] = G__6912;
 
-auto G__5420 = getAngle();
- j["Angle"] = G__5420;
+auto G__6913 = getAngle();
+ j["Angle"] = G__6913;
 
 ;
 return j.dump();

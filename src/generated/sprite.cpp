@@ -8,7 +8,7 @@
 
 
 
-////// generated at 2018-03-21T17:37:13.716Z
+////// generated at 2018-03-22T16:54:01.383Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -56,7 +56,16 @@ for(auto fn: event_map["Angle"]) {
                                                         float Sprite::getAngle() const {
 return Angle_field;
 }
-Sprite::Sprite() {
+Propertierbase* Sprite::copy() {
+  Sprite* t = new Spritecontainer;
+t->setId(getId());
+t->setX(getX());
+t->setY(getY());
+t->setAngle(getAngle());
+t->setParentmapid(getParentmapid());
+t->setName(getName()); 
+return t;
+}Sprite::Sprite() {
 r.push_back(std::string(std::string("Id")));
 event_map["Id"] = std::unordered_map<int, FUN>();
 r.push_back(std::string(std::string("x")));
@@ -83,23 +92,23 @@ throw "";
 std::string Sprite::toJSON() const
 {
 nlohmann::json j;
-auto G__5406 = getId();
- j["Id"] = G__5406;
+auto G__6899 = getId();
+ j["Id"] = G__6899;
 
-auto G__5407 = getX();
- j["X"] = G__5407;
+auto G__6900 = getX();
+ j["X"] = G__6900;
 
-auto G__5408 = getY();
- j["Y"] = G__5408;
+auto G__6901 = getY();
+ j["Y"] = G__6901;
 
-auto G__5409 = getAngle();
- j["Angle"] = G__5409;
+auto G__6902 = getAngle();
+ j["Angle"] = G__6902;
 
-auto G__5410 = getParentmapid();
- j["Parentmapid"] = G__5410;
+auto G__6903 = getParentmapid();
+ j["Parentmapid"] = G__6903;
 
-auto G__5411 = getName();
- j["Name"] = G__5411;
+auto G__6904 = getName();
+ j["Name"] = G__6904;
 
 ;
 return j.dump();

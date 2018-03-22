@@ -385,7 +385,7 @@ int obj::getRenderId() {
   return id;
 }
 
-Renderable* obj::copy() {
+Renderable* obj::copyRenderable() {
   if(qi_copied) 
     return make(parent, qi_copy);
   else return make(parent, text_path, skipTexture);

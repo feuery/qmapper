@@ -58,7 +58,7 @@ public:
 
   obj* subObj = nullptr;
 
-  Renderable* copy();
+  Renderable* copyRenderable();
 
 protected:
   obj(Renderer *r, const char *texture_path, bool skipTexture = false);
