@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-22T17:33:33.061Z
+////// generated at 2018-03-27T17:18:45.912Z
 
 
 void Tile::setTileset(std::string value) { 
@@ -78,20 +78,20 @@ throw "";
 std::string Tile::toJSON() const
 {
 nlohmann::json j;
-auto G__6990 = getId();
- j["Id"] = G__6990;
+auto G__24 = getId();
+ j["Id"] = G__24;
 
-auto G__6991 = getX();
- j["X"] = G__6991;
+auto G__25 = getX();
+ j["X"] = G__25;
 
-auto G__6992 = getY();
- j["Y"] = G__6992;
+auto G__26 = getY();
+ j["Y"] = G__26;
 
-auto G__6993 = getTileset();
- j["Tileset"] = G__6993;
+auto G__27 = getTileset();
+ j["Tileset"] = G__27;
 
-auto G__6994 = getRotation();
- j["Rotation"] = G__6994;
+auto G__28 = getRotation();
+ j["Rotation"] = G__28;
 
 ;
 return j.dump();

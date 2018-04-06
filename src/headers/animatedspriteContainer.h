@@ -26,7 +26,7 @@ public:
   virtual void render(Renderer *parent) override;
   virtual void render() override;
   
-  virtual int getRenderId() override;
+  virtual std::string getRenderId() const override;
 
   time_t last_changed;
 

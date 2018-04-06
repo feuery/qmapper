@@ -350,14 +350,14 @@ bool obj::load_new_texture(const char *path, Renderer *r)
   return true;
 }
 
-obj* obj::make(Renderer *parent, QImage img) {
-  int id = rand();
+obj* obj::make(Renderer *parent, QImage img, std::string id) {
+
   for(Renderer *r: editorController::instance->renderers) {
     auto f = r->getGlFns();
 
-    qDebug()<<"Preparing obj " << id << " for parent" << r->name.c_str();
+    qDebug()<<"Preparing obj " << id.c_str() << " for parent" << r->name.c_str();
     
-    obj *o = new obj(parent, f, img);
+    obj *o = new obj(r, f, img);
     o->id = id;
     o->qi_copied = true;
     r->owned_objects[id] = o;
@@ -365,11 +365,18 @@ obj* obj::make(Renderer *parent, QImage img) {
   }
 
   // These are always producing objs so this is a safe cast
-  return static_cast<obj*>(parent->owned_objects[id]);
+  if(parent)
+    return static_cast<obj*>(parent->owned_objects[id]);
+  else return nullptr;
+}
+
+std::string obj::make(QImage img, std::string id) {
+  make(nullptr, img, id);
+  return id;  
 }
 
 obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
-  int id = rand();
+  std::string id = std::to_string(rand());
   for(Renderer *r: editorController::instance->renderers) {
     obj *o = new obj(r, texture_path, skipTexture);
     o->id = id;
@@ -381,7 +388,7 @@ obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
   return rr? static_cast<obj*>(rr->owned_objects[id]): static_cast<obj*>(editorController::instance->renderers.at(0)->owned_objects[id]);
 }
 
-int obj::getRenderId() {
+std::string obj::getRenderId() const {
   return id;
 }
 

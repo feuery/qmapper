@@ -34,12 +34,13 @@ public:
 
   int text_w, text_h;
 
-  int id;
+  std::string id;
 
   unsigned char opacity;
 
   static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false);
-  static obj* make(Renderer *parent, QImage img);
+  static obj* make(Renderer *parent, QImage img, std::string id = std::to_string(rand()));
+  static std::string make(QImage img, std::string id = std::to_string(rand()));
 
   // Cached for copying purposes:
   const char *text_path;
@@ -54,7 +55,7 @@ public:
   void reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId);
   bool load_new_texture(const char *path, Renderer *r);
 
-  int getRenderId() override;
+  std::string getRenderId() const override;
 
   obj* subObj = nullptr;
 

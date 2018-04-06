@@ -19,6 +19,7 @@ public:
   bool containsNs (std::string ns);
 
   Propertierbase* fetchRegister (std::string Type, std::string id) override;
+  bool typeHasId(std::string type, std::string id);
   template <typename T>
   std::vector<T*>typeRegistry(std::string type_name) {
     std::vector<T*> vec;

@@ -1,12 +1,12 @@
 #include <script.h>
 #include <json.hpp>
 
+#include <QDebug>
 
 
 
 
-
-////// generated at 2018-03-22T17:33:33.056Z
+////// generated at 2018-03-27T17:18:45.884Z
 
 
 void Script::setContents(std::string value) { 
@@ -81,28 +81,41 @@ throw "";
 std::string Script::toJSON() const
 {
 nlohmann::json j;
-auto G__6967 = getId();
- j["Id"] = G__6967;
+auto G__1 = getId();
+ j["Id"] = G__1;
 
-auto G__6968 = getContents();
- j["Contents"] = G__6968;
+auto G__2 = getContents();
+ j["Contents"] = G__2;
 
-auto G__6969 = getName();
- j["Name"] = G__6969;
+auto G__3 = getName();
+ j["Name"] = G__3;
 
-auto G__6970 = getNs();
- j["Ns"] = G__6970;
+auto G__4 = getNs();
+ j["Ns"] = G__4;
 
 ;
 return j.dump();
 }
 void Script::fromJSON(const char* json_str)
 {
-json j = json::parse(json_str);
-setId(j["Id"]);
-setContents(j["Contents"]);
-setName(j["Name"]);
-setNs(j["Ns"]);
+  json j = json::parse(json_str);
+  // Täällä joku null kaataa jotain?
+  auto id = j["Id"];
+  auto contents = j["Contents"];
+  auto name = j["Name"];
+  auto ns = j["Ns"];
+
+  try{
+    setId(id);
+
+    setContents(contents);
+    setName(name);
+    setNs(ns);
+  }
+  catch(nlohmann::detail::type_error e) {
+    puts("Fail");
+    throw "";
+  }
 }
 
 using nlohmann::json;
@@ -112,7 +125,12 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Script& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+      std::string dump = j.dump();
+      if(dump == "null") {
+	puts("Caught null in from_json(const json& j, Script& c)");
+	// throw "";
+      } else
+        c.fromJSON(dump.c_str());
     }
     void to_json(json& j, const Script* c) {
       if(c)
@@ -152,8 +170,8 @@ using nlohmann::json;
     }
 }
 
-    void from_json(const json& j, Script* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+void from_json(const json& j, Script* c) {
+  c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Script*>* m) {
@@ -167,9 +185,8 @@ void to_json(json& j, std::map<std::string, Script*>* m) {
 void from_json(const json& j, std::map<std::string, Script*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     Script *r = new Script;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

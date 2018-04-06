@@ -8,7 +8,8 @@
 
 
 
-////// generated at 2018-03-22T17:33:33.062Z
+
+////// generated at 2018-03-27T17:18:45.916Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -92,23 +93,26 @@ throw "";
 std::string Sprite::toJSON() const
 {
 nlohmann::json j;
-auto G__6995 = getId();
- j["Id"] = G__6995;
+auto G__29 = getId();
+ j["Id"] = G__29;
 
-auto G__6996 = getX();
- j["X"] = G__6996;
+auto G__30 = getX();
+ j["X"] = G__30;
 
-auto G__6997 = getY();
- j["Y"] = G__6997;
+auto G__31 = getY();
+ j["Y"] = G__31;
 
-auto G__6998 = getAngle();
- j["Angle"] = G__6998;
+auto G__32 = getAngle();
+ j["Angle"] = G__32;
 
-auto G__6999 = getParentmapid();
- j["Parentmapid"] = G__6999;
+// auto G__33 = getRenderid();
+//  j["Renderid"] = G__33;
 
-auto G__7000 = getName();
- j["Name"] = G__7000;
+auto G__34 = getParentmapid();
+ j["Parentmapid"] = G__34;
+
+auto G__35 = getName();
+ j["Name"] = G__35;
 
 ;
 return j.dump();

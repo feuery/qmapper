@@ -41,6 +41,10 @@ public:
   std::string indexOfStdFragmentShader, indexOfStdTileviewFragShader;
   std::vector<Renderer*> renderers;
 
+  void clearDrawQueues();
+
+  bool loaded = false;
+
   Engine *e;
   std::unordered_map<Qt::Key, bool> keyMap;
   int mouseX, mouseY;
@@ -62,7 +66,7 @@ public:
   std::vector<Tile*>* tiles = new std::vector<Tile*>;
 
   // Goddammit
-  Renderer *map_view;
+  Renderer *map_view, *tilesetView;
   Tool *t;
 
   bool renderingEnabled = true;
@@ -80,6 +84,7 @@ public:
   void freeCtx();
 
   void saveTo(QString filename);
+  void loadFrom(QString filename);
 
   MainWindow *w;
 

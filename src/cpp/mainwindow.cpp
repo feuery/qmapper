@@ -281,6 +281,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
   
   tileset_view = new Renderer(this);
   tileset_view->name = "TILESET VIEW";
+  ec->tilesetView = tileset_view;
   
   auto _tileview = new tileview_renderer(this);
   _tileview->name = "TILE VIEW";
@@ -376,7 +377,8 @@ void MainWindow::registerController(editorController *ec)
 void MainWindow::setupMainMenu()
 {
   auto filemenu = menuBar()->addMenu("File");
-  QAction *save = new QAction("Save project", this);
+  QAction *save = new QAction("Save project", this),
+    *load = new QAction("Load project", this);
   connect(save, &QAction::triggered, [=]() {
       QString save_file = QFileDialog::getSaveFileName(this, "Save project file", ".", "QMapper projects (*.qmapper)");
 
@@ -391,5 +393,21 @@ void MainWindow::setupMainMenu()
       ec->saveTo(save_file);
     });
 
+  connect(load, &QAction::triggered, [=]() {
+      QString load_file = QFileDialog::getOpenFileName(this, "Load project file", ".", "QMapper projects (*.qmapper)");
+
+      if(load_file == "") {
+	qDebug() << "Got empty load_file_path";
+	return;
+      }
+      
+      if(!load_file.endsWith(".qmapper"))
+	load_file = load_file + ".qmapper";
+      qDebug() << "Trying to load from " << load_file;
+      ec->loadFrom(load_file);
+      tree.setModel(ec->documentTreeModel);
+    });
+
   filemenu->addAction(save);
+  filemenu->addAction(load);
 }

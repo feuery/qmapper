@@ -8,7 +8,7 @@ public:
   virtual void render(QOpenGLFunctions_4_3_Core *f) = 0;
   virtual void render(Renderer *parent) = 0;
   virtual void render() = 0;
-  virtual int getRenderId() = 0;
+  virtual std::string getRenderId() const = 0;
   virtual Renderable* copyRenderable() { puts("Don't call Renderable::copyRenderable"); throw ""; }
 };
 #else

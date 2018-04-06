@@ -30,7 +30,7 @@ public:
 
   virtual QVector<Renderable*>& getDrawQueue();
 
-  std::unordered_map<int, Renderable*> owned_objects;
+  std::unordered_map<std::string, Renderable*> owned_objects;
   std::string name;
 
   friend class Scroll;

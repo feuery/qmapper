@@ -13,12 +13,13 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
   tiles_w = root_img.width() / 50;
   tiles_h = root_img.height() / 50;
 
-  tiles = new obj**[tiles_w];
+  // qDebug() << "Tiles_w: " << tiles_w;
 
   // QVector<QVector<obj*>> results(array_w);
+  // tiles = new std::string*[tiles_w];
+  tiles.resize(tiles_w, std::vector<std::string>(tiles_h, ""));
   
   for(int x = 0; x < tiles_w; x++) {
-    tiles[x] = new obj*[tiles_h];
     std::vector<Tile*> tileRow;
     
     for(int y = 0; y < tiles_h; y++) {
@@ -26,8 +27,8 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
 				  y * 50, 50, 50);
       obj *o = obj::make(parent, copy);
       o->position = glm::vec2(x * 50.0f, y * 50.0f);
-      qDebug() << "Loading tiletexture at " << o;
-      tiles[x][y] = o;
+      // qDebug() << "Loading tiletexture at " << o;
+      tiles[x][y] = o->getRenderId();
 
       Tile *t = new Tile;
       t->setX(x);
@@ -45,10 +46,18 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
   }
 }
 
-tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): Tileset(){
+void tilesetContainer::setTileSize(int tiles_w, int tiles_h)
+{
+  tiles.resize(tiles_w, std::vector<std::string>(tiles_h, ""));
+}
+
+tilesetContainer::tilesetContainer():Tileset() {
   setTiles(new std::vector<std::vector<Tile*>>);
+}
+
+tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): tilesetContainer(){
   load_texture_splitted(r, tilesetPath);
-  r->owned_objects[id] = this;
+  r->owned_objects[getId()] = this;
   if(!editorController::instance->firstLoadedTileset) {
     for(int i = 0; i < editorController::instance->tiles->size(); i++) {
       Tile *t = editorController::instance->tiles->at(i);
@@ -65,7 +74,7 @@ void tilesetContainer::render(Renderer *parent)
 {
   for(int x = 0; x <  tiles_w; x++) {
     for(int y = 0; y < tiles_h; y++) {
-      Renderable *tile = tiles[x][y];
+      Renderable *tile = parent->owned_objects.at(tiles[x][y]);
 
       if(tile) {
   	tile->render(parent);
@@ -84,9 +93,17 @@ void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
 void tilesetContainer::render()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  for(int x = 0; x < tiles_w; x++) {
-    for(int y = 0; y < tiles_h; y++) {
-      obj* tile = tiles[x][y];
+  Renderer *parent = editorController::instance->tilesetView;
+  
+  for(int x = 0; x < tiles.size(); x++) {
+    for(int y = 0; y < tiles.at(x).size(); y++) {
+      std::string renderID = tiles.at(x).at(y);
+      auto result = parent->owned_objects.find(renderID);
+      if(result == parent->owned_objects.end()) {
+	printf("Didn't find %s\n", renderID.c_str());
+	continue;
+      }
+      obj* tile = static_cast<obj*>(result->second);
       if(tile) {
 	tile->render(f);
       }
@@ -95,7 +112,23 @@ void tilesetContainer::render()
   }
 }
 
-int tilesetContainer::getRenderId()
+std::string tilesetContainer::getRenderId() const
 {
-  return id;
+  return getId();
+}
+
+std::tuple<int, int> tilesetContainer::getTileCoordById(std::string id)
+{
+  assert(getTiles() != nullptr);
+  if(getTiles()->size() == 0)
+    qDebug() << "getTiles()->size() => 0, things will break";
+  
+  for(int x = 0; x < getTiles()->size(); x++) {
+    for(int y = 0; y < getTiles()->at(x).size(); y++) {
+      auto t = getTiles()->at(x).at(y);
+      if(t->getId() == id) return std::tuple<int, int>(x, y);
+    }
+  }
+
+  return std::tuple<int, int>(-1, -1);
 }

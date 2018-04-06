@@ -12,8 +12,7 @@ double toRadians(int deg)
 Mapcontainer::Mapcontainer(): Map()
 {
   setLayers(new std::vector<Layer*>);
-  id = rand();
-  editorController::instance->map_view->owned_objects[id] = this;
+  editorController::instance->map_view->owned_objects[getId()] = this;
 }
 
 Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapcontainer()
@@ -51,9 +50,9 @@ int Mapcontainer::height ()
   return getLayers()->at(0)->getHeight();
 }
 
-int Mapcontainer::getRenderId()
+std::string Mapcontainer::getRenderId() const
 {
-  return id;
+  return getId();
 }
 
 void Mapcontainer::render(Renderer *parent)
@@ -66,18 +65,18 @@ void Mapcontainer::render(Renderer *parent)
 obj* tileToObj(Tile &tile, Renderer* parent)
 {
   if(tile.getTileset() == "") return nullptr;
-  flyweight<std::string> id (tile.getTileset());
+  std::string id (tile.getTileset());
   tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
-  int tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()]->getRenderId();
+  std::string tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()];
   return static_cast<obj*>(parent->owned_objects[tile_to_render_id]);
 }
 
 obj* tileToObj(Tile *tile)
 {
   if(tile->getTileset() == "") return nullptr;
-  flyweight<std::string> id (tile->getTileset());
+  std::string id (tile->getTileset());
   tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
-  int tile_to_render_id = tileset->tiles[tile->getX()][tile->getY()]->getRenderId();
+  std::string tile_to_render_id = tileset->tiles[tile->getX()][tile->getY()];
   return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
 }
 

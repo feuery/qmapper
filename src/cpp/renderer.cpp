@@ -60,7 +60,8 @@ void Renderer::paintGL()
     f->glClear(GL_COLOR_BUFFER_BIT);
     
     for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
-      Renderable *o = owned_objects[(*i)->getRenderId()];
+      auto id = (*i)->getRenderId();
+      Renderable *o = owned_objects[id];
       if (o) 
 	o->render(this);
       else {

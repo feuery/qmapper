@@ -66,10 +66,10 @@ void Animatedspritecontainer::render(Renderer *parent){
   sprites->at(getCurrentframeid())->render(parent);
 }
 
-int Animatedspritecontainer::getRenderId(){
+std::string Animatedspritecontainer::getRenderId() const{
   qDebug() << "Don't call Animatedspritecontainer::getRenderId()";
   throw "Don't call Animatedspritecontainer::getRenderId()";
-  return rand(); 		// This doesn't reeeallly matter unless you're in obj
+  return "fdskopfok"; 		// This doesn't reeeallly matter unless you're in obj
 }
 
 void Animatedspritecontainer::setX (int newX) {

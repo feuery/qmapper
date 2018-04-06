@@ -5,7 +5,6 @@
 
 class Spritecontainer: public Sprite, public Renderable {
 public:
-  int renderId;
   static Spritecontainer* make(Renderer *parent, const char *text_path);
 
   ~Spritecontainer();
@@ -21,7 +20,7 @@ public:
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render() override;
   void render(Renderer *parent) override;
-  int getRenderId() override;
+  std::string getRenderId() const override;
 
   Spritecontainer(Renderer *parent, QImage img);
 

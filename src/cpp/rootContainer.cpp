@@ -72,6 +72,17 @@ Propertierbase* Rootcontainer::fetchRegister(std::string type, std::string id) {
 
   return nullptr;
 }
+
+bool Rootcontainer::typeHasId(std::string type, std::string id)
+{
+  if(type == "AnimatedSprite") return getAnimatedsprites()->find(id) != getAnimatedsprites()->end();
+  else if(type == "Layer") return getLayers()->find(id) != getLayers()->end();
+  else if (type == "Map") return getMaps()->find(id) != getMaps()->end();
+  else if (type == "Script") return getScripts()->find(id) != getScripts()->end();
+  else if (type == "Sprite") return getSprites()->find(id) != getSprites()->end();
+  else if (type == "Tile") return getTiles()->find(id) != getTiles()->end();
+  else if (type == "Tileset") return getTilesets()->find(id) != getTilesets()->end();  
+}
   
 int Rootcontainer::registrySize() {
   return getAnimatedsprites()->size() + 

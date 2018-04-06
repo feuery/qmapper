@@ -29,8 +29,7 @@ public:
 	       int h,
 	       verticalAnchor v_anchor,
 	       horizontalAnchor h_anchor) override;
-  int id ;
-  int getRenderId() override;
+  std::string getRenderId() const override;
 
   either<animatedsprite*, Sprite*> findNearest(int x, int y) override;
 

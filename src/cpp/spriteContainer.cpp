@@ -3,7 +3,7 @@
 #include <QFileInfo>
 
 obj* Spritecontainer::getObject() const {
-  return static_cast<obj*>(parent->owned_objects[renderId] );
+  return static_cast<obj*>(parent->owned_objects[getRenderId()] );
 }
 
 Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
@@ -22,7 +22,7 @@ Spritecontainer::Spritecontainer() {}
 Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers
   obj* obj = obj::make(parent, text_path);
-  renderId = obj->getRenderId();
+  obj->id = getId();
   setX(0);
   setY(0);
 }
@@ -30,7 +30,7 @@ Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Spri
 Spritecontainer::Spritecontainer( Renderer *parent, QImage img): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers
   obj* obj = obj::make(parent, img);
-  renderId = obj->getRenderId();
+  obj->id = getId();
   setX(0);
   setY(0);
 }
@@ -86,6 +86,6 @@ void Spritecontainer::render()  {
 void Spritecontainer::render(Renderer *parent)  {
   getObject()->render(parent);
 }
-int Spritecontainer::getRenderId()  {
-  return getObject()->getRenderId();
+std::string Spritecontainer::getRenderId() const  {
+  return getId();
 }
