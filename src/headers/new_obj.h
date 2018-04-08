@@ -38,7 +38,7 @@ public:
 
   unsigned char opacity;
 
-  static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false);
+  static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false, std::string id = std::to_string(rand()));
   static obj* make(Renderer *parent, QImage img, std::string id = std::to_string(rand()));
   static std::string make(QImage img, std::string id = std::to_string(rand()));
 

@@ -3,7 +3,11 @@
 #include <QFileInfo>
 
 obj* Spritecontainer::getObject() const {
-  return static_cast<obj*>(parent->owned_objects[getRenderId()] );
+  obj* toret = static_cast<obj*>(parent->owned_objects[getRenderId()] );
+  if(!toret) {
+    qDebug() << "Couldn't find object " << getRenderId().c_str() << " from parent " << parent->name.c_str() << " in Spritecontainer::getObject(). Things will break";
+  }
+  return toret;
 }
 
 Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
@@ -21,16 +25,14 @@ Spritecontainer::Spritecontainer() {}
 
 Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers
-  obj* obj = obj::make(parent, text_path);
-  obj->id = getId();
+  obj* obj = obj::make(parent, text_path, false, getId());
   setX(0);
   setY(0);
 }
 
 Spritecontainer::Spritecontainer( Renderer *parent, QImage img): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers
-  obj* obj = obj::make(parent, img);
-  obj->id = getId();
+  obj* obj = obj::make(parent, img, getId());
   setX(0);
   setY(0);
 }

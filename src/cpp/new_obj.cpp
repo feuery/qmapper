@@ -375,8 +375,7 @@ std::string obj::make(QImage img, std::string id) {
   return id;  
 }
 
-obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture) {
-  std::string id = std::to_string(rand());
+obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture, std::string id) {
   for(Renderer *r: editorController::instance->renderers) {
     obj *o = new obj(r, texture_path, skipTexture);
     o->id = id;
