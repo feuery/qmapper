@@ -62,7 +62,7 @@ public:
 
 
 
-  tilesetContainer *firstLoadedTileset = nullptr;
+  Tilesetcontainer *firstLoadedTileset = nullptr;
   std::vector<Tile*>* tiles = new std::vector<Tile*>;
 
   // Goddammit

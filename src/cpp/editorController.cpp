@@ -115,7 +115,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   if(tilesetViewObjSize == 1) {
     Renderable *tileset = tilesetView->getDrawQueue().at(0);
 
-    tilesetContainer *tc = dynamic_cast<tilesetContainer*>(tileset);
+    Tilesetcontainer *tc = dynamic_cast<Tilesetcontainer*>(tileset);
 
     if(x >= tc->tiles_w || y >= tc->tiles_h) return;
     if(x < 0 || y < 0) return;
@@ -218,7 +218,7 @@ void editorController::dumpTextures(ZipArchive &arch) {
   }
 
   for(auto tileset: tilesets) {
-    tilesetContainer *c_tileset = static_cast<tilesetContainer*>(tileset);
+    Tilesetcontainer *c_tileset = static_cast<Tilesetcontainer*>(tileset);
     for(int x = 0; x < c_tileset->tiles.size(); x++) {
       for(int y = 0; y < c_tileset->tiles.at(x).size(); y++) {
 	obj *tile_obj = static_cast<obj*>(tilesetView->owned_objects.at(c_tileset->tiles.at(x).at(y)));
@@ -302,13 +302,14 @@ void editorController::loadFrom(QString fname) {
 
 	  obj::make(img, tile_id);
 
-	  tilesetContainer *tileset = static_cast<tilesetContainer*>(document.fetchRegister("Tileset", id));
+	  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(document.fetchRegister("Tileset", id));
 	  auto coord = tileset->getTileCoordById(tile_id);
 	  int x, y;
 	  std::tie(x, y) = coord;
 
 	  if(x < 0 || y < 0) {
 	    qDebug()<< "Didn't find coords for tile " << tile_id.c_str() << " from tileset " << id.c_str();
+	    qDebug() << "x, y: " << x << ", " << y;
 	    throw "";
 	  }
 

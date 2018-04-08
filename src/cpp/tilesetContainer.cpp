@@ -5,7 +5,7 @@
 // Making this return a 2d array should be a low hanging fruit when optimizing
 // I'm skipping it now 'cause I have no idea how this insane language did
 // dynamically sized 2D arrays
-void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filename)
+void Tilesetcontainer::load_texture_splitted(Renderer *parent, const char *filename)
 {
   QImage root_img;
   root_img.load(QString(filename));
@@ -46,16 +46,16 @@ void tilesetContainer::load_texture_splitted(Renderer *parent, const char *filen
   }
 }
 
-void tilesetContainer::setTileSize(int tiles_w, int tiles_h)
+void Tilesetcontainer::setTileSize(int tiles_w, int tiles_h)
 {
   tiles.resize(tiles_w, std::vector<std::string>(tiles_h, ""));
 }
 
-tilesetContainer::tilesetContainer():Tileset() {
+Tilesetcontainer::Tilesetcontainer():Tileset() {
   setTiles(new std::vector<std::vector<Tile*>>);
 }
 
-tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): tilesetContainer(){
+Tilesetcontainer::Tilesetcontainer(Renderer *r, const char *tilesetPath): Tilesetcontainer(){
   load_texture_splitted(r, tilesetPath);
   r->owned_objects[getId()] = this;
   if(!editorController::instance->firstLoadedTileset) {
@@ -70,7 +70,7 @@ tilesetContainer::tilesetContainer(Renderer *r, const char *tilesetPath): tilese
   }
 }
 
-void tilesetContainer::render(Renderer *parent)
+void Tilesetcontainer::render(Renderer *parent)
 {
   for(int x = 0; x <  tiles_w; x++) {
     for(int y = 0; y < tiles_h; y++) {
@@ -85,12 +85,12 @@ void tilesetContainer::render(Renderer *parent)
   
 }
 
-void tilesetContainer::render(QOpenGLFunctions_4_3_Core *f)
+void Tilesetcontainer::render(QOpenGLFunctions_4_3_Core *f)
 {
   render();
 }
 
-void tilesetContainer::render()
+void Tilesetcontainer::render()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   Renderer *parent = editorController::instance->tilesetView;
@@ -112,12 +112,12 @@ void tilesetContainer::render()
   }
 }
 
-std::string tilesetContainer::getRenderId() const
+std::string Tilesetcontainer::getRenderId() const
 {
   return getId();
 }
 
-std::tuple<int, int> tilesetContainer::getTileCoordById(std::string id)
+std::tuple<int, int> Tilesetcontainer::getTileCoordById(std::string id)
 {
   assert(getTiles() != nullptr);
   if(getTiles()->size() == 0)

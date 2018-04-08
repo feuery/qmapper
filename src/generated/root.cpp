@@ -10,7 +10,7 @@
 
 
 
-////// generated at 2018-03-27T17:18:45.901Z
+////// generated at 2018-04-08T11:26:56.036Z
 
 
 void root::setAnimatedsprites(std::map<std::string, animatedsprite*>* value) { 
@@ -118,72 +118,58 @@ throw "";
 std::string root::toJSON() const
 {
 nlohmann::json j;
-auto G__8 = getId();
- j["Id"] = G__8;
+auto G__6938 = getId();
+ j["Id"] = G__6938;
 
-auto G__9 = getAnimatedsprites();
-if(G__9)  j["Animatedsprites"] = *G__9;
+auto G__6939 = getAnimatedsprites();
+if(G__6939)  j["Animatedsprites"] = *G__6939;
 
-auto G__10 = getLayers();
-if(G__10)  j["Layers"] = *G__10;
+auto G__6940 = getLayers();
+if(G__6940)  j["Layers"] = *G__6940;
 
-auto G__11 = getMaps();
-if(G__11)  j["Maps"] = *G__11;
+auto G__6941 = getMaps();
+if(G__6941)  j["Maps"] = *G__6941;
 
-auto G__12 = getScripts();
-if(G__12)  j["Scripts"] = *G__12;
+auto G__6942 = getScripts();
+if(G__6942)  j["Scripts"] = *G__6942;
 
-auto G__13 = getSprites();
-if(G__13)  j["Sprites"] = *G__13;
+auto G__6943 = getSprites();
+if(G__6943)  j["Sprites"] = *G__6943;
 
-auto G__14 = getTiles();
-if(G__14)  j["Tiles"] = *G__14;
+auto G__6944 = getTiles();
+if(G__6944)  j["Tiles"] = *G__6944;
 
-auto G__15 = getTilesets();
-if(G__15)  j["Tilesets"] = *G__15;
+auto G__6945 = getTilesets();
+if(G__6945)  j["Tilesets"] = *G__6945;
 
 ;
 return j.dump();
 }
 void root::fromJSON(const char* json_str)
 {
-  json j = json::parse(json_str);
-  setId(j["Id"]);
-  auto an = getAnimatedsprites();
-  an->clear();
-  if(an) 
-    from_json(j["Animatedsprites"], an);
-  auto l = getLayers();
-  l->clear();
-  if(l)
-    from_json(j["Layers"], l);
-  getMaps()->clear();
-  from_json(j["Maps"], getMaps());
-  try {
-    std::map<std::string, Script*>* scripts = getScripts();
-    scripts->clear();
-    if(scripts)
-      from_json(j["Scripts"], scripts);
-  }
-  catch(...) {
-    puts("Skriptien lataus kusee");
-    throw "";
-  }
-  auto spr =  getSprites();
-  spr->clear();
-  if(spr)
-    from_json(j["Sprites"], spr);
-  auto tils = getTiles();
-  tils->clear();
-  if(tils)
-    from_json(j["Tiles"], tils);
-  std::map<std::string, Tileset*>* tilsets =  getTilesets();
-  tilsets->clear();
-  std::string jtilesets = j["Tilesets"].dump();
-
-  // TÄÄ FEILAAokei 
-  if(tilsets)
-    from_json(j["Tilesets"],tilsets);
+json j = json::parse(json_str);
+setId(j["Id"].get<std::string>());
+auto G__6946 = getAnimatedsprites();
+ G__6946->clear();
+ if(G__6946) from_json(j["Animatedsprites"], G__6946);
+auto G__6947 = getLayers();
+ G__6947->clear();
+ if(G__6947) from_json(j["Layers"], G__6947);
+auto G__6948 = getMaps();
+ G__6948->clear();
+ if(G__6948) from_json(j["Maps"], G__6948);
+auto G__6949 = getScripts();
+ G__6949->clear();
+ if(G__6949) from_json(j["Scripts"], G__6949);
+auto G__6950 = getSprites();
+ G__6950->clear();
+ if(G__6950) from_json(j["Sprites"], G__6950);
+auto G__6951 = getTiles();
+ G__6951->clear();
+ if(G__6951) from_json(j["Tiles"], G__6951);
+auto G__6952 = getTilesets();
+ G__6952->clear();
+ if(G__6952) from_json(j["Tilesets"], G__6952);
 }
 
 using nlohmann::json;
@@ -193,7 +179,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, root& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const root* c) {
       if(c)
@@ -234,7 +220,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, root* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, root*>* m) {
@@ -248,9 +234,8 @@ void to_json(json& j, std::map<std::string, root*>* m) {
 void from_json(const json& j, std::map<std::string, root*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     root *r = new Rootcontainer;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

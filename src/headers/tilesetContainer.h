@@ -6,7 +6,7 @@
 #include <new_obj.h>
 #include <tuple>
 
-class tilesetContainer: public Tileset, public Renderable {
+class Tilesetcontainer: public Tileset, public Renderable {
 public:
 
   std::vector<std::vector<std::string>> tiles;
@@ -14,8 +14,8 @@ public:
   void setTileSize(int tilesetW, int tilesetH);
   
   int tiles_w, tiles_h; 	// dimensions of the tiles array
-  tilesetContainer(Renderer *r, const char *tilesetPath);
-  tilesetContainer();
+  Tilesetcontainer(Renderer *r, const char *tilesetPath);
+  Tilesetcontainer();
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render(Renderer *parent) override;

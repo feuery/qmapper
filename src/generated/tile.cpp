@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-27T17:18:45.912Z
+////// generated at 2018-04-08T11:26:56.039Z
 
 
 void Tile::setTileset(std::string value) { 
@@ -78,20 +78,20 @@ throw "";
 std::string Tile::toJSON() const
 {
 nlohmann::json j;
-auto G__24 = getId();
- j["Id"] = G__24;
+auto G__6961 = getId();
+ j["Id"] = G__6961;
 
-auto G__25 = getX();
- j["X"] = G__25;
+auto G__6962 = getX();
+ j["X"] = G__6962;
 
-auto G__26 = getY();
- j["Y"] = G__26;
+auto G__6963 = getY();
+ j["Y"] = G__6963;
 
-auto G__27 = getTileset();
- j["Tileset"] = G__27;
+auto G__6964 = getTileset();
+ j["Tileset"] = G__6964;
 
-auto G__28 = getRotation();
- j["Rotation"] = G__28;
+auto G__6965 = getRotation();
+ j["Rotation"] = G__6965;
 
 ;
 return j.dump();
@@ -99,10 +99,10 @@ return j.dump();
 void Tile::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
+setId(j["Id"].get<std::string>());
 setX(j["X"]);
 setY(j["Y"]);
-setTileset(j["Tileset"]);
+setTileset(j["Tileset"].get<std::string>());
 setRotation(j["Rotation"]);
 }
 
@@ -113,7 +113,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Tile& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const Tile* c) {
       if(c)
@@ -154,7 +154,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, Tile* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Tile*>* m) {
@@ -168,9 +168,8 @@ void to_json(json& j, std::map<std::string, Tile*>* m) {
 void from_json(const json& j, std::map<std::string, Tile*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     Tile *r = new Tile;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

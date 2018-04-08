@@ -66,7 +66,7 @@ obj* tileToObj(Tile &tile, Renderer* parent)
 {
   if(tile.getTileset() == "") return nullptr;
   std::string id (tile.getTileset());
-  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
+  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(editorController::instance->document.fetchRegister("Tileset", id));
   std::string tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()];
   return static_cast<obj*>(parent->owned_objects[tile_to_render_id]);
 }
@@ -75,7 +75,7 @@ obj* tileToObj(Tile *tile)
 {
   if(tile->getTileset() == "") return nullptr;
   std::string id (tile->getTileset());
-  tilesetContainer *tileset = static_cast<tilesetContainer*>(editorController::instance->document.fetchRegister("Tileset", id));
+  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(editorController::instance->document.fetchRegister("Tileset", id));
   std::string tile_to_render_id = tileset->tiles[tile->getX()][tile->getY()];
   return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
 }

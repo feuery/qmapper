@@ -7,7 +7,7 @@
 
 
 
-////// generated at 2018-03-27T17:18:45.911Z
+////// generated at 2018-04-08T11:26:56.039Z
 
 
 void Layer::setName(std::string value) { 
@@ -79,20 +79,20 @@ throw "";
 std::string Layer::toJSON() const
 {
 nlohmann::json j;
-auto G__19 = getId();
- j["Id"] = G__19;
+auto G__6956 = getId();
+ j["Id"] = G__6956;
 
-auto G__20 = getName();
- j["Name"] = G__20;
+auto G__6957 = getName();
+ j["Name"] = G__6957;
 
-auto G__21 = getOpacity();
- j["Opacity"] = G__21;
+auto G__6958 = getOpacity();
+ j["Opacity"] = G__6958;
 
-auto G__22 = getVisible();
- j["Visible"] = G__22;
+auto G__6959 = getVisible();
+ j["Visible"] = G__6959;
 
-auto G__23 = getTiles();
-if(G__23)  j["Tiles"] = *G__23;
+auto G__6960 = getTiles();
+if(G__6960)  j["Tiles"] = *G__6960;
 
 ;
 return j.dump();
@@ -100,16 +100,17 @@ return j.dump();
 void Layer::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
-setName(j["Name"]);
+setId(j["Id"].get<std::string>());
+setName(j["Name"].get<std::string>());
 setOpacity(j["Opacity"]);
 setVisible(j["Visible"]);
+getTiles()->clear();
 for(auto it0 = j["Tiles"].begin(); it0 != j["Tiles"].end(); it0++) {
 std::vector<Tile*> vec;
  
 for(auto it1 = it0->begin(); it1 != it0->end(); it1++) {
 Tile *o = new Tile;
-std::string tmp = it1->dump();
+std::string tmp = it1->dump(); //->get<std::string>();
 const char *c_tmp = tmp.c_str();
 o->fromJSON(c_tmp);                                                       vec.push_back(o);
 }
@@ -125,7 +126,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Layer& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const Layer* c) {
       if(c)
@@ -166,7 +167,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, Layer* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Layer*>* m) {
@@ -180,9 +181,8 @@ void to_json(json& j, std::map<std::string, Layer*>* m) {
 void from_json(const json& j, std::map<std::string, Layer*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     Layer *r = new Layercontainer;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

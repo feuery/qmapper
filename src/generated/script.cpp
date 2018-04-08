@@ -1,12 +1,12 @@
 #include <script.h>
 #include <json.hpp>
 
-#include <QDebug>
 
 
 
 
-////// generated at 2018-03-27T17:18:45.884Z
+
+////// generated at 2018-04-08T11:26:56.033Z
 
 
 void Script::setContents(std::string value) { 
@@ -81,41 +81,28 @@ throw "";
 std::string Script::toJSON() const
 {
 nlohmann::json j;
-auto G__1 = getId();
- j["Id"] = G__1;
+auto G__6931 = getId();
+ j["Id"] = G__6931;
 
-auto G__2 = getContents();
- j["Contents"] = G__2;
+auto G__6932 = getContents();
+ j["Contents"] = G__6932;
 
-auto G__3 = getName();
- j["Name"] = G__3;
+auto G__6933 = getName();
+ j["Name"] = G__6933;
 
-auto G__4 = getNs();
- j["Ns"] = G__4;
+auto G__6934 = getNs();
+ j["Ns"] = G__6934;
 
 ;
 return j.dump();
 }
 void Script::fromJSON(const char* json_str)
 {
-  json j = json::parse(json_str);
-  // Täällä joku null kaataa jotain?
-  auto id = j["Id"];
-  auto contents = j["Contents"];
-  auto name = j["Name"];
-  auto ns = j["Ns"];
-
-  try{
-    setId(id);
-
-    setContents(contents);
-    setName(name);
-    setNs(ns);
-  }
-  catch(nlohmann::detail::type_error e) {
-    puts("Fail");
-    throw "";
-  }
+json j = json::parse(json_str);
+setId(j["Id"].get<std::string>());
+setContents(j["Contents"].get<std::string>());
+setName(j["Name"].get<std::string>());
+setNs(j["Ns"].get<std::string>());
 }
 
 using nlohmann::json;
@@ -125,12 +112,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Script& c) {
-      std::string dump = j.dump();
-      if(dump == "null") {
-	puts("Caught null in from_json(const json& j, Script& c)");
-	// throw "";
-      } else
-        c.fromJSON(dump.c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const Script* c) {
       if(c)
@@ -170,8 +152,8 @@ using nlohmann::json;
     }
 }
 
-void from_json(const json& j, Script* c) {
-  c->fromJSON(j.dump().c_str());
+    void from_json(const json& j, Script* c) {
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Script*>* m) {

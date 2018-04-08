@@ -6,7 +6,7 @@
 
 
 
-////// generated at 2018-03-27T17:18:45.891Z
+////// generated at 2018-04-08T11:26:56.033Z
 
 
 void resize_data::setNew_width(int value) { 
@@ -78,14 +78,14 @@ throw "";
 std::string resize_data::toJSON() const
 {
 nlohmann::json j;
-auto G__5 = getId();
- j["Id"] = G__5;
+auto G__6935 = getId();
+ j["Id"] = G__6935;
 
-auto G__6 = getNew_width();
- j["New_width"] = G__6;
+auto G__6936 = getNew_width();
+ j["New_width"] = G__6936;
 
-auto G__7 = getNew_height();
- j["New_height"] = G__7;
+auto G__6937 = getNew_height();
+ j["New_height"] = G__6937;
 
 ;
 return j.dump();
@@ -93,7 +93,7 @@ return j.dump();
 void resize_data::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
+setId(j["Id"].get<std::string>());
 setNew_width(j["New_width"]);
 setNew_height(j["New_height"]);
 }
@@ -105,7 +105,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, resize_data& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const resize_data* c) {
       if(c)
@@ -146,7 +146,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, resize_data* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, resize_data*>* m) {
@@ -160,9 +160,8 @@ void to_json(json& j, std::map<std::string, resize_data*>* m) {
 void from_json(const json& j, std::map<std::string, resize_data*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     resize_data *r = new resize_data;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

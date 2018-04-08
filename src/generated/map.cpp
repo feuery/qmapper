@@ -1,12 +1,11 @@
 #include <map.h>
 #include <mapContainer.h>
 #include <json.hpp>
-#include <QDebug>
 
 
 
 #include <layerContainer.h>
-////// generated at 2018-03-27T17:18:45.906Z
+////// generated at 2018-04-08T11:26:56.037Z
 
 
 void Map::setName(std::string value) { 
@@ -54,14 +53,14 @@ throw "";
 std::string Map::toJSON() const
 {
 nlohmann::json j;
-auto G__16 = getId();
- j["Id"] = G__16;
+auto G__6953 = getId();
+ j["Id"] = G__6953;
 
-auto G__17 = getName();
- j["Name"] = G__17;
+auto G__6954 = getName();
+ j["Name"] = G__6954;
 
-auto G__18 = getLayers();
-if(G__18)  j["Layers"] = *G__18;
+auto G__6955 = getLayers();
+if(G__6955)  j["Layers"] = *G__6955;
 
 ;
 return j.dump();
@@ -69,13 +68,13 @@ return j.dump();
 void Map::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
-setName(j["Name"]);
- getLayers()->clear();
+setId(j["Id"].get<std::string>());
+setName(j["Name"].get<std::string>());
+getLayers()->clear();
 for(auto it0 = j["Layers"].begin(); it0 != j["Layers"].end(); it0++) {
 
 Layer *o = new Layercontainer;
-std::string tmp = it0->dump();
+std::string tmp = it0->dump(); //->get<std::string>();
 const char *c_tmp = tmp.c_str();
 o->fromJSON(c_tmp);getLayers()->push_back(o);
 }
@@ -88,7 +87,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Map& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const Map* c) {
       if(c)
@@ -129,16 +128,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, Map* c) {
-      std::string d = j.dump();
-      // qDebug() << "JSON: " << d.c_str();
-      try {
-	c->fromJSON(d.c_str());
-      }
-      catch(...) {
-	qDebug() << "Edellämainitun lataaminen falskaa";
-	throw "";
-      }
-		    // get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Map*>* m) {
@@ -152,9 +142,8 @@ void to_json(json& j, std::map<std::string, Map*>* m) {
 void from_json(const json& j, std::map<std::string, Map*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     Map *r = new Mapcontainer;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

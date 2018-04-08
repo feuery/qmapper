@@ -1,8 +1,10 @@
-(defcppclass Tileset ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>" "<QString>" "<script.h>" "<renderer.h>" "<tile.h>") 
+(defcppclass Tileset ("<QOpenGLFunctions_4_3_Core>" "<QOpenGLFunctions>" "<string>" "<QString>" "<script.h>" "<renderer.h>" "<tile.h>")
+  (always-use-container)
   (declare-class "Script")
   (public
    (properties
     (std__string name "")
-    (Script* vertexShader nullptr)
-    (Script* fragmentShader nullptr)
-    (std__vector<std__vector<Tile*>>* tiles nullptr))))
+    (no-json-serialization
+     (Script* vertexShader nullptr)
+     (Script* fragmentShader nullptr))
+    (std__vector<std__vector<Tile*>>* tiles nullptr)))) 

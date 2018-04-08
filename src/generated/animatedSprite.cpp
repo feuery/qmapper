@@ -11,7 +11,7 @@
 
 
 
-////// generated at 2018-03-27T17:18:45.919Z
+////// generated at 2018-04-08T11:26:56.041Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -131,32 +131,32 @@ throw "";
 std::string animatedsprite::toJSON() const
 {
 nlohmann::json j;
-auto G__36 = getId();
- j["Id"] = G__36;
+auto G__6972 = getId();
+ j["Id"] = G__6972;
 
-auto G__37 = getParentmapid();
- j["Parentmapid"] = G__37;
+auto G__6973 = getParentmapid();
+ j["Parentmapid"] = G__6973;
 
-auto G__38 = getName();
- j["Name"] = G__38;
+auto G__6974 = getName();
+ j["Name"] = G__6974;
 
-auto G__39 = getCurrentframeid();
- j["Currentframeid"] = G__39;
+auto G__6975 = getCurrentframeid();
+ j["Currentframeid"] = G__6975;
 
-auto G__40 = getMsperframe();
- j["Msperframe"] = G__40;
+auto G__6976 = getMsperframe();
+ j["Msperframe"] = G__6976;
 
-auto G__41 = getAnimationplaying();
- j["Animationplaying"] = G__41;
+auto G__6977 = getAnimationplaying();
+ j["Animationplaying"] = G__6977;
 
-auto G__42 = getX();
- j["X"] = G__42;
+auto G__6978 = getX();
+ j["X"] = G__6978;
 
-auto G__43 = getY();
- j["Y"] = G__43;
+auto G__6979 = getY();
+ j["Y"] = G__6979;
 
-auto G__44 = getAngle();
- j["Angle"] = G__44;
+auto G__6980 = getAngle();
+ j["Angle"] = G__6980;
 
 ;
 return j.dump();
@@ -164,9 +164,9 @@ return j.dump();
 void animatedsprite::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
-setParentmapid(j["Parentmapid"]);
-setName(j["Name"]);
+setId(j["Id"].get<std::string>());
+setParentmapid(j["Parentmapid"].get<std::string>());
+setName(j["Name"].get<std::string>());
 setCurrentframeid(j["Currentframeid"]);
 setMsperframe(j["Msperframe"]);
 setAnimationplaying(j["Animationplaying"]);
@@ -182,7 +182,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, animatedsprite& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const animatedsprite* c) {
       if(c)
@@ -223,7 +223,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, animatedsprite* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, animatedsprite*>* m) {
@@ -237,9 +237,8 @@ void to_json(json& j, std::map<std::string, animatedsprite*>* m) {
 void from_json(const json& j, std::map<std::string, animatedsprite*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     animatedsprite *r = new Animatedspritecontainer;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

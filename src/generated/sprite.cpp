@@ -8,8 +8,7 @@
 
 
 
-
-////// generated at 2018-03-27T17:18:45.916Z
+////// generated at 2018-04-08T11:26:56.040Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -93,26 +92,23 @@ throw "";
 std::string Sprite::toJSON() const
 {
 nlohmann::json j;
-auto G__29 = getId();
- j["Id"] = G__29;
+auto G__6966 = getId();
+ j["Id"] = G__6966;
 
-auto G__30 = getX();
- j["X"] = G__30;
+auto G__6967 = getX();
+ j["X"] = G__6967;
 
-auto G__31 = getY();
- j["Y"] = G__31;
+auto G__6968 = getY();
+ j["Y"] = G__6968;
 
-auto G__32 = getAngle();
- j["Angle"] = G__32;
+auto G__6969 = getAngle();
+ j["Angle"] = G__6969;
 
-// auto G__33 = getRenderid();
-//  j["Renderid"] = G__33;
+auto G__6970 = getParentmapid();
+ j["Parentmapid"] = G__6970;
 
-auto G__34 = getParentmapid();
- j["Parentmapid"] = G__34;
-
-auto G__35 = getName();
- j["Name"] = G__35;
+auto G__6971 = getName();
+ j["Name"] = G__6971;
 
 ;
 return j.dump();
@@ -120,12 +116,12 @@ return j.dump();
 void Sprite::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
-setId(j["Id"]);
+setId(j["Id"].get<std::string>());
 setX(j["X"]);
 setY(j["Y"]);
 setAngle(j["Angle"]);
-setParentmapid(j["Parentmapid"]);
-setName(j["Name"]);
+setParentmapid(j["Parentmapid"].get<std::string>());
+setName(j["Name"].get<std::string>());
 }
 
 using nlohmann::json;
@@ -135,7 +131,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, Sprite& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const Sprite* c) {
       if(c)
@@ -176,7 +172,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, Sprite* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, Sprite*>* m) {
@@ -190,9 +186,8 @@ void to_json(json& j, std::map<std::string, Sprite*>* m) {
 void from_json(const json& j, std::map<std::string, Sprite*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
     Sprite *r = new Spritecontainer;
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }

@@ -52,7 +52,7 @@ void MainWindow::setupTree()
 	std::string type = b->type_identifier();
 
 	if(type == "Tileset") {
-	  tilesetContainer *t = static_cast<tilesetContainer*>(b);
+	  Tilesetcontainer *t = static_cast<Tilesetcontainer*>(b);
 	  Renderable* o = static_cast<Renderable*>(t);
 	  ec->indexOfChosenTileset = t->getId();
 	  tileset_view->getDrawQueue().clear();
@@ -197,7 +197,7 @@ void MainWindow::setupTreeCtxMenu()
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
 
-  tilesetContainer *t = new tilesetContainer(tileset_view, texture_file.toStdString().c_str());
+  Tilesetcontainer *t = new Tilesetcontainer(tileset_view, texture_file.toStdString().c_str());
 
   t->setName("New Tileset");
   

@@ -59,8 +59,7 @@ if(propertyname == std::string("x")) {
 if(propertyname == std::string("y")) {
   *success = true;
   return getY();
-}
-*success = false; int invalid_data; return invalid_data;
+} *success = false; int invalid_data; return invalid_data;
 }
 virtual float get(std::string propertyname, bool *success, float type_helper) const {
 if(propertyname == std::string("angle")) {

@@ -93,18 +93,31 @@
   (vec (concat (subvec coll 0 pos) (subvec coll (inc pos)))))
 
 (defn tokenize-type [privacy-level [f & forms]]
-  (map (fn [form]
-         (cond (= f 'properties) {:form (if (> (count form) 3)
-                                          (vec-remove (vec form) 3)
-                                          form)
-                                  :privacy privacy-level
-                                  :validators (if (> (count form) 3)
-                                                (nth form 3))
-                                  :type f}
-               :t {:form form
-                   :privacy privacy-level
-                   :type f}))
-       forms))
+  (mapcat (fn [form]
+            (cond (= f 'properties)
+                  (if (= (first form) 'no-json-serialization)
+                    ;; tokenisoi no-json siihen jotenkin mukaan
+                    (map (fn [form]
+                           {:form (if (> (count form) 3)
+                                    (vec-remove (vec form) 3)
+                                    form)
+                            :privacy privacy-level
+                            :validators (if (> (count form) 3)
+                                          (nth form 3))
+                            :type f
+                            :json-serialization? false}) (rest form))
+                    [{:form (if (> (count form) 3)
+                              (vec-remove (vec form) 3)
+                              form)
+                      :privacy privacy-level
+                      :validators (if (> (count form) 3)
+                                    (nth form 3))
+                      :type f
+                      :json-serialization? true}])
+                  :t [{:form form
+                       :privacy privacy-level
+                       :type f}]))
+          forms))
 
 (defn tokenize-privacy-level [[f & forms]]
   (map (partial tokenize-type f) forms))
@@ -114,6 +127,13 @@
        (filter seq?)
        (filter (comp (partial = 'declare-class) first))
        (mapcat (partial drop 1))))
+
+(defn pick-always-use-container? [def]
+  (->> def
+       (filter seq?)
+       (filter (comp (partial = 'always-use-container) first))
+       (mapcat identity)
+       ((complement empty?))))
 
 (defn tokenize [[_ class-name include-list :as def]]
   (let [forms (->> def
@@ -126,36 +146,12 @@
     {:class-name class-name
      :includes include-list
      :declared-classes (pick-declared-classes def)
+     :always-use-container? (pick-always-use-container? def)
      :abstract? (contains? (->> forms
                                 (map :type)
                                 set) 'functions)
      :forms forms}))
    
-
-;; (tokenize test-data)
-;; {:class-name map,
-;;  :includes ("<root.h>" "<layer.h>" "<vector>" "<string>"),
-;;  :declared-classes ("root" "layer"),
-;;  :forms
-;;  ({:form (std__vector<Layer*>* layers nullptr),
-;;    :privacy public,
-;;    :type fields}
-;;   {:form (std__string name "Map 1"),
-;;    :privacy public,
-;;    :type properties}
-;;   {:form (void parent (root* p)), :privacy public, :type functions}
-;;   {:form (int width (void)), :privacy public, :type functions}
-;;   {:form (int height (void)), :privacy public, :type functions}
-;;   {:form (root* parent (void)), :privacy public, :type functions}
-;;   {:form (std__vector<Layer*>* layers nullptr),
-;;    :privacy private,
-;;    :type fields}
-;;   {:form (int name "Map 1"), :privacy private, :type properties}
-;;   {:form (void parent (root* p)), :privacy private, :type functions}
-;;   {:form (int width (void)), :privacy private, :type functions}
-;;   {:form (int height (void)), :privacy private, :type functions}
-;;   {:form (root* parent (void)), :privacy private, :type functions})}
-
 (defn get-stuff [type tokenized-forms]
   (->> tokenized-forms
        :forms
@@ -526,7 +522,7 @@ return;
 ;; (destruct-std-map "std__map<std__string___std__map<std__string___Propertierbase*>>*" "m")
            
 
-(defn codegen [all-classes {:keys [forms abstract? class-name declared-classes includes filename] :as tokenized-class}]
+(defn codegen [all-classes {:keys [forms abstract? class-name declared-classes includes filename always-use-container?] :as tokenized-class}]
   (let [compiled-classes (set (mapcat second
                                       (map-vals (fn [{:keys [class-name]}]
                                                   [class-name (symbol (str (name class-name) "*"))])
@@ -546,7 +542,7 @@ return;
         ;;     (println "all classes: ")
         ;;     (clojure.pprint/pprint is-class-abstract?))
         props (conj (get-properties tokenized-class)
-                    {:form '[std__string Id ""], :privacy 'public, :type 'properties})        
+                    {:form '[std__string Id ""], :privacy 'public, :type 'properties :json-serialization? true})        
         props-by-types (->> props
                             (group-by (comp first :form))
                             (map-keys typesymbol->str))
@@ -598,7 +594,7 @@ return;
                            "\nusing nlohmann::json;\n"
                        (->> includes
                             (map (partial str "#include" ))
-                            (str/join "\n"))
+                            (str/join "\n"))                       
                        "\n#include<cstring>\n"
                        (->> declared-classes
                             (map (partial str "class "))
@@ -677,7 +673,8 @@ void from_json(const json& j, std::map<std::string, " class-name "*>* m);
 #else 
 class " class-name ";\n#endif")
         cpp-content (str "#include <" (str/replace filename #".def" ".h") ">\n"
-                         (if abstract? 
+                         (if (or abstract?
+                                 always-use-container?)
                            (str "#include <" (str/lower-case class-name) "Container.h>\n")
                            "")
 "#include <json.hpp>
@@ -727,7 +724,7 @@ return " prop-name "_field;
                               (str/join "\n"))
                          "
 Propertierbase* " class-name "::copy() {
-  " class-name "* t = new " (if (is-class-abstract? class-name)
+  " class-name "* t = new " (if (or (is-class-abstract? class-name) always-use-container?)
                               (str (str/capitalize class-name) "container")
                               class-name) ";
 "
@@ -763,19 +760,21 @@ std::string " class-name "::toJSON() const
 nlohmann::json j;
 "
 (->> props
-     (filter (fn [{[type] :form}]
-               (or (contains? compiled-classes type)
-                   (contains? collection-of-compiled-classes type)
-                   (contains? #{'std__string
-                                'int
-                                'float
-                                'double
-                                'unsigned_char
-                                'short
-                                'bool
-                                'std__map<std__string___std__map<std__string___Propertierbase*>>*
-                                'long} type)
-                   (.contains (name type) "std__map"))))
+     (filter (fn [{:keys [json-serialization?]
+                   [type] :form}]
+               (and json-serialization?
+                    (or (contains? compiled-classes type)
+                        (contains? collection-of-compiled-classes type)
+                        (contains? #{'std__string
+                                     'int
+                                     'float
+                                     'double
+                                     'unsigned_char
+                                     'short
+                                     'bool
+                                     'std__map<std__string___std__map<std__string___Propertierbase*>>*
+                                     'long} type)
+                        (.contains (name type) "std__map")))))
      (map (fn [{:keys [form]}]
             (let [[type prop-name & _] form
                   prop-name ((comp str/capitalize name) prop-name)
@@ -795,19 +794,21 @@ void " class-name "::fromJSON(const char* json_str)
 json j = json::parse(json_str);
 "
 (->> props
-     (filter (fn [{[type] :form}]
-               (or (contains? compiled-classes type)
-                   (contains? collection-of-compiled-classes type)
-                   (contains? #{'std__string
-                                'int
-                                'float
-                                'double
-                                'unsigned_char
-                                'short
-                                'bool
-                                'std__map<std__string___std__map<std__string___Propertierbase*>>*
-                                'long} type)
-                   (.contains (name type) "std__map"))))
+     (filter (fn [{:keys [json-serialization?]
+                   [type prop-name] :form}]
+               (and json-serialization?
+                    (or (contains? compiled-classes type)
+                        (contains? collection-of-compiled-classes type)
+                        (contains? #{'std__string
+                                     'int
+                                     'float
+                                     'double
+                                     'unsigned_char
+                                     'short
+                                     'bool
+                                     'std__map<std__string___std__map<std__string___Propertierbase*>>*
+                                     'long} type)
+                        (.contains (name type) "std__map")))))
      (map (fn [{[type prop-name] :form}]            
             (let [collection? (.startsWith (name type) "std__vector")
                   pointer? (.endsWith (name type) "*")
@@ -818,7 +819,8 @@ json j = json::parse(json_str);
                   type (-> (typesymbol->str type)
                            (str/replace #"\*$" ""))]
               (cond
-                (.contains (name type) "std::map") (str "from_json(j[\"" prop-name "\"], get" prop-name "());")
+                (.contains (name type) "std::map") (let [s (gensym)]
+                                                     (str "auto " s " = get" prop-name "();\n " s "->clear();\n if(" s ") from_json(j[\"" prop-name "\"], " s ");"))
                 collection?
                 (let [amount-of-vectors (count-substring type "std::vector") ;; This could be assumed to be max 2
                       type (-> type
@@ -826,32 +828,35 @@ json j = json::parse(json_str);
                                (str/replace #">*\*?" "")
                                #_(str/replace #"\*$" "container"))
                       abstract? (is-class-abstract? (symbol type))]
-                    
                   (str/join "\n"
-                            (concat (reverse
-                                     (map (fn [count]
-                                            (let [id (- amount-of-vectors count)]
-                                              (condp = count
-                                                0 (str type " *o = new " (str/capitalize type)
-                                                       (if abstract?
-                                                         "container;\n"
-                                                         ";\n")
-"std::string tmp = it" (dec id) "->dump();
+                            (concat
+                             [(str "get" prop-name "()->clear();")]
+                             (reverse
+                              (map (fn [count]
+                                     (let [id (- amount-of-vectors count)]
+                                       (condp = count
+                                         0 (str type " *o = new " (str/capitalize type)
+                                                (if (or abstract?
+                                                        #_always-use-container?)
+                                                  "container;\n"
+                                                  ";\n")
+                                                "std::string tmp = it" (dec id) "->dump(); //->get<std::string>();
 const char *c_tmp = tmp.c_str();
 o->fromJSON(c_tmp);"
-                                                       
-                                                       (if (> amount-of-vectors 1)
-                                                         (str
-"                                                       vec.push_back(o);
+                                                
+                                                (if (> amount-of-vectors 1)
+                                                  (str
+                                                   "                                                       vec.push_back(o);
 }
                                                        get" prop-name "()->push_back(vec);")
-                                                         (str "get" prop-name "()->push_back(o);\n}")))
-                                                (dec amount-of-vectors) (str "for(auto it" id " = it" (dec id) "->begin(); it" id " != it" (dec id) "->end(); it" id "++) {")
-                                                ;; else
-                                                (str "for(auto it" id " = j[\"" prop-name "\"].begin(); it" id " != j[\"" prop-name "\"].end(); it" id "++) {
+                                                  (str "get" prop-name "()->push_back(o);\n}")))
+                                         (dec amount-of-vectors) (str "for(auto it" id " = it" (dec id) "->begin(); it" id " != it" (dec id) "->end(); it" id "++) {")
+                                         ;; else
+                                         (str "for(auto it" id " = j[\"" prop-name "\"].begin(); it" id " != j[\"" prop-name "\"].end(); it" id "++) {
 " (if (> amount-of-vectors 1 )
     (str "std::vector<" type "*> vec;\n ")))))) (range (inc amount-of-vectors))))
-                                    (repeat (dec amount-of-vectors) "}\n"))))
+                             (repeat (dec amount-of-vectors) "}\n"))))
+                (= type "std::string") (str "set" prop-name "(j[\"" prop-name "\"].get<std::string>());")
                 pointer? (str "*get" prop-name "() = j[\"" prop-name "\"].get<" type ">();")
                 :t (str "set" prop-name "(j[\"" prop-name "\"]);")))))
      (str/join "\n"))
@@ -865,7 +870,7 @@ using nlohmann::json;
     }
 
     void from_json(const json& j, " class-name "& c) {
-        c.fromJSON(j.get<std::string>().c_str());
+        c.fromJSON(j.dump().c_str());
     }
     void to_json(json& j, const " class-name "* c) {
       if(c)
@@ -906,7 +911,7 @@ using nlohmann::json;
 }
 
     void from_json(const json& j, " class-name "* c) {
-        c->fromJSON(j.get<std::string>().c_str());
+        c->fromJSON(j.dump().c_str());
 }
 
 void to_json(json& j, std::map<std::string, " class-name "*>* m) {
@@ -920,11 +925,11 @@ void to_json(json& j, std::map<std::string, " class-name "*>* m) {
 void from_json(const json& j, std::map<std::string, " class-name "*>* m)
 {
   for(auto b = j.begin(); b != j.end(); b++) {
-    json j2 = b.value();
-    " class-name " *r = new " (if (is-class-abstract? class-name)
+    " class-name " *r = new " (if (or (is-class-abstract? class-name)
+                                      always-use-container?)
                                 (str (str/capitalize class-name) "container")
                                 class-name) ";
-    from_json(j2, r);
+    from_json(*b, r);
     (*m)[b.key()] = r;
   }
 }"
