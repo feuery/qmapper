@@ -120,7 +120,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     if(x >= tc->tiles_w || y >= tc->tiles_h) return;
     if(x < 0 || y < 0) return;
 
-    obj *tile = static_cast<obj*>(tilesetView->owned_objects.at(tc->tiles[x][y]));
+    obj *tile = static_cast<obj*>(tilesetView->getOwnObject(tc->tiles[x][y]));
 
     if(!tileRenderer) qDebug() << "tileRenderer is nil";
     
@@ -221,7 +221,7 @@ void editorController::dumpTextures(ZipArchive &arch) {
     Tilesetcontainer *c_tileset = static_cast<Tilesetcontainer*>(tileset);
     for(int x = 0; x < c_tileset->tiles.size(); x++) {
       for(int y = 0; y < c_tileset->tiles.at(x).size(); y++) {
-	obj *tile_obj = static_cast<obj*>(tilesetView->owned_objects.at(c_tileset->tiles.at(x).at(y)));
+	obj *tile_obj = static_cast<obj*>(tilesetView->getOwnObject(c_tileset->tiles.at(x).at(y)));
 	Tile *tile = c_tileset->getTiles()->at(x).at(y);
 	saveImg(arch, tile_obj->qi_copy, c_tileset->getId() + " - " + tile->getId() + ".png");	
       }
@@ -264,73 +264,87 @@ void editorController::loadFrom(QString fname) {
     }
     else {
       QString fname = name.c_str();
+      qDebug() << "Loading file " << fname;
       QRegExp sprite_regex("\\d+\\.png"),
-	animation_or_tileset_regex("(\\d+) - (\\d+)\\.png");
+    	animation_or_tileset_regex("(\\d+) - (\\d+)\\.png");
 
       if(sprite_regex.exactMatch(fname)) {
-	QString id_str = fname.remove(".png", Qt::CaseInsensitive);
-	Sprite *spr = toSprite(document.fetchRegister("Sprite", id_str.toStdString()));
+    	qDebug() << "Loading sprite";
+    	QString id_str = fname.remove(".png", Qt::CaseInsensitive);
+    	Sprite *spr = toSprite(document.fetchRegister("Sprite", id_str.toStdString()));
 	
-	int size = entry.getSize();
-	void *v_data = entry.readAsBinary();
-	uchar *data = static_cast<uchar*>(v_data);
-	QImage img;
-	img.loadFromData(data, size);
-	obj::make(img, spr->getId());
+    	int size = entry.getSize();
+    	void *v_data = entry.readAsBinary();
+    	uchar *data = static_cast<uchar*>(v_data);
+    	QImage img;
+    	img.loadFromData(data, size);
+    	obj::make(img, spr->getId());
       }
       else if (animation_or_tileset_regex.exactMatch(fname)) {
-	int pos = animation_or_tileset_regex.indexIn(fname);
+    	int pos = animation_or_tileset_regex.indexIn(fname);
 
-	if(pos < 0 ) {
-	  qDebug() << " pos < 0 ";
-	  throw "";
-	}
+    	if(pos < 0 ) {
+    	  qDebug() << " pos < 0 ";
+    	  throw "";
+    	}
 	
-	std::string id = animation_or_tileset_regex.cap(1).toStdString();	
-	bool isAnimation = document.typeHasId("AnimatedSprite", id);
+    	std::string id = animation_or_tileset_regex.cap(1).toStdString();	
+    	bool isAnimation = document.typeHasId("AnimatedSprite", id);
 
-	if(isAnimation) {
-	  qDebug() << "It's an animation. TODO write a loader for these";
-	}
-	else {
-	  std::string tile_id = animation_or_tileset_regex.cap(2).toStdString();	
-	  int size = entry.getSize();
-	  void *v_data = entry.readAsBinary();
-	  uchar *data = static_cast<uchar*>(v_data);
-	  QImage img;
-	  img.loadFromData(data, size);
+    	if(isAnimation) {
+    	  qDebug() << "It's an animation. TODO write a loader for these";
+    	}
+    	else {
+    	  puts("Ladataan tilesettiä");
+    	  std::string tile_id = animation_or_tileset_regex.cap(2).toStdString();	
+    	  int size = entry.getSize();
+    	  void *v_data = entry.readAsBinary();
+    	  uchar *data = static_cast<uchar*>(v_data);
+    	  QImage img;
+    	  img.loadFromData(data, size);
 
-	  obj::make(img, tile_id);
+    	  obj::make(img, tile_id);
 
-	  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(document.fetchRegister("Tileset", id));
-	  auto coord = tileset->getTileCoordById(tile_id);
-	  int x, y;
-	  std::tie(x, y) = coord;
+    	  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(document.fetchRegister("Tileset", id));
+    	  auto coord = tileset->getTileCoordById(tile_id);
+    	  int x, y;
+    	  std::tie(x, y) = coord;
 
-	  if(x < 0 || y < 0) {
-	    qDebug()<< "Didn't find coords for tile " << tile_id.c_str() << " from tileset " << id.c_str();
-	    qDebug() << "x, y: " << x << ", " << y;
-	    throw "";
-	  }
+    	  if(x < 0 || y < 0) {
+    	    qDebug()<< "Didn't find coords for tile " << tile_id.c_str() << " from tileset " << id.c_str();
+    	    qDebug() << "x, y: " << x << ", " << y;
+    	    throw "";
+    	  }
 
-	  obj *o = static_cast<obj*>(tilesetView->owned_objects.at(tile_id));
-	  o->position = glm::vec2(x * 50.0f, y * 50.0f);
+    	  obj *o = static_cast<obj*>(tilesetView->getOwnObject(tile_id));
+    	  o->position = glm::vec2(x * 50.0f, y * 50.0f);
 
-	  tileset->setTileSize(tileset->getTiles()->size(), tileset->getTiles()->at(0).size());
+    	  tileset->setTileSize(tileset->getTiles()->size(), tileset->getTiles()->at(0).size());
 
-	  printf("Loading tile to (%d, %d) with id %s\n", x, y, tile_id.c_str());
+    	  printf("Loading tile to (%d, %d) with id %s\n", x, y, tile_id.c_str());
 
-	  tileset->tiles.at(x).at(y) = tile_id;
-	  tileset->tiles_w = MAX(tileset->tiles_w, x);
-	  tileset->tiles_h = MAX(tileset->tiles_h, y);
-	}
+    	  tileset->tiles.at(x).at(y) = tile_id;
+    	  tileset->tiles_w = MAX(tileset->tiles_w, x);
+    	  tileset->tiles_h = MAX(tileset->tiles_h, y);
+    	}
       }
       else {
-	qDebug() << "Didn't recognize fname " << fname;
-	throw "";
+    	qDebug() << "Didn't recognize fname " << fname;
+    	throw "";
       }
     }
     i++;
+  }
+
+  for(auto it = document.getSprites()->begin(); it != document.getSprites()->end(); it++) {
+    auto sprite = it->second;
+    qDebug() << "sprite loading done";
+    sprite->loadingDone();
+  }
+
+  for(auto it = document.getAnimatedsprites()->begin(); it != document.getAnimatedsprites()->end(); it++) {
+    auto a = it->second;
+    a->loadingDone();
   }
 
   // for(auto tileset_it = document.getTilesets()->begin(); tileset_it != document.getTilesets()->end(); tileset_it++) {
@@ -362,5 +376,6 @@ void editorController::loadFrom(QString fname) {
 void editorController::clearDrawQueues() {
   for(auto r: renderers) {
     r->getDrawQueue().clear();
+    r->clearOwnObjects();
   }
 }

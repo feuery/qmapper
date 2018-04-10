@@ -15,6 +15,7 @@ class Sprite: public Propertierbase {
  public: virtual void render (QOpenGLFunctions_4_3_Core* f) = 0;
 public: virtual void render (Renderer *parent) = 0;
 public: virtual obj* getObject () const = 0;
+public: virtual void loadingDone () = 0;
 public: virtual void setX(int val);
 virtual int getX() const;
 int X_field = 0;

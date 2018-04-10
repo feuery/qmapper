@@ -3,11 +3,18 @@
 #include <QFileInfo>
 
 obj* Spritecontainer::getObject() const {
-  obj* toret = static_cast<obj*>(parent->owned_objects[getRenderId()] );
-  if(!toret) {
-    qDebug() << "Couldn't find object " << getRenderId().c_str() << " from parent " << parent->name.c_str() << " in Spritecontainer::getObject(). Things will break";
+  if(!parent) {
+    puts("Parent is nil");
+    throw "";
   }
-  return toret;
+  
+  auto r = parent->getOwnObject(getRenderId());
+  if(r) {
+    obj* toret = static_cast<obj*>(r);
+    return toret;
+  }
+
+  return nullptr;
 }
 
 Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) {
@@ -21,7 +28,10 @@ Spritecontainer* Spritecontainer::make(Renderer *parent, const char *text_path) 
   return sprite;
 }
 
-Spritecontainer::Spritecontainer() {}
+Spritecontainer::Spritecontainer()
+{
+  parent = editorController::instance->map_view;
+}
 
 Spritecontainer::Spritecontainer( Renderer *parent, const char *text_path): Sprite(), parent(parent) {
   // Such memory leak. References to these are kept under Renderers
@@ -42,6 +52,15 @@ Spritecontainer::~Spritecontainer() {
 
 void Spritecontainer::setX (int newX)
 {
+  if(!getObject()) {
+    runAfterLoad.push_back([=]() {
+	if(getObject()) {
+	  setX(newX);
+	}
+	else qDebug() << "Not setting X";
+      });
+    return;
+  }
   float y = getObject()->position.y,
     newXf = newX;
 
@@ -56,6 +75,15 @@ int Spritecontainer::getX () const  {
   
 }
 void Spritecontainer::setY (int newY)  {
+  if(!getObject()) {
+    runAfterLoad.push_back([=]() {
+	if(getObject()) {
+	  setY(newY);
+	}
+	else qDebug() << "Not setting Y";
+      });
+    return;
+  }
   float x = getObject()->position.x,
     newYf = newY;
   
@@ -67,6 +95,14 @@ int Spritecontainer::getY () const {
   return ceil(getObject()->position.y);
 }
 void Spritecontainer::setAngle (float newangle)  {
+  if(!getObject()) {
+    runAfterLoad.push_back([=]() {
+	if(getObject()) {
+	  setAngle(newangle);
+	}
+      });
+    return;
+  }
   getObject()->rotate = newangle;
   handleEvents("Angle");
 }
@@ -90,4 +126,8 @@ void Spritecontainer::render(Renderer *parent)  {
 }
 std::string Spritecontainer::getRenderId() const  {
   return getId();
+}
+
+void Spritecontainer::loadingDone() {
+  for(auto f: runAfterLoad) f();
 }

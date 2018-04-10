@@ -10,7 +10,7 @@
 
 
 
-////// generated at 2018-04-08T11:26:56.036Z
+////// generated at 2018-04-08T18:07:57.158Z
 
 
 void root::setAnimatedsprites(std::map<std::string, animatedsprite*>* value) { 
@@ -118,29 +118,29 @@ throw "";
 std::string root::toJSON() const
 {
 nlohmann::json j;
-auto G__6938 = getId();
- j["Id"] = G__6938;
+auto G__61 = getId();
+ j["Id"] = G__61;
 
-auto G__6939 = getAnimatedsprites();
-if(G__6939)  j["Animatedsprites"] = *G__6939;
+auto G__62 = getAnimatedsprites();
+if(G__62)  j["Animatedsprites"] = *G__62;
 
-auto G__6940 = getLayers();
-if(G__6940)  j["Layers"] = *G__6940;
+auto G__63 = getLayers();
+if(G__63)  j["Layers"] = *G__63;
 
-auto G__6941 = getMaps();
-if(G__6941)  j["Maps"] = *G__6941;
+auto G__64 = getMaps();
+if(G__64)  j["Maps"] = *G__64;
 
-auto G__6942 = getScripts();
-if(G__6942)  j["Scripts"] = *G__6942;
+auto G__65 = getScripts();
+if(G__65)  j["Scripts"] = *G__65;
 
-auto G__6943 = getSprites();
-if(G__6943)  j["Sprites"] = *G__6943;
+auto G__66 = getSprites();
+if(G__66)  j["Sprites"] = *G__66;
 
-auto G__6944 = getTiles();
-if(G__6944)  j["Tiles"] = *G__6944;
+auto G__67 = getTiles();
+if(G__67)  j["Tiles"] = *G__67;
 
-auto G__6945 = getTilesets();
-if(G__6945)  j["Tilesets"] = *G__6945;
+auto G__68 = getTilesets();
+if(G__68)  j["Tilesets"] = *G__68;
 
 ;
 return j.dump();
@@ -149,27 +149,27 @@ void root::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
 setId(j["Id"].get<std::string>());
-auto G__6946 = getAnimatedsprites();
- G__6946->clear();
- if(G__6946) from_json(j["Animatedsprites"], G__6946);
-auto G__6947 = getLayers();
- G__6947->clear();
- if(G__6947) from_json(j["Layers"], G__6947);
-auto G__6948 = getMaps();
- G__6948->clear();
- if(G__6948) from_json(j["Maps"], G__6948);
-auto G__6949 = getScripts();
- G__6949->clear();
- if(G__6949) from_json(j["Scripts"], G__6949);
-auto G__6950 = getSprites();
- G__6950->clear();
- if(G__6950) from_json(j["Sprites"], G__6950);
-auto G__6951 = getTiles();
- G__6951->clear();
- if(G__6951) from_json(j["Tiles"], G__6951);
-auto G__6952 = getTilesets();
- G__6952->clear();
- if(G__6952) from_json(j["Tilesets"], G__6952);
+auto G__69 = getAnimatedsprites();
+ G__69->clear();
+ if(G__69) from_json(j["Animatedsprites"], G__69);
+auto G__70 = getLayers();
+ G__70->clear();
+ if(G__70) from_json(j["Layers"], G__70);
+auto G__71 = getMaps();
+ G__71->clear();
+ if(G__71) from_json(j["Maps"], G__71);
+auto G__72 = getScripts();
+ G__72->clear();
+ if(G__72) from_json(j["Scripts"], G__72);
+auto G__73 = getSprites();
+ G__73->clear();
+ if(G__73) from_json(j["Sprites"], G__73);
+auto G__74 = getTiles();
+ G__74->clear();
+ if(G__74) from_json(j["Tiles"], G__74);
+auto G__75 = getTilesets();
+ G__75->clear();
+ if(G__75) from_json(j["Tilesets"], G__75);
 }
 
 using nlohmann::json;

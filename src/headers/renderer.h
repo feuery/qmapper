@@ -29,8 +29,7 @@ public:
   QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;
 
   virtual QVector<Renderable*>& getDrawQueue();
-
-  std::unordered_map<std::string, Renderable*> owned_objects;
+  
   std::string name;
 
   friend class Scroll;
@@ -38,7 +37,11 @@ public:
   QQueue<std::function<void()>> glLambdas;
 
   void addToDrawQueue(QVector<Renderable*>&);
-
+  void setOwnObject(std::string id, Renderable *obj);
+  Renderable* getOwnObject(std::string id);
+  void clearOwnObjects() {
+    owned_objects.clear();
+  }
 protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
   virtual void mousePressEvent(QMouseEvent *e) override;
@@ -53,6 +56,7 @@ private:
   QVector<Renderable*> drawQueue;
   float r = 0.0f;
   QTimer timer;
+  std::unordered_map<std::string, Renderable*> owned_objects;
 };
 
 #else

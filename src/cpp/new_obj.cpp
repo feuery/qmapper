@@ -360,13 +360,13 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
     obj *o = new obj(r, f, img);
     o->id = id;
     o->qi_copied = true;
-    r->owned_objects[id] = o;
+    r->setOwnObject(id, o);
     r->freeCtx();
   }
 
   // These are always producing objs so this is a safe cast
   if(parent)
-    return static_cast<obj*>(parent->owned_objects[id]);
+    return static_cast<obj*>(parent->getOwnObject(id));
   else return nullptr;
 }
 
@@ -379,12 +379,12 @@ obj* obj::make(Renderer *rr, const char *texture_path, bool skipTexture, std::st
   for(Renderer *r: editorController::instance->renderers) {
     obj *o = new obj(r, texture_path, skipTexture);
     o->id = id;
-    r->owned_objects[id] = o;
+    r->setOwnObject(id, o);
     o->text_path = texture_path;
     o->skipTexture = skipTexture;
   }
 
-  return rr? static_cast<obj*>(rr->owned_objects[id]): static_cast<obj*>(editorController::instance->renderers.at(0)->owned_objects[id]);
+  return rr? static_cast<obj*>(rr->getOwnObject(id)): static_cast<obj*>(editorController::instance->renderers.at(0)->getOwnObject(id));
 }
 
 std::string obj::getRenderId() const {

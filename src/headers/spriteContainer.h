@@ -16,6 +16,7 @@ public:
   int getY () const override;
   void setAngle (float newangle) override;
   float getAngle () const override;
+  void loadingDone() override;
 
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render() override;
@@ -29,6 +30,8 @@ private:
 
   Renderer *parent;
   obj* getObject() const override;
+
+  std::vector<std::function<void()>> runAfterLoad;
 };
 #else
 class Spritecontainer;

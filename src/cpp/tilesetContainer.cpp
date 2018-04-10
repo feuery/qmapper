@@ -57,7 +57,7 @@ Tilesetcontainer::Tilesetcontainer():Tileset() {
 
 Tilesetcontainer::Tilesetcontainer(Renderer *r, const char *tilesetPath): Tilesetcontainer(){
   load_texture_splitted(r, tilesetPath);
-  r->owned_objects[getId()] = this;
+  r->setOwnObject(getId(), this);
   if(!editorController::instance->firstLoadedTileset) {
     for(int i = 0; i < editorController::instance->tiles->size(); i++) {
       Tile *t = editorController::instance->tiles->at(i);
@@ -74,7 +74,7 @@ void Tilesetcontainer::render(Renderer *parent)
 {
   for(int x = 0; x <  tiles_w; x++) {
     for(int y = 0; y < tiles_h; y++) {
-      Renderable *tile = parent->owned_objects.at(tiles[x][y]);
+      Renderable *tile = parent->getOwnObject(tiles[x][y]);
 
       if(tile) {
   	tile->render(parent);
@@ -98,12 +98,8 @@ void Tilesetcontainer::render()
   for(int x = 0; x < tiles.size(); x++) {
     for(int y = 0; y < tiles.at(x).size(); y++) {
       std::string renderID = tiles.at(x).at(y);
-      auto result = parent->owned_objects.find(renderID);
-      if(result == parent->owned_objects.end()) {
-	printf("Didn't find %s\n", renderID.c_str());
-	continue;
-      }
-      obj* tile = static_cast<obj*>(result->second);
+      auto result = parent->getOwnObject(renderID);
+      obj* tile = static_cast<obj*>(result);;
       if(tile) {
 	tile->render(f);
       }

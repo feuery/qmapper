@@ -12,7 +12,6 @@ double toRadians(int deg)
 Mapcontainer::Mapcontainer(): Map()
 {
   setLayers(new std::vector<Layer*>);
-  editorController::instance->map_view->owned_objects[getId()] = this;
 }
 
 Mapcontainer::Mapcontainer(int w, int h, int layerCount, root *parent): Mapcontainer()
@@ -68,7 +67,7 @@ obj* tileToObj(Tile &tile, Renderer* parent)
   std::string id (tile.getTileset());
   Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(editorController::instance->document.fetchRegister("Tileset", id));
   std::string tile_to_render_id = tileset->tiles[tile.getX()][tile.getY()];
-  return static_cast<obj*>(parent->owned_objects[tile_to_render_id]);
+  return static_cast<obj*>(parent->getOwnObject(tile_to_render_id));
 }
 
 obj* tileToObj(Tile *tile)
@@ -77,7 +76,7 @@ obj* tileToObj(Tile *tile)
   std::string id (tile->getTileset());
   Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(editorController::instance->document.fetchRegister("Tileset", id));
   std::string tile_to_render_id = tileset->tiles[tile->getX()][tile->getY()];
-  return static_cast<obj*>(editorController::instance->map_view->owned_objects[tile_to_render_id]);
+  return static_cast<obj*>(editorController::instance->map_view->getOwnObject(tile_to_render_id));
 }
 
 std::vector<Renderable*> Mapcontainer::getDrawQueue() {
@@ -220,6 +219,11 @@ Renderable* Mapcontainer::copyRenderable() {
 
   qDebug() << "Copied mapcontainer";
   return m;
+}
+
+void Mapcontainer::setId(std::string id) {
+  Propertierbase::setId(id);
+  editorController::instance->map_view->setOwnObject(getId(), this);
 }
 
 void Mapcontainer::resize (int w,

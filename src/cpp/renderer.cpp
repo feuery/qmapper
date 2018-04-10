@@ -61,7 +61,8 @@ void Renderer::paintGL()
     
     for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
       auto id = (*i)->getRenderId();
-      Renderable *o = owned_objects[id];
+      Renderable *o = owned_objects// .at(
+	[id]; // );
       if (o) 
 	o->render(this);
       else {
@@ -110,4 +111,16 @@ QVector<Renderable*>& Renderer::getDrawQueue()
 void Renderer::addToDrawQueue(QVector<Renderable*>& v)
 {
   drawQueue << v;
+}
+
+void Renderer::setOwnObject(std::string id, Renderable *obj) {
+  owned_objects[id] = obj;
+}
+
+Renderable* Renderer::getOwnObject(std::string id) {
+  auto it = owned_objects.find(id);
+
+  if(it == owned_objects.end()) return nullptr;
+
+  return it->second;
 }

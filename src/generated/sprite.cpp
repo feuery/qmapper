@@ -1,14 +1,14 @@
 #include <sprite.h>
 #include <spriteContainer.h>
 #include <json.hpp>
+#include <QDebug>
 
 
 
 
 
 
-
-////// generated at 2018-04-08T11:26:56.040Z
+////// generated at 2018-04-08T18:07:57.181Z
 
 
 void Sprite::setParentmapid(std::string value) { 
@@ -92,23 +92,23 @@ throw "";
 std::string Sprite::toJSON() const
 {
 nlohmann::json j;
-auto G__6966 = getId();
- j["Id"] = G__6966;
+auto G__89 = getId();
+ j["Id"] = G__89;
 
-auto G__6967 = getX();
- j["X"] = G__6967;
+auto G__90 = getX();
+ j["X"] = G__90;
 
-auto G__6968 = getY();
- j["Y"] = G__6968;
+auto G__91 = getY();
+ j["Y"] = G__91;
 
-auto G__6969 = getAngle();
- j["Angle"] = G__6969;
+auto G__92 = getAngle();
+ j["Angle"] = G__92;
 
-auto G__6970 = getParentmapid();
- j["Parentmapid"] = G__6970;
+auto G__93 = getParentmapid();
+ j["Parentmapid"] = G__93;
 
-auto G__6971 = getName();
- j["Name"] = G__6971;
+auto G__94 = getName();
+ j["Name"] = G__94;
 
 ;
 return j.dump();
@@ -117,7 +117,8 @@ void Sprite::fromJSON(const char* json_str)
 {
 json j = json::parse(json_str);
 setId(j["Id"].get<std::string>());
-setX(j["X"]);
+ qDebug() << "Setting X to " << j["X"].get<int>();
+ setX(j["X"].get<int>());
 setY(j["Y"]);
 setAngle(j["Angle"]);
 setParentmapid(j["Parentmapid"].get<std::string>());

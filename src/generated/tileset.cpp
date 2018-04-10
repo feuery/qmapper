@@ -7,7 +7,7 @@
 
 
 
-////// generated at 2018-04-08T11:26:56.042Z
+////// generated at 2018-04-08T18:07:57.187Z
 
 
 void Tileset::setName(std::string value) { 
@@ -79,14 +79,14 @@ throw "";
 std::string Tileset::toJSON() const
 {
 nlohmann::json j;
-auto G__6981 = getId();
- j["Id"] = G__6981;
+auto G__104 = getId();
+ j["Id"] = G__104;
 
-auto G__6982 = getName();
- j["Name"] = G__6982;
+auto G__105 = getName();
+ j["Name"] = G__105;
 
-auto G__6983 = getTiles();
-if(G__6983)  j["Tiles"] = *G__6983;
+auto G__106 = getTiles();
+if(G__106)  j["Tiles"] = *G__106;
 
 ;
 return j.dump();

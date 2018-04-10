@@ -11,7 +11,7 @@
 
 
 
-////// generated at 2018-04-08T11:26:56.041Z
+////// generated at 2018-04-08T18:07:57.183Z
 
 
 void animatedsprite::setParentmapid(std::string value) { 
@@ -131,32 +131,32 @@ throw "";
 std::string animatedsprite::toJSON() const
 {
 nlohmann::json j;
-auto G__6972 = getId();
- j["Id"] = G__6972;
+auto G__95 = getId();
+ j["Id"] = G__95;
 
-auto G__6973 = getParentmapid();
- j["Parentmapid"] = G__6973;
+auto G__96 = getParentmapid();
+ j["Parentmapid"] = G__96;
 
-auto G__6974 = getName();
- j["Name"] = G__6974;
+auto G__97 = getName();
+ j["Name"] = G__97;
 
-auto G__6975 = getCurrentframeid();
- j["Currentframeid"] = G__6975;
+auto G__98 = getCurrentframeid();
+ j["Currentframeid"] = G__98;
 
-auto G__6976 = getMsperframe();
- j["Msperframe"] = G__6976;
+auto G__99 = getMsperframe();
+ j["Msperframe"] = G__99;
 
-auto G__6977 = getAnimationplaying();
- j["Animationplaying"] = G__6977;
+auto G__100 = getAnimationplaying();
+ j["Animationplaying"] = G__100;
 
-auto G__6978 = getX();
- j["X"] = G__6978;
+auto G__101 = getX();
+ j["X"] = G__101;
 
-auto G__6979 = getY();
- j["Y"] = G__6979;
+auto G__102 = getY();
+ j["Y"] = G__102;
 
-auto G__6980 = getAngle();
- j["Angle"] = G__6980;
+auto G__103 = getAngle();
+ j["Angle"] = G__103;
 
 ;
 return j.dump();

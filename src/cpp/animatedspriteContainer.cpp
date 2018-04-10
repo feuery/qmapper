@@ -7,7 +7,9 @@ int MsTime() {
   return time(nullptr) * 1000;
 }
 
-Animatedspritecontainer::Animatedspritecontainer() { }
+Animatedspritecontainer::Animatedspritecontainer() {
+  sprites = new std::vector<Sprite*>;
+}
 
 Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(MsTime()) {
   sprites = new std::vector<Sprite*>;

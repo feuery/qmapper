@@ -34,6 +34,7 @@ public:
   either<animatedsprite*, Sprite*> findNearest(int x, int y) override;
 
   virtual Renderable* copyRenderable();
+  virtual void setId(std::string v) override;
 private:
 
   root *R;
