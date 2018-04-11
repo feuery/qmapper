@@ -230,6 +230,8 @@ void editorController::dumpTextures(ZipArchive &arch) {
 }
 
 void editorController::saveTo(QString filename) {
+  QFile f(filename);
+  f.remove();
   ZipArchive arch(filename.toStdString());
   arch.open(ZipArchive::WRITE);
   qDebug() << "Trying root.toJSON();";
@@ -263,6 +265,7 @@ void editorController::loadFrom(QString fname) {
       document.fromJSON(data.c_str());
     }
     else {
+      assert( i != 0);
       QString fname = name.c_str();
       qDebug() << "Loading file " << fname;
       QRegExp sprite_regex("\\d+\\.png"),
