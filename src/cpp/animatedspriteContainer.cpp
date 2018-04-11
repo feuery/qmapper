@@ -9,6 +9,7 @@ int MsTime() {
 
 Animatedspritecontainer::Animatedspritecontainer() {
   sprites = new std::vector<Sprite*>;
+  last_changed = MsTime();
 }
 
 Animatedspritecontainer::Animatedspritecontainer(Renderer *parent, const char *spriteSheetPath, int frameCount, int frameLifeTime): last_changed(MsTime()) {
@@ -75,6 +76,13 @@ std::string Animatedspritecontainer::getRenderId() const{
 }
 
 void Animatedspritecontainer::setX (int newX) {
+  if(sprites->size() == 0) {
+    runAfterLoad.push_back([=]() {
+	if(sprites->size() > 0)
+	  setX(newX);
+      });
+    return;
+  }
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setX(newX);
   }
@@ -85,6 +93,13 @@ int Animatedspritecontainer::getX () const {
   return (*sprites->begin())->getX();
 }
 void Animatedspritecontainer::setY (int newY) {
+  if(sprites->size() == 0) {
+    runAfterLoad.push_back([=]() {
+	if(sprites->size() > 0)
+	  setY(newY);
+      });
+    return;
+  }
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setY(newY);
   }
@@ -103,6 +118,13 @@ void Animatedspritecontainer::advanceFrame () {
   setCurrentframeid(newId);
 }
 void Animatedspritecontainer::setAngle (float newangle) {
+  if(sprites->size() == 0) {
+    runAfterLoad.push_back([=]() {
+	if(sprites->size() > 0)
+	  setAngle(newangle);
+      });
+    return;
+  }
   for(auto i = sprites->begin(); i != sprites->end(); i++) {
     (*i)->setAngle(newangle);
   }
@@ -111,4 +133,8 @@ void Animatedspritecontainer::setAngle (float newangle) {
 }
 float Animatedspritecontainer::getAngle () const {
   return (*sprites->begin())->getAngle();
+}
+
+void Animatedspritecontainer::loadingDone() {
+  for(auto f: runAfterLoad) f();
 }

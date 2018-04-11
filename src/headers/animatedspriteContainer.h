@@ -22,6 +22,8 @@ public:
   void setAngle (float newangle);
   float getAngle () const override;;
 
+  void loadingDone() override;
+
   virtual void render(QOpenGLFunctions_4_3_Core *f) override;
   virtual void render(Renderer *parent) override;
   virtual void render() override;
@@ -36,6 +38,7 @@ private:
   QImage root;
   void advanceFrameIfNeeded();
 
+  std::vector<std::function<void()>> runAfterLoad;
 };
 
 #endif //ANIMATEDSPRITECONTAINER_H

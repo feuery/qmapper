@@ -16,6 +16,7 @@
 #include <tilesetContainer.h>
 #include <QTemporaryFile>
 #include <sys/param.h>
+#include <animatedspriteContainer.h>
 using namespace libzippp;
 
 editorController* editorController::instance;
@@ -291,11 +292,31 @@ void editorController::loadFrom(QString fname) {
     	  throw "";
     	}
 	
-    	std::string id = animation_or_tileset_regex.cap(1).toStdString();	
+    	std::string id = animation_or_tileset_regex.cap(1).toStdString();
+
     	bool isAnimation = document.typeHasId("AnimatedSprite", id);
 
     	if(isAnimation) {
-    	  qDebug() << "It's an animation. TODO write a loader for these";
+	  bool isInt = false;
+	  int sprite_id = animation_or_tileset_regex.cap(2).toInt(&isInt);
+
+	  if(!isInt) {
+	    qDebug() << "Animation's frame number (" << animation_or_tileset_regex.cap(2) << ") is not a number";
+	    throw "";
+	  }
+
+	  int size = entry.getSize();
+    	  void *v_data = entry.readAsBinary();
+    	  uchar *data = static_cast<uchar*>(v_data);
+    	  QImage img;
+    	  img.loadFromData(data, size);
+
+	  Propertierbase *r = document.fetchRegister("AnimatedSprite", id);
+	  animatedsprite *a = r? toAnimatedsprite(r): new Animatedspritecontainer();
+	  Sprite *spr = new Spritecontainer;
+	  obj::make(img, spr->getId());
+	  
+	  a->sprites->push_back(spr);
     	}
     	else {
     	  puts("Ladataan tilesettiä");

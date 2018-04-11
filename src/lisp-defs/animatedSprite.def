@@ -12,6 +12,7 @@
     (float angle 0.0))
    (functions
     (int maxFrames ())
-    (void advanceFrame ()))
+    (void advanceFrame ())
+    (void loadingDone ()))
    (fields
     (std__vector<Sprite*>* sprites nullptr))))

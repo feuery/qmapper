@@ -59,14 +59,22 @@ bool Rootcontainer::containsNs (std::string ns) {
   return false;
 }
 
+// Returns nil if theres no id in the map
+template<typename T>
+Propertierbase *toNil(std::map<std::string, T> *m, std::string id) {
+  auto result = m->find(id);
+  if(result == m->end()) return nullptr;
+  return result->second;
+}
+
 Propertierbase* Rootcontainer::fetchRegister(std::string type, std::string id) {
-  if(type == "AnimatedSprite") return (*getAnimatedsprites()).at(id);
-  else if(type == "Layer") return (*getLayers()).at(id);
-  else if (type == "Map") return (*getMaps()).at(id);
-  else if (type == "Script") return (*getScripts()).at(id);
-  else if (type == "Sprite") return (*getSprites()).at(id);
-  else if (type == "Tile") return (*getTiles()).at(id);
-  else if (type == "Tileset") return (*getTilesets()).at(id);
+  if(type == "AnimatedSprite") return toNil(getAnimatedsprites(), id);
+  else if(type == "Layer") return toNil(getLayers(), id);
+  else if (type == "Map") return toNil(getMaps(), id);
+  else if (type == "Script") return toNil(getScripts(), id);
+  else if (type == "Sprite") return toNil(getSprites(), id);
+  else if (type == "Tile") return toNil(getTiles(), id);
+  else if (type == "Tileset") return toNil(getTilesets(), id);
 
   qDebug() << "Didn't recognize type " << type.c_str();
 
