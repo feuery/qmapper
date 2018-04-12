@@ -204,6 +204,7 @@ either<animatedsprite*, Sprite*> Mapcontainer::findNearest(int x, int y) {
 
 Renderable* Mapcontainer::copyRenderable() {
   Mapcontainer *m = new Mapcontainer;
+  m->setId(getId());
   
   for(int l = 0; l < getLayers()->size(); l++) {
     Layercontainer *layer = new Layercontainer(width(), height());
