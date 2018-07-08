@@ -94,7 +94,7 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
 
   std::string helper;
   bool succ = false;
-  std::string name = base->get(flyweight<std::string>(std::string("name")), &succ, helper);
+  std::string name = base->get("name", &succ, helper);
 
   if(succ) { return QString(name.c_str()); }
   

@@ -28,6 +28,10 @@ extern "C" {
   SCM setProp(SCM id, SCM type, SCM propname, SCM value);
   SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda);
   SCM qscm_puts(SCM str);
+
+  SCM render_obj(SCM obj_ptr);
+
+  SCM MsTime();
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

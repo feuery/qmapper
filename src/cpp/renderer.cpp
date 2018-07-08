@@ -23,7 +23,7 @@ Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
     editorController::instance->ctx_provider = this;
 
   // This trickery-pockery tricks the scrollarea to function as expected
-  const int w = 9999;
+  const int w = 2000;
   const int h = w;
   setMaximumWidth(w);
   setMaximumHeight(h);

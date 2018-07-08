@@ -331,4 +331,14 @@ extern "C" {
     puts(scm_to_locale_string(str));
     return SCM_BOOL_T;
   }
+
+  SCM render_obj(SCM obj_ptr) {
+    void *ptr = scm_to_pointer(obj_ptr);
+    obj* real_obj_ptr = static_cast<obj*>(ptr);
+    real_obj_ptr->render();
+  }
+
+  SCM MsTime() {
+    return scm_from_long(time(nullptr) * 1000);
+  }
 }

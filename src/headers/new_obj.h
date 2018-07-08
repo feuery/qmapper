@@ -1,15 +1,12 @@
-#ifndef NEW_OBJ_H
+#ifndef NEW_OBJ_H 
 #define NEW_OBJ_H
 
-#include<boost/flyweight.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtc/matrix_transform.hpp> 
 #include <QOpenGLWidget>
 #include <renderer.h>
 #include <renderable.h>
-
-using namespace boost::flyweights;
 
 GLuint CreateShaderProgram(QOpenGLFunctions_4_3_Core *f, GLuint vertex_shader, GLuint fragment_shader);
 void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
@@ -52,7 +49,7 @@ public:
   virtual void render(QOpenGLFunctions_4_3_Core *f);
   virtual void render(Renderer *parent) override;
   virtual void render() override;
-  void reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId);
+  void reload_shaders(QOpenGLFunctions_4_3_Core *f, std::string vertexId, std::string fragmentId);
   bool load_new_texture(const char *path, Renderer *r);
 
   std::string getRenderId() const override;

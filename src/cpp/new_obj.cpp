@@ -335,7 +335,7 @@ void obj::render()
   }
 }
 
-void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, flyweight<std::string> vertexId, flyweight<std::string> fragmentId)
+void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, std::string vertexId, std::string fragmentId)
 {
   editorController *ec = editorController::instance;
   shader = createShader(f, toScript(ec->document.fetchRegister("Script", vertexId))->getContents().c_str(),

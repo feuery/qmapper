@@ -11,6 +11,7 @@ INCLUDEPATH += ./src/ui
 INCLUDEPATH += ./src/generated
 INCLUDEPATH += /opt/local/include
 INCLUDEPATH += ./libzippp/src
+INCLUDEPATH += ./src/scm_model
 QT += widgets
 QT += opengl
 QT += network
@@ -24,7 +25,7 @@ QMAKE_CXXFLAGS += `guile-config compile`
 
 DESTDIR = ./bin
 
-QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR})
+QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR}; cp ./src/scm_model/*.scm $${DESTDIR})
 
 # Input
 HEADERS += src/headers/files.h \
@@ -70,7 +71,8 @@ HEADERS += src/headers/files.h \
            src/headers/spriteRotater.h \
            src/headers/engine.h \
            src/headers/engine_renderer.h \
-           src/headers/guile_qt_keymapping.h
+           src/headers/guile_qt_keymapping.h \
+           src/scm_model/loader.h \
            
 FORMS += \
     src/forms/main.ui \ 
@@ -115,4 +117,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/spriteRotater.cpp \
            src/cpp/engine.cpp \
            src/cpp/engine_renderer.cpp \
-           src/cpp/guile_qt_keymapping.cpp
+           src/cpp/guile_qt_keymapping.cpp \
+           src/scm_model/loader.cpp

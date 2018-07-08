@@ -5,6 +5,8 @@
 #include <editorController_guile.h>
 #include <files.h>
 
+#include <loader.h>
+
 // TODO make a real c-guile-registration system
 static void* register_functions(void* data) {
   scm_c_define_gsubr("add-map!", 3, 0, 0, reinterpret_cast<scm_t_subr>(add_map));
@@ -25,6 +27,9 @@ static void* register_functions(void* data) {
   scm_c_define_gsubr("set-prop", 4, 0, 0, reinterpret_cast<scm_t_subr>(setProp));
   scm_c_define_gsubr("add-event", 4, 0, 0, reinterpret_cast<scm_t_subr>(addEvent));
   scm_c_define_gsubr("scm-puts", 1, 0, 0, reinterpret_cast<scm_t_subr>(qscm_puts));
+
+  scm_c_define_gsubr("render-object!", 1, 0, 0, reinterpret_cast<scm_t_subr>(render_obj));
+  scm_c_define_gsubr("MsTime", 0, 0, 0, reinterpret_cast<scm_t_subr>(MsTime));
     
   return NULL;
 }
@@ -443,6 +448,11 @@ void Guile_Thread::run() {
 
 
   scm_c_primitive_load((QCoreApplication::applicationDirPath() +"/"+"./qmapper_std.scm").toStdString().c_str());
+
+  for(std::string &strr: models) {
+    QString str = strr.c_str();
+    scm_c_primitive_load((QCoreApplication::applicationDirPath() +"/"+"./"+str+".scm").toStdString().c_str());
+  }
   
   scm_shell(argc, argv);
 }
