@@ -1,11 +1,11 @@
-#include <loader.h>
+#include <loader.h> 
 std::vector<std::string> models {
+"tile",
 "animatedsprite",
 "layer",
-"map",
 "root",
+"map",
 "script",
 "sprite",
-"tile",
 "tileset",
 };

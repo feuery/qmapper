@@ -22,8 +22,6 @@ public:
   Renderer(QWidget *parent);
   ~Renderer();
 
-  QOpenGLFunctions_4_3_Core* getGlFns();
-  void freeCtx();
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseDownEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;

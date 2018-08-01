@@ -1,3 +1,4 @@
+#include <libguile.h>
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -11,16 +12,14 @@
 #include <QMessageBox>
 #include <editorController_guile.h>
 
-#include <tilesetContainer.h>
 #include <tileview_renderer.h>
-#include <layerContainer.h>
-
 #include <tilelistmodel.h>
 
 #include <tool_list.h>
-#include <resize_obj.h>
 #include <animationLoaderUi.h>
 #include <engine.h>
+
+#include <guile_fn.h>
 
 #define btnW 200
 #define btnH 25
@@ -48,33 +47,37 @@ void MainWindow::setupTree()
     tree.setModel(ec->documentTreeModel);
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 	if(!index.isValid()) return;
-	Propertierbase *b = static_cast<Propertierbase*>(index.internalPointer());
-	std::string type = b->type_identifier();
+	SCM b = static_cast<SCM >(index.internalPointer());
+	std::string type = type_name(b);
 
 	if(type == "Tileset") {
-	  Tilesetcontainer *t = static_cast<Tilesetcontainer*>(b);
-	  Renderable* o = static_cast<Renderable*>(t);
-	  ec->indexOfChosenTileset = t->getId();
-	  tileset_view->getDrawQueue().clear();
-	  tileset_view->getDrawQueue().push_back(o);
+	  SCM t = static_cast<SCM >(b);
+	  // Renderable* o = static_cast<Renderable*>(t);
+	  // ec->indexOfChosenTileset = t->getId();
+	  // tileset_view->getDrawQueue().clear();
+	  // tileset_view->getDrawQueue().push_back(o);
+	  puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
+	  throw "";
 	}
 	else if(type == "Map") {
-	  Mapcontainer *m = static_cast<Mapcontainer*>(b);
-	  Renderable *o = static_cast<Renderable*>(m);
-	  ec->indexOfChosenMap = m->getId();
-	  ec->indexOfChosenLayer = 0;
-	  map_view->getDrawQueue().clear();
-	  map_view->getDrawQueue().push_back(o);
+	  SCM m = static_cast<SCM >(b);
+	  // Renderable *o = static_cast<Renderable*>(m);
+	  // ec->indexOfChosenMap = m->getId();
+	  // ec->indexOfChosenLayer = 0;
+	  // map_view->getDrawQueue().clear();
+	  // map_view->getDrawQueue().push_back(o);
+	  puts("TODO IMPLEMENT MAP");
 	}
 	else if(type == "Layer") {
-	  Layercontainer *l = static_cast<Layercontainer*>(b);
-	  Mapcontainer *m = static_cast<Mapcontainer*>(l->parent());
+	  // Layercontainer *l = static_cast<Layercontainer*>(b);
+	  // SCM m = static_cast<SCM >(l->parent());
 
-	  ec->indexOfChosenMap = m->getId();
-	  ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
+	  // ec->indexOfChosenMap = m->getId();
+	  // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
 
-	  map_view->getDrawQueue().clear();
-	  map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
+	  // map_view->getDrawQueue().clear();
+	  // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
+	  puts("TODO IMPLEMENT LAYERS!");
 	}
       });
   }
@@ -111,7 +114,7 @@ void MainWindow::editObject()
   QModelIndex l = tree.currentIndex();
   // Then, let's fire a property-editor-dialog with this pointer as parameter
   // And update this pointer's data in-between the model's begin-row-update-thing
-  Propertierbase *b = static_cast<Propertierbase*>(l.internalPointer());
+  SCM b = static_cast<SCM >(l.internalPointer());
   Propertyeditor *p = new Propertyeditor(b, this);
   p->show();
 }
@@ -194,23 +197,18 @@ void MainWindow::setupTreeCtxMenu()
   tree.addAction(newMenu_act);
 }
 
+// NFC if this is correct
+#define SCM_EMPTY_LIST nullptr
+
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
+  static SCM make_tset = scm_c_lookup("make-Tileset");
 
-  Tilesetcontainer *t = new Tilesetcontainer(tileset_view, texture_file.toStdString().c_str());
-
-  t->setName("New Tileset");
-  
-  // if(t->load_new_texture(texture_file.toStdString().c_str(), tileset_view)) {
+  SCM tileset = scm_call_4(make_tset, scm_from_locale_string("New tileset"), nullptr, nullptr, SCM_EMPTY_LIST);
+    
   ec->documentTreeModel->begin();
-  (*ec->document.getTilesets())[t->getId()] = t;
+  // (*ec->document.getTilesets())[t->getId()] = t;
   ec->documentTreeModel->end();
-  // }
-  // else {
-  //   delete t;
-  //   QMessageBox::critical(nullptr, "QMapper",
-  // 			  QString("Unable to load tileset texture %1").arg(texture_file));
-  // }
 }
 
 void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
@@ -230,15 +228,12 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	    e->er->getDrawQueue().clear();
 	    int w = e->er->width(),
 	      h = e->er->height();
-	    auto f = e->er->getGlFns();
 	    
 	    for(Renderable *dq: map_view->getDrawQueue()) {
 	      Renderable *to_render = dq->copyRenderable();
 	      // to_render->redoMatrices(e->er, f, w, h);
 	      e->er->getDrawQueue().push_back(to_render);
 	    }
-
-	    e->er->freeCtx();
 	    
 	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
 	    e->show();
@@ -254,23 +249,30 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 
   connect(btn, &QPushButton::clicked,
 	  [&]() {
-	    Map *currentMap = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
-	    resize_data *o = new resize_data;
-	    o->setNew_width(currentMap->width());
-	    o->setNew_height(currentMap->height());
-	    Propertyeditor *p = new Propertyeditor(o, this);
-	    p->onClose = [=]() {
-	      qDebug() << "Resizing to " << o->getNew_width() << ", " << o->getNew_height() << ", " << (o->getVertical_anchor() == TOP? "TOP": "BOTTOM") << ", " << (o->getHorizontal_anchor() == LEFT? "LEFT": "RIGHT");
-	      currentMap->resize(o->getNew_width(), o->getNew_height(), o->getVertical_anchor(), o->getHorizontal_anchor());
-	      delete o;
-	      p->accept();
-	    };
-	    p->show();
+	    static SCM fetchRegister = scm_c_lookup("root-fetchRegister");
+	    // ec->chosenMap = scm_call_3(fetchRegister, ec->document, scm_from_locale_string("Map"), scm_from_locale_symbol(ec->indexOfChosenMap.c_str()));
+	    // resize_data *o = new resize_data;
+	    // o->setNew_width(currentMap->width());
+	    // o->setNew_height(currentMap->height());
+	    // Propertyeditor *p = new Propertyeditor(o, this);
+	    // p->onClose = [=]() {
+	    //   qDebug() << "Resizing to " << o->getNew_width() << ", " << o->getNew_height() << ", " << (o->getVertical_anchor() == TOP? "TOP": "BOTTOM") << ", " << (o->getHorizontal_anchor() == LEFT? "LEFT": "RIGHT");
+	    //   currentMap->resize(o->getNew_width(), o->getNew_height(), o->getVertical_anchor(), o->getHorizontal_anchor());
+	    //   delete o;
+	    //   p->accept();
+	    // };
+	    // p->show();
+	    puts("TODO implement");
 	  });
 }
 
-MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), ec(new editorController())
+MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv)
 {
+  // We need to start guile subsystem before farting up an editorController
+  t.start();
+  while(!t.running) { sleep(1); } 
+  ec = new editorController();
+  
   ui.setupUi(this);
   ec->registerWindow(this);
 
@@ -353,8 +355,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv), e
 
   ui.splitter->addWidget(tb);
   ui.splitter->addWidget(splitter);
-  
-  t.start();
 }
 
 MainWindow::~MainWindow()

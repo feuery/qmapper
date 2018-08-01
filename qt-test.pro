@@ -8,7 +8,6 @@ CONFIG += debug
 INCLUDEPATH += .
 INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui
-INCLUDEPATH += ./src/generated
 INCLUDEPATH += /opt/local/include
 INCLUDEPATH += ./libzippp/src
 INCLUDEPATH += ./src/scm_model
@@ -34,25 +33,10 @@ HEADERS += src/headers/files.h \
            src/headers/new_obj.h \
            src/headers/renderer.h \
            src/headers/guile_thread.h \
-           src/headers/tilesetContainer.h \
-           src/generated/propertierbase.h \
-           src/generated/tile.h \
-           src/generated/layer.h \
-           src/generated/root.h \
-           src/generated/map.h \
-           src/generated/tileset.h \
-           src/generated/script.h \
-           src/generated/resize_obj.h \
-           src/generated/sprite.h \
-           src/generated/animatedSprite.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
            src/headers/tilelistmodel.h \
-           src/headers/layerContainer.h \
-           src/headers/mapContainer.h \
-           src/headers/rootContainer.h \
            src/headers/propertyEditor.h \
-           src/headers/script-types.h \
            src/headers/tileview_renderer.h \
            src/headers/doc-server.h \
            src/headers/either.h \
@@ -64,14 +48,13 @@ HEADERS += src/headers/files.h \
            src/headers/scroll.h \
            src/headers/resize-enums.h \
            src/headers/json.hpp \
-           src/headers/spritecontainer.h \
-           src/headers/animatedspriteContainer.h  \
            src/headers/animationLoaderUi.h \
            src/headers/spriteMover.h \
            src/headers/spriteRotater.h \
            src/headers/engine.h \
            src/headers/engine_renderer.h \
            src/headers/guile_qt_keymapping.h \
+           src/headers/guile_fn.h \
            src/scm_model/loader.h \
            
 FORMS += \
@@ -84,38 +67,23 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/new_obj.cpp \
            src/cpp/renderer.cpp \
            src/cpp/guile_thread.cpp \
-           src/generated/tile.cpp \
-           src/generated/propertierbase.cpp \
-           src/generated/layer.cpp \
-           src/generated/map.cpp \
-           src/generated/root.cpp \
-           src/generated/tileset.cpp \
-           src/generated/script.cpp \
-           src/generated/resize_obj.cpp \
-           src/generated/sprite.cpp \
-           src/generated/animatedSprite.cpp\
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
            src/cpp/tilelistmodel.cpp \
-           src/cpp/layerContainer.cpp \
-           src/cpp/mapContainer.cpp \
-           src/cpp/rootContainer.cpp \
            src/cpp/propertyEditor.cpp \
            src/cpp/doc-server.cpp \
            src/cpp/nsValidators.cpp \
            src/cpp/tileview_renderer.cpp \
-           src/cpp/tilesetContainer.cpp \
            src/cpp/pen.cpp \
            src/cpp/tool.cpp \
            src/cpp/rotater.cpp \
            src/cpp/tool_list.cpp \
            src/cpp/scroll.cpp \
-           src/cpp/spritecontainer.cpp \
-           src/cpp/animatedspriteContainer.cpp \
            src/cpp/animationLoaderUi.cpp \
            src/cpp/spriteMover.cpp \
            src/cpp/spriteRotater.cpp \
            src/cpp/engine.cpp \
            src/cpp/engine_renderer.cpp \
            src/cpp/guile_qt_keymapping.cpp \
+           src/cpp/guile_fn.cpp \
            src/scm_model/loader.cpp

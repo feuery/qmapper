@@ -19,9 +19,6 @@ Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
     timer.setInterval(0);
   timer.start();
 
-  if(!editorController::instance->ctx_provider)
-    editorController::instance->ctx_provider = this;
-
   // This trickery-pockery tricks the scrollarea to function as expected
   const int w = 2000;
   const int h = w;
@@ -79,14 +76,14 @@ void Renderer::paintGL()
   }
 }
 
-QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
-  makeCurrent();
-  return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-}
+// QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
+//   makeCurrent();
+//   return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+// }
 
-void Renderer::freeCtx() {
-  doneCurrent();
-}
+// void Renderer::freeCtx() {
+//   doneCurrent();
+// }
 
 void Renderer::mouseMoveEvent(QMouseEvent *e) {
   for(auto fn: mouseMoveEvents) fn(e);

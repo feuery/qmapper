@@ -22,8 +22,6 @@ public:
   MainWindow(int argc, char** argv);
   ~MainWindow();
 
-  void registerController(editorController *ec);
-
   void newTileset();
 
   Ui::MainWindow ui;
@@ -32,7 +30,6 @@ public:
   
   Renderer *map_view, *tileset_view, *tileview;
   Guile_Thread t;
-  editorController *ec;
   QGroupBox* toolbox();
 
   void setupTree();
@@ -51,7 +48,9 @@ public:
   void prepareStartEngine(QVBoxLayout *toolbox_layout);
 
  private:
+    void registerController(editorController *ec);
   void setupMainMenu();
+  editorController *ec;
 };
 
 #endif //MAIN_H

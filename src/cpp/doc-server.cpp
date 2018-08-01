@@ -47,6 +47,10 @@ bool document_server::start_server() {
 void document_server::helloWorld()
 {
   QTcpSocket *clientCon = server_socket->nextPendingConnection();
+  static SCM findNs = scm_c_lookup("root-findNs");
+  static SCM saveNs = scm_c_lookup("root-saveNs");
+  static SCM is_glsl = scm_c_lookup("is-ns-glsl?");
+  static SCM is_scheme = scm_c_lookup("is-ns-scheme?");
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
       QByteArray block;
@@ -64,15 +68,20 @@ void document_server::helloWorld()
 	  QString qns = l.at(1);
 	  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
 
-	  either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
-	  std::string contents = script_data.b;
+	  std::string contents(scm_to_locale_string(scm_call_2(findNs,
+							       editorController::instance->document,
+							       scm_from_locale_string(ns.c_str()))));
 	  QString c(contents.c_str());
 
 	  QString firstLine = c.split(QString("\n")).at(0);
-
+	  bool this_scheme = scm_is_true(scm_call_2(is_scheme,
+						  editorController::instance->document,
+						  scm_from_locale_string(ns.c_str())));
+						  
+	  // either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
 	  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
-	                             (script_data.a == scheme? QString("; -*- mode: scheme; -*-\n"):
-				                               QString("// -*- mode: glsl; -*-\n")) + c;
+	    (this_scheme? QString("; -*- mode: scheme; -*-\n"):
+	     QString("// -*- mode: glsl; -*-\n")) + c;
 	    
 
 
@@ -84,8 +93,11 @@ void document_server::helloWorld()
 	  std::string ns = l.at(1).toStdString();
 	  std::string contents = str.replace(l.at(0)+":"+l.at(1)+":", QString("")).toStdString();
 	  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
-
-	  editorController::instance->document.saveNs(ns, contents);
+	  
+	  editorController::instance->document = scm_call_3(saveNs,
+							    editorController::instance->document,
+							    scm_from_locale_string(ns.c_str()),
+							    scm_from_locale_string(contents.c_str()));
 	}
 	else qDebug() << "Didn't recognize protocol " << protocol;
       }

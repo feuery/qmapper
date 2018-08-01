@@ -1,3 +1,7 @@
+;; (define-module (qmapper-sprite)
+;;   #:use-module (srfi srfi-1)
+;;   #:use-module (qmapper-std))
+
 (defcppclass Sprite
   (public
    (properties
@@ -12,4 +16,8 @@
     (render ()
 	    (render-object! (Sprite-obj_ptr (this)))))))
 
-(scm-puts "Loaded sprite")
+(define-and-reg (is-sprite? spr)
+  (equal? (type-of spr)
+	  "Sprite"))
+
+;; (scm-puts "Loaded sprite")

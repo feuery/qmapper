@@ -1,15 +1,15 @@
 #ifndef EDITORCONTROLLER_H
 #define EDITORCONTROLLER_H
 
-#include <rootContainer.h>
+#include <libguile.h>
+
+#include <tilelistmodel.h>
 #include <vector>
 #include <mainwindow.h>
 
-#include <tilesetContainer.h>
 #include <renderer.h>
 #include <tileview_renderer.h>
 
-#include <tile.h>
 #include <tool.h>
 
 #include <engine.h>
@@ -23,7 +23,7 @@ class editorController{
 public:
   void registerWindow(MainWindow *w);
 
-  Rootcontainer document;
+  SCM document;
   Tilelistmodel *documentTreeModel;
 
   QObject r;
@@ -32,13 +32,7 @@ public:
   editorController();
 
   void populateMaps();
-
-  std::string indexOfChosenTileset;
-  std::string indexOfChosenMap;
-  int indexOfChosenLayer;
-
-  std::string indexOfStdVertexShader;
-  std::string indexOfStdFragmentShader, indexOfStdTileviewFragShader;
+  
   std::vector<Renderer*> renderers;
 
   void clearDrawQueues();
@@ -50,7 +44,7 @@ public:
   int mouseX, mouseY;
 
   int selectedTileX = 0, selectedTileY = 0;
-  Tile selectedTileData;
+  SCM selectedTileData;
 
   void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
   void setTileAt(int x, int y);
@@ -59,11 +53,6 @@ public:
 
   void loadSprite(const char *path);
   void loadAnimation(const char *path, int frameCount, int frameLifetime = 25);
-
-
-
-  Tilesetcontainer *firstLoadedTileset = nullptr;
-  std::vector<Tile*>* tiles = new std::vector<Tile*>;
 
   // Goddammit
   Renderer *map_view, *tilesetView;
@@ -74,14 +63,6 @@ public:
   
   /* BUT because guile_layer needs to access here too, we're forced to singleton this */
   static editorController *instance;
-
-  static editorController* getInstance();
-
-  // Stuff between here and private: probably needs removing
-  Renderer* ctx_provider = nullptr;
-
-  QOpenGLFunctions_4_3_Core* getGlFns();
-  void freeCtx();
 
   void saveTo(QString filename);
   void loadFrom(QString filename);

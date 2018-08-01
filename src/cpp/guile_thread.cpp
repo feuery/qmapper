@@ -7,29 +7,34 @@
 
 #include <loader.h>
 
+static void trolo(void* lol) {
+  puts("gsubrit luotu!");
+}
+
 // TODO make a real c-guile-registration system
 static void* register_functions(void* data) {
-  scm_c_define_gsubr("add-map!", 3, 0, 0, reinterpret_cast<scm_t_subr>(add_map));
+  // auto module = scm_c_define_module("qmapper-c", &trolo, NULL); 
+  // scm_c_resolve_module
+  // scm_set_current_module(module);
+
+    scm_c_define_gsubr("add-map!", 3, 0, 0, reinterpret_cast<scm_t_subr>(add_map));
   scm_c_define_gsubr("add-layer!", 1, 0, 0, reinterpret_cast<scm_t_subr>(add_layer));
   scm_c_define_gsubr("delete-layer!", 2, 0, 0, reinterpret_cast<scm_t_subr>(delete_layer));
   scm_c_define_gsubr("add-glsl-script!", 0, 0, 0, reinterpret_cast<scm_t_subr>(add_glsl_script));
   scm_c_define_gsubr("add-scheme-script!", 0, 0, 0, reinterpret_cast<scm_t_subr>(add_scheme_script));
   scm_c_define_gsubr("resize-current-map!", 4, 0, 0, reinterpret_cast<scm_t_subr>(resize_current_map));
   scm_c_define_gsubr("toggle-rendering!", 0, 0, 0, reinterpret_cast<scm_t_subr>(toggle_rendering));
-  scm_c_define_gsubr("print-json!", 1, 0, 0, reinterpret_cast<scm_t_subr>(print_json));
 
   scm_c_define_gsubr("load-sprite!", 1, 0, 0, reinterpret_cast<scm_t_subr>(load_sprite));
   scm_c_define_gsubr("load-animation!", 3, 0, 0, reinterpret_cast<scm_t_subr>(load_animation));
   scm_c_define_gsubr("key-down?", 1, 0, 0, reinterpret_cast<scm_t_subr>(keyDown));
   scm_c_define_gsubr("get-mouse", 0, 0, 0, reinterpret_cast<scm_t_subr>(getMouse));
   scm_c_define_gsubr("get-mouse-buttons", 0, 0, 0, reinterpret_cast<scm_t_subr>(getMouseButtonState));
-  scm_c_define_gsubr("get-prop", 3, 0, 0, reinterpret_cast<scm_t_subr>(getProp));
-  scm_c_define_gsubr("set-prop", 4, 0, 0, reinterpret_cast<scm_t_subr>(setProp));
   scm_c_define_gsubr("add-event", 4, 0, 0, reinterpret_cast<scm_t_subr>(addEvent));
   scm_c_define_gsubr("scm-puts", 1, 0, 0, reinterpret_cast<scm_t_subr>(qscm_puts));
 
-  scm_c_define_gsubr("render-object!", 1, 0, 0, reinterpret_cast<scm_t_subr>(render_obj));
   scm_c_define_gsubr("MsTime", 0, 0, 0, reinterpret_cast<scm_t_subr>(MsTime));
+  scm_c_define_gsubr("register-fn!", 2, 0,0, reinterpret_cast<scm_t_subr>(register_fn)); 
     
   return NULL;
 }
@@ -447,12 +452,15 @@ void Guile_Thread::run() {
   };
 
 
-  scm_c_primitive_load((QCoreApplication::applicationDirPath() +"/"+"./qmapper_std.scm").toStdString().c_str());
-
+  scm_c_primitive_load((QCoreApplication::applicationDirPath() +"/"+"./qmapper_std.scm").toStdString().c_str()); 
+  puts("Loading scheme models");
   for(std::string &strr: models) {
+    printf("Loading %s\n", strr.c_str());
     QString str = strr.c_str();
     scm_c_primitive_load((QCoreApplication::applicationDirPath() +"/"+"./"+str+".scm").toStdString().c_str());
   }
+
+  running = true;
   
   scm_shell(argc, argv);
 }

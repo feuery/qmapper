@@ -1,7 +1,0 @@
-(defcppclass resize_data ("<resize-enums.h>")
-  (public
-   (properties
-    (int new_width 0)
-    (int new_height 0)
-    (verticalAnchor vertical_anchor TOP)
-    (horizontalAnchor horizontal_anchor LEFT)))) 

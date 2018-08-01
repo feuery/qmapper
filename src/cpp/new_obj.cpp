@@ -1,12 +1,11 @@
 #include <new_obj.h>
-#include <script.h>
 
 #include <QImage>
 
 #include <editorController.h>
-#define GL_GLEXT_PROTOTYPES
+// #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
-#include <GL/glext.h>
+// #include <GL/glext.h>
 
 void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader)
 {
@@ -112,21 +111,27 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
 }
 
 std::string getScript(std::string id) {
-  Script *obj = toScript(editorController::instance->document.fetchRegister("Script", id));
-  if(!obj) {
-    puts("Obj is null");
-    throw "";
-  }
-  else {
-    return obj->getContents();
-  }
+  static SCM fetchRegister = scm_c_lookup("root-fetchRegister"),
+    fetchContents = scm_c_lookup("Script-contents");
+  SCM script = scm_call_2(editorController::instance->document,
+			  scm_from_locale_string("Script"),
+			  scm_from_locale_string(id.c_str()));
+  
+  SCM res = scm_call_1(fetchContents, script);
+  const char *res_1 = scm_to_locale_string(res);
+  return res_1;
 }
 
 GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 {
+  static SCM stdFrag = scm_c_lookup("root-contents-StdFragment");
+  static SCM stdVertex = scm_c_lookup("root-contents-StdVertex");
+  static SCM tileViewFrag = scm_c_lookup("root-contents-StdTileviewFragShader");
+
   // fml and c's string handling
-  auto v_c_smells = getScript(ec->indexOfStdVertexShader),
-    fr_c_smells = getScript(ec->indexOfStdFragmentShader);
+  std::string v_c_smells(scm_to_locale_string(scm_call_1(stdVertex, ec->document))),
+    fr_c_smells(scm_to_locale_string(scm_call_1(stdFrag, ec->document)));
+
 
   const char *v_lol = v_c_smells.c_str();
   const char *f_lol = fr_c_smells.c_str();
@@ -240,14 +245,12 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
 obj::obj(Renderer *r, const char *texture_path,  bool skipTexture): parent(r)
 {
   auto ec = editorController::instance;
-  auto fns = r->getGlFns();
+  auto fns = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
 
   texture = !skipTexture? load_texture(fns, texture_path, &text_w, &text_h): 0;
   if(skipTexture)
     qDebug() << "skipTexture is false. Object might not render";
   prepare(fns, r, ec);
-
-  r->freeCtx();
 }
 
 obj::~obj()
@@ -337,23 +340,23 @@ void obj::render()
 
 void obj::reload_shaders(QOpenGLFunctions_4_3_Core *f, std::string vertexId, std::string fragmentId)
 {
-  editorController *ec = editorController::instance;
-  shader = createShader(f, toScript(ec->document.fetchRegister("Script", vertexId))->getContents().c_str(),
-			toScript(ec->document.fetchRegister("Script", fragmentId))->getContents().c_str());
+  puts("REIMPLEMENT");
+//   editorController *ec = editorController::instance;
+//   shader = createShader(f, toScript(ec->document.fetchRegister("Script", vertexId))->getContents().c_str(),
+// 			toScript(ec->document.fetchRegister("Script", fragmentId))->getContents().c_str());
 }
 
 bool obj::load_new_texture(const char *path, Renderer *r)
 {
-  auto fns = r->getGlFns();
+  auto fns = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   texture = load_texture(fns, path, &text_w, &text_h); 
-  r->freeCtx();
   return true;
 }
 
 obj* obj::make(Renderer *parent, QImage img, std::string id) {
 
   for(Renderer *r: editorController::instance->renderers) {
-    auto f = r->getGlFns();
+    auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
 
     qDebug()<<"Preparing obj " << id.c_str() << " for parent" << r->name.c_str();
     
@@ -361,7 +364,6 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
     o->id = id;
     o->qi_copied = true;
     r->setOwnObject(id, o);
-    r->freeCtx();
   }
 
   // These are always producing objs so this is a safe cast

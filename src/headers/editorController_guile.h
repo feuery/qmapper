@@ -3,7 +3,6 @@
 
 #include <libguile.h>
 #include <editorController.h>
-#include <mapContainer.h>
 #include <guile_qt_keymapping.h>
 
 extern "C" {
@@ -14,7 +13,6 @@ extern "C" {
   SCM add_scheme_script();
   SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor);
   SCM toggle_rendering();
-  SCM print_json(SCM type, SCM id);
 
   SCM load_sprite(SCM s_path);
   SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime);
@@ -24,12 +22,11 @@ extern "C" {
   SCM getMouse();
   SCM getMouseButtonState();
 
-  SCM getProp(SCM id, SCM type, SCM propname);
-  SCM setProp(SCM id, SCM type, SCM propname, SCM value);
   SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda);
   SCM qscm_puts(SCM str);
 
-  SCM render_obj(SCM obj_ptr);
+  SCM register_fn(SCM name, SCM fn);
+  SCM get_fn(const char *name);
 
   SCM MsTime();
 }

@@ -9,7 +9,7 @@ public:
 
   void run();
 
-  bool running = true;
+  bool running = false;
   
 private:
 

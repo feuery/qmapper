@@ -21,6 +21,9 @@ public:
 private:
   std::vector<std::vector<bool>> mouse_map;
 };
+
+SCM getChosenMap();
+
 #else
 
 class Tool;

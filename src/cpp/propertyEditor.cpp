@@ -4,75 +4,55 @@
 #include <limits>
 #include <QComboBox>
 #include <QCheckBox>
-#include <root.h>
 #include <editorController.h>
 
-#include <script-types.h>
 #include <tilelistmodel.h>
 #include <either.h>
-#include <script.h>
-#include <tileset.h>
-#include <tilesetContainer.h>
 #include <QDoubleValidator>
+#include <QStandardItemModel>
 
-either<bool, std::string> getStringProp(Propertierbase* base, std::string internedPropname) {
-  if(internedPropname == "Id") return {true, base->getId()};
-  
-  std::string lol;
-  bool success = false;
-  either<bool, std::string> result;
-  result.b = base->get(internedPropname, &success, lol);
-  result.a = success;
-  return result;
-}
-
-either<bool, bool> getBoolProp(Propertierbase* base, std::string internedPropname) { 
-  bool success = false;
-  either<bool, bool> result;
-  result.b = base->get(internedPropname, &success, success);
-  result.a = success;
-  return result;
-}
-
-template<typename T>
-either<bool, T> getNumericProp(Propertierbase* base, std::string internedPropname) {
-  T t;
-  bool success = false;
-  either<bool, T> result;
-  result.b = base->get(internedPropname, &success, t);
-  result.a = success;
-  return result;
-}
-
-either<bool, std::string> getScriptTypeAsString(Propertierbase *base, std::string internedPropname) {
-  scriptTypes type = glsl;
-  either<bool, std::string> result;
-  switch(base->get(internedPropname, &result.a, type)) {
-  case glsl:
-    result.b = "glsl";
-    break;
-  case scheme:
-    result.b = "scheme";
-    break;
-  }
-  return result;
-}
-  
-
-void Propertyeditor::editingStdStringFinished(Propertierbase *base, std::string internedPropname, QLineEdit *edit)
+std::string getStringProp(SCM base, std::string internedPropname)
 {
-  base->set(internedPropname, edit->text().toStdString());
-  std::string errors = base->getErrorsOf(internedPropname);
-  if(QLabel *l = field_errorlabel_mapping[internedPropname]) {
-    l->setText(QString(errors.c_str()));
-  }
-  else
-    printf("No error-label found for %s\n", internedPropname.c_str());
-  base->clearErrorsOf(internedPropname);
+  return scm_to_locale_string(get(base, internedPropname.c_str()));
 }
 
-template <typename T>
-void editingNmbrStringFinished(Propertierbase *base, std::string propName, QLineEdit *l) {
+bool getBoolProp(SCM base, std::string internedPropname)
+{ 
+  return scm_is_true(get(base, internedPropname.c_str())) == 1;
+}
+
+int getIntProp(SCM base, std::string internedPropname)
+{
+  return scm_to_int(get(base, internedPropname.c_str()));
+}
+
+double getDoubleProp(SCM base, std::string internedPropname)
+{
+  return scm_to_double(get(base, internedPropname.c_str()));
+}
+
+std::string getScriptTypeAsString(SCM base, std::string internedPropname)
+{
+  static SCM scriptType = scm_c_lookup("Script-script_type");
+  const char *toret = scm_to_locale_string(scm_symbol_to_string(get(base, internedPropname.c_str())));
+  return std::string(toret);
+}
+  
+
+void Propertyeditor::editingStdStringFinished(SCM &base, std::string internedPropname, QLineEdit *edit)
+{
+  base = set(base, internedPropname.c_str(), scm_from_locale_string(edit->text().toStdString().c_str()));
+  puts("TODO error handling is not done");
+  // std::string errors = base->getErrorsOf(internedPropname);
+  // if(QLabel *l = field_errorlabel_mapping[internedPropname]) {
+  //   l->setText(QString(errors.c_str()));
+  // }
+  // else
+  //   printf("No error-label found for %s\n", internedPropname.c_str());
+  // base->clearErrorsOf(internedPropname);
+}
+
+void editingIntNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l) {
   QString t = l->text();
 
   bool canConvert = false;
@@ -83,16 +63,33 @@ void editingNmbrStringFinished(Propertierbase *base, std::string propName, QLine
     return;
   }
 
-  T val = (T)i;
+  int val = (int)i;
   qDebug() << "Setting " << propName.c_str() << " to " << val;
-  base->set(propName, val);
+  base = set(base, propName.c_str(), scm_from_int(val));
 }
 
-void editingBoolFinished(Propertierbase *base, std::string propname, bool checked) {
-  base->set(propname, checked);
+void editingNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l) {
+  QString t = l->text();
+
+  bool canConvert = false;
+  int i = t.toInt(&canConvert);
+
+  if(!canConvert) {
+    qDebug() << "Can't convert property " << propName.c_str() << "with value " << t << " to int";
+    return;
+  }
+
+  double val = (double)i;
+  qDebug() << "Setting " << propName.c_str() << " to " << val;
+  base = set(base, propName.c_str(), scm_from_double(val));
 }
 
-QStandardItemModel* dump_to_model(verticalAnchor v_a) {
+void editingBoolFinished(SCM &base, std::string propname, bool checked) {
+  base = set(base, propname.c_str(), scm_from_bool(checked));
+}
+
+QStandardItemModel* dump_to_model_vertical()
+{
   QStandardItemModel *model = new QStandardItemModel;
 
   QStandardItem *empty = new QStandardItem("Empty");
@@ -100,20 +97,21 @@ QStandardItemModel* dump_to_model(verticalAnchor v_a) {
 
   QStandardItem *m = new QStandardItem("Top");
   QVariant var;
-  var.setValue(TOP);
+  var.setValue(QString("TOP"));
   m->setData(var);
   model->appendRow(m);
 
   m = new QStandardItem("Bottom");
   QVariant var2;
-  var2.setValue(BOTTOM);
+  var2.setValue(QString("BOTTOM"));
   m->setData(var2);
   model->appendRow(m);
 
   return model;
 }
 
-QStandardItemModel* dump_to_model(horizontalAnchor v_a) {
+QStandardItemModel* dump_to_model_horizontal()
+{
   QStandardItemModel *model = new QStandardItemModel;
 
   QStandardItem *empty = new QStandardItem("Empty");
@@ -121,326 +119,292 @@ QStandardItemModel* dump_to_model(horizontalAnchor v_a) {
 
   QStandardItem *m = new QStandardItem("Left");
   QVariant var;
-  var.setValue(LEFT);
+  var.setValue(QString("LEFT"));
   m->setData(var);
   model->appendRow(m);
 
   m = new QStandardItem("Right");
   QVariant var2;
-  var2.setValue(RIGHT);
+  var2.setValue(QString("RIGHT"));
   m->setData(var2);
   model->appendRow(m);
 
   return model;
 }
 
-QStandardItemModel* dump_to_model(std::vector<Propertierbase*>* prop_objs)
-{
-  if(!prop_objs) {
-    qDebug() << "prop_objs is null at " << __FILE__ << ": " << __LINE__;
-    throw "";
-  }
-  QStandardItemModel *model = new QStandardItemModel;
+// QStandardItemModel* dump_to_model(std::vector<SCM>* prop_objs)
+// {
+//   if(!prop_objs) {
+//     qDebug() << "prop_objs is null at " << __FILE__ << ": " << __LINE__;
+//     throw "";
+//   }
+//   QStandardItemModel *model = new QStandardItemModel;
 
-  QStandardItem *empty = new QStandardItem("Empty");
-  model->appendRow(empty);
+//   QStandardItem *empty = new QStandardItem("Empty");
+//   model->appendRow(empty);
 
-  for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
-    either<bool, std::string> result = getStringProp(*m, std::string(std::string("name")));
+//   for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
+//     either<bool, std::string> result = getStringProp(*m, std::string(std::string("name")));
     
-    QStandardItem *map_item = new QStandardItem(result.b.c_str());
-    QVariant var;
-    var.setValue(*m);
-    map_item->setData(var);
-    model->appendRow(map_item);
-  }
+//     QStandardItem *map_item = new QStandardItem(result.b.c_str());
+//     QVariant var;
+//     var.setValue(*m);
+//     map_item->setData(var);
+//     model->appendRow(map_item);
+//   }
 
-  return model;
+//   return model;
+// }
+
+std::vector<std::string> keys(SCM b)
+{
+    static SCM keys = scm_c_lookup("keys-str");
+    static SCM list_ref = scm_c_lookup("list-ref");
+    static SCM len = scm_c_lookup("length");
+    
+    SCM k_res = scm_call_1(keys, b);
+    int length = scm_to_int(scm_call_1(len, k_res));
+
+    std::vector<std::string> result;
+    for(int i = 0; i < length; i++) {
+      std::string str(scm_to_locale_string(scm_call_2(list_ref,
+						      k_res,
+						      scm_from_int(i))));
+      result.push_back(str);
+    }
+    return result;
 }
 
-static void indexChanged(Propertierbase *b, std::string internedPropName, Propertierbase *editedObject)
+static void indexChanged(SCM &b, std::string internedPropName, SCM editedObject)
 {
-  editedObject->set(internedPropName, b);
+  b = set(b, internedPropName.c_str(), editedObject);
 
-  // if(b->type_identifier() == std::string("Script") &&
-  //    editedObject->type_identifier() == std::string("Tileset") &&
-  //    toScript(b)->getScript_type() == glsl) {
-  //   tilesetContainer *t = static_cast<tilesetContainer*>(editedObject);
-  //   auto f = editorController::instance->getGlFns();
-  //   static_cast<obj*>(t)->reload_shaders(f, t->getVertexshader()->getId(), t->getFragmentshader()->getId());
-  // }
-  
   qDebug()<<"Successfully changed " << internedPropName.c_str();
 }
 
-QFormLayout* Propertyeditor::makeLayout(Propertierbase *base) {
+QFormLayout* Propertyeditor::makeLayout(SCM base) {
+
   QFormLayout *data = new QFormLayout;
 
-  std::vector<std::string> properties = base->names();
+  std::vector<std::string> properties = keys(base);
 
-  for(int i =0; i<base->property_count(); i++) {
-    std::string type = base->type_name(properties.at(i));
+  static SCM str = scm_c_lookup("prop-str?");
+  static SCM list = scm_c_lookup("prop-list?");
+  static SCM prop_number = scm_c_lookup("prop-number?");
+  static SCM prop_bool = scm_c_lookup("prop-bool?");
+  static SCM prop_float = scm_c_lookup("prop-float?");
+  static SCM prop_sym = scm_c_lookup("prop-sym?");
 
-    if(type.find("std::vector") != std::string::npos) continue;
+  for(int i =0; i<properties.size(); i++) {
+
+    if(scm_is_true(scm_call_2(list, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1)
+      continue;
     
-    if(type == std::string("std::string")) {
+    if(scm_is_true(scm_call_2(str,
+			      base,
+			      scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
       auto any = getStringProp(base, properties.at(i));
-      QLineEdit *edit = any.a ? new QLineEdit(QString(any.b.c_str()), this):
-	new QLineEdit("Failed getting prop", this);
+      QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { if(any.a) editingStdStringFinished(base, properties.at(i), edit); });
+      	      [&]() { editingStdStringFinished(base, properties.at(i), edit); });
 
       std::string fieldName = properties.at(i);
-      std::string errors = base->getErrorsOf(fieldName);
+      // std::string errors = base->getErrorsOf(fieldName);
 
-      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
-      error_field->setStyleSheet("QLabel { color: red; }");
+      // QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      // error_field->setStyleSheet("QLabel { color: red; }");
 
-      field_errorlabel_mapping[properties.at(i)] = error_field;
+      // field_errorlabel_mapping[properties.at(i)] = error_field;
       
       data->addRow(QString(properties.at(i).c_str()), edit);
-      data->addRow(QString(""), error_field);
+      // data->addRow(QString(""), error_field);
     }
-    else if (type == "bool") {
-      auto result = getBoolProp(base, properties.at(i));
+    else if (scm_is_true(scm_call_2(prop_bool, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+      bool b = getBoolProp(base, properties.at(i));
 
-      if(!result.a) {
-	qDebug() << "Couldn't get bool prop " << properties.at(i).c_str();
-	throw "";
-      }
-
-      bool b = result.b;
       QCheckBox *cb = new QCheckBox(properties.at(i).c_str(), this);
       cb->setCheckState(b ? Qt::Checked: Qt::Unchecked);
 
       connect(cb, &QCheckBox::stateChanged,
-	      [=](int state) { if(result.a) editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
+	      [&](int state) { editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
 
       data->addRow("", cb);
       
     }
     // This probably could be macrofied for all the numeric types
-    else if (type == "unsigned char") {
-      auto result = getNumericProp<unsigned char>(base, properties.at(i));
-
-      if(!result.a) {
-	qDebug() << "Couldn't find unsigned char - prop " << properties.at(i).c_str();
-	throw "";
-      }
-
-      int v = result.b;
+    else if (scm_is_true(scm_call_2(prop_number, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+      int v = getIntProp(base, properties.at(i));
       
-      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
-	new QLineEdit("Failed getting prop", this);
+      QLineEdit *edit = new QLineEdit(QString::number(v), this);
 
-      edit->setValidator(new QIntValidator(0, 255, this));
+      // edit->setValidator(new QIntValidator(0, 255, this));
 
       connect(edit, &QLineEdit::editingFinished,
-	      [=]() { if(result.a) editingNmbrStringFinished<unsigned char>(base, properties.at(i), edit); });
+	      [&]() { editingNmbrStringFinished(base, properties.at(i), edit); });
 
       std::string fieldName = properties.at(i);
-      std::string errors = base->getErrorsOf(fieldName);
+      // std::string errors = base->getErrorsOf(fieldName);
 
-      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
-      error_field->setStyleSheet("QLabel { color: red; }");
+      // QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      // error_field->setStyleSheet("QLabel { color: red; }");
 
-      field_errorlabel_mapping[properties.at(i)] = error_field;
+      // field_errorlabel_mapping[properties.at(i)] = error_field;
       
       data->addRow(QString(properties.at(i).c_str()), edit);
-      data->addRow(QString(""), error_field);
+      // data->addRow(QString(""), error_field);
     }
-    else if (type == "int") {
-      auto result = getNumericProp<int>(base, properties.at(i));
-
-      if(!result.a) {
-	qDebug() << "Couldn't find int - prop " << properties.at(i).c_str();
-	throw "";
-      }
-
-      int v = result.b;
+    else if (scm_is_true(scm_call_2(prop_float, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+      double v = getDoubleProp(base, properties.at(i));
       
-      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
-	new QLineEdit("Failed getting prop", this);
-
-      edit->setValidator(new QIntValidator(0, INT_MAX, this));
-
-      connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { if(result.a) {
-		  qDebug() << "Basen tyyppi: " << base->type_identifier().c_str();
-		  editingNmbrStringFinished<int>(base, properties.at(i), edit);
-		}});
-
-      std::string fieldName = properties.at(i);
-      std::string errors = base->getErrorsOf(fieldName);
-
-      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
-      error_field->setStyleSheet("QLabel { color: red; }");
-
-      field_errorlabel_mapping[properties.at(i)] = error_field;
-      
-      data->addRow(QString(properties.at(i).c_str()), edit);
-      data->addRow(QString(""), error_field);
-    }
-    else if (type == "float") {
-      auto result = getNumericProp<float>(base, properties.at(i));
-
-      if(!result.a) {
-	qDebug() << "Couldn't find float - prop " << properties.at(i).c_str();
-	throw "";
-      }
-
-      float v = result.b;
-      
-      QLineEdit *edit = result.a? new QLineEdit(QString::number(v), this):
-	new QLineEdit("Failed getting prop", this);
+      QLineEdit *edit = new QLineEdit(QString::number(v), this);
 
       // edit->setValidator(new QDoubleValidator(std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), 15, this));
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { if(result.a) {
-		  qDebug() << "Basen tyyppi: " << base->type_identifier().c_str();
-		  editingNmbrStringFinished<float>(base, properties.at(i), edit);
-		}});
+      	      [&]() { 
+		  editingNmbrStringFinished(base, properties.at(i), edit);
+		});
 
       std::string fieldName = properties.at(i);
-      std::string errors = base->getErrorsOf(fieldName);
+      // std::string errors = base->getErrorsOf(fieldName);
 
-      QLabel *error_field = new QLabel(QString(errors.c_str()), this);
-      error_field->setStyleSheet("QLabel { color: red; }");
+      // QLabel *error_field = new QLabel(QString(errors.c_str()), this);
+      // error_field->setStyleSheet("QLabel { color: red; }");
 
-      field_errorlabel_mapping[properties.at(i)] = error_field;
+      // field_errorlabel_mapping[properties.at(i)] = error_field;
       
       data->addRow(QString(properties.at(i).c_str()), edit);
-      data->addRow(QString(""), error_field);
+      // data->addRow(QString(""), error_field);
     }
-    else if(type == "scriptTypes") {
-      auto scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
-      QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
+    else if(scm_is_true(scm_call_2(prop_sym, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+      std::string scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
+      QLabel *lbl = new QLabel(scriptTypeResult.c_str());
       data->addRow(QString(properties.at(i).c_str()), lbl);
     }
-    else if(type == "std::string") {
-      auto scriptTypeResult = getStringProp(base, properties.at(i));
-      QLabel *lbl = new QLabel((scriptTypeResult.a ? scriptTypeResult.b: "Error fetching value").c_str());
+    else if(scm_is_true(scm_call_2(str, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+      std::string scriptTypeResult = getStringProp(base, properties.at(i));
+      QLabel *lbl = new QLabel(scriptTypeResult.c_str());
       data->addRow(QString(properties.at(i).c_str()), lbl);
     }
-    else if(type == "verticalAnchor") {
-      verticalAnchor lol = TOP;
-      bool succ = false;
-      verticalAnchor currentVal = base->get(properties.at(i), &succ, lol);
-      std::string propName = properties.at(i);
+    // else if(type == "verticalAnchor") {
+    //   verticalAnchor lol = TOP;
+    //   bool succ = false;
+    //   verticalAnchor currentVal = base->get(properties.at(i), &succ, lol);
+    //   std::string propName = properties.at(i);
 
-      QComboBox *cb = new QComboBox(this);
-      QStandardItemModel *m = dump_to_model(TOP);
-      cb->setModel(m);
+    //   QComboBox *cb = new QComboBox(this);
+    //   QStandardItemModel *m = dump_to_model(TOP);
+    //   cb->setModel(m);
 
-      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-	      [=](int index) {
-		index--;
-		if(index >= 0) {
-		  verticalAnchor ha = (verticalAnchor)index;
+    //   connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    // 	      [=](int index) {
+    // 		index--;
+    // 		if(index >= 0) {
+    // 		  verticalAnchor ha = (verticalAnchor)index;
 		  
-		  base->set(propName, ha);
-		}
-		else qDebug() << "index < 0";
-	      });
+    // 		  base->set(propName, ha);
+    // 		}
+    // 		else qDebug() << "index < 0";
+    // 	      });
 
-      QVariant v;
-      v.setValue(currentVal);
-      int index = cb->findData(v);
-      if(index > -1) cb->setCurrentIndex(index);
-      else qDebug() << "No valid index found for verticalAnchor";
+    //   QVariant v;
+    //   v.setValue(currentVal);
+    //   int index = cb->findData(v);
+    //   if(index > -1) cb->setCurrentIndex(index);
+    //   else qDebug() << "No valid index found for verticalAnchor";
 
-      data->addRow(QString(properties.at(i).c_str()), cb);
-    }
-    else if(type == "horizontalAnchor") {
-      horizontalAnchor lol = LEFT;
-      bool succ = false;
-      horizontalAnchor currentVal = base->get(properties.at(i), &succ, lol);
-      std::string propName = properties.at(i);
+    //   data->addRow(QString(properties.at(i).c_str()), cb);
+    // }
+    // else if(type == "horizontalAnchor") {
+    //   horizontalAnchor lol = LEFT;
+    //   bool succ = false;
+    //   horizontalAnchor currentVal = base->get(properties.at(i), &succ, lol);
+    //   std::string propName = properties.at(i);
 
-      QComboBox *cb = new QComboBox(this);
-      QStandardItemModel *m = dump_to_model(lol);
-      cb->setModel(m);
+    //   QComboBox *cb = new QComboBox(this);
+    //   QStandardItemModel *m = dump_to_model(lol);
+    //   cb->setModel(m);
 
-      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-	      [=](int index) {
-		index--;
-		if(index >= 0) {
-		  horizontalAnchor ha = (horizontalAnchor)index;
+    //   connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+    // 	      [=](int index) {
+    // 		index--;
+    // 		if(index >= 0) {
+    // 		  horizontalAnchor ha = (horizontalAnchor)index;
 		  
-		  base->set(propName, ha);
-		}
-		else qDebug() << "index < 0";
-	      });
+    // 		  base->set(propName, ha);
+    // 		}
+    // 		else qDebug() << "index < 0";
+    // 	      });
 
-      QVariant v;
-      v.setValue(currentVal);
-      int index = cb->findData(v);
-      if(index > -1) cb->setCurrentIndex(index);
-      else qDebug() << "No valid index found for horizontalAnchor";
+    //   QVariant v;
+    //   v.setValue(currentVal);
+    //   int index = cb->findData(v);
+    //   if(index > -1) cb->setCurrentIndex(index);
+    //   else qDebug() << "No valid index found for horizontalAnchor";
 
-      data->addRow(QString(properties.at(i).c_str()), cb);
-    }
+    //   data->addRow(QString(properties.at(i).c_str()), cb);
+    // }
     else {
-      root *r = &editorController::instance->document;
+      puts("löl");
+      // SCM r = &editorController::instance->document;
 
-      Propertierbase *currentValue = base->get(properties.at(i));
-      either<bool, std::string> nameResult;
-      if (currentValue) {
-	nameResult = getStringProp(currentValue, "name");
-      }
-      else {
-	nameResult = {true, "Empty"};
-      }
-      if(!nameResult.a) continue;
+      // SCM currentValue = get(base, properties.at(i).c_str());
+      // std::string nameResult;
+      // if (currentValue) {
+      // 	nameResult = getStringProp(currentValue, "name");
+      // }
+      // else {
+      // 	nameResult = "Empty";
+      // }
       
-      std::vector<Propertierbase*>* kids = r->registryOf(type);
-      if(!kids) {
-	qDebug() << "Kids of " << type.c_str() << " is null at " << __FILE__ << ": " << __LINE__;
-	throw "";
-      }
+      // std::vector<SCM>* kids = r->registryOf(type);
+      // if(!kids) {
+      // 	qDebug() << "Kids of " << type.c_str() << " is null at " << __FILE__ << ": " << __LINE__;
+      // 	throw "";
+      // }
 
-      QComboBox *cb = new QComboBox(this);
-      QStandardItemModel *m = dump_to_model(kids);
-      cb->setModel(m);
+      // QComboBox *cb = new QComboBox(this);
+      // QStandardItemModel *m = dump_to_model(kids);
+      // cb->setModel(m);
       
-      int index = cb->findText(nameResult.b.c_str());
-      if(index > -1) cb->setCurrentIndex(index);
-      else qDebug() << "No valid index found for " << nameResult.b.c_str();
+      // int index = cb->findText(nameResult.b.c_str());
+      // if(index > -1) cb->setCurrentIndex(index);
+      // else qDebug() << "No valid index found for " << nameResult.b.c_str();
       
-      connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
-	      [&](int index) {
-		index--;
-		if(index >= 0) {
-		  Propertierbase *b = kids->at(index);
-		  if(!b) {
-		    qDebug() << "invalid b in QComboBox::currentIndexChanged";
-		    return;
-		  }
+      // connect(cb, static_cast<void(QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+      // 	      [&](int index) {
+      // 		index--;
+      // 		if(index >= 0) {
+      // 		  Propertierbase *b = kids->at(index);
+      // 		  if(!b) {
+      // 		    qDebug() << "invalid b in QComboBox::currentIndexChanged";
+      // 		    return;
+      // 		  }
 
-		  indexChanged(b, properties.at(i), base);
-		}
-		else indexChanged(nullptr, properties.at(i), base);
-	      });
+      // 		  indexChanged(b, properties.at(i), base);
+      // 		}
+      // 		else indexChanged(nullptr, properties.at(i), base);
+      // 	      });
 	      
-      data->addRow(QString(properties.at(i).c_str()), cb);
+      // data->addRow(QString(properties.at(i).c_str()), cb);
     }
   }
 
   return data;
 }
 
-void Propertyeditor::resetLayout(Propertierbase *base) {
-  root *r = &editorController::instance->document;
-  auto reg = r->registryToList();
+void Propertyeditor::resetLayout(SCM base) {
+  SCM r = editorController::instance->document;
+  SCM regToList = scm_c_lookup("root-registryToList");
+  auto reg = scm_call_1(regToList, r);
   l = new QVBoxLayout;
   
   data = makeLayout(base);
 
-  data->addRow(QString("Row: "),
-	       new QLabel(QString(std::to_string(indexOf<Propertierbase*>(&reg, base)).c_str()), this));
-  data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
+  // data->addRow(QString("Row: "),
+  // 	       new QLabel(QString(std::to_string(indexOf<SCM>(&reg, base)).c_str()), this));
+  // data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
   
   QHBoxLayout *buttons = new QHBoxLayout;
 
@@ -457,7 +421,7 @@ void Propertyeditor::resetLayout(Propertierbase *base) {
     });
 }
 
-Propertyeditor::Propertyeditor(Propertierbase* base, QWidget *parent): QDialog(parent)
+Propertyeditor::Propertyeditor(SCM base, QWidget *parent): QDialog(parent)
 {  
   resetLayout(base);
     

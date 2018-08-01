@@ -1,3 +1,8 @@
+;; (define-module (qmapper-animated-sprite)
+;;   #:use-module (srfi srfi-1)
+;;   #:use-module (qmapper-std)
+;;   #:use-module (qmapper-c))
+
 (defcppclass animatedsprite
   (public
    (properties
@@ -33,4 +38,4 @@
 				   (set-animatedsprite-lastUpdated! (MsTime)))
 			       (this))))))
 
-(scm-puts "animatedsprite loaded")
+;; (scm-puts "animatedsprite loaded")

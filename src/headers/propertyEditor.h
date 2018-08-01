@@ -7,16 +7,16 @@
 #include <QFormLayout>
 #include <QLabel>
 #include <QPushButton>
-#include <propertierbase.h>
 #include <string>
 #include <QLineEdit>
 #include <unordered_map>
+#include <guile_fn.h>
 
 class Propertyeditor: public QDialog{
   Q_OBJECT
 public:
 
-  Propertyeditor(Propertierbase* base, QWidget *parent);
+  Propertyeditor(SCM base, QWidget *parent);
   ~Propertyeditor();
 
   virtual void showEvent(QShowEvent *e);
@@ -27,13 +27,13 @@ private:
 
   std::unordered_map<std::string, QLabel*> field_errorlabel_mapping;
 
-  QFormLayout* makeLayout(Propertierbase *base);
-  void resetLayout(Propertierbase *base);
+  QFormLayout* makeLayout(SCM base);
+  void resetLayout(SCM base);
 
   QFormLayout *data;
   QVBoxLayout *l;
 
-  void editingStdStringFinished(Propertierbase *base, std::string internedPropname, QLineEdit *edit);
+  void editingStdStringFinished(SCM &base, std::string internedPropname, QLineEdit *edit);
 
 };
 

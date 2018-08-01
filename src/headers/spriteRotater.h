@@ -2,7 +2,6 @@
 #define SPRITEROTATER_H
 
 #include <tool.h>
-#include <animatedSprite.h>
 
 class Spriterotater: public Tool{
 public:
@@ -12,7 +11,7 @@ public:
   virtual bool canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) override;
 private:
 
-  either<animatedsprite*, Sprite*> currentSprite;
+  SCM currentSprite;
 
 };
 

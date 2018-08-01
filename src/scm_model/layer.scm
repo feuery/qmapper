@@ -1,3 +1,8 @@
+;; (define-module (qmapper-layer)
+;;   #:use-module (srfi srfi-1)
+;;   #:use-module (qmapper-tile)
+;;   #:use-module (qmapper-std))
+
 (defcppclass Layer
   (public
    (properties
@@ -12,5 +17,9 @@
     (height ()
 	    (length (caar (Layer-tiles (this))))))))
 
-(scm-puts "Loaded layer")
-  
+(define-and-reg (make-tiles w h)
+  (repeatedly (lambda (x)
+		(repeatedly (lambda (y)
+			      (make-Tile 0 0 #f 0)) h)) w))
+
+;; (scm-puts "Loaded layer")

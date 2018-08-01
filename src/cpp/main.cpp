@@ -19,7 +19,6 @@ int main(int argc, char** argv)
   QSurfaceFormat::setDefaultFormat(format);
   
   MainWindow window(argc, argv);  // = new MainWindow(&app);
-  qRegisterMetaType<Propertierbase*>();
   window.setWindowState(window.windowState()|Qt::WindowMaximized);
   window.show();
   int r = app.exec();
