@@ -11,7 +11,7 @@ public:
   virtual bool canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) override;
 private:
 
-  SCM currentSprite;
+  cl_object currentSprite;
 
 };
 

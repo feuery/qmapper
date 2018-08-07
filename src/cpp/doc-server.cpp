@@ -2,6 +2,7 @@
 #include <QNetworkInterface>
 #include <editorController.h>
 #include <QRegExp>
+#include <guile_fn.h>
 
 document_server::document_server() {
   // Init tcp server and pair it to the sessionOpened() - slot
@@ -37,7 +38,7 @@ bool document_server::start_server() {
     ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
   
   QString msg = QString("The server is running on\n\nIP: %1\nport: %2")
-                   .arg(ipAddress).arg(server_socket->serverPort());
+    .arg(ipAddress).arg(server_socket->serverPort());
   QMessageBox::information(nullptr, "QMapper", msg);
   qDebug () << msg;
 
@@ -47,64 +48,64 @@ bool document_server::start_server() {
 void document_server::helloWorld()
 {
   QTcpSocket *clientCon = server_socket->nextPendingConnection();
-  static SCM findNs = scm_c_lookup("root-findNs");
-  static SCM saveNs = scm_c_lookup("root-saveNs");
-  static SCM is_glsl = scm_c_lookup("is-ns-glsl?");
-  static SCM is_scheme = scm_c_lookup("is-ns-scheme?");
+  static cl_object findNs = ecl_make_symbol("root-findNs", "CL-USER");
+  static cl_object saveNs = ecl_make_symbol("root-saveNs", "CL-USER");
+  static cl_object is_glsl = ecl_make_symbol("is-ns-glsl?", "CL-USER");
+  static cl_object is_scheme = ecl_make_symbol("is-ns-scheme?", "CL-USER");
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
-      QByteArray block;
-      // QDataStream out(&block, QIODevice::WriteOnly);
-      // out.setVersion(QDataStream::Qt_4_0);
+					      QByteArray block;
+					      // QDataStream out(&block, QIODevice::WriteOnly);
+					      // out.setVersion(QDataStream::Qt_4_0);
 
-      QByteArray array = clientCon->readAll();
-      QString str(array);
+					      QByteArray array = clientCon->readAll();
+					      QString str(array);
 
-      QStringList l = str.split(":");
-      if(l.size() > 0) {
-	QString protocol = l.at(0);
+					      QStringList l = str.split(":");
+					      if(l.size() > 0) {
+						QString protocol = l.at(0);
 
-	if(protocol == QString("NS")) {
-	  QString qns = l.at(1);
-	  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
+						if(protocol == QString("NS")) {
+						  QString qns = l.at(1);
+						  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
 
-	  std::string contents(scm_to_locale_string(scm_call_2(findNs,
-							       editorController::instance->document,
-							       scm_from_locale_string(ns.c_str()))));
-	  QString c(contents.c_str());
+						  std::string contents(ecl_string_to_string(cl_funcall(3, findNs,
+												       editorController::instance->document,
+												       c_string_to_object(ns.c_str()))));
+						  QString c(contents.c_str());
 
-	  QString firstLine = c.split(QString("\n")).at(0);
-	  bool this_scheme = scm_is_true(scm_call_2(is_scheme,
-						  editorController::instance->document,
-						  scm_from_locale_string(ns.c_str())));
+						  QString firstLine = c.split(QString("\n")).at(0);
+						  bool this_scheme = cl_funcall(3, is_scheme,
+										editorController::instance->document,
+										c_string_to_object(ns.c_str())) == ECL_T;
 						  
-	  // either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
-	  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
-	    (this_scheme? QString("; -*- mode: scheme; -*-\n"):
-	     QString("// -*- mode: glsl; -*-\n")) + c;
+						  // either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
+						  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
+						    (this_scheme? QString("; -*- mode: scheme; -*-\n"):
+						     QString("// -*- mode: glsl; -*-\n")) + c;
 	    
 
 
-	  qDebug() << "Found script " << c;
+						  qDebug() << "Found script " << c;
 
-	  clientCon->write(result.toUtf8());
-	}
-	else if (protocol == QString("SAVE-NS")) {
-	  std::string ns = l.at(1).toStdString();
-	  std::string contents = str.replace(l.at(0)+":"+l.at(1)+":", QString("")).toStdString();
-	  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
+						  clientCon->write(result.toUtf8());
+						}
+						else if (protocol == QString("SAVE-NS")) {
+						  std::string ns = l.at(1).toStdString();
+						  std::string contents = str.replace(l.at(0)+":"+l.at(1)+":", QString("")).toStdString();
+						  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
 	  
-	  editorController::instance->document = scm_call_3(saveNs,
-							    editorController::instance->document,
-							    scm_from_locale_string(ns.c_str()),
-							    scm_from_locale_string(contents.c_str()));
-	}
-	else qDebug() << "Didn't recognize protocol " << protocol;
-      }
-      else qDebug() << "No protocol part found in message " << str;
-      clientCon->disconnectFromHost();
+						  editorController::instance->document = cl_funcall(4, saveNs,
+												    editorController::instance->document,
+												    c_string_to_object(ns.c_str()),
+												    c_string_to_object(contents.c_str()));
+						}
+						else qDebug() << "Didn't recognize protocol " << protocol;
+					      }
+					      else qDebug() << "No protocol part found in message " << str;
+					      clientCon->disconnectFromHost();
       
-    });
+					    });
   
   connect(clientCon, &QAbstractSocket::disconnected,
 	  clientCon, &QObject::deleteLater);

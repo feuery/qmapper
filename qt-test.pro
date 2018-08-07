@@ -17,10 +17,12 @@ QT += network
 
 LIBS += -L/opt/local/lib
 LIBS += -lzip
+LIBS += -lecl
 OBJECTS = ./libzippp/obj/libzippp.o
-LIBS += `guile-config link`
+LIBS += `ecl-config --ldflags`
 
-QMAKE_CXXFLAGS += `guile-config compile`
+QMAKE_CXXFLAGS += `ecl-config --cflags`
+QMAKE_LFLAGS += `ecl-config --ldflags`
 
 DESTDIR = ./bin
 

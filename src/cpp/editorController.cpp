@@ -22,48 +22,52 @@ void editorController::registerWindow(MainWindow *w)
   this->w = w;
 }
 
-SCM make2DList(int w, int h, SCM val) {
-  SCM toret = scm_list_n(SCM_UNDEFINED);
-  for(int x = 0; x < w; x++) {
-    SCM l = scm_list_1(val);
-    for(int y = 1; y < h; y++) {
-      l = scm_append(scm_list_n(l, val, SCM_UNDEFINED));
-    }
-    toret = scm_append(scm_list_n(toret, l, SCM_UNDEFINED));
-  }
+cl_object make2DList(int w, int h, cl_object val) {
+  return ECL_NIL;
+  // SCM toret = scm_list_n(SCM_UNDEFINED);
+  // for(int x = 0; x < w; x++) {
+  //   SCM l = scm_list_1(val);
+  //   for(int y = 1; y < h; y++) {
+  //     l = scm_append(scm_list_n(l, val, SCM_UNDEFINED));
+  //   }
+  //   toret = scm_append(scm_list_n(toret, l, SCM_UNDEFINED));
+  // }
 
-  return toret;
+  // return toret;
 }
 
 void editorController::populateMaps() {
-  static SCM makeMap   = scm_c_lookup("make-Map");
-  static SCM makeLayer = scm_c_lookup("make-Layer");
-  static SCM makeTile  = scm_c_lookup("make-Tile");
-  static SCM setLayers = scm_c_lookup("set-Map-layers!");
-  static SCM pushMap   = scm_c_lookup("push-map");
+  static cl_object makeMap   = ecl_make_symbol("make-Map", "CL-USER");
+  static cl_object makeLayer = ecl_make_symbol("make-Layer", "CL-USER");
+  static cl_object makeTile  = ecl_make_symbol("make-Tile", "CL-USER");
+  static cl_object setLayers = ecl_make_symbol("set-Map-layers!", "CL-USER");
+  static cl_object pushMap   = ecl_make_symbol("push-map", "CL-USER");
   
   for(int i = 0; i < 3; i++) {
-    SCM m = scm_call_4(makeMap,
-		       scm_from_utf8_string((std::to_string(i)+"th map").c_str()),
-		       nullptr,
-		       nullptr,
-		       document);
+    cl_object m = cl_funcall(5,
+			     makeMap,
+			     c_string_to_object((std::to_string(i)+"th map").c_str()),
+			     ECL_NIL,
+			     ECL_NIL,
+			     document);
     for(int x = 0; x < 2; x++) {
       int w = 10 + 10 * x,
 	h   = 10 + 10 * x;
-      SCM l = scm_call_5(makeLayer,
-			 scm_from_utf8_string((std::to_string(x)+"th layer").c_str()),
-			 scm_from_int(255),
-			 SCM_BOOL_T,
-			 make2DList(w, h, scm_call_4(makeTile,
-						     0,
-						     0,
-						     0,
-						     0)),
-			 m);
-      m = scm_call_2(setLayers, m, l);
+      cl_object l = cl_funcall(6,
+			       makeLayer,
+			       c_string_to_object((std::to_string(x)+"th layer").c_str()),
+			       ecl_make_fixnum(255),
+			       ECL_T,
+			       make2DList(w, h, cl_funcall(5,
+							   makeTile,
+							   ecl_make_fixnum(0),
+							   ecl_make_fixnum(0),
+							   ecl_make_fixnum(0),
+							   ecl_make_fixnum(0))),
+			       m);
+      m = cl_funcall(3, setLayers, m, l);
     }
-    document = scm_call_2(pushMap, document, m);
+    document = cl_funcall(3, pushMap, document, m);
   }
 }
 
@@ -79,16 +83,21 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   t(new Pen)
 {// scm_c_lookup
   puts("Looking up scheme definitions in editorController::editorController");
-  qscm_puts(scm_from_utf8_string("Toimiiks tää paska?"));
-  // SCM pushScript_s = scm_from_utf8_symbol(// "qmapper-root",
+  // cl_object pushScript_s = scm_from_utf8_symbol(// "qmapper-root",
   // 					  );
-  SCM pushScript = scm_variable_ref(scm_lookup(scm_from_utf8_symbol("list" /*"push-script"*/)));
+  cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
 
-  SCM result = scm_call_5(pushScript, scm_from_int(0),scm_from_int(1),scm_from_int(2),scm_from_int(3),scm_from_int(4));
+  cl_object result = cl_funcall(6,
+				pushScript,
+				ecl_make_fixnum(0),
+				ecl_make_fixnum(1),
+				ecl_make_fixnum(2),
+				ecl_make_fixnum(3),
+				ecl_make_fixnum(4));
   puts("Meillä on result");
 
-  // SCM makeScript_s = scm_from_utf8_symbol("make-Script");
-  SCM makeScript = get_fn("make-Script");
+  // cl_object makeScript_s = ecl_make_symbol("make-Script", "CL-USER");
+  cl_object makeScript = get_fn("make-Script");
 
   if(instance) {
     puts("There already exists an editorController");
@@ -99,25 +108,26 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   documentTreeModel = new Tilelistmodel(document);
 
-  SCM scr = scm_call_4(makeScript,
-		       scm_from_utf8_string("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
-		       scm_from_utf8_string("Standard vertex shader"),
-		       scm_from_utf8_string("defaultVertex"),
-		       scm_from_utf8_symbol("glsl")); 
+  cl_object scr = cl_funcall(5,
+			     makeScript,
+			     c_string_to_object("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
+			     c_string_to_object("Standard vertex shader"),
+			     c_string_to_object("defaultVertex"),
+			     c_string_to_object("glsl")); 
   // document = scm_call_2(pushScript, document, scr);
 
-  scr = scm_call_4(makeScript,
-		   scm_from_utf8_string("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
-		   scm_from_utf8_string("Standard fragment shader"),
-		   scm_from_utf8_string("defaultShader"),
-		   scm_from_utf8_symbol("glsl"));
+  scr = cl_funcall(5, makeScript,
+		   c_string_to_object("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
+		   c_string_to_object("Standard fragment shader"),
+		   c_string_to_object("defaultShader"),
+		   ecl_make_symbol("glsl", "CL-USER"));
   // document = scm_call_2(pushScript, document, scr);
 
-    scr = scm_call_4(makeScript,
-		   scm_from_utf8_string("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
-		   scm_from_utf8_string("Standard selected tile - view's fragmentshader"),
-		   scm_from_utf8_string("default.tileView"),
-		   scm_from_utf8_symbol("glsl"));
+  scr = cl_funcall(5, makeScript,
+		   c_string_to_object("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
+		   c_string_to_object("Standard selected tile - view's fragmentshader"),
+		   c_string_to_object("default.tileView"),
+		   ecl_make_symbol("glsl", "CL-USER"));
   // document = scm_call_2(pushScript, document, scr);
 
   e = new Engine(this);
@@ -163,40 +173,42 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
 void editorController::setTileAt(int x, int y)
 {
-  SCM set_chosen_tile_at = scm_c_lookup("set-chosen-tile-at");
+  cl_object set_chosen_tile_at = ecl_make_symbol("set-chosen-tile-at", "CL-USER");
 
-  document = scm_call_3(set_chosen_tile_at,
+  document = cl_funcall(4,
+			set_chosen_tile_at,
 			document,
-			scm_from_int(x),
-			scm_from_int(y));
+			ecl_make_fixnum(x),
+			ecl_make_fixnum(y));
 }
 
 
 void editorController::setTileRotation(int x, int y, int deg_angl) {
-  SCM set_tile_rotation = scm_c_lookup("set-tile-rotation-at");
+  cl_object set_tile_rotation = ecl_make_symbol("set-tile-rotation-at", "CL-USER");
 
-  document = scm_call_4(set_tile_rotation,
+  document = cl_funcall(5, set_tile_rotation,
 			document,
-			scm_from_int(x),
-			scm_from_int(y),
-			scm_from_int(deg_angl % 360));
+			ecl_make_fixnum(x),
+			ecl_make_fixnum(y),
+			ecl_make_fixnum(deg_angl % 360));
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
-  SCM get_chosen_tile = scm_c_lookup("root-chosenTile");
-  SCM set_chosen_tile = scm_c_lookup("set-tile-at-chosen-map");
-  SCM set_tile_rotation = scm_c_lookup("set-tile-rotation-at");
-  SCM get_rot = scm_c_lookup("Tile-rotation");
+  cl_object get_chosen_tile = ecl_make_symbol("root-chosenTile", "CL-USER");
+  cl_object set_chosen_tile = ecl_make_symbol("set-tile-at-chosen-map", "CL-USER");
+  cl_object set_tile_rotation = ecl_make_symbol("set-tile-rotation-at", "CL-USER");
+  cl_object get_rot = ecl_make_symbol("Tile-rotation", "CL-USER");
 
 
-  SCM tile = scm_call_1(get_chosen_tile,
+  cl_object tile = cl_funcall(2,
+			      get_chosen_tile,
 			document);
-  SCM rotation = scm_call_1(get_rot, tile);
-  document = scm_call_4(set_tile_rotation,
+  cl_object rotation = cl_funcall(2, get_rot, tile);
+  document = cl_funcall(5, set_tile_rotation,
 			document,
-			scm_from_int(x),
-			scm_from_int(y),
-			scm_from_int((scm_to_int(rotation) + 90) % 360));
+			ecl_make_fixnum(x),
+			ecl_make_fixnum(y),
+			ecl_make_fixnum((fixint(rotation) + 90) % 360));
   
 }
 

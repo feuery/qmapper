@@ -1,34 +1,33 @@
 #ifndef EDITORCONTROLLER_GUILE_H
 #define EDITORCONTROLLER_GUILE_H
 
-#include <libguile.h>
 #include <editorController.h>
-#include <guile_qt_keymapping.h>
+/* #include <guile_qt_keymapping.h> */
 
 extern "C" {
-  SCM add_map(SCM s_w, SCM s_h, SCM s_layerCount);
-  SCM add_layer(SCM map_index);
-  SCM delete_layer(SCM map_index, SCM layer_index);
-  SCM add_glsl_script();
-  SCM add_scheme_script();
-  SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor);
-  SCM toggle_rendering();
+  cl_object add_map(cl_object s_w, cl_object s_h, cl_object s_layerCount);
+  cl_object add_layer(cl_object map_index);
+  cl_object delete_layer(cl_object map_index, cl_object layer_index);
+  cl_object add_glsl_script();
+  cl_object add_scheme_script();
+  cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor);
+  cl_object toggle_rendering();
 
-  SCM load_sprite(SCM s_path);
-  SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime);
+  cl_object load_sprite(cl_object s_path);
+  cl_object load_animation(cl_object s_path, cl_object s_framecount, cl_object s_frameLifeTime);
 
-  SCM keyDown(SCM key);
+  cl_object keyDown(cl_object key);
 
-  SCM getMouse();
-  SCM getMouseButtonState();
+  cl_object getMouse();
+  cl_object getMouseButtonState();
 
-  SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda);
-  SCM qscm_puts(SCM str);
+  cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda);
+  cl_object qscm_puts(cl_object str);
 
-  SCM register_fn(SCM name, SCM fn);
-  SCM get_fn(const char *name);
+  cl_object register_fn(cl_object name, cl_object fn);
+  cl_object get_fn(const char *name);
 
-  SCM MsTime();
+  cl_object MsTime();
 }
 
 #endif //EDITORCONTROLLER_GUILE_H

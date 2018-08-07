@@ -46,6 +46,7 @@ protected:
   virtual void mouseReleaseEvent(QMouseEvent *e) override;
 							 
 protected slots:
+  void doRepaint();
   virtual void paintGL();
   virtual void resizeGL(int w, int h);
   virtual void initializeGL();

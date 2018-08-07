@@ -11,37 +11,36 @@
 #include <QDoubleValidator>
 #include <QStandardItemModel>
 
-std::string getStringProp(SCM base, std::string internedPropname)
+std::string getStringProp(cl_object base, std::string internedPropname)
 {
-  return scm_to_locale_string(get(base, internedPropname.c_str()));
+  return ecl_string_to_string(get(base, internedPropname.c_str()));
 }
 
-bool getBoolProp(SCM base, std::string internedPropname)
+bool getBoolProp(cl_object base, std::string internedPropname)
 { 
-  return scm_is_true(get(base, internedPropname.c_str())) == 1;
+  return get(base, internedPropname.c_str()) == ECL_T;
 }
 
-int getIntProp(SCM base, std::string internedPropname)
+int getIntProp(cl_object base, std::string internedPropname)
 {
-  return scm_to_int(get(base, internedPropname.c_str()));
+  return ecl_to_int(get(base, internedPropname.c_str()));
 }
 
-double getDoubleProp(SCM base, std::string internedPropname)
+double getDoubleProp(cl_object base, std::string internedPropname)
 {
-  return scm_to_double(get(base, internedPropname.c_str()));
+  return ecl_to_double(get(base, internedPropname.c_str()));
 }
 
-std::string getScriptTypeAsString(SCM base, std::string internedPropname)
+std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
 {
-  static SCM scriptType = scm_c_lookup("Script-script_type");
-  const char *toret = scm_to_locale_string(scm_symbol_to_string(get(base, internedPropname.c_str())));
-  return std::string(toret);
+  static cl_object scriptType = ecl_make_symbol("Script-script_type", "CL-USER");
+  return  ecl_string_to_string(cl_symbol_name(get(base, internedPropname.c_str())));
 }
   
 
-void Propertyeditor::editingStdStringFinished(SCM &base, std::string internedPropname, QLineEdit *edit)
+void Propertyeditor::editingStdStringFinished(cl_object &base, std::string internedPropname, QLineEdit *edit)
 {
-  base = set(base, internedPropname.c_str(), scm_from_locale_string(edit->text().toStdString().c_str()));
+  base = set(base, internedPropname.c_str(), c_string_to_object(edit->text().toStdString().c_str()));
   puts("TODO error handling is not done");
   // std::string errors = base->getErrorsOf(internedPropname);
   // if(QLabel *l = field_errorlabel_mapping[internedPropname]) {
@@ -52,7 +51,7 @@ void Propertyeditor::editingStdStringFinished(SCM &base, std::string internedPro
   // base->clearErrorsOf(internedPropname);
 }
 
-void editingIntNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l) {
+void editingIntNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
   QString t = l->text();
 
   bool canConvert = false;
@@ -65,10 +64,10 @@ void editingIntNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l)
 
   int val = (int)i;
   qDebug() << "Setting " << propName.c_str() << " to " << val;
-  base = set(base, propName.c_str(), scm_from_int(val));
+  base = set(base, propName.c_str(), ecl_make_int(val));
 }
 
-void editingNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l) {
+void editingNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
   QString t = l->text();
 
   bool canConvert = false;
@@ -81,11 +80,11 @@ void editingNmbrStringFinished(SCM &base, std::string propName, QLineEdit *l) {
 
   double val = (double)i;
   qDebug() << "Setting " << propName.c_str() << " to " << val;
-  base = set(base, propName.c_str(), scm_from_double(val));
+  base = set(base, propName.c_str(), ecl_make_double_float(val));
 }
 
-void editingBoolFinished(SCM &base, std::string propname, bool checked) {
-  base = set(base, propname.c_str(), scm_from_bool(checked));
+void editingBoolFinished(cl_object &base, std::string propname, bool checked) {
+  base = set(base, propname.c_str(), ecl_make_bool(checked));
 }
 
 QStandardItemModel* dump_to_model_vertical()
@@ -132,7 +131,7 @@ QStandardItemModel* dump_to_model_horizontal()
   return model;
 }
 
-// QStandardItemModel* dump_to_model(std::vector<SCM>* prop_objs)
+// QStandardItemModel* dump_to_model(std::vector<cl_object>* prop_objs)
 // {
 //   if(!prop_objs) {
 //     qDebug() << "prop_objs is null at " << __FILE__ << ": " << __LINE__;
@@ -156,53 +155,53 @@ QStandardItemModel* dump_to_model_horizontal()
 //   return model;
 // }
 
-std::vector<std::string> keys(SCM b)
+std::vector<std::string> keys(cl_object b)
 {
-    static SCM keys = scm_c_lookup("keys-str");
-    static SCM list_ref = scm_c_lookup("list-ref");
-    static SCM len = scm_c_lookup("length");
+  static cl_object keys = ecl_make_symbol("keys-str", "CL-USER");
+  static cl_object list_ref = ecl_make_symbol("list-ref", "CL-USER");
+  static cl_object len = ecl_make_symbol("length", "CL-USER");
     
-    SCM k_res = scm_call_1(keys, b);
-    int length = scm_to_int(scm_call_1(len, k_res));
+    cl_object k_res = cl_funcall(2, keys, b);
+    int length = fixint(cl_funcall(2, len, k_res));
 
     std::vector<std::string> result;
     for(int i = 0; i < length; i++) {
-      std::string str(scm_to_locale_string(scm_call_2(list_ref,
+      std::string str(ecl_string_to_string(cl_funcall(3, list_ref,
 						      k_res,
-						      scm_from_int(i))));
+						      ecl_make_int(i))));
       result.push_back(str);
     }
     return result;
 }
 
-static void indexChanged(SCM &b, std::string internedPropName, SCM editedObject)
+static void indexChanged(cl_object &b, std::string internedPropName, cl_object editedObject)
 {
   b = set(b, internedPropName.c_str(), editedObject);
 
   qDebug()<<"Successfully changed " << internedPropName.c_str();
 }
 
-QFormLayout* Propertyeditor::makeLayout(SCM base) {
+QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
   QFormLayout *data = new QFormLayout;
 
   std::vector<std::string> properties = keys(base);
 
-  static SCM str = scm_c_lookup("prop-str?");
-  static SCM list = scm_c_lookup("prop-list?");
-  static SCM prop_number = scm_c_lookup("prop-number?");
-  static SCM prop_bool = scm_c_lookup("prop-bool?");
-  static SCM prop_float = scm_c_lookup("prop-float?");
-  static SCM prop_sym = scm_c_lookup("prop-sym?");
+  static cl_object str = ecl_make_symbol("prop-str?", "CL-USER");
+  static cl_object list = ecl_make_symbol("prop-list?", "CL-USER");
+  static cl_object prop_number = ecl_make_symbol("prop-number?", "CL-USER");
+  static cl_object prop_bool = ecl_make_symbol("prop-bool?", "CL-USER");
+  static cl_object prop_float = ecl_make_symbol("prop-float?", "CL-USER");
+  static cl_object prop_sym = ecl_make_symbol("prop-sym?", "CL-USER");
 
   for(int i =0; i<properties.size(); i++) {
 
-    if(scm_is_true(scm_call_2(list, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1)
+    if(cl_funcall(3, list, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T)
       continue;
     
-    if(scm_is_true(scm_call_2(str,
-			      base,
-			      scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    if(cl_funcall(3, str,
+		  base,
+		  ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       auto any = getStringProp(base, properties.at(i));
       QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
 
@@ -220,7 +219,7 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
       data->addRow(QString(properties.at(i).c_str()), edit);
       // data->addRow(QString(""), error_field);
     }
-    else if (scm_is_true(scm_call_2(prop_bool, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    else if (cl_funcall(3, prop_bool, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       bool b = getBoolProp(base, properties.at(i));
 
       QCheckBox *cb = new QCheckBox(properties.at(i).c_str(), this);
@@ -233,7 +232,7 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
       
     }
     // This probably could be macrofied for all the numeric types
-    else if (scm_is_true(scm_call_2(prop_number, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    else if (cl_funcall(3, prop_number, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       int v = getIntProp(base, properties.at(i));
       
       QLineEdit *edit = new QLineEdit(QString::number(v), this);
@@ -254,7 +253,7 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
       data->addRow(QString(properties.at(i).c_str()), edit);
       // data->addRow(QString(""), error_field);
     }
-    else if (scm_is_true(scm_call_2(prop_float, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    else if (cl_funcall(3, prop_float, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       double v = getDoubleProp(base, properties.at(i));
       
       QLineEdit *edit = new QLineEdit(QString::number(v), this);
@@ -277,12 +276,12 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
       data->addRow(QString(properties.at(i).c_str()), edit);
       // data->addRow(QString(""), error_field);
     }
-    else if(scm_is_true(scm_call_2(prop_sym, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    else if(cl_funcall(3, prop_sym, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       std::string scriptTypeResult = getScriptTypeAsString(base, properties.at(i));
       QLabel *lbl = new QLabel(scriptTypeResult.c_str());
       data->addRow(QString(properties.at(i).c_str()), lbl);
     }
-    else if(scm_is_true(scm_call_2(str, base, scm_from_locale_symbol(properties.at(i).c_str()))) == 1) {
+    else if(cl_funcall(3, str, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       std::string scriptTypeResult = getStringProp(base, properties.at(i));
       QLabel *lbl = new QLabel(scriptTypeResult.c_str());
       data->addRow(QString(properties.at(i).c_str()), lbl);
@@ -347,9 +346,9 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
     // }
     else {
       puts("löl");
-      // SCM r = &editorController::instance->document;
+      // cl_object r = &editorController::instance->document;
 
-      // SCM currentValue = get(base, properties.at(i).c_str());
+      // cl_object currentValue = get(base, properties.at(i).c_str());
       // std::string nameResult;
       // if (currentValue) {
       // 	nameResult = getStringProp(currentValue, "name");
@@ -358,7 +357,7 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
       // 	nameResult = "Empty";
       // }
       
-      // std::vector<SCM>* kids = r->registryOf(type);
+      // std::vector<cl_object>* kids = r->registryOf(type);
       // if(!kids) {
       // 	qDebug() << "Kids of " << type.c_str() << " is null at " << __FILE__ << ": " << __LINE__;
       // 	throw "";
@@ -394,16 +393,16 @@ QFormLayout* Propertyeditor::makeLayout(SCM base) {
   return data;
 }
 
-void Propertyeditor::resetLayout(SCM base) {
-  SCM r = editorController::instance->document;
-  SCM regToList = scm_c_lookup("root-registryToList");
-  auto reg = scm_call_1(regToList, r);
+void Propertyeditor::resetLayout(cl_object base) {
+  cl_object r = editorController::instance->document;
+  cl_object regToList = ecl_make_symbol("root-registryToList", "CL-USER");
+  auto reg = cl_funcall(2, regToList, r);
   l = new QVBoxLayout;
   
   data = makeLayout(base);
 
   // data->addRow(QString("Row: "),
-  // 	       new QLabel(QString(std::to_string(indexOf<SCM>(&reg, base)).c_str()), this));
+  // 	       new QLabel(QString(std::to_string(indexOf<cl_object>(&reg, base)).c_str()), this));
   // data->addRow(QString("Use row as parameter to the guile-api"), new QLabel(this));
   
   QHBoxLayout *buttons = new QHBoxLayout;
@@ -421,7 +420,7 @@ void Propertyeditor::resetLayout(SCM base) {
     });
 }
 
-Propertyeditor::Propertyeditor(SCM base, QWidget *parent): QDialog(parent)
+Propertyeditor::Propertyeditor(cl_object base, QWidget *parent): QDialog(parent)
 {  
   resetLayout(base);
     

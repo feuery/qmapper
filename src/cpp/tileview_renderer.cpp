@@ -1,16 +1,17 @@
 #include <tileview_renderer.h>
 
 #include <editorController.h>
+#include <guile_fn.h>
 
 static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
 {
   editorController *ec = editorController::instance;
-  static SCM stdFrag = scm_c_lookup("root-contents-StdFragment");
-  static SCM stdVertex = scm_c_lookup("root-contents-StdVertex");
-  static SCM tileViewFrag = scm_c_lookup("root-contents-StdTileviewFragShader");
+  static cl_object stdFrag = ecl_make_symbol("root-contents-StdFragment", "CL-USER");
+  static cl_object stdVertex = ecl_make_symbol("root-contents-StdVertex", "CL-USER");
+  static cl_object tileViewFrag = ecl_make_symbol("root-contents-StdTileviewFragShader", "CL-USER");
   
-  std::string vertex_source(scm_to_locale_string(scm_call_1(stdVertex, ec->document))),
-    fragmentSource (scm_to_locale_string(scm_call_1(tileViewFrag, ec->document)));
+  std::string vertex_source(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),
+    fragmentSource (ecl_string_to_string(cl_funcall(2, tileViewFrag, ec->document)));
 
   const char* vertex_haisee = vertex_source.c_str();
   const char* const* v = &vertex_haisee;

@@ -1,4 +1,6 @@
-#include <libguile.h>
+// ECL reference
+// http://vwood.github.io/embedded-ecl.html
+
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -19,6 +21,7 @@
 #include <animationLoaderUi.h>
 #include <engine.h>
 
+#include <ecl/ecl.h>
 #include <guile_fn.h>
 
 #define btnW 200
@@ -47,11 +50,11 @@ void MainWindow::setupTree()
     tree.setModel(ec->documentTreeModel);
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 	if(!index.isValid()) return;
-	SCM b = static_cast<SCM >(index.internalPointer());
+	cl_object b = static_cast<cl_object >(index.internalPointer());
 	std::string type = type_name(b);
 
 	if(type == "Tileset") {
-	  SCM t = static_cast<SCM >(b);
+	  cl_object t = static_cast<cl_object >(b);
 	  // Renderable* o = static_cast<Renderable*>(t);
 	  // ec->indexOfChosenTileset = t->getId();
 	  // tileset_view->getDrawQueue().clear();
@@ -60,7 +63,7 @@ void MainWindow::setupTree()
 	  throw "";
 	}
 	else if(type == "Map") {
-	  SCM m = static_cast<SCM >(b);
+	  cl_object m = static_cast<cl_object >(b);
 	  // Renderable *o = static_cast<Renderable*>(m);
 	  // ec->indexOfChosenMap = m->getId();
 	  // ec->indexOfChosenLayer = 0;
@@ -70,7 +73,7 @@ void MainWindow::setupTree()
 	}
 	else if(type == "Layer") {
 	  // Layercontainer *l = static_cast<Layercontainer*>(b);
-	  // SCM m = static_cast<SCM >(l->parent());
+	  // cl_object m = static_cast<cl_object >(l->parent());
 
 	  // ec->indexOfChosenMap = m->getId();
 	  // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
@@ -114,7 +117,7 @@ void MainWindow::editObject()
   QModelIndex l = tree.currentIndex();
   // Then, let's fire a property-editor-dialog with this pointer as parameter
   // And update this pointer's data in-between the model's begin-row-update-thing
-  SCM b = static_cast<SCM >(l.internalPointer());
+  cl_object b = static_cast<cl_object >(l.internalPointer());
   Propertyeditor *p = new Propertyeditor(b, this);
   p->show();
 }
@@ -197,14 +200,11 @@ void MainWindow::setupTreeCtxMenu()
   tree.addAction(newMenu_act);
 }
 
-// NFC if this is correct
-#define SCM_EMPTY_LIST nullptr
-
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  static SCM make_tset = scm_c_lookup("make-Tileset");
+  static cl_object make_tset = lisp("make-Tileset");
 
-  SCM tileset = scm_call_4(make_tset, scm_from_locale_string("New tileset"), nullptr, nullptr, SCM_EMPTY_LIST);
+  cl_object tileset = lisp("(make-Tileset \"New tileset\" nil nil '())");
     
   ec->documentTreeModel->begin();
   // (*ec->document.getTilesets())[t->getId()] = t;
@@ -249,7 +249,7 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 
   connect(btn, &QPushButton::clicked,
 	  [&]() {
-	    static SCM fetchRegister = scm_c_lookup("root-fetchRegister");
+	    // static cl_object fetchRegister = scm_c_lookup("root-fetchRegister");
 	    // ec->chosenMap = scm_call_3(fetchRegister, ec->document, scm_from_locale_string("Map"), scm_from_locale_symbol(ec->indexOfChosenMap.c_str()));
 	    // resize_data *o = new resize_data;
 	    // o->setNew_width(currentMap->width());
@@ -269,8 +269,8 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv)
 {
   // We need to start guile subsystem before farting up an editorController
-  t.start();
-  while(!t.running) { sleep(1); } 
+  t.run(); //.start();
+  // while(!t.running) { sleep(1); } 
   ec = new editorController();
   
   ui.setupUi(this);

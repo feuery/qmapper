@@ -1,38 +1,38 @@
 #include <spriteMover.h>
 
 void Spritemover::mouseDown(QMouseEvent *e, editorController *ec) {
-  SCM findNearest = scm_c_lookup("Map-findNearest");
-  SCM m = getChosenMap();;
-  currentSprite = scm_call_3(findNearest,
+  cl_object findNearest = ecl_make_symbol("Map-findNearest", "CL-USER");
+  cl_object m = getChosenMap();;
+  currentSprite = cl_funcall(4, findNearest,
 			     m,
-			     scm_from_int(e->x()),
-			     scm_from_int(e->y()));
+			     ecl_make_int32_t(e->x()),
+			     ecl_make_int32_t(e->y()));
   qDebug() << "Found the nearest sprite";
 }
 
 void Spritemover::mouseUp(QMouseEvent *e) {
-  currentSprite = SCM_BOOL_F;
+  currentSprite = ECL_NIL;
   qDebug() << "Reset nearest sprite";
 }
 
 bool Spritemover::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  return scm_is_true(currentSprite);
+  return Null(currentSprite);
 }
 
 void Spritemover::use(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  static SCM is_sprite_fn = scm_c_lookup("is-sprite?"),
-    push_sprite_to_chosen_map = scm_c_lookup("push-sprite-to-chosen-map");
-  bool is_sprite = scm_is_true(scm_call_1(is_sprite_fn, currentSprite));
+  static cl_object is_sprite_fn = ecl_make_symbol("is-sprite?", "CL-USER"),
+    push_sprite_to_chosen_map = ecl_make_symbol("push-sprite-to-chosen-map", "CL-USER");
+  bool is_sprite = Null(cl_funcall(2, is_sprite_fn, currentSprite));
 
-  SCM setX = scm_c_lookup(is_sprite? "set-Sprite-x!":
-			  "set-animatedsprite-x!"),
-    setY = scm_c_lookup(is_sprite? "set-Sprite-y!":
-			"set-animatedsprite-y!");
+  cl_object setX = ecl_make_symbol(is_sprite? "set-Sprite-x!":
+				   "set-animatedsprite-x!", "CL-USER"),
+    setY = ecl_make_symbol(is_sprite? "set-Sprite-y!":
+			"set-animatedsprite-y!", "CL-USER");
 
-  currentSprite = scm_call_2(setX, currentSprite, scm_from_int(event->x()));
-  currentSprite = scm_call_2(setY, currentSprite, scm_from_int(event->y()));
+  currentSprite = cl_funcall(3, setX, currentSprite, ecl_make_int32_t(event->x()));
+  currentSprite = cl_funcall(3, setY, currentSprite, ecl_make_int32_t(event->y()));
   
-  editorController::instance->document = scm_call_2(push_sprite_to_chosen_map,
+  editorController::instance->document = cl_funcall(3, push_sprite_to_chosen_map,
 						    editorController::instance->document,
 						    currentSprite);
 }

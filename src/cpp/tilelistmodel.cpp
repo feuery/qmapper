@@ -2,19 +2,19 @@
 #include <tilelistmodel.h>
 #include <guile_fn.h>
 
-SCM Tilelistmodel::getparent(const QModelIndex &parent) const {
-  if(parent.isValid()) return (*static_cast<SCM*>(parent.internalPointer()));
+cl_object Tilelistmodel::getparent(const QModelIndex &parent) const {
+  if(parent.isValid()) return (*static_cast<cl_object*>(parent.internalPointer()));
   else return Root;
 }
 
-Tilelistmodel::Tilelistmodel(SCM R): Root(R) { }
+Tilelistmodel::Tilelistmodel(cl_object R): Root(R) { }
 
 #define type_err_print printf("Got an unknown type %s at line %d\n", type, __LINE__);
 
 int Tilelistmodel::rowCount(const QModelIndex &qparent) const
 {
   return 0;
-  SCM parent = getparent(qparent);
+  cl_object parent = getparent(qparent);
   // QModelIndex grandParent = qparent.parent();
   // if(parent == nullptr) {
   //   throw "";
@@ -60,7 +60,7 @@ QVariant Tilelistmodel::headerData(int section, Qt::Orientation orientation, int
 
 QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent) const
 {
-  SCM base = getparent(qparent);
+  cl_object base = getparent(qparent);
   
   // auto type = base->type_identifier();
   
@@ -86,10 +86,10 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
   if(!index.isValid()) return QVariant();
   if(role != Qt::DisplayRole) return QVariant();
   
-  SCM base = getparent(index);
+  cl_object base = getparent(index);
   int row = index.row();
 
-  return QString(scm_to_locale_string(get(base, "name")));
+  return QString(ecl_string_to_string(get(base, "name")).c_str());
   return QVariant();
 }
 
@@ -97,7 +97,7 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 {
   if(!index.isValid()) return QModelIndex();
   
-  // SCM obj = getparent(index);
+  // cl_object obj = getparent(index);
   // if(obj == Root) return QModelIndex();
 
   // std::string type = type_name(obj);
@@ -165,8 +165,8 @@ void Tilelistmodel::end()
 
 void Tilelistmodel::begin()
 {
-  static SCM regSize = scm_c_lookup("root-registrySize");
+  static cl_object regSize = ecl_make_symbol("root-registrySize", "CL-USER");
   auto root = QModelIndex();
-  int count = scm_to_int(scm_call_1(regSize, Root));
+  int count = fixint(cl_funcall(2, regSize, Root));
   beginInsertRows(root, count, count + 1);
 }

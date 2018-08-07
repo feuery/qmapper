@@ -1,5 +1,6 @@
 #include <QtDebug>
 #include <QApplication>
+#include <ecl/ecl.h>
 #include <guile_thread.h>
 #include <editorController.h>
 
@@ -7,6 +8,8 @@
 
 int main(int argc, char** argv)
 {
+  cl_boot(argc, argv);
+  puts("Päästiin cl_bootista pois");
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication app(argc, argv);
 

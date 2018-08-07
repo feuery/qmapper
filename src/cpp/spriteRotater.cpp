@@ -1,22 +1,22 @@
 #include <spriteRotater.h>
 
 void Spriterotater::mouseDown(QMouseEvent *e, editorController *ec) {
-  SCM findNearest = scm_c_lookup("Map-findNearest");
-  SCM m = getChosenMap();
-  currentSprite = scm_call_3(findNearest,
+  cl_object findNearest = ecl_make_symbol("Map-findNearest", "CL-USER");
+  cl_object m = getChosenMap();
+  currentSprite = cl_funcall(4, findNearest,
 			     m,
-			     scm_from_int(e->x()),
-			     scm_from_int(e->y()));
+			     ecl_make_int32_t(e->x()),
+			     ecl_make_int32_t(e->y()));
   qDebug() << "Found the nearest sprite";
 }
 
 void Spriterotater::mouseUp(QMouseEvent *e) {
-  currentSprite = SCM_BOOL_F;
+  currentSprite = ECL_NIL;
   qDebug() << "Reset nearest sprite";
 }
 
 bool Spriterotater::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  return scm_is_true(currentSprite);
+  return Null(currentSprite);
 }
 
 float angle(int x1, int y1,
@@ -28,22 +28,22 @@ float angle(int x1, int y1,
 
 void Spriterotater::use(QMouseEvent *event, int tilex, int tiley, editorController *e) {
 
-  static SCM is_sprite_fn = scm_c_lookup("is-sprite?"),
-    push_sprite_to_chosen_map = scm_c_lookup("push-sprite-to-chosen-map");
-  bool is_sprite = scm_is_true(scm_call_1(is_sprite_fn, currentSprite));
+  static cl_object is_sprite_fn = ecl_make_symbol("is-sprite?", "CL-USER"),
+    push_sprite_to_chosen_map = ecl_make_symbol("push-sprite-to-chosen-map", "CL-USER");
+  bool is_sprite = Null(cl_funcall(2, is_sprite_fn, currentSprite));
 
-  SCM getX = scm_c_lookup(is_sprite? "Sprite-x":
-			  "animatedsprite-x"),
-    getY = scm_c_lookup(is_sprite? "Sprite-y":
-			"animatedsprite-y"),
-    setAngle = scm_c_lookup(is_sprite? "set-Sprite-angle!":
-			    "set-animatedsprite-angle!");
+  cl_object getX = ecl_make_symbol(is_sprite? "Sprite-x":
+				   "animatedsprite-x", "CL-USER"),
+    getY = ecl_make_symbol(is_sprite? "Sprite-y":
+			"animatedsprite-y", "CL-USER"),
+    setAngle = ecl_make_symbol(is_sprite? "set-Sprite-angle!":
+			    "set-animatedsprite-angle!", "CL-USER");
   float final_angle = angle(event->x(), event->y(),
-		      scm_to_int(scm_call_1(getX, currentSprite)),
-		      scm_to_int(scm_call_1(getY, currentSprite)));
+			    fixint(cl_funcall(2, getX, currentSprite)),
+			    fixint(cl_funcall(2, getY, currentSprite)));
 
-  currentSprite = scm_call_2(setAngle, currentSprite, scm_from_double(final_angle));
-  editorController::instance->document = scm_call_2(push_sprite_to_chosen_map,
+  currentSprite = cl_funcall(3, setAngle, currentSprite, ecl_make_double_float(final_angle));
+  editorController::instance->document = cl_funcall(3, push_sprite_to_chosen_map,
 						    editorController::instance->document,
 						    currentSprite);
 }

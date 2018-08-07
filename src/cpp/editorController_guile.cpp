@@ -1,100 +1,101 @@
 #include <editorController_guile.h>
 #include <files.h>
+#include <guile_fn.h>
 
 extern "C" { 
 
-  SCM add_map(SCM w, SCM h, SCM layerCount) {
-    static SCM makeMap   = scm_c_lookup("make-map-with-layers");
-    static SCM pushMap   = scm_c_lookup("push-selected-map");
-    static SCM registrySize = scm_c_lookup("root-registrySize");
+  cl_object add_map(cl_object w, cl_object h, cl_object layerCount) {
+    static cl_object makeMap   = ecl_make_symbol("make-map-with-layers", "CL-USER");
+    static cl_object pushMap   = ecl_make_symbol("push-selected-map", "CL-USER");
+    static cl_object registrySize = ecl_make_symbol("root-registrySize", "CL-USER");
    
-    SCM count = scm_call_1(registrySize,
+    cl_object count = cl_funcall(2, registrySize,
 			   editorController::instance->document);
 
-    SCM m = scm_call_4(makeMap,
-		       scm_from_utf8_string((std::to_string(scm_to_int(count)+1)+"th map").c_str()),
+    cl_object m = cl_funcall(5, makeMap,
+			     c_string_to_object((std::to_string(fixint(count)+1)+"th map").c_str()),
 		       w,
 		       h,
 		       layerCount);
 
-    editorController::instance->document = scm_call_2(pushMap,
+    editorController::instance->document = cl_funcall(3, pushMap,
 						      editorController::instance->document,
 						      m);
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  SCM add_layer(SCM map_index)
+  cl_object add_layer(cl_object map_index)
   {
-    SCM addLayer = scm_c_lookup("add-layer");
+    cl_object addLayer = ecl_make_symbol("add-layer", "CL-USER");
     
     editorController::instance->documentTreeModel->begin();
-    editorController::instance->document = scm_call_2(addLayer,
+    editorController::instance->document = cl_funcall(3, addLayer,
 						      editorController::instance->document,
 						      map_index);
     
     editorController::instance->documentTreeModel->end();
 
-    return SCM_BOOL_T;
+    return ECL_T;
     
   }
 
-  SCM delete_layer(SCM map_index_scm, SCM layer_index_scm)
+  cl_object delete_layer(cl_object map_index_scm, cl_object layer_index_scm)
   {
-    static SCM deleteLayer = scm_c_lookup("delete-layer");
+    static cl_object deleteLayer = ecl_make_symbol("delete-layer", "CL-USER");
     editorController::instance->documentTreeModel->begin();
-    editorController::instance->document = scm_call_3(deleteLayer,
+    editorController::instance->document = cl_funcall(4, deleteLayer,
 						      editorController::instance->document,
 						      map_index_scm,
 						      layer_index_scm);
     editorController::instance->documentTreeModel->end();
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
   std::string genNs() {
     return std::string("user") + std::to_string(rand() % 1000000);
   }
 
-  SCM add_glsl_script()
+  cl_object add_glsl_script()
   {
-    static SCM makeScript = scm_c_lookup("make-Script");
-    static SCM pushScript = scm_c_lookup("push-script");
+    static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
+    static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
     
     editorController::instance->documentTreeModel->begin();
 
-    SCM scrpt = scm_call_4(makeScript,
-			   scm_from_utf8_string(""),
-			   scm_from_utf8_string("A new GLSL script"),
-			   scm_from_utf8_string(genNs().c_str()),
-			   scm_from_utf8_symbol("glsl"));
-    editorController::instance->document = scm_call_2(pushScript,
+    cl_object scrpt = cl_funcall(5, makeScript,
+			   c_string_to_object(""),
+			   c_string_to_object("A new GLSL script"),
+			   c_string_to_object(genNs().c_str()),
+				 ecl_make_symbol("glsl", "CL-USER"));
+    editorController::instance->document = cl_funcall(3, pushScript,
 						      editorController::instance->document,
 						      scrpt);
     editorController::instance->documentTreeModel->end();
 
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  SCM add_scheme_script()
+  cl_object add_scheme_script()
   {
-    static SCM makeScript = scm_c_lookup("make-Script");
-    static SCM pushScript = scm_c_lookup("push-script");
+    static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
+    static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
     
     editorController::instance->documentTreeModel->begin();
 
-    SCM scrpt = scm_call_4(makeScript,
-			   scm_from_utf8_string(""),
-			   scm_from_utf8_string("A new Scheme script"),
-			   scm_from_utf8_string(genNs().c_str()),
-			   scm_from_utf8_symbol("scheme"));
-    editorController::instance->document = scm_call_2(pushScript,
+    cl_object scrpt = cl_funcall(5, makeScript,
+			   c_string_to_object(""),
+			   c_string_to_object("A new Scheme script"),
+			   c_string_to_object(genNs().c_str()),
+				 ecl_make_symbol("scheme", "CL-USER"));
+    editorController::instance->document = cl_funcall(3, pushScript,
 						      editorController::instance->document,
 						      scrpt);
     editorController::instance->documentTreeModel->end();
 
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  SCM resize_current_map(SCM w, SCM h, SCM horizontal_anchor, SCM vertical_anchor)
+  cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor)
   {
     editorController *ec = editorController::instance;
 
@@ -102,45 +103,41 @@ extern "C" {
     bool oldRenderingState = ec->renderingEnabled;
     ec->renderingEnabled = false;
 
-    static SCM selectedMap = scm_c_lookup("root-chosenMap");
-    static SCM push_selectedMap = scm_c_lookup("push-selected-map");
-    static SCM map_resize = scm_c_lookup("Map-resize");
+    static cl_object selectedMap = ecl_make_symbol("root-chosenMap", "CL-USER");
+    static cl_object push_selectedMap = ecl_make_symbol("push-selected-map", "CL-USER");
+    static cl_object map_resize = ecl_make_symbol("Map-resize", "CL-USER");
     
     // Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
-    SCM m = scm_call_1(selectedMap, editorController::instance->document);
+    cl_object m = cl_funcall(2, selectedMap, editorController::instance->document);
 
-    const char* h_a = scm_to_utf8_string(scm_symbol_to_string(horizontal_anchor));
-    std::string horizontal_a = h_a;
+    std::string horizontal_a(ecl_string_to_string(ecl_symbol_name(horizontal_anchor)));
+    std::string vertical_a(ecl_string_to_string(ecl_symbol_name(vertical_anchor)));
 
-    const char *v_a = scm_to_utf8_string(scm_symbol_to_string(vertical_anchor));
-    std::string vertical_a = v_a;
-
-    qDebug() << "Vertical anchor: " << v_a;
-    m = scm_call_5(map_resize,
+    m = cl_funcall(6, map_resize,
 		   m,
 		   w,
 		   h,
 		   vertical_anchor,
 		   horizontal_anchor);
 		   
-    editorController::instance->document = scm_call_2(push_selectedMap,
+    editorController::instance->document = cl_funcall(3, push_selectedMap,
 						      editorController::instance->document,
 						      m);
 						      
 
     ec->renderingEnabled = oldRenderingState;;
 
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  SCM toggle_rendering() {
+  cl_object toggle_rendering() {
     editorController *ec = editorController::instance;
     qDebug() << (ec->renderingEnabled? "Stopping renderer": "Starting renderer");
     ec->renderingEnabled = !ec->renderingEnabled;
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  // SCM print_json(SCM type, SCM id)
+  // cl_object print_json(cl_object type, cl_object id)
   // {
   //   const char *c_id = scm_to_utf8_string(id),
   //     *c_type = scm_to_utf8_string(type);
@@ -150,57 +147,59 @@ extern "C" {
 
   //   Propertierbase *b = ec->document.fetchRegister(cc_type, cc_id);
   //   qDebug() << "Id " << c_id << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
-  //   return SCM_BOOL_T;
+  //   return ECL_T;
   // }
 
-  SCM load_sprite(SCM s_path) {
+  cl_object load_sprite(cl_object s_path) {
     puts("TODO implement sprites");
     // const char *path = scm_to_utf8_string(s_path);
     // editorController::instance->map_view->glLambdas.enqueue([=]() {
     // 	editorController::instance->loadSprite(path);
     //   });
-    return SCM_BOOL_F;
+    return ECL_NIL;
   }
 
-  SCM load_animation(SCM s_path, SCM s_framecount, SCM s_frameLifeTime)
+  cl_object load_animation(cl_object s_path, cl_object s_framecount, cl_object s_frameLifeTime)
   {
     // const char *path = scm_to_utf8_string(s_path);
-    // int framecount = scm_to_int(s_framecount),
-    //   frameLifeTime = scm_to_int(s_frameLifeTime);
+    // int framecount = fixint(s_framecount),
+    //   frameLifeTime = fixint(s_frameLifeTime);
 
     // editorController::instance->map_view->glLambdas.enqueue([=]() {
     // 	editorController::instance->loadAnimation(path, framecount, frameLifeTime);
     //   });
 
     puts("TODO implement animations");
-    return SCM_BOOL_F;
+    return ECL_NIL;
   }
 
-  SCM keyDown(SCM key) {
-    Qt::Key k = scm_qt_key_pairs[key];
-    return editorController::instance->keyMap[k]? SCM_BOOL_T: SCM_BOOL_F;
+  cl_object keyDown(cl_object key) {
+    puts("TODO FIX");
+    return ECL_T;
+    // Qt::Key k = scm_qt_key_pairs[key];
+    // return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
   }
 
-  SCM getMouse() {
+  cl_object getMouse() {
     auto ec = editorController::instance;
-    SCM list = scm_list_2(scm_from_int(ec->mouseX), scm_from_int(ec->mouseY));
+    cl_object list = cl_list(2, ecl_make_fixnum(ec->mouseX), ecl_make_fixnum(ec->mouseY));
     return list;
   }
 
-  SCM getMouseButtonState() {
+  cl_object getMouseButtonState() {
     auto ec = editorController::instance;
 
     auto btns = QGuiApplication::mouseButtons();
     bool left = btns & Qt::LeftButton,
       right = btns & Qt::RightButton;
 
-    return scm_list_2(scm_from_bool(left), scm_from_bool(right));
+    return cl_list(2, ecl_make_bool(left), ecl_make_bool(right));
   }
 
   #define returnResult const char *res = result.c_str();\
-    return scm_from_utf8_string(res);
+    return c_string_to_object(res);
 
-  // SCM getProp(SCM id, SCM type, SCM propname) {
+  // cl_object getProp(cl_object id, cl_object type, cl_object propname) {
   //   auto ec = editorController::instance;
 
   //   const char *c_type = scm_to_utf8_string(type),
@@ -221,7 +220,7 @@ extern "C" {
   //   else if (proptype == "int") {
   //     int i = 42;
 
-  //     return scm_from_int(obj->get(c_prop, &lol, i));
+  //     return ecl_make_fixnum(obj->get(c_prop, &lol, i));
   //   }
   //   else if (proptype == "bool") {
   //     return scm_from_bool(obj->get(c_prop, &lol, lol));
@@ -229,7 +228,7 @@ extern "C" {
   //   else if (proptype == "unsigned char") {
   //     unsigned char trol = -1;
   //     int result = obj->get(c_prop, &lol, trol);
-  //     return scm_from_int(result);
+  //     return ecl_make_fixnum(result);
   //   }
   //   else if (proptype == "Script*") {
   //     Script* scr;
@@ -240,7 +239,7 @@ extern "C" {
   //   else if(proptype == "scriptTypes") {
   //     scriptTypes t;
   //     t = obj->get(c_prop, &lol, t);
-  //     return scm_string_to_symbol(scm_from_utf8_string(t == glsl? "glsl" : "scheme"));
+  //     return scm_string_to_symbol(c_string_to_object(t == glsl? "glsl" : "scheme"));
   //   }
   //   else if(proptype == "float") {
   //     float val = obj->get(c_prop, &lol, 2.2f);
@@ -249,12 +248,12 @@ extern "C" {
 
   //   qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
 
-  //   return SCM_BOOL_F;
+  //   return ECL_NIL;
   // }
 
   // #define setVal obj->set(c_prop, val)
 
-  // SCM setProp(SCM id, SCM type, SCM propname, SCM value)
+  // cl_object setProp(cl_object id, cl_object type, cl_object propname, cl_object value)
   // {
   //   auto ec = editorController::instance;
 
@@ -277,7 +276,7 @@ extern "C" {
   //     setVal;
   //   }
   //   else if (proptype == "int") {
-  //     int val = scm_to_int(value);
+  //     int val = fixint(value);
   //     setVal;
   //   }
   //   else if (proptype == "bool") {
@@ -285,7 +284,7 @@ extern "C" {
   //     setVal;
   //   }
   //   else if (proptype == "unsigned char") {
-  //     int lol = scm_to_int(value);
+  //     int lol = fixint(value);
   //     unsigned char val = static_cast<unsigned char>(lol);
   //     setVal;
   //   }
@@ -297,7 +296,7 @@ extern "C" {
   //     scr->setContents(content);
   //   }
   //   else if(proptype == "scriptTypes") {
-  //     const char *result = scm_to_utf8_string(scm_symbol_to_string(value));
+  //     const char *result = ecl_make_symbol(value));
   //     std::string r = result;
   //     scriptTypes val = r == "glsl"? glsl: scheme;
   //     setVal;      
@@ -310,10 +309,10 @@ extern "C" {
   //     qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
   //   ec->documentTreeModel->end();
 
-  //   return SCM_BOOL_T;
+  //   return ECL_T;
   // }
 
-  SCM addEvent(SCM id, SCM type, SCM propname, SCM lambda)
+  cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda)
   {
     puts("TODO implement events in pure scheme");
     // auto ec = editorController::instance;
@@ -333,35 +332,35 @@ extern "C" {
     // f.guile = lambda;
 
     // obj->addEvent(_prop, f);
-    return SCM_BOOL_F;
+    return ECL_NIL;
   }
 
-  SCM qscm_puts(SCM str)
+  cl_object qscm_puts(cl_object str)
   {
-    puts(scm_to_utf8_string(str));
-    return SCM_BOOL_T;
+    puts(ecl_string_to_string(str).c_str());
+    return ECL_T;
   }
 
-  // SCM render_obj(SCM obj_ptr) {
+  // cl_object render_obj(cl_object obj_ptr) {
   //   void *ptr = scm_to_pointer(obj_ptr);
   //   obj* real_obj_ptr = static_cast<obj*>(ptr);
   //   real_obj_ptr->render();
   // }
 
-  SCM MsTime() {
-    return scm_from_long(time(nullptr) * 1000);
+  cl_object MsTime() {
+    return ecl_make_long(time(nullptr) * 1000);
   }
 
-  static std::unordered_map<std::string, SCM> fn_cache;
+  static std::unordered_map<std::string, cl_object> fn_cache;
 
-  SCM register_fn(SCM name, SCM fn) {
-    std::string n(scm_to_utf8_string(name));
+  cl_object register_fn(cl_object name, cl_object fn) {
+    std::string n = ecl_string_to_string(name);
     fn_cache[n] = fn;
     printf("Registered fn %s\n", n.c_str());
-    return SCM_BOOL_T;
+    return ECL_T;
   }
 
-  SCM get_fn(const char *name) {
+  cl_object get_fn(const char *name) {
     return fn_cache.at(std::string(name));
   }
 }

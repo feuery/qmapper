@@ -1,8 +1,6 @@
 #ifndef EDITORCONTROLLER_H
 #define EDITORCONTROLLER_H
 
-#include <libguile.h>
-
 #include <tilelistmodel.h>
 #include <vector>
 #include <mainwindow.h>
@@ -23,7 +21,7 @@ class editorController{
 public:
   void registerWindow(MainWindow *w);
 
-  SCM document;
+  cl_object document;
   Tilelistmodel *documentTreeModel;
 
   QObject r;
@@ -44,7 +42,7 @@ public:
   int mouseX, mouseY;
 
   int selectedTileX = 0, selectedTileY = 0;
-  SCM selectedTileData;
+  cl_object selectedTileData;
 
   void setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer);
   void setTileAt(int x, int y);

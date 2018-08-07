@@ -7,10 +7,14 @@
 #include <renderer.h>
 #include <editorController.h>
 
+void Renderer::doRepaint() {
+  repaint();
+}  
+
 Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
 {  
 
-  connect(&timer, SIGNAL(timeout()), this, SLOT(repaint()));
+  connect(&timer, &QTimer::timeout, this, &Renderer::doRepaint);
   // if(format.swapInterval() == -1) {
   //   qDebug("Swap Buffers at v_blank not available: refresh at approx 60fps.");
   //   timer.setInterval(17);

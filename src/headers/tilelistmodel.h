@@ -2,7 +2,10 @@
 #define TILELISTMODEL_H
 
 #include <QAbstractListModel>
-#include <libguile.h>
+#include <cstdio>
+#include <unistd.h>
+
+#include <ecl/ecl.h>
 
 
 // Layers are parents/root nodes if needed
@@ -11,7 +14,7 @@ class Tilelistmodel: public QAbstractItemModel
   Q_OBJECT
 public:
 
-  Tilelistmodel(SCM Root);
+  Tilelistmodel(cl_object Root);
 
   // qabstractitemmodel-data
   QVariant data(const QModelIndex &index, int role) const override;
@@ -32,9 +35,9 @@ public:
 
 private:
 
-  SCM Root;
+  cl_object Root;
 
-  SCM getparent(const QModelIndex &parent) const;
+  cl_object getparent(const QModelIndex &parent) const;
 };
 
 template<typename T>

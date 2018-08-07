@@ -3,6 +3,8 @@
 #include <QImage>
 
 #include <editorController.h>
+#include <guile_fn.h>
+
 // #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
 // #include <GL/glext.h>
@@ -111,26 +113,27 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
 }
 
 std::string getScript(std::string id) {
-  static SCM fetchRegister = scm_c_lookup("root-fetchRegister"),
-    fetchContents = scm_c_lookup("Script-contents");
-  SCM script = scm_call_2(editorController::instance->document,
-			  scm_from_locale_string("Script"),
-			  scm_from_locale_string(id.c_str()));
+  auto fetchRegister = ecl_make_symbol("root-fetchRegister", "CL-USER"),
+    fetchContents = ecl_make_symbol("Script-contents", "CL-USER");
+  cl_object script = cl_funcall(3,
+				fetchRegister,
+				c_string_to_object("Script"),
+				c_string_to_object(id.c_str()));
   
-  SCM res = scm_call_1(fetchContents, script);
-  const char *res_1 = scm_to_locale_string(res);
+  cl_object res = cl_funcall(2, fetchContents, script);
+  std::string res_1 = ecl_string_to_string(res);
   return res_1;
 }
 
 GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 {
-  static SCM stdFrag = scm_c_lookup("root-contents-StdFragment");
-  static SCM stdVertex = scm_c_lookup("root-contents-StdVertex");
-  static SCM tileViewFrag = scm_c_lookup("root-contents-StdTileviewFragShader");
+  static cl_object stdFrag = ecl_make_symbol("root-contents-StdFragment", "CL-USER");
+  static cl_object stdVertex = ecl_make_symbol("root-contents-StdVertex", "CL-USER");
+  static cl_object tileViewFrag = ecl_make_symbol("root-contents-StdTileviewFragShader", "CL-USER");
 
   // fml and c's string handling
-  std::string v_c_smells(scm_to_locale_string(scm_call_1(stdVertex, ec->document))),
-    fr_c_smells(scm_to_locale_string(scm_call_1(stdFrag, ec->document)));
+  std::string v_c_smells(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),
+    fr_c_smells(ecl_string_to_string(cl_funcall(2, stdFrag, ec->document)));
 
 
   const char *v_lol = v_c_smells.c_str();

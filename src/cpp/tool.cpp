@@ -1,33 +1,33 @@
 #include <tool.h>
 
-SCM getChosenMap()
+cl_object getChosenMap()
 {
-  static SCM chosenMap = scm_c_lookup("root-chosenMap");
-  return scm_call_1(chosenMap, editorController::instance->document);
+  static cl_object chosenMap = ecl_make_symbol("root-chosenMap", "CL-USER");
+  return cl_funcall(2, chosenMap, editorController::instance->document);
 }
 
 bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 {
-  static SCM map_w = scm_c_lookup("Map-width");
-  static SCM map_h = scm_c_lookup("Map-height");
-  SCM map = getChosenMap();
-  if(scm_is_true(map) != 1) return false;
+  static cl_object map_w = ecl_make_symbol("Map-width", "CL-USER");
+  static cl_object map_h = ecl_make_symbol("Map-height", "CL-USER");
+  cl_object map = getChosenMap();
+  if(!Null(map)) return false;
   
-  return tilex < scm_to_int(scm_call_1(map_w, map)) &&
-		 tiley < scm_to_int(scm_call_1(map_h, map)) &&
+  return tilex < fixint(cl_funcall(2, map_w, map)) &&
+		 tiley < fixint(cl_funcall(2, map_h, map)) &&
 			 tilex >= 0 && tiley >= 0;
 }
 
 void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
-  static SCM chosenMap = scm_c_lookup("root-chosenMap");
-  static SCM map_w = scm_c_lookup("Map-width");
-  static SCM map_h = scm_c_lookup("Map-height");
+  static cl_object chosenMap = ecl_make_symbol("root-chosenMap", "CL-USER");
+  static cl_object map_w = ecl_make_symbol("Map-width", "CL-USER");
+  static cl_object map_h = ecl_make_symbol("Map-height", "CL-USER");
   
-  SCM map = scm_call_1(chosenMap, editorController::instance->document);
-  if(scm_is_true(map) != 1) return;
+  cl_object map = cl_funcall(2, chosenMap, editorController::instance->document);
+  if(!Null(map)) return;
     
-  mouse_map = std::vector<std::vector<bool>>(scm_to_int(scm_call_1(map_w, map)),
-					     std::vector<bool> (scm_to_int(scm_call_1(map_h, map)), false));
+  mouse_map = std::vector<std::vector<bool>>(fixint(cl_funcall(2, map_w, map)),
+					     std::vector<bool> (fixint(cl_funcall(2, map_h, map)), false));
 }
 
 void Tool::mouseUp(QMouseEvent *e) { }

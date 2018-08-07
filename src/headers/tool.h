@@ -22,7 +22,7 @@ private:
   std::vector<std::vector<bool>> mouse_map;
 };
 
-SCM getChosenMap();
+cl_object getChosenMap();
 
 #else
 

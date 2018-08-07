@@ -16,7 +16,7 @@ class Propertyeditor: public QDialog{
   Q_OBJECT
 public:
 
-  Propertyeditor(SCM base, QWidget *parent);
+  Propertyeditor(cl_object base, QWidget *parent);
   ~Propertyeditor();
 
   virtual void showEvent(QShowEvent *e);
@@ -27,13 +27,13 @@ private:
 
   std::unordered_map<std::string, QLabel*> field_errorlabel_mapping;
 
-  QFormLayout* makeLayout(SCM base);
-  void resetLayout(SCM base);
+  QFormLayout* makeLayout(cl_object base);
+  void resetLayout(cl_object base);
 
   QFormLayout *data;
   QVBoxLayout *l;
 
-  void editingStdStringFinished(SCM &base, std::string internedPropname, QLineEdit *edit);
+  void editingStdStringFinished(cl_object &base, std::string internedPropname, QLineEdit *edit);
 
 };
 
