@@ -1,21 +1,12 @@
 #ifndef GUILE_THREAD_H
 #define GUILE_THREAD_H
 
-#include <QThread>
-
-class Guile_Thread: public QThread{
+class lisp_loader {
 public:
-  Guile_Thread(int argc, char** argv); 
 
-  void run();
+  void load_lisp();
 
   bool running = false;
-  
-private:
-
-  int argc;
-  char** argv;
-
 };
 
 #endif //GUILE_THREAD_H

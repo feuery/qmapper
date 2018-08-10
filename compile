@@ -1,1 +1,2 @@
+touch ./src/cpp/guile_fn.cpp
 make -j$(nproc --all)

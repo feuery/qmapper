@@ -1,6 +1,10 @@
-;; (define-module (qmapper-script)
-;;   #:use-module (srfi srfi-1)
-;;   #:use-module (qmapper-std))
+(defpackage :qmapper.script
+  (:use :common-lisp
+	:cl-arrows
+	:qmapper.std
+	:qmapper.root))
+
+(in-package :qmapper.script)
 
 (defcppclass Script
   (public
@@ -17,6 +21,8 @@
 		  (equal? script-type 'scheme)))
     (is-glsl? ()
 	      (let ((script-type (Script-script_type (this))))
-		(equal? script-type 'glsl))))))  
+		(equal? script-type 'glsl))))))
+
+(export-all :qmapper.script)
 
 ;; (scm-puts "Loaded script")

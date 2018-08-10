@@ -1,6 +1,10 @@
-;; (define-module (qmapper-tile)
-;;   #:use-module (srfi srfi-1)
-;;   :use-module (qmapper-std))
+(defpackage :qmapper.tile
+  (:use :common-lisp
+	:cl-arrows
+	:qmapper.std
+	:qmapper.root))
+
+(in-package :qmapper.tile)
 
 (defcppclass Tile 
   (public
@@ -10,4 +14,4 @@
     (std__string tileset) 
     (int rotation 0))))
 
-;; (scm-puts "Loaded tile")
+(export-all :qmapper.tile)

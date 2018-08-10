@@ -1,14 +1,17 @@
-;; (define-module (qmapper-layer)
-;;   #:use-module (srfi srfi-1)
-;;   #:use-module (qmapper-tile)
-;;   #:use-module (qmapper-std))
+(defpackage :qmapper.layer
+  (:use :common-lisp
+	:cl-arrows
+	:qmapper.std
+	:qmapper.root))
+
+(in-package :qmapper.layer)
 
 (defcppclass Layer
   (public
    (properties
     (std__string name "")
     (unsigned_char opacity 255)
-    (bool visible #t)
+    (bool visible t)
     (std__vector<std__vector<Tile*>>* tiles '())
     (Map* parent nil))
    (functions
@@ -17,9 +20,9 @@
     (height ()
 	    (length (caar (Layer-tiles (this))))))))
 
-(define-and-reg (make-tiles w h)
+(defun make-tiles (w h)
   (repeatedly (lambda (x)
 		(repeatedly (lambda (y)
-			      (make-Tile 0 0 #f 0)) h)) w))
+			      (make-Tile 0 0 nil 0)) h)) w))
 
-;; (scm-puts "Loaded layer")
+(export-all :qmapper.layer)

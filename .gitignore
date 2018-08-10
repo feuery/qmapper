@@ -11,3 +11,4 @@ ui*.h
 /GPATH
 /GRTAGS
 /GTAGS
+/bin/*

@@ -266,10 +266,10 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 	  });
 }
 
-MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv)
+MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 {
-  // We need to start guile subsystem before farting up an editorController
-  t.run(); //.start();
+  // We need to start lisp subsystem before farting up an editorController
+  t.load_lisp();
   // while(!t.running) { sleep(1); } 
   ec = new editorController();
   
@@ -359,11 +359,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow(), t(argc, argv)
 
 MainWindow::~MainWindow()
 {
-  t.running = false;
-  if(!t.wait()) {
-    qDebug()<<"Terminating guile_thread";
-    t.terminate();
-  }
 } 
 
 void MainWindow::registerController(editorController *ec)

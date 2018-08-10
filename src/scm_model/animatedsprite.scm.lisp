@@ -1,7 +1,10 @@
-;; (define-module (qmapper-animated-sprite)
-;;   #:use-module (srfi srfi-1)
-;;   #:use-module (qmapper-std)
-;;   #:use-module (qmapper-c))
+(defpackage :qmapper.animatedsprite
+  (:use :common-lisp
+	:cl-arrows
+	:qmapper.std
+	:qmapper.root))
+
+(in-package :qmapper.animatedsprite)
 
 (defcppclass animatedsprite
   (public
@@ -20,22 +23,22 @@
     (std__vector<Sprite*>* sprites '()))
    (functions
     (maxFrames ()
-	       (length (animatedsprite-sprites (this))))
+	       (length (animatedsprite-sprites *this*)))
     (advanceFrame! ()
-		   (let* ((t (animatedsprite-advanceFrameIfNeeded! (this)))
-			  (frameid (animatedsprite-currentFrameId t))
-			 (frameid (modulo frameid (animatedsprite-maxFrames t))))
-		    (set-animatedsprite-currentFrameId! t frameid)))
+		   (let* ((tt (animatedsprite-advanceFrameIfNeeded! *this*))
+			  (frameid (animatedsprite-currentFrameId tt))
+			 (frameid (modulo frameid (animatedsprite-maxFrames tt))))
+		    (set-animatedsprite-currentFrameId! tt frameid)))
     (render ()
-    	    (let* ((sprites (animatedsprite-sprites (this)))
-    		   (current-sprite (list-ref sprites (animatedsprite-currentFrameId (this)))))
+    	    (let* ((sprites (animatedsprite-sprites *this*))
+    		   (current-sprite (list-ref sprites (animatedsprite-currentFrameId *this*))))
 	      (render-object! current-sprite)))
     (advanceFrameIfNeeded! ()
-    			   (if (and (animatedsprite-animationPlaying (this))
-    				    (> (MsTime) (+ (animatedsprite-lastUpdated (this))
-						   (animatedsprite-msPerFrame (this)))))
-			       (-> (animatedsprite-advanceFrame! (this))
+    			   (if (and (animatedsprite-animationPlaying *this*)
+    				    (> (MsTime) (+ (animatedsprite-lastUpdated *this*)
+						   (animatedsprite-msPerFrame *this*))))
+			       (-> (animatedsprite-advanceFrame! *this*)
 				   (set-animatedsprite-lastUpdated! (MsTime)))
-			       (this))))))
+			       *this*)))))
 
-;; (scm-puts "animatedsprite loaded")
+(export-all :qmapper.animatedsprite)

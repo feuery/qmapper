@@ -5,6 +5,7 @@
 TEMPLATE = app
 TARGET = qt-test
 CONFIG += debug
+# CONFIG+=c++14
 INCLUDEPATH += .
 INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui
@@ -26,7 +27,7 @@ QMAKE_LFLAGS += `ecl-config --ldflags`
 
 DESTDIR = ./bin
 
-QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR}; cp ./src/scm_model/*.scm $${DESTDIR})
+QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR} && cp ./src/scm/*.asd $${DESTDIR} && cp ./src/scm_model/*.lisp $${DESTDIR})
 
 # Input
 HEADERS += src/headers/files.h \

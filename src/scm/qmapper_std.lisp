@@ -1,36 +1,23 @@
-;; (define-module (qmapper-std)
-;;   #:use-module (srfi srfi-1)
-;;   #:use-module (srfi srfi-18)
-;;   #:use-module (ice-9 futures)
-;;   #:use-module (srfi srfi-9 gnu)
-;;   #:use-module (language tree-il)
-;;   ;; #:use-module (qmapper-c)
-;;   #:export (-> ->> condp defcppclass))
+;; (let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
+;;                                        (user-homedir-pathname))))
+;;   (when (probe-file quicklisp-init)
+;;     (load quicklisp-init)))
 
-
-
-;; (use-modules (srfi srfi-1))
-;; (use-modules (srfi srfi-18))
-;; (use-modules (ice-9 futures))
-;; (use-modules (srfi srfi-9 gnu))
-;; (use-modules (language tree-il))
-
-;; Threading macros copy-pasted from https://github.com/joshwalters/guile-pipe
-;; thus making this GPLv3
-
-(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
-                                       (user-homedir-pathname))))
-  (when (probe-file quicklisp-init)
-    (load quicklisp-init)))
-
-(ql:quickload "cl-arrows")
-(ql:quickload "split-sequence")
+;; (ql:quickload "cl-arrows")
+;; (ql:quickload "split-sequence")
 
 (defpackage :qmapper.std
   (:use :common-lisp
 	:cl-arrows))
 
+;; (use 'cl-arrows)
+
 (in-package :qmapper.std)
+
+(defun export-all (pkg)
+  (let ((pack (find-package pkg)))
+    (do-all-symbols (sym pack)
+      (when (eql (symbol-package sym) pack) (export sym)))))
 
 ;; (define-macro (define-and-reg nameparams . body)
 ;;   (let ((name (car nameparams))
@@ -58,6 +45,9 @@
   (lambda (&rest rst-args)
     (apply f (concatenate 'list args rst-args))))
 
+(defun filter (f coll)
+  (remove-if-not f coll))
+
 (defun repeatedly (fn n)
   (if (equalp n 0)
       '()
@@ -75,7 +65,7 @@
 	    (dec n))
       list))
 
-(defun partition-by (pred lst)
+(defun partition-by2 (pred lst)
   (declare (optimize (debug 3)))
   (reduce (lambda (acc e)
 	    (if (funcall pred e)
@@ -86,6 +76,39 @@
 				rst)))
 		(cons e (cons acc '()))))
 	  lst :initial-value '()))
+
+(defun take (list n)
+  (defun -take (list n acc)
+    (if (> n 0)
+	(-take (cdr list)
+	       (dec n)
+	       (cons (car list) acc))
+	acc))
+  (reverse (-take list n '())))
+
+(defun take-while (pred coll)
+  (defun -take-while (list acc)
+    (if (or (not list)
+	    (not (funcall pred (car list))))
+	acc
+	(-take-while (cdr list)
+		     (cons (car list) acc))))
+  (reverse (-take-while coll '())))
+
+(defun partition-by (f coll)
+  (declare (optimize (debug 3)))
+  (if coll
+      (let* ((fst (first coll))
+             (fv (funcall f fst))
+             (run (cons fst (take-while (lambda (v)
+					  (equalp fv (funcall f v)))
+					(cdr coll))))
+	     (run (if (= (length run) 1)
+		      (car run)
+		      run)))
+        (cons run (partition-by f (drop coll (if (listp run)
+						 (length run)
+						 1)))))))
 
 (defun drop-while (fn lst)
   (if (or (not (funcall fn (car lst)))
@@ -104,14 +127,6 @@
 	     (drop list
 		   1))))))
 
-(defun take (list n)
-  (defun -take (list n acc)
-    (if (> n 0)
-	(-take (cdr list)
-	       (dec n)
-	       (cons (car list) acc))
-	acc))
-  (reverse (-take list n '())))
 
 (defun slice (l offset n)
   (take (drop l offset) n))
@@ -131,19 +146,165 @@
 (defun sym (str)
   (let ((*read-eval* nil))
     (read-from-string str)))
+
+(defvar *tulos-lista* `(FIELDS ((STD__MAP<STD__STRING___LAYER*>* LAYERS 'NIL)
+				(STD__MAP<STD__STRING___MAP*>* MAPS 'NIL)
+				(STD__MAP<STD__STRING___SCRIPT*>* SCRIPTS 'NIL)
+				(STD__MAP<STD__STRING___TILE*>* TILES 'NIL)
+				(STD__MAP<STD__STRING___TILESET*>* TILESETS 'NIL)
+				(SCM CHOSENMAP 'NIL) (INT CHOSENLAYERIND -1)
+				(SCM CHOSENTILESET 'NIL) (SCM CHOSENTILE 'NIL)
+				(SCM STDVERTEXSHADER 'NIL) (SCM STDFRAGMENTSHADER 'NIL)
+				(SCM STDTILEVIEWFRAGSHADER 'NIL))
+			       FUNCTIONS
+			       ((CONTENTS-STDFRAGMENT NIL
+						      (SCRIPT-CONTENTS (ROOT-STDFRAGMENTSHADER *THIS*)))
+				(CONTENTS-STDVERTEX NIL
+						    (SCRIPT-CONTENTS (ROOT-STDVERTEXSHADER *THIS*)))
+				(CONTENTS-TILEVIEWFRAGSHADER NIL
+							     (SCRIPT-CONTENTS (ROOT-STDTILEVIEWFRAGSHADER *THIS*)))
+				(REGISTRYSIZE NIL
+					      (+ (LENGTH (ROOT-LAYERS *THIS*))
+						 (LENGTH (ROOT-MAPS *THIS*))
+						 (LENGTH (ROOT-SCRIPTS *THIS*))
+						 (LENGTH (ROOT-TILES *THIS*))
+						 (LENGTH (ROOT-TILESETS *THIS*))))
+				(FETCHREGISTER (TYPE ID)
+					       (PLIST-GET
+						(CONDP EQUALP TYPE Layer (ROOT-LAYERS *THIS*) Map
+						       (ROOT-MAPS *THIS*) Script (ROOT-SCRIPTS *THIS*)
+						       Tile (ROOT-TILES *THIS*) Tilesets
+						       (ROOT-TILESETS *THIS*))
+						ID))
+				(FINDNS (NS)
+					(LET ((SCRIPTS (ROOT-SCRIPTS *THIS*)))
+					  (FIRST
+					   (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
+						   SCRIPTS))))
+				(SAVENS (NS CONTENT)
+					(LET* ((SCRIPTS (ROOT-SCRIPTS *THIS*))
+					       (INDEX
+						(GET-LIST-INDEX (ROOT-SCRIPTS *THIS*)
+								(LAMBDA (SC)
+								  (EQUALP (SCRIPT-NS SC) NS))))
+					       (NEW-SCRIPT
+						(-> (NTH INDEX SCRIPTS)
+						    (SET-SCRIPT-CONTENTS! CONTENT)))
+					       (SCRIPTS (ASSOC-TO-IND SCRIPTS INDEX NEW-SCRIPT)))
+					  (SET-ROOT-SCRIPTS *THIS* SCRIPTS)))
+				(CONTAINSNS (NS)
+					    (NOT
+					     (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
+						     SCRIPTS)))
+				(REGISTRYOF (TYPE)
+					    (LET ((RESULT
+						   (COND ((EQUALP TYPE Layer) (ROOT-LAYERS *THIS*))
+							 ((EQUALP TYPE Map) (ROOT-MAPS *THIS*))
+							 ((EQUALP TYPE Script)
+							  (ROOT-SCRIPTS *THIS*))
+							 ((EQUALP TYPE Tile) (ROOT-TILES *THIS*))
+							 ((EQUALP TYPE Tileset)
+							  (ROOT-TILESETS *THIS*))
+							 (T
+							  (SCM-PUTS
+							   registryOf got unrecognized type)
+							  (SCM-PUTS TYPE) NIL))))
+					      (IF RESULT
+						  (DROP-PLIST-KEYS RESULT)
+						  RESULT)))
+				(REGISTRYTOLIST NIL
+						(DROP-PLIST-KEYS
+						 (CONCATENATE 'LIST (ROOT-LAYERS *THIS*)
+							      (ROOT-MAPS *THIS*) (ROOT-SCRIPTS *THIS*)
+							      (ROOT-TILES *THIS*)
+							      (ROOT-TILESETS *THIS*)))))))
+
+(defvar *testilista* `(FIELDS (STD__MAP<STD__STRING___LAYER*>* LAYERS 'NIL)
+			       (STD__MAP<STD__STRING___MAP*>* MAPS 'NIL)
+			       (STD__MAP<STD__STRING___SCRIPT*>* SCRIPTS 'NIL)
+			       (STD__MAP<STD__STRING___TILE*>* TILES 'NIL)
+			       (STD__MAP<STD__STRING___TILESET*>* TILESETS 'NIL)
+			       (SCM CHOSENMAP 'NIL) (INT CHOSENLAYERIND -1)
+			       (SCM CHOSENTILESET 'NIL) (SCM CHOSENTILE 'NIL)
+			       (SCM STDVERTEXSHADER 'NIL) (SCM STDFRAGMENTSHADER 'NIL)
+			       (SCM STDTILEVIEWFRAGSHADER 'NIL)
+
+			       FUNCTIONS
+			       (CONTENTS-STDFRAGMENT NIL
+						     (SCRIPT-CONTENTS (ROOT-STDFRAGMENTSHADER *THIS*)))
+			       (CONTENTS-STDVERTEX NIL
+						   (SCRIPT-CONTENTS (ROOT-STDVERTEXSHADER *THIS*)))
+			       (CONTENTS-TILEVIEWFRAGSHADER NIL
+							    (SCRIPT-CONTENTS (ROOT-STDTILEVIEWFRAGSHADER *THIS*)))
+			       (REGISTRYSIZE NIL
+					     (+ (LENGTH (ROOT-LAYERS *THIS*))
+						(LENGTH (ROOT-MAPS *THIS*))
+						(LENGTH (ROOT-SCRIPTS *THIS*))
+						(LENGTH (ROOT-TILES *THIS*))
+						(LENGTH (ROOT-TILESETS *THIS*))))
+			       (FETCHREGISTER (TYPE ID)
+					      (PLIST-GET
+					       (CONDP EQUALP TYPE Layer (ROOT-LAYERS *THIS*) Map
+						      (ROOT-MAPS *THIS*) Script (ROOT-SCRIPTS *THIS*)
+						      Tile (ROOT-TILES *THIS*) Tilesets
+						      (ROOT-TILESETS *THIS*))
+					       ID))
+			       (FINDNS (NS)
+				       (LET ((SCRIPTS (ROOT-SCRIPTS *THIS*)))
+					 (FIRST
+					  (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
+						  SCRIPTS))))
+			       (SAVENS (NS CONTENT)
+				       (LET* ((SCRIPTS (ROOT-SCRIPTS *THIS*))
+					      (INDEX
+					       (GET-LIST-INDEX (ROOT-SCRIPTS *THIS*)
+							       (LAMBDA (SC)
+								 (EQUALP (SCRIPT-NS SC) NS))))
+					      (NEW-SCRIPT
+					       (-> (NTH INDEX SCRIPTS)
+						   (SET-SCRIPT-CONTENTS! CONTENT)))
+					      (SCRIPTS (ASSOC-TO-IND SCRIPTS INDEX NEW-SCRIPT)))
+					 (SET-ROOT-SCRIPTS *THIS* SCRIPTS)))
+			       (CONTAINSNS (NS)
+					   (NOT
+					    (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
+						    SCRIPTS)))
+			       (REGISTRYOF (TYPE)
+					   (LET ((RESULT
+						  (COND ((EQUALP TYPE Layer) (ROOT-LAYERS *THIS*))
+							((EQUALP TYPE Map) (ROOT-MAPS *THIS*))
+							((EQUALP TYPE Script)
+							 (ROOT-SCRIPTS *THIS*))
+							((EQUALP TYPE Tile) (ROOT-TILES *THIS*))
+							((EQUALP TYPE Tileset)
+							 (ROOT-TILESETS *THIS*))
+							(T
+							 (SCM-PUTS
+							  registryOf got unrecognized type)
+							 (SCM-PUTS TYPE) NIL))))
+					     (IF RESULT
+						 (DROP-PLIST-KEYS RESULT)
+						 RESULT)))
+			       (REGISTRYTOLIST NIL
+					       (DROP-PLIST-KEYS
+						(CONCATENATE 'LIST (ROOT-LAYERS *THIS*)
+							     (ROOT-MAPS *THIS*) (ROOT-SCRIPTS *THIS*)
+							     (ROOT-TILES *THIS*)
+							     (ROOT-TILESETS *THIS*))))))
  
 (defmacro defcppclass (classname &rest rst)
+  (declare (optimize (debug 3)))
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
 	 ;; (removeMe (format t "visibility-stripped: ~a~%" visibility-stripped))
   	 (partitioned (partition-by #'listp visibility-stripped))
+	 ;; (_ (prin1 partitioned))
 	 (props (plist-get partitioned 'properties))
 	 (fields (plist-get partitioned 'fields))
   	 (fields (reverse (->> (concatenate 'list fields
 	 				    props)
 	 		       (mapcar (lambda (field)
 	 				 (cadr field))))))
-	 (_ (format t "Fields is ~a~%" fields))
 	 (fields-with-accessors (cons 'progn (concatenate 'list (->> fields
 	 						       (mapcan (lambda (field)
 	 								 (let* ((getter (sym (str (symbol-name classname)
@@ -172,7 +333,7 @@
 				    (let ((*this* ,this))
 				      ,@body)))))))
 	 (ctr-name (sym (str "make-" (symbol-name classname))))
-	 (ctr `(defun ,ctr-name (,@fields)
+	 (ctr `(defun ,ctr-name (,@(reverse fields))
 		 (defun doIt (fields values acc)
 		   (if fields
 		       (let ((f (car fields))
@@ -387,3 +548,7 @@ and
 ;; 	 (when (key-down? 'Key_Right)
 ;; 	   (let ((x (get-prop "2001100545" "Sprite" "x")))
 ;; 	     (set-prop "2001100545" "Sprite" "x" (+ x 10))))))
+
+(format t "~%qmapper-std loaded")
+
+(export-all :qmapper.std)

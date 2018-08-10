@@ -29,7 +29,7 @@ public:
   document_server s;
   
   Renderer *map_view, *tileset_view, *tileview;
-  Guile_Thread t;
+  lisp_loader t;
   QGroupBox* toolbox();
 
   void setupTree();

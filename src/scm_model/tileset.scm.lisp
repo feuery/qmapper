@@ -1,3 +1,11 @@
+(defpackage :qmapper.tileset
+  (:use :common-lisp
+	:cl-arrows
+	:qmapper.std
+	:qmapper.root))
+
+(in-package :qmapper.tileset)
+
 (defcppclass Tileset
   (public
    (properties
@@ -6,4 +14,4 @@
     (Script* fragmentShader nullptr)
     (std__vector<std__vector<Tile*>>* tiles '()))))
 
-(scm-puts "Loaded tileset")
+(export-all :qmapper.tileset)
