@@ -2,6 +2,7 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
+	:qmapper.tile
 	:qmapper.root))
 
 (in-package :qmapper.layer)

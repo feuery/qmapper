@@ -24,7 +24,7 @@ extern "C" {
   cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda);
   cl_object qscm_puts(cl_object str);
 
-  cl_object register_fn(cl_object name, cl_object fn);
+  /* cl_object register_fn(cl_object name, cl_object fn); */
   cl_object get_fn(const char *name);
 
   cl_object MsTime();

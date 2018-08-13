@@ -5,7 +5,8 @@
 (defpackage :qmapper.root
   (:use :common-lisp
 	:cl-arrows
-	:qmapper.std))
+	:qmapper.std
+	:qmapper.script))
 
 (in-package :qmapper.root)
 
@@ -16,25 +17,44 @@
       ;; and these are supposed to be (gensym) -> 'a plists 
       ;; (std__map<std__string___animatedsprite*>* animatedSprites  '())
       ;; (std__map<std__string___Sprite*>* sprites  '())
-      (std__map<std__string___Layer*>* layers  '())
-      (std__map<std__string___Map*>* maps  '())
-      (std__map<std__string___Script*>* scripts  '())
-      (std__map<std__string___Tile*>* tiles  '())
-      (std__map<std__string___Tileset*>* tilesets  '())
-      (SCM chosenMap '())
-      (int chosenLayerInd -1)
-      (SCM chosenTileset '())
-      (SCM chosenTile '())
-      (SCM StdVertexShader '())
-      (SCM StdFragmentShader '())
-      (SCM StdTileviewFragShader '()))
+      (layers  '())
+      (maps  '())
+      (scripts  '())
+      (tiles  '())
+      (tilesets  '())
+      (chosenMap '())
+      (chosenLayerInd -1)
+      (chosenTileset '())
+      (chosenTile '())
+      (StdVertexShader "defaultVertex")
+      (StdFragmentShader "defaultFragment")
+      (StdTileviewFragShader "default.tileView"))
      (functions
       (contents-StdFragment ()
-			    (Script-contents (root-StdFragmentShader *this*)))
+			    (let* ((ns (root-stdfragmentshader *this*))
+				   (result
+				    (->> (root-scripts *this*)
+					 (filter (lambda (script)
+						   (equalp (script-ns script) ns))))))
+			      (cdar result)))
       (contents-StdVertex ()
-			  (Script-contents (root-StdVertexShader *this*)))
-      (contents-TileviewFragShader ()
-				   (Script-contents (root-StdTileviewFragShader *this*)))
+			  (let* ((ns (root-stdvertexshader *this*))
+				 (result (->> (root-scripts *this*)
+					      (filter (lambda (script-pair)
+							(let ((script (cdr script-pair)))						       
+					      		  (equalp (script-ns script) ns))))))
+				 (final-result (cadar result)))
+			    
+			    (cdr final-result)))
+      (contents-stdTileviewFragShader ()				      
+				      (let* ((ns (root-stdtileviewfragshader *this*))
+					     (result (->> (root-scripts *this*)
+							  (filter (lambda (script-pair)
+								    (let ((script (cdr script-pair)))						       
+					      			      (equalp (script-ns script) ns))))))
+					     (final-result (cadar result)))
+					
+					(cdr final-result)))
       
       (registrySize ()
 		    (+ ;; (length (root-animatedSprites *this*))
@@ -99,6 +119,9 @@
 						    ;; (root-sprites *this*)
 						    (root-tiles *this*)
 						    (root-tilesets *this*)))))))
+
+(defun init-root! ()
+  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
 
       
 (defun push-map (root m)

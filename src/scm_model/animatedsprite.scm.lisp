@@ -9,18 +9,18 @@
 (defcppclass animatedsprite
   (public
    (properties
-    (std__string parentMapId "")
-    (std__string name "")
-    (int currentFrameId 0)
-    (int msPerFrame 25)
-    (bool animationPlaying true)
-    (int lastUpdated 0)
-
-    (int x 0)
-    (int y 0)
-    (float angle 0.0)
+    (parentMapId "")
+    (name "")
+    (currentFrameId 0)
+    (msPerFrame 25)
+    (animationPlaying true)
+    (lastUpdated 0)
     
-    (std__vector<Sprite*>* sprites '()))
+    (x 0)
+    (y 0)
+    (angle 0.0)
+    
+    (sprites '()))
    (functions
     (maxFrames ()
 	       (length (animatedsprite-sprites *this*)))

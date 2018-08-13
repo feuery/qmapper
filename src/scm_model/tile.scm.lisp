@@ -9,9 +9,9 @@
 (defcppclass Tile 
   (public
    (properties
-    (int x 0)
-    (int y 0)
-    (std__string tileset) 
-    (int rotation 0))))
+    (x 0)
+    (y 0)
+    (tileset 0) 
+    (rotation 0))))
 
 (export-all :qmapper.tile)

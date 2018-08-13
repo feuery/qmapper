@@ -360,7 +360,7 @@ extern "C" {
     return ECL_T;
   }
 
-  cl_object get_fn(const char *name) {
-    return fn_cache.at(std::string(name));
-  }
+  // cl_object get_fn(const char *name) {
+  //   return fn_cache.at(std::string(name));
+  // }
 }

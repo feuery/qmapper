@@ -17,7 +17,9 @@
 (defun export-all (pkg)
   (let ((pack (find-package pkg)))
     (do-all-symbols (sym pack)
-      (when (eql (symbol-package sym) pack) (export sym)))))
+      (if (and (eql (symbol-package sym) pack)
+	       (not (equalp (symbol-name sym) "PUBLIC")))
+	  (export sym)))))
 
 ;; (define-macro (define-and-reg nameparams . body)
 ;;   (let ((name (car nameparams))
@@ -304,21 +306,22 @@
   	 (fields (reverse (->> (concatenate 'list fields
 	 				    props)
 	 		       (mapcar (lambda (field)
-	 				 (cadr field))))))
+					 ;; oli cadr
+	 				 (car field))))))
 	 (fields-with-accessors (cons 'progn (concatenate 'list (->> fields
-	 						       (mapcan (lambda (field)
-	 								 (let* ((getter (sym (str (symbol-name classname)
-	 												  "-"
-	 												  (symbol-name field))))
-	 									(setter (sym (str "set-"
-	 												  (symbol-name classname)
-	 												  "-"
-	 												  (symbol-name field)
-	 												  "!"))))
-									   (list `(defun ,getter (this)
-										    (cdr (assoc ',field this)))
-										 `(defun ,setter (this val)
-										    (alist-cons ',field val this))))))))))
+	 							     (mapcan (lambda (field)
+	 								       (let* ((getter (sym (str (symbol-name classname)
+	 												"-"
+	 												(symbol-name field))))
+	 									      (setter (sym (str "set-"
+	 												(symbol-name classname)
+	 												"-"
+	 												(symbol-name field)
+	 												"!"))))
+										 (list `(defun ,getter (this)
+											  (cdr (assoc ',field this)))
+										       `(defun ,setter (this val)
+											  (alist-cons ',field val this))))))))))
   	 (funcs (->> (plist-get partitioned 'functions)
 		     (mapcar (lambda (fn)
 			       (let ((name ;; (first fn)

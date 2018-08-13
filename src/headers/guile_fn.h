@@ -10,6 +10,7 @@ cl_object set(cl_object record, const char *prop, cl_object value);
 
 cl_object lisp(const std::string & call);
 std::string ecl_string_to_string(cl_object echar);
+cl_object makefn(const char *fn);
 
 
 // class guile_fn {

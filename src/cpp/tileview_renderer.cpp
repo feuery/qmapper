@@ -6,9 +6,9 @@
 static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
 {
   editorController *ec = editorController::instance;
-  static cl_object stdFrag = ecl_make_symbol("root-contents-StdFragment", "CL-USER");
-  static cl_object stdVertex = ecl_make_symbol("root-contents-StdVertex", "CL-USER");
-  static cl_object tileViewFrag = ecl_make_symbol("root-contents-StdTileviewFragShader", "CL-USER");
+  static cl_object stdFrag = makefn("root-contents-stdfragment");
+  static cl_object stdVertex = makefn("root-contents-stdvertex");
+  static cl_object tileViewFrag = makefn("root-contents-stdtileviewfragshader");
   
   std::string vertex_source(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),
     fragmentSource (ecl_string_to_string(cl_funcall(2, tileViewFrag, ec->document)));

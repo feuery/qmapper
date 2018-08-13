@@ -13,9 +13,8 @@ void lisp_loader::load_lisp() {
   lisp(std::string("(progn (format t \"Starting qlisp initialization~%\") (let ((quicklisp-init (merge-pathnames \"quicklisp/setup.lisp\"                                        (user-homedir-pathname))))   (when (probe-file quicklisp-init)     (load quicklisp-init))))"));
   lisp("(ql:quickload :qmapper)");
     
-  const char *works = "Everything's loaded, it's unnecessary to continue beyond this point as the software still thinks it's running guile";
+  const char *works = "Everything's loaded";
   puts(works);
-  throw works;
   
   running = true;
   

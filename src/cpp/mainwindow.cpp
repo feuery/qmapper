@@ -270,7 +270,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 {
   // We need to start lisp subsystem before farting up an editorController
   t.load_lisp();
-  // while(!t.running) { sleep(1); } 
+  puts("Lispit ladattu");
   ec = new editorController();
   
   ui.setupUi(this);

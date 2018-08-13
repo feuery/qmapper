@@ -1,25 +1,21 @@
-;; (define-module (qmapper-map)
-;;   #:use-module (srfi srfi-1)
-;;   #:use-module (qmapper-std)
-;;   #:use-module (qmapper-root)
-;;   #:use-module (qmapper-tile)
-;;   #:use-module (qmapper-layer))
-
 (defpackage :qmapper.map
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.root))
+	:qmapper.script
+	:qmapper.layer
+	:qmapper.root
+	:qmapper.tile))
 
 (in-package :qmapper.map)
 
 (defcppclass Map
     (public 
      (properties
-      (std__string name "Map 1")
-      (std__vector<Layer*>* layers '())
-      (list spritesAndAnimatedsprites '())
-      (root parent nil))
+      (name "Map 1")
+      (layers '())
+      (spritesAndAnimatedsprites '())
+      (parent nil))
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
@@ -35,6 +31,8 @@
 	       hAnchor)
 	      ;; TODO IMPLEMENT
 	      (error "Don't call Map-resize yet!")))))
+
+(format t "Ladataan qmapper.mapia ~%")
 
 (defun make-map-with-layers (name w h layer-count)
   (make-map name (repeatedly (lambda (i)

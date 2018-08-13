@@ -41,3 +41,7 @@ std::string ecl_string_to_string(cl_object echar) {
     }
     return res;
 }
+
+cl_object makefn(const char *fn) {
+  return lisp(std::string("(lambda (&rest rst) (format t \"Calling ") + fn + "~%\") (apply #'" + fn + " rst))");
+}

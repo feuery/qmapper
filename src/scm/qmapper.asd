@@ -17,11 +17,23 @@
 	       (:file "animatedsprite.scm"
 		      :depends-on ("qmapper_std"
 				   "root.scm"))
-  	       (:file "layer.scm")
-  	       (:file "map.scm")
-  	       (:file "root.scm")
-  	       (:file "script.scm")
+  	       
+  	       (:file "script.scm"
+		      :depends-on ("qmapper_std"))
+	       (:file "root.scm"
+		      :depends-on ("script.scm"))
   	       (:file "sprite.scm")
   	       (:file "tile.scm")
-  	       (:file "tileset.scm"))
+  	       (:file "layer.scm"
+		      :depends-on ("tile.scm"))
+  	       (:file "tileset.scm")
+  	       (:file "map.scm"
+		      :depends-on ("qmapper_std"
+				   "root.scm"
+				   "tileset.scm"
+				   "sprite.scm"
+				   "script.scm"
+				   "layer.scm"
+				   "animatedsprite.scm"
+				   "tile.scm")))
   )

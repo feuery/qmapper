@@ -37,11 +37,11 @@ cl_object make2DList(int w, int h, cl_object val) {
 }
 
 void editorController::populateMaps() {
-  static cl_object makeMap   = ecl_make_symbol("make-Map", "CL-USER");
-  static cl_object makeLayer = ecl_make_symbol("make-Layer", "CL-USER");
-  static cl_object makeTile  = ecl_make_symbol("make-Tile", "CL-USER");
-  static cl_object setLayers = ecl_make_symbol("set-Map-layers!", "CL-USER");
-  static cl_object pushMap   = ecl_make_symbol("push-map", "CL-USER");
+  static cl_object makeMap   = makefn("make-Map");
+  static cl_object makeLayer = makefn("make-Layer");
+  static cl_object makeTile  = makefn("make-Tile");
+  static cl_object setLayers = makefn("set-Map-layers!");
+  static cl_object pushMap   = makefn("push-map");
   
   for(int i = 0; i < 3; i++) {
     cl_object m = cl_funcall(5,
@@ -81,23 +81,15 @@ void editorController::populateMaps() {
 
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
   t(new Pen)
-{// scm_c_lookup
+{
   puts("Looking up scheme definitions in editorController::editorController");
-  // cl_object pushScript_s = scm_from_utf8_symbol(// "qmapper-root",
-  // 					  );
-  cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
+  lisp("(in-package :qmapper.map)");
+  cl_object pushScript = lisp("(lambda (a b) (push-script a b))");
+  cl_object makeScript = lisp("(lambda (&rest rst) (apply #'make-Script rst))");
+  cl_object initRoot = makefn("init-root!");
 
-  cl_object result = cl_funcall(6,
-				pushScript,
-				ecl_make_fixnum(0),
-				ecl_make_fixnum(1),
-				ecl_make_fixnum(2),
-				ecl_make_fixnum(3),
-				ecl_make_fixnum(4));
-  puts("Meillä on result");
-
-  // cl_object makeScript_s = ecl_make_symbol("make-Script", "CL-USER");
-  cl_object makeScript = get_fn("make-Script");
+  puts("Initializing document root");
+  document = cl_funcall(1, initRoot);
 
   if(instance) {
     puts("There already exists an editorController");
@@ -108,32 +100,37 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   documentTreeModel = new Tilelistmodel(document);
 
+  puts("Yritetään luoda eka skribula");
   cl_object scr = cl_funcall(5,
 			     makeScript,
-			     c_string_to_object("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
-			     c_string_to_object("Standard vertex shader"),
-			     c_string_to_object("defaultVertex"),
-			     c_string_to_object("glsl")); 
-  // document = scm_call_2(pushScript, document, scr);
+			     c_string_to_object("\"#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n\""),
+			     c_string_to_object("\"Standard vertex shader\""),
+			     c_string_to_object("\"defaultVertex\""),
+			     c_string_to_object("\"glsl\""));
+  puts("Luotiin eka skribula");
+
+  document = cl_funcall(3, pushScript, document, scr);
+
+  puts("Yritetään toista skribulaa");
+  scr = cl_funcall(5, makeScript,
+		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
+		   c_string_to_object("\"Standard fragment shader\""),
+		   c_string_to_object("\"defaultFragment\""),
+		   c_string_to_object("\"glsl\""));
+  document = cl_funcall(3, pushScript, document, scr);
 
   scr = cl_funcall(5, makeScript,
-		   c_string_to_object("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
-		   c_string_to_object("Standard fragment shader"),
-		   c_string_to_object("defaultShader"),
-		   ecl_make_symbol("glsl", "CL-USER"));
-  // document = scm_call_2(pushScript, document, scr);
-
-  scr = cl_funcall(5, makeScript,
-		   c_string_to_object("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}"),
-		   c_string_to_object("Standard selected tile - view's fragmentshader"),
-		   c_string_to_object("default.tileView"),
-		   ecl_make_symbol("glsl", "CL-USER"));
-  // document = scm_call_2(pushScript, document, scr);
+		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
+		   c_string_to_object("\"Standard selected tile - view's fragmentshader\""),
+		   c_string_to_object("\"default.tileView\""),
+		   c_string_to_object("\"glsl\""));
+  document = cl_funcall(3, pushScript, document, scr);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
   e->show();
 }
+	
 
 editorController::~editorController()
 {
@@ -173,7 +170,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
 void editorController::setTileAt(int x, int y)
 {
-  cl_object set_chosen_tile_at = ecl_make_symbol("set-chosen-tile-at", "CL-USER");
+  cl_object set_chosen_tile_at = makefn("set-chosen-tile-at");
 
   document = cl_funcall(4,
 			set_chosen_tile_at,
@@ -184,7 +181,7 @@ void editorController::setTileAt(int x, int y)
 
 
 void editorController::setTileRotation(int x, int y, int deg_angl) {
-  cl_object set_tile_rotation = ecl_make_symbol("set-tile-rotation-at", "CL-USER");
+  cl_object set_tile_rotation = makefn("set-tile-rotation-at");
 
   document = cl_funcall(5, set_tile_rotation,
 			document,
@@ -194,10 +191,10 @@ void editorController::setTileRotation(int x, int y, int deg_angl) {
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
-  cl_object get_chosen_tile = ecl_make_symbol("root-chosenTile", "CL-USER");
-  cl_object set_chosen_tile = ecl_make_symbol("set-tile-at-chosen-map", "CL-USER");
-  cl_object set_tile_rotation = ecl_make_symbol("set-tile-rotation-at", "CL-USER");
-  cl_object get_rot = ecl_make_symbol("Tile-rotation", "CL-USER");
+  cl_object get_chosen_tile = makefn("root-chosenTile");
+  cl_object set_chosen_tile = makefn("set-tile-at-chosen-map");
+  cl_object set_tile_rotation = makefn("set-tile-rotation-at");
+  cl_object get_rot = makefn("Tile-rotation");
 
 
   cl_object tile = cl_funcall(2,

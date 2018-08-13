@@ -2,19 +2,20 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.root))
+	;; :qmapper.root
+	))
 
 (in-package :qmapper.script)
 
 (defcppclass Script
   (public
    (properties
-    (std__string contents "")
-    (std__string name "")
+    (contents "")
+    (name "")
     ;; TODO redo validators in pure scheme
-    (std__string ns "user" ;; (doesntContainNs)
+    (ns "user" ;; (doesntContainNs)
 		 )
-    (scriptTypes script_type 'scheme))
+    (script_type 'scheme))
    (functions
     (is-scheme? ()
 		(let ((script-type (Script-script_type (this))))
