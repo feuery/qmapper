@@ -1,4 +1,6 @@
+#include <QString>
 #include <guile_fn.h>
+#include <QApplication>
 
 // TODO uudelleenkirjota scheme-filut lispillä
 
@@ -44,4 +46,14 @@ std::string ecl_string_to_string(cl_object echar) {
 
 cl_object makefn(const char *fn) {
   return lisp(std::string("(lambda (&rest rst) (format t \"Calling ") + fn + "~%\") (apply #'" + fn + " rst))");
+}
+
+static char start_swank[] =
+  "./start-slime.lisp";
+
+void run_swank() {
+  QString path = "\""+QCoreApplication::applicationDirPath() +"/"+start_swank +"\"";
+  cl_object cl_start_swank_path = c_string_to_object(path.toStdString().c_str());
+  cl_object cl_load =  ecl_make_symbol("LOAD","CL");
+  cl_funcall(2, cl_load, cl_start_swank_path);
 }

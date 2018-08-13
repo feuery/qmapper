@@ -12,6 +12,8 @@ void lisp_loader::load_lisp() {
   // let's load quicklisp from ~/quicklisp/setup.lisp - TODO make configurable
   lisp(std::string("(progn (format t \"Starting qlisp initialization~%\") (let ((quicklisp-init (merge-pathnames \"quicklisp/setup.lisp\"                                        (user-homedir-pathname))))   (when (probe-file quicklisp-init)     (load quicklisp-init))))"));
   lisp("(ql:quickload :qmapper)");
+
+  run_swank();
     
   const char *works = "Everything's loaded";
   puts(works);
