@@ -21,7 +21,7 @@ Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
   // }
   // else
     timer.setInterval(0);
-  timer.start();
+  // timer.start();
 
   // This trickery-pockery tricks the scrollarea to function as expected
   const int w = 2000;

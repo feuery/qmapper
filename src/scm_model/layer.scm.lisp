@@ -10,11 +10,12 @@
 (defcppclass Layer
   (public
    (properties
-    (std__string name "")
-    (unsigned_char opacity 255)
-    (bool visible t)
-    (std__vector<std__vector<Tile*>>* tiles '())
-    (Map* parent nil))
+    (name "")
+    (opacity 255)
+    (visible t)
+    (tiles '())
+    ;; (parent nil)
+    )
    (functions
     (width ()
 	   (length (first (Layer-tiles (this)))))

@@ -43,7 +43,7 @@ void Spriterotater::use(QMouseEvent *event, int tilex, int tiley, editorControll
 			    fixint(cl_funcall(2, getY, currentSprite)));
 
   currentSprite = cl_funcall(3, setAngle, currentSprite, ecl_make_double_float(final_angle));
-  editorController::instance->document = cl_funcall(3, push_sprite_to_chosen_map,
-						    editorController::instance->document,
-						    currentSprite);
+  editorController::instance->document.setValue(cl_funcall(3, push_sprite_to_chosen_map,
+							   editorController::instance->document,
+							   currentSprite));
 }

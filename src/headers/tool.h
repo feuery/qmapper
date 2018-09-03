@@ -3,6 +3,7 @@
 
 #include <QMouseEvent>
 #include <editorController.h>
+#include <guile_fn.h>
 
 class Tool{
 public:

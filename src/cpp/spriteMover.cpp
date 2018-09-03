@@ -32,7 +32,7 @@ void Spritemover::use(QMouseEvent *event, int tilex, int tiley, editorController
   currentSprite = cl_funcall(3, setX, currentSprite, ecl_make_int32_t(event->x()));
   currentSprite = cl_funcall(3, setY, currentSprite, ecl_make_int32_t(event->y()));
   
-  editorController::instance->document = cl_funcall(3, push_sprite_to_chosen_map,
-						    editorController::instance->document,
-						    currentSprite);
+  editorController::instance->document.setValue(cl_funcall(3, push_sprite_to_chosen_map,
+							   editorController::instance->document,
+							   currentSprite));
 }

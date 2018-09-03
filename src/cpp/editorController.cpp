@@ -37,25 +37,28 @@ cl_object make2DList(int w, int h, cl_object val) {
 }
 
 void editorController::populateMaps() {
-  static cl_object makeMap   = makefn("make-Map");
-  static cl_object makeLayer = makefn("make-Layer");
+  static cl_object makeMap   = makefn("make-map");
+  static cl_object makeLayer = makefn("make-layer");
   static cl_object makeTile  = makefn("make-Tile");
   static cl_object setLayers = makefn("set-Map-layers!");
+  static cl_object getLayers = makefn("map-layers");
   static cl_object pushMap   = makefn("push-map");
+  static cl_object cons      = makefn("cons");
   
   for(int i = 0; i < 3; i++) {
-    cl_object m = cl_funcall(5,
+    std::string name = "\""+(std::to_string(i)+"th map")+"\"";
+    cl_object m = cl_funcall(4,
 			     makeMap,
-			     c_string_to_object((std::to_string(i)+"th map").c_str()),
+			     c_string_to_object(name.c_str()),
 			     ECL_NIL,
-			     ECL_NIL,
-			     document);
+			     ECL_NIL);
     for(int x = 0; x < 2; x++) {
       int w = 10 + 10 * x,
 	h   = 10 + 10 * x;
-      cl_object l = cl_funcall(6,
+      std::string lname = "\""+(std::to_string(x)+"th layer") +"\"";
+      cl_object l = cl_funcall(5,
 			       makeLayer,
-			       c_string_to_object((std::to_string(x)+"th layer").c_str()),
+			       c_string_to_object(lname.c_str()),
 			       ecl_make_fixnum(255),
 			       ECL_T,
 			       make2DList(w, h, cl_funcall(5,
@@ -63,34 +66,28 @@ void editorController::populateMaps() {
 							   ecl_make_fixnum(0),
 							   ecl_make_fixnum(0),
 							   ecl_make_fixnum(0),
-							   ecl_make_fixnum(0))),
-			       m);
-      m = cl_funcall(3, setLayers, m, l);
+							   ecl_make_fixnum(0))));
+      cl_object old_layers = cl_funcall(2 , getLayers, m);
+      
+      m = cl_funcall(3, setLayers, m, cl_funcall(3, cons, l, old_layers));
     }
-    document = cl_funcall(3, pushMap, document, m);
+    document.setValue( cl_funcall(3, pushMap, document.getValue(), m));
   }
 }
 
 
-
-
-
-
-
-
-
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
-  t(new Pen)
+   t(new Pen)
 {
   puts("Looking up scheme definitions in editorController::editorController");
   lisp("(in-package :qmapper.map)");
   cl_object pushScript = lisp("(lambda (a b) (push-script a b))");
-  cl_object makeScript = lisp("(lambda (&rest rst) (apply #'make-Script rst))");
-  cl_object initRoot = makefn("init-root!");
-
-  puts("Initializing document root");
-  document = cl_funcall(1, initRoot);
-
+  cl_object makeScript = makefn("make-script");
+  
+  // puts("Initializing document root");
+  // cl_object initRoot = makefn("init-root!");
+  // document.setValue(cl_funcall(1, initRoot));
+  
   if(instance) {
     puts("There already exists an editorController");
     throw "";
@@ -109,7 +106,9 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 			     c_string_to_object("\"glsl\""));
   puts("Luotiin eka skribula");
 
-  document = cl_funcall(3, pushScript, document, scr);
+  document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
+
+  puts("Tallennettiin eka skribula!");
 
   puts("Yritetään toista skribulaa");
   scr = cl_funcall(5, makeScript,
@@ -117,14 +116,17 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 		   c_string_to_object("\"Standard fragment shader\""),
 		   c_string_to_object("\"defaultFragment\""),
 		   c_string_to_object("\"glsl\""));
-  document = cl_funcall(3, pushScript, document, scr);
+  document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
 
   scr = cl_funcall(5, makeScript,
 		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
 		   c_string_to_object("\"Standard selected tile - view's fragmentshader\""),
 		   c_string_to_object("\"default.tileView\""),
 		   c_string_to_object("\"glsl\""));
-  document = cl_funcall(3, pushScript, document, scr);
+  document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
+
+  DEFUN("get-current-doc", get_current_doc, 0);
+  DEFUN("explode", explode, 0);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
@@ -172,22 +174,22 @@ void editorController::setTileAt(int x, int y)
 {
   cl_object set_chosen_tile_at = makefn("set-chosen-tile-at");
 
-  document = cl_funcall(4,
+  document.setValue( cl_funcall(4,
 			set_chosen_tile_at,
-			document,
+			document.getValue(),
 			ecl_make_fixnum(x),
-			ecl_make_fixnum(y));
+				ecl_make_fixnum(y)));
 }
 
 
 void editorController::setTileRotation(int x, int y, int deg_angl) {
   cl_object set_tile_rotation = makefn("set-tile-rotation-at");
 
-  document = cl_funcall(5, set_tile_rotation,
-			document,
+  document.setValue( cl_funcall(5, set_tile_rotation,
+			document.getValue(),
 			ecl_make_fixnum(x),
 			ecl_make_fixnum(y),
-			ecl_make_fixnum(deg_angl % 360));
+				ecl_make_fixnum(deg_angl % 360)));
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
@@ -199,13 +201,13 @@ void editorController::rotateTile90Deg(int x, int y) {
 
   cl_object tile = cl_funcall(2,
 			      get_chosen_tile,
-			document);
+			document.getValue());
   cl_object rotation = cl_funcall(2, get_rot, tile);
-  document = cl_funcall(5, set_tile_rotation,
-			document,
+  document.setValue( cl_funcall(5, set_tile_rotation,
+			document.getValue(),
 			ecl_make_fixnum(x),
 			ecl_make_fixnum(y),
-			ecl_make_fixnum((fixint(rotation) + 90) % 360));
+				ecl_make_fixnum((fixint(rotation) + 90) % 360)));
   
 }
 
@@ -427,4 +429,15 @@ void editorController::clearDrawQueues() {
     r->getDrawQueue().clear();
     r->clearOwnObjects();
   }
+}
+
+cl_object get_current_doc() {
+  puts("Lollo, palautetaan docu");
+  return editorController::instance->document.getValue();
+}
+
+cl_object explode() {
+  puts("Let's explode!");
+  throw "";
+  return ECL_NIL;
 }

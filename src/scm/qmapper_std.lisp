@@ -68,7 +68,6 @@
       list))
 
 (defun partition-by2 (pred lst)
-  (declare (optimize (debug 3)))
   (reduce (lambda (acc e)
 	    (if (funcall pred e)
 		(let* ((s (car acc))
@@ -359,10 +358,16 @@
        (symbol-name ',classname))))
 
 (defun q-type-of  (obj-alist)
-  (cdr (assoc 'type-name obj-alist)))
+  (handler-case
+      (cdr (assoc 'type-name obj-alist))
+    (SIMPLE-TYPE-ERROR (ste)
+      (format t "ste bongattu, obj-alist on ~a~%" obj-alist)
+      (explode))
+    (SIMPLE-ERROR (lol)
+      (format t "Virhe: obj-alsit on ~a~%" (prin1-to-string obj-alist)))))
 
 (defun get-prop  (obj-alist key)
-  (cdr (assoc key obj-alist)))
+  (cdr (assoc (intern (string-upcase key)) obj-alist)))
 
 (defun set-prop  (obj-alist key val)
   (alist-cons key val obj-alist))
@@ -472,6 +477,16 @@ and
 		     acc
 		     (inc count)))))
   (reverse (dropper lst '() 0)))
+
+(defun drop-alist-keys (lst)
+  (defun dropper2 (lst acc)
+    (if (not lst)
+	acc
+	(dropper2 (cdr lst)
+		 (cons (cdar lst) acc))))
+  (reverse (dropper2 lst '())))
+
+;; (drop-alist-keys `((AAA . 3) (BEE 2))) => '(3 2)
 
 ;; (drop-plist-keys '(:lol 1 :lollo 3 'asd 33))  => '(1 3 33)
 

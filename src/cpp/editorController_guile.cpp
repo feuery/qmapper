@@ -10,7 +10,7 @@ extern "C" {
     static cl_object registrySize = ecl_make_symbol("root-registrySize", "CL-USER");
    
     cl_object count = cl_funcall(2, registrySize,
-			   editorController::instance->document);
+			   editorController::instance->document.getValue());
 
     cl_object m = cl_funcall(5, makeMap,
 			     c_string_to_object((std::to_string(fixint(count)+1)+"th map").c_str()),
@@ -18,9 +18,9 @@ extern "C" {
 		       h,
 		       layerCount);
 
-    editorController::instance->document = cl_funcall(3, pushMap,
-						      editorController::instance->document,
-						      m);
+    editorController::instance->document.setValue( cl_funcall(3, pushMap,
+						      editorController::instance->document.getValue(),
+							      m));
     return ECL_T;
   }
 
@@ -29,9 +29,9 @@ extern "C" {
     cl_object addLayer = ecl_make_symbol("add-layer", "CL-USER");
     
     editorController::instance->documentTreeModel->begin();
-    editorController::instance->document = cl_funcall(3, addLayer,
-						      editorController::instance->document,
-						      map_index);
+    editorController::instance->document.setValue( cl_funcall(3, addLayer,
+						      editorController::instance->document.getValue(),
+							      map_index));
     
     editorController::instance->documentTreeModel->end();
 
@@ -43,10 +43,10 @@ extern "C" {
   {
     static cl_object deleteLayer = ecl_make_symbol("delete-layer", "CL-USER");
     editorController::instance->documentTreeModel->begin();
-    editorController::instance->document = cl_funcall(4, deleteLayer,
-						      editorController::instance->document,
+    editorController::instance->document.setValue( cl_funcall(4, deleteLayer,
+						      editorController::instance->document.getValue(),
 						      map_index_scm,
-						      layer_index_scm);
+							      layer_index_scm));
     editorController::instance->documentTreeModel->end();
     return ECL_T;
   }
@@ -67,9 +67,9 @@ extern "C" {
 			   c_string_to_object("A new GLSL script"),
 			   c_string_to_object(genNs().c_str()),
 				 ecl_make_symbol("glsl", "CL-USER"));
-    editorController::instance->document = cl_funcall(3, pushScript,
-						      editorController::instance->document,
-						      scrpt);
+    editorController::instance->document.setValue( cl_funcall(3, pushScript,
+						      editorController::instance->document.getValue(),
+							      scrpt));
     editorController::instance->documentTreeModel->end();
 
     return ECL_T;
@@ -87,9 +87,9 @@ extern "C" {
 			   c_string_to_object("A new Scheme script"),
 			   c_string_to_object(genNs().c_str()),
 				 ecl_make_symbol("scheme", "CL-USER"));
-    editorController::instance->document = cl_funcall(3, pushScript,
-						      editorController::instance->document,
-						      scrpt);
+    editorController::instance->document.setValue( cl_funcall(3, pushScript,
+						      editorController::instance->document.getValue(),
+							      scrpt));
     editorController::instance->documentTreeModel->end();
 
     return ECL_T;
@@ -108,7 +108,7 @@ extern "C" {
     static cl_object map_resize = ecl_make_symbol("Map-resize", "CL-USER");
     
     // Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
-    cl_object m = cl_funcall(2, selectedMap, editorController::instance->document);
+    cl_object m = cl_funcall(2, selectedMap, editorController::instance->document.getValue());
 
     std::string horizontal_a(ecl_string_to_string(ecl_symbol_name(horizontal_anchor)));
     std::string vertical_a(ecl_string_to_string(ecl_symbol_name(vertical_anchor)));
@@ -120,9 +120,9 @@ extern "C" {
 		   vertical_anchor,
 		   horizontal_anchor);
 		   
-    editorController::instance->document = cl_funcall(3, push_selectedMap,
-						      editorController::instance->document,
-						      m);
+    editorController::instance->document.setValue( cl_funcall(3, push_selectedMap,
+						      editorController::instance->document.getValue(),
+							      m));
 						      
 
     ec->renderingEnabled = oldRenderingState;;

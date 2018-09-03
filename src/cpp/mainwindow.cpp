@@ -11,6 +11,8 @@
 #include <QFileDialog>
 #include <propertyEditor.h>
 
+#include <iostream>
+
 #include <QMessageBox>
 #include <editorController_guile.h>
 
@@ -50,7 +52,12 @@ void MainWindow::setupTree()
     tree.setModel(ec->documentTreeModel);
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 	if(!index.isValid()) return;
-	cl_object b = static_cast<cl_object >(index.internalPointer());
+	puts("We're at DOMTree::clicked");
+	// void *ptr = index.internalPointer();
+	// std::cout << "Ptr is " << ptr << std::endl;
+	// std::cout << "int cache is " << int_cache;
+	
+	cl_object b = deref_index(index);
 	std::string type = type_name(b);
 
 	if(type == "Tileset") {

@@ -10,22 +10,22 @@
 // }
 
 std::string type_name(cl_object record) {
-  cl_object type_of = ecl_make_symbol("type-of", "CL-USER");
+  cl_object type_of = makefn("q-type-of");
 
   return ecl_string_to_string(cl_funcall(2, type_of, record));
 }
 
 cl_object get(cl_object record, const char *prop)
 {
-  static cl_object get = ecl_make_symbol("get-prop", "CL-USER");
-  return cl_funcall(3, get, record, ecl_make_symbol(prop, "CL-USER"));
+  static cl_object get = makefn("get-prop");
+  return cl_funcall(3, get, record, c_string_to_object(prop));
 }
 
 cl_object set(cl_object record, const char *prop, cl_object val)
 {
-  static cl_object set = ecl_make_symbol("set-prop", "CL-USER");
+  static cl_object set = makefn("set-prop");
 
-  return cl_funcall(4, set, record, ecl_make_symbol(prop, "CL-USER"), val);
+  return cl_funcall(4, set, record, c_string_to_object(prop), val);
 }
 
 cl_object lisp(const std::string & call) {
@@ -45,7 +45,8 @@ std::string ecl_string_to_string(cl_object echar) {
 }
 
 cl_object makefn(const char *fn) {
-  return lisp(std::string("(lambda (&rest rst) (format t \"Calling ") + fn + "~%\") (apply #'" + fn + " rst))");
+  // (format t \"Params ~a~%\" rst)
+  return lisp(std::string("(lambda (&rest rst) (format t \"Calling ") + fn + "~%\")  (apply #'" + fn + " rst))");
 }
 
 static char start_swank[] =

@@ -15,7 +15,8 @@
       (name "Map 1")
       (layers '())
       (spritesAndAnimatedsprites '())
-      (parent nil))
+      ;; (parent nil)
+      )
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
@@ -36,13 +37,33 @@
 
 (defun make-map-with-layers (name w h layer-count)
   (make-map name (repeatedly (lambda (i)
-			       (make-Layer (str (number->string i) "th layer")
+			       (make-Layer (str (prin1-to-string i) "th layer")
 					   255
 					   t
-					   (make-tiles w h)
-					   nil)) layer-count)
-	    '()
-	    nil))
+					   (make-tiles w h))) layer-count)
+	    '()))
+
+;; (cadr (assoc 'layers (make-map-with-layers "NAME" 3 3 2)))
+
+; (make-map-with-layers "lol" 2 2 2)
+
+;; (map-layers (make-map-with-layers "Lollo" 2 2 2))
+;; (((NAME . "2th layer") (OPACITY . 255) (VISIBLE . T)
+;;   (TILES
+;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
+;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE")))
+;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
+;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))))
+;;   (TYPE-NAME . "LAYER"))
+;;  ((NAME . "1th layer") (OPACITY . 255) (VISIBLE . T)
+;;   (TILES
+;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
+;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE")))
+;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
+;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))))
+;;   (TYPE-NAME . "LAYER")))
+
+; (get-prop (make-map-with-layers "Lollo" 2 2 2) "namee")
 
 (defun alist-update (alist k fn)
   (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
@@ -91,9 +112,25 @@
 	nil
 	(caar result))))
 
-;; (let* ((s (gensym))
-;;        (alist `((,s . 3))))
-;;   (equal? (find-index-of alist 3) s))
+;; TODO testaa allekommentoidulla paskeella
+(defun find-layer-parent (layer root)
+  (let* ((maps (mapcar #'cdr (root-maps root))))
+    (car
+     (filter (lambda (map)
+	       (position layer (map-layers map)))
+	     maps))))
+	 
+
+;; (let* ((root (-> (init-root!)
+;; 		 (push-map (make-map-with-layers "Lolmap" 2 2 3))
+;; 		 (push-map (make-map-with-layers "Lolmap" 2 3 3))))
+;;        (map (cdar (root-maps root)))
+;;        (layer (car (map-layers map))))
+;;   (equalp (find-layer-parent layer root) map)) ;; => T
+
+
+
+
 
 
 (defun push-sprite (map sprite)

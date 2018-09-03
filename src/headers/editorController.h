@@ -12,6 +12,8 @@
 
 #include <engine.h>
 #include <libzippp.h>
+#include <guile_fn.h>
+#include <holder.h>
 
 class MainWindow;
 class Renderer;
@@ -19,9 +21,9 @@ class Renderer;
 /* Holds the state of the editor. Will be passed everywhere as a reference */
 class editorController{
 public:
+  holder document;
   void registerWindow(MainWindow *w);
-
-  cl_object document;
+  
   Tilelistmodel *documentTreeModel;
 
   QObject r;
@@ -72,4 +74,6 @@ private:
 
 };
 
+cl_object get_current_doc();
+cl_object explode();
 #endif //EDITORCONTROLLER_H

@@ -394,7 +394,7 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 }
 
 void Propertyeditor::resetLayout(cl_object base) {
-  cl_object r = editorController::instance->document;
+  cl_object r = editorController::instance->document.getValue();
   cl_object regToList = ecl_make_symbol("root-registryToList", "CL-USER");
   auto reg = cl_funcall(2, regToList, r);
   l = new QVBoxLayout;

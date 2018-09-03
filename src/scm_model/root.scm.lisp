@@ -38,11 +38,15 @@
 						   (equalp (script-ns script) ns))))))
 			      (cdar result)))
       (contents-StdVertex ()
+			  ;; (format t "Yritetään hakea vertexshaderia~%")
+			  ;; (format t "This on ~a~%" *this*)
 			  (let* ((ns (root-stdvertexshader *this*))
+				 ;; (lol (format t "haettiin vertexshaderin ns~%"))
 				 (result (->> (root-scripts *this*)
 					      (filter (lambda (script-pair)
 							(let ((script (cdr script-pair)))						       
 					      		  (equalp (script-ns script) ns))))))
+				 ;; (aaa (format t "haettiin vertexshaderin ns~%"))
 				 (final-result (cadar result)))
 			    
 			    (cdr final-result)))
@@ -111,27 +115,33 @@
 			result)))
       
       (registryToList ()
-		      (drop-plist-keys (concatenate 'list
+		      (let ((concd (concatenate 'list
 						    ;; (root-animatedSprites *this*)
 						    (root-layers *this*)
 						    (root-maps *this*)
 						    (root-scripts *this*)
 						    ;; (root-sprites *this*)
 						    (root-tiles *this*)
-						    (root-tilesets *this*)))))))
+						    (root-tilesets *this*))))
+			(drop-alist-keys concd))))))
+
 
 (defun init-root! ()
-  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
+  (let ((result (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView")))
+    ; (format t "Initiated root to ~a ~%" result)
+    result))
 
       
 (defun push-map (root m)
-  (let* ((maps (alist-cons (gensym)
-			  m
-			  (root-maps root)))
+  (let* ((maps (cons (cons (gensym)
+			   m)
+		     (root-maps root)))
 	 (r (if (not (root-chosenMap root))
 		(set-root-chosenMap! root (first maps))
-		root)))    
-    (set-root-maps! root maps)))
+		root))
+	 (final-root (set-root-maps! root maps)))
+    ;; (format t "Final root at push-map is ~a~%" final-root)
+    final-root))
 
 (defun push-script (root scr)
   (set-root-scripts! root (alist-cons (gensym)
@@ -160,8 +170,15 @@
 			(push-sprite sprite))))
     (push-selected-map root chosen-map)))
 
+(defvar *document* (init-root!))
+
+(defun set-doc (doc)
+  (assert (not (functionp doc)))
+  (setf *document* doc))
+
+(format t "set-doc defun'd")
+
 (export-all :qmapper.root)
 
-(format t "qmapper.root loaded!")
 
 ;; (scm-puts "root loaded")

@@ -4,8 +4,11 @@
 #include <QAbstractListModel>
 #include <cstdio>
 #include <unistd.h>
+// #include <editorController.h>
 
 #include <ecl/ecl.h>
+#include <holder.h>
+#include <unordered_map>
 
 
 // Layers are parents/root nodes if needed
@@ -14,7 +17,7 @@ class Tilelistmodel: public QAbstractItemModel
   Q_OBJECT
 public:
 
-  Tilelistmodel(cl_object Root);
+  Tilelistmodel(holder Root);
 
   // qabstractitemmodel-data
   QVariant data(const QModelIndex &index, int role) const override;
@@ -33,22 +36,18 @@ public:
   void beginMap(int map_row);
   void end();
 
+  static Tilelistmodel instance;
+
 private:
 
-  cl_object Root;
-
-  cl_object getparent(const QModelIndex &parent) const;
+  holder Root;
 };
 
-template<typename T>
-int indexOf(std::vector<T>* vec, T element)
-{
-  auto it = std::find(vec->begin(), vec->end(), element);
-  if (it != vec->end()) {
-    return std::distance(vec->begin(), it);
-  }
+cl_object deref_index(const QModelIndex &parent);
+int indexOf(cl_object vec, cl_object element);
 
-  return -1;
-}
+
+extern int int_cache;
+int getInt();
 
 #endif //TILELISTMODEL_H

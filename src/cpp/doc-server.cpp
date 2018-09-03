@@ -95,10 +95,10 @@ void document_server::helloWorld()
 						  std::string contents = str.replace(l.at(0)+":"+l.at(1)+":", QString("")).toStdString();
 						  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
 	  
-						  editorController::instance->document = cl_funcall(4, saveNs,
-												    editorController::instance->document,
-												    c_string_to_object(ns.c_str()),
-												    c_string_to_object(contents.c_str()));
+						  editorController::instance->document.setValue(cl_funcall(4, saveNs,
+													   editorController::instance->document,
+													   c_string_to_object(ns.c_str()),
+													   c_string_to_object(contents.c_str())));
 						}
 						else qDebug() << "Didn't recognize protocol " << protocol;
 					      }

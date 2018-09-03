@@ -9,9 +9,9 @@ static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
   static cl_object stdFrag = makefn("root-contents-stdfragment");
   static cl_object stdVertex = makefn("root-contents-stdvertex");
   static cl_object tileViewFrag = makefn("root-contents-stdtileviewfragshader");
-  
-  std::string vertex_source(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),
-    fragmentSource (ecl_string_to_string(cl_funcall(2, tileViewFrag, ec->document)));
+
+  std::string vertex_source(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document.getValue()))),
+    fragmentSource (ecl_string_to_string(cl_funcall(2, tileViewFrag, ec->document.getValue())));
 
   const char* vertex_haisee = vertex_source.c_str();
   const char* const* v = &vertex_haisee;

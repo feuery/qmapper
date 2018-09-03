@@ -59,6 +59,7 @@ HEADERS += src/headers/files.h \
            src/headers/guile_qt_keymapping.h \
            src/headers/guile_fn.h \
            src/scm_model/loader.h \
+           src/headers/holder.h
            
 FORMS += \
     src/forms/main.ui \ 
@@ -89,4 +90,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/engine_renderer.cpp \
            src/cpp/guile_qt_keymapping.cpp \
            src/cpp/guile_fn.cpp \
-           src/scm_model/loader.cpp
+           src/scm_model/loader.cpp \
+           src/cpp/holder.cpp
