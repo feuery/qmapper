@@ -4,6 +4,11 @@
 #include <guile_fn.h>
 #include <editorController.h>
 
+// if only there were advice or non-stupid macros or smthing in cpp
+
+#define START_LIST_METHOD setCallLogs(false);
+#define STOP_LIST_METHOD setCallLogs(true);
+
 #define INT2VOIDP(i) (void*)(uintptr_t)(i)
 
 static std::unordered_map<void*, cl_object> keeper;
@@ -11,9 +16,7 @@ static
 void doRegister(void* ptr, cl_object o)
 {
   auto type_of = makefn("q-Type-of");
-  // printf("Registering to %d\n", ptr);
   auto s = ecl_string_to_string(cl_funcall(2, type_of, o));
-  // printf("Type is %s\n", s.c_str());
   keeper[ptr] = o; 
 }
 
@@ -22,11 +25,9 @@ cl_object getRegister(void* ptr)
 {
   try{
     // auto type_of = makefn("q-type-of");
-    // printf("Fetching from %d\n", p);
     cl_object o = keeper.at(ptr);
   
     // auto s = ecl_string_to_string(cl_funcall(2, type_of, o));
-    // printf("Type is %s\n", s.c_str());  
 
     // keeper.erase(p);
   
@@ -60,24 +61,22 @@ cl_object deref_index(const QModelIndex &parent) {
   }
   else {
     log_deref;
-    // if(parent.isValid()) {
-    //   if(!(ptr < INT2VOIDP(int_cache))) puts("Case 2 fails");
-    //   std::cout<<"ptr " << ptr << " is rubbish\n";
-    //   std::cout<<"int_cache's size: " << int_cache << std::endl;
-    //   throw "";
-    // }
-    // else 
-    //   puts("Parent isn't valid. Let's return root-doc");
     return Root.getValue();
   }
 }
 
-Tilelistmodel::Tilelistmodel(holder R): Root(R) { }
+Tilelistmodel::Tilelistmodel(holder R): Root(R) {
+  START_LIST_METHOD;
+
+  STOP_LIST_METHOD;
+}
 
 #define type_err_print printf("Got an unknown type %s at line %d\n", type, __LINE__);
 
 int Tilelistmodel::rowCount(const QModelIndex &qparent) const
 {
+  START_LIST_METHOD;
+  
   cl_object value = deref_index(qparent),
     prin = makefn("prin1"),
     type_of = makefn("Q-type-of"),
@@ -92,18 +91,13 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   std::string s = ecl_string_to_string(cl_funcall(2, type_of, value));
   const char* type = s.c_str();
 
-  // cl_funcall(2, prin, value);
-  // printf("Returning rows for %s\n", type);
   if(strcmp(type, "MAP") == 0) {
     cl_object layers = cl_funcall(2, layers_fn, value);
-    // cl_funcall(2, prin, layers);
     int rc = ecl_to_int32_t(cl_funcall(2, length, layers));
-    // printf("Map's Rowcount %d\n", rc);
     return rc;
   }
   else if (strcmp(type, "ROOT") == 0) {
     int rc = ecl_to_int32_t(cl_funcall(2, registrySize, value));
-    // printf("Rowcount %d\n", rc);
     return rc;
   }
   else if(strcmp(type, "LAYER") == 0 ||
@@ -111,7 +105,6 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   	  strcmp(type, "SPRITE") == 0 ||
   	  strcmp(type, "TILESET") == 0 ||
   	  strcmp(type, "ANIMATEDSPRITE") == 0) {
-    // puts("Rowcount 0");
     return 0;
   }
   else {
@@ -120,25 +113,36 @@ int Tilelistmodel::rowCount(const QModelIndex &qparent) const
   }
   puts("Rowcount nil 0");
   return 0;
+
+  STOP_LIST_METHOD;
 }
 
 int Tilelistmodel::columnCount(const QModelIndex &parent) const
 {
+  START_LIST_METHOD;
+  
   return 1;
+
+  STOP_LIST_METHOD;
 }
 
 QVariant Tilelistmodel::headerData(int section, Qt::Orientation orientation, int role) const
 {
+  START_LIST_METHOD;
+  
   if (role != Qt::DisplayRole || orientation != Qt::Horizontal) {
     return QVariant();
   }
 
   return QString("Field");
+
+  STOP_LIST_METHOD;
 }
 
 QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent) const
 {
-  puts("Let's go to ::index");
+  START_LIST_METHOD;
+  
   cl_object base = deref_index(qparent),
     nth = makefn("nth"),
     type_of = makefn("q-tYpe-of"),
@@ -147,7 +151,6 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
     prin = makefn("prin1");
 
   std::string type = ecl_string_to_string(cl_funcall(2, type_of, base));
-  // printf("Making index for type %s\n", type.c_str());
   
   if(type == "MAP") {
     cl_object m = base,
@@ -155,14 +158,8 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
       l = cl_funcall(3, nth, ecl_make_int32_t(row),
   		     layers);
 
-    puts("Layer:");
-    // cl_funcall(2, prin, layers);
-    cl_funcall(2, prin, l);
-    puts("");
-    
     void* ptr = INT2VOIDP(getInt());
     doRegister(ptr, l);
-    // puts("Making index of layer");
     return createIndex(row, column, ptr);
   }
   else if(type == "ROOT") {
@@ -170,9 +167,7 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
 
     cl_object o = cl_funcall(3, nth, ecl_make_int32_t(row), reg);
 
-    puts("Typeoffing under ROOT");
     auto s = ecl_string_to_string(cl_funcall(2, type_of, o));
-    // printf("Making index to type %s\n", s.c_str());
 
     void* ptr = INT2VOIDP(getInt());
     doRegister(ptr, o);
@@ -180,19 +175,22 @@ QModelIndex Tilelistmodel::index(int row, int column, const QModelIndex &qparent
     return createIndex(row, column, ptr);
   }
   else {
-    // printf("Unknown type %s\n", type);
     throw "";
   }
   
   return QModelIndex();
+
+  STOP_LIST_METHOD;
 }
 
 QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
 {
+  START_LIST_METHOD;
+
+  setCallLogs(false);
+  
   if(!index.isValid()) return QVariant();
   if(role != Qt::DisplayRole) return QVariant();
-
-  puts("Going into ::data");
 
   auto type_of = makefn("q-tyPe-of");
   
@@ -208,19 +206,21 @@ QVariant Tilelistmodel::data(const QModelIndex &index, int role) const
       auto string = ecl_string_to_string(name);
       if(string == "") return QString("Lolwat, ^P?");
     
-      // printf("::data => %s\n", string.c_str());
 
       return QString(string.c_str());
     }
     return QString("NO NAME FOUND");
   }
+
+  STOP_LIST_METHOD;
 }
 
 QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
 {
+  START_LIST_METHOD;
+  
   if(!index.isValid()) return QModelIndex();
 
-  puts("Going into ::parent");
   cl_object type_of = makefn("q-typE-of");
   
   cl_object obj = deref_index(index),
@@ -228,11 +228,9 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
   if(obj == Root.getValue()) return QModelIndex();
 
   std::string type = ecl_string_to_string(cl_funcall(2, type_of, obj));
-  // printf("Searching for parent to type %s\n", type.c_str());
   auto reg = cl_funcall(2, reg_to_list, Root.getValue());
   if(type == "MAP") {
     int row = indexOf(reg, obj);
-    // printf("Returning index to parent root, row %d\n", row);
     void* ptr = INT2VOIDP(getInt());
     auto o = Root.getValue();
     doRegister(ptr, o);
@@ -250,7 +248,6 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
       return QModelIndex();
     }
     int row = indexOf(cl_funcall(2, getLayers, parent), l);
-    printf("Returning index to parent map %d\n", row);
 
     void* ptr = INT2VOIDP(getInt());
     doRegister(ptr, parent);
@@ -285,24 +282,33 @@ QModelIndex Tilelistmodel::parent(const QModelIndex &index) const
     return createIndex(indexOf(reg, obj), 0, ptr);
   }
   else {
-    printf("Got an unknown type at Tilelistmodel::parent(): %s\n", type.c_str());
     throw "";
   }
   return QModelIndex();
+
+  STOP_LIST_METHOD;
 }
 
 void Tilelistmodel::end()
 {
+  START_LIST_METHOD;
+  
   endInsertRows();
+
+  STOP_LIST_METHOD;
 }
 
 
 void Tilelistmodel::begin()
 {
+  START_LIST_METHOD;
+  
   static cl_object regSize = makefn("root-registrySize");
   auto root = QModelIndex();
   int count = fixint(cl_funcall(2, regSize, Root.getValue()));
   beginInsertRows(root, count, count + 1);
+
+  STOP_LIST_METHOD;
 }
 
 int indexOf(cl_object vec, cl_object element)

@@ -53,6 +53,8 @@ void MainWindow::setupTree()
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 	if(!index.isValid()) return;
 	puts("We're at DOMTree::clicked");
+
+	
 	// void *ptr = index.internalPointer();
 	// std::cout << "Ptr is " << ptr << std::endl;
 	// std::cout << "int cache is " << int_cache;
@@ -89,6 +91,7 @@ void MainWindow::setupTree()
 	  // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
 	  puts("TODO IMPLEMENT LAYERS!");
 	}
+	else puts("You didn't click on a recognizable object");
       });
   }
   else {
@@ -209,9 +212,9 @@ void MainWindow::setupTreeCtxMenu()
 
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  static cl_object make_tset = lisp("make-Tileset");
-
-  cl_object tileset = lisp("(make-Tileset \"New tileset\" nil nil '())");
+  cl_object make_tset = makefn("load-tileset"),
+    tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
+  
     
   ec->documentTreeModel->begin();
   // (*ec->document.getTilesets())[t->getId()] = t;

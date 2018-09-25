@@ -14,4 +14,4 @@
     (tileset 0) 
     (rotation 0))))
 
-(export-all :qmapper.tile)
+;; (export-all :qmapper.tile)

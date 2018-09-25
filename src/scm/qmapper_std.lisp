@@ -5,21 +5,43 @@
 
 ;; (ql:quickload "cl-arrows")
 ;; (ql:quickload "split-sequence")
+;; (ql:quickload :fset)
 
 (defpackage :qmapper.std
   (:use :common-lisp
-	:cl-arrows))
+	:cl-arrows)
+  (:import-from :fset :empty-map :convert :with :lookup))
 
 ;; (use 'cl-arrows)
 
 (in-package :qmapper.std)
 
-(defun export-all (pkg)
-  (let ((pack (find-package pkg)))
-    (do-all-symbols (sym pack)
-      (if (and (eql (symbol-package sym) pack)
-	       (not (equalp (symbol-name sym) "PUBLIC")))
-	  (export sym)))))
+(defmacro defmacro-export! (name &rest rst)
+  `(progn
+     ;(format t "Current package is ~a~%" *package*)
+     (defmacro ,name ,@rst)
+     (export (quote ,name))))
+
+(defmacro-export! defun-export! (name &rest rst)
+  `(progn
+     (defun ,name ,@rst)
+     (export (quote ,name))))
+
+;; (defun export-all (pkg)
+;;   (let ((pack (find-package pkg)))
+;;     (do-all-symbols (sym pack)
+;;       (if (and (eql (symbol-package sym) pack)
+;; 	       ;; Tää rikkoo defcppclassin
+;; 	       ;; (fboundp sym)
+;; 	       (not (equalp (symbol-name sym) "PUBLIC")))
+;; 	  (progn
+;; 	    (format t "Exporting ~a~%" sym)
+;; 	    (export sym)))
+;;       ;; (if (and (eql (symbol-package sym) pack)
+;;       ;; 	       (not (fboundp sym))
+;;       ;; 	       (not (equalp (symbol-name sym) "PUBLIC")))
+;;       ;; 	  (format t "~a is not fboundp~%" sym))
+;;       )))
 
 ;; (define-macro (define-and-reg nameparams . body)
 ;;   (let ((name (car nameparams))
@@ -30,44 +52,44 @@
 ;;        (register-fn! ,(symbol->string name) ,name)
 ;;        ,name)))
 
-(defun dec (n)
+(defun-export! dec (n)
   (- n 1))
-(defun inc (n)
+(defun-export! inc (n)
   (+ n 1))
 
-(defun range (max)
-  (defun -range (max acc)
+(defun-export! range (max)
+  (defun-export! -range (max acc)
     (if (= 0 max)
 	acc
 	(-range (dec max) (cons max acc))))
 
   (-range max '()))
 
-(defun partial (f &rest args)
+(defun-export! partial (f &rest args)
   (lambda (&rest rst-args)
     (apply f (concatenate 'list args rst-args))))
 
-(defun filter (f coll)
-  (remove-if-not f coll))
+;; (defun-export! filter (f coll)
+;;   (remove-if-not f coll))
 
-(defun repeatedly (fn n)
+(defun-export! repeatedly (fn n)
   (if (equalp n 0)
       '()
       (cons (funcall fn n) (repeatedly fn (dec n)))))
 
-(defun str (&rest strs)
+(defun-export! str (&rest strs)
   (apply (partial #'concatenate 'string)
 	 (mapcar (lambda (o)
 		   (write-to-string o :escape nil))
 		   strs)))
 
-(defun drop (list n)
+(defun-export! drop (list n)
   (if (> n 0)
       (drop (cdr list)
 	    (dec n))
       list))
 
-(defun partition-by2 (pred lst)
+(defun-export! partition-by2 (pred lst)
   (reduce (lambda (acc e)
 	    (if (funcall pred e)
 		(let* ((s (car acc))
@@ -78,8 +100,8 @@
 		(cons e (cons acc '()))))
 	  lst :initial-value '()))
 
-(defun take (list n)
-  (defun -take (list n acc)
+(defun-export! take (list n)
+  (defun-export! -take (list n acc)
     (if (> n 0)
 	(-take (cdr list)
 	       (dec n)
@@ -87,17 +109,18 @@
 	acc))
   (reverse (-take list n '())))
 
-(defun take-while (pred coll)
-  (defun -take-while (list acc)
-    (if (or (not list)
-	    (not (funcall pred (car list))))
-	acc
-	(-take-while (cdr list)
-		     (cons (car list) acc))))
-  (reverse (-take-while coll '())))
+(defun-export! take-while (pred coll)
+  (labels ((-take-while (list acc)
+	   (if (or (not list)
+	       	   (not (funcall pred (car list))))
+	       acc
+	       (-take-while (cdr list)
+	       		    (cons (car list) acc)))))
+    (reverse (-take-while coll '()))))
 
-(defun partition-by (f coll)
-  (declare (optimize (debug 3)))
+
+(defun-export! partition-by (f coll)
+  ;; (declare (optimize (debug 3)))
   (if coll
       (let* ((fst (first coll))
              (fv (funcall f fst))
@@ -111,17 +134,29 @@
 						 (length run)
 						 1)))))))
 
-(defun drop-while (fn lst)
+(defun-export! drop-while (fn lst)
+  ;; (declare (optimize (debug 3)))
+  ;; (break)
   (if (or (not (funcall fn (car lst)))
 	  (not lst))
       lst
       (drop-while fn (cdr lst))))
 
-(defun plist-get (lst key)
+(defun-export! plist-get (lst key)
+  ;; (declare (optimize (debug 3)))
+  ;; (break)
   (if (not lst)
       '()
       (let ((list (drop-while (lambda (e)
-				(not (equalp e key))) lst)))
+				(if (not (symbolp e))
+				    (let ((result 
+					   (not (equalp e key))))
+				      result)
+				    (let* ((e (symbol-name  e))
+					   (key (symbol-name key))
+					   (result 
+					    (not (equalp e key))))
+				      result))) lst)))
 	(if (not list)
 	    '()
 	    (car
@@ -129,10 +164,10 @@
 		   1))))))
 
 
-(defun slice (l offset n)
+(defun-export! slice (l offset n)
   (take (drop l offset) n))
 
-(defun assoc-to-ind (lst ind value)
+(defun-export! assoc-to-ind (lst ind value)
   (if (< ind (length lst))
       (let ((beginning (slice lst 0 ind))
 	    (end (drop lst (inc ind))))
@@ -140,161 +175,25 @@
       (error  "Overflow in assoc-to-ind")))
 
 (defvar *this* nil)
+(defvar *call-logs* t)
+(export '*call-logs*)
+(export '*this*)
 
-(defun alist-cons (k v list)
+(defun-export! alist-cons (k v list)
   (cons (cons k v) list))
 
-(defun sym (str)
+(defun-export! sym (str)
   (let ((*read-eval* nil))
     (read-from-string str)))
 
-(defvar *tulos-lista* `(FIELDS ((STD__MAP<STD__STRING___LAYER*>* LAYERS 'NIL)
-				(STD__MAP<STD__STRING___MAP*>* MAPS 'NIL)
-				(STD__MAP<STD__STRING___SCRIPT*>* SCRIPTS 'NIL)
-				(STD__MAP<STD__STRING___TILE*>* TILES 'NIL)
-				(STD__MAP<STD__STRING___TILESET*>* TILESETS 'NIL)
-				(SCM CHOSENMAP 'NIL) (INT CHOSENLAYERIND -1)
-				(SCM CHOSENTILESET 'NIL) (SCM CHOSENTILE 'NIL)
-				(SCM STDVERTEXSHADER 'NIL) (SCM STDFRAGMENTSHADER 'NIL)
-				(SCM STDTILEVIEWFRAGSHADER 'NIL))
-			       FUNCTIONS
-			       ((CONTENTS-STDFRAGMENT NIL
-						      (SCRIPT-CONTENTS (ROOT-STDFRAGMENTSHADER *THIS*)))
-				(CONTENTS-STDVERTEX NIL
-						    (SCRIPT-CONTENTS (ROOT-STDVERTEXSHADER *THIS*)))
-				(CONTENTS-TILEVIEWFRAGSHADER NIL
-							     (SCRIPT-CONTENTS (ROOT-STDTILEVIEWFRAGSHADER *THIS*)))
-				(REGISTRYSIZE NIL
-					      (+ (LENGTH (ROOT-LAYERS *THIS*))
-						 (LENGTH (ROOT-MAPS *THIS*))
-						 (LENGTH (ROOT-SCRIPTS *THIS*))
-						 (LENGTH (ROOT-TILES *THIS*))
-						 (LENGTH (ROOT-TILESETS *THIS*))))
-				(FETCHREGISTER (TYPE ID)
-					       (PLIST-GET
-						(CONDP EQUALP TYPE Layer (ROOT-LAYERS *THIS*) Map
-						       (ROOT-MAPS *THIS*) Script (ROOT-SCRIPTS *THIS*)
-						       Tile (ROOT-TILES *THIS*) Tilesets
-						       (ROOT-TILESETS *THIS*))
-						ID))
-				(FINDNS (NS)
-					(LET ((SCRIPTS (ROOT-SCRIPTS *THIS*)))
-					  (FIRST
-					   (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
-						   SCRIPTS))))
-				(SAVENS (NS CONTENT)
-					(LET* ((SCRIPTS (ROOT-SCRIPTS *THIS*))
-					       (INDEX
-						(GET-LIST-INDEX (ROOT-SCRIPTS *THIS*)
-								(LAMBDA (SC)
-								  (EQUALP (SCRIPT-NS SC) NS))))
-					       (NEW-SCRIPT
-						(-> (NTH INDEX SCRIPTS)
-						    (SET-SCRIPT-CONTENTS! CONTENT)))
-					       (SCRIPTS (ASSOC-TO-IND SCRIPTS INDEX NEW-SCRIPT)))
-					  (SET-ROOT-SCRIPTS *THIS* SCRIPTS)))
-				(CONTAINSNS (NS)
-					    (NOT
-					     (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
-						     SCRIPTS)))
-				(REGISTRYOF (TYPE)
-					    (LET ((RESULT
-						   (COND ((EQUALP TYPE Layer) (ROOT-LAYERS *THIS*))
-							 ((EQUALP TYPE Map) (ROOT-MAPS *THIS*))
-							 ((EQUALP TYPE Script)
-							  (ROOT-SCRIPTS *THIS*))
-							 ((EQUALP TYPE Tile) (ROOT-TILES *THIS*))
-							 ((EQUALP TYPE Tileset)
-							  (ROOT-TILESETS *THIS*))
-							 (T
-							  (SCM-PUTS
-							   registryOf got unrecognized type)
-							  (SCM-PUTS TYPE) NIL))))
-					      (IF RESULT
-						  (DROP-PLIST-KEYS RESULT)
-						  RESULT)))
-				(REGISTRYTOLIST NIL
-						(DROP-PLIST-KEYS
-						 (CONCATENATE 'LIST (ROOT-LAYERS *THIS*)
-							      (ROOT-MAPS *THIS*) (ROOT-SCRIPTS *THIS*)
-							      (ROOT-TILES *THIS*)
-							      (ROOT-TILESETS *THIS*)))))))
+(defun-export! zipmap (keys vals)
+    (loop for k in keys
+       for v in vals
+       collecting (list k v)))
 
-(defvar *testilista* `(FIELDS (STD__MAP<STD__STRING___LAYER*>* LAYERS 'NIL)
-			       (STD__MAP<STD__STRING___MAP*>* MAPS 'NIL)
-			       (STD__MAP<STD__STRING___SCRIPT*>* SCRIPTS 'NIL)
-			       (STD__MAP<STD__STRING___TILE*>* TILES 'NIL)
-			       (STD__MAP<STD__STRING___TILESET*>* TILESETS 'NIL)
-			       (SCM CHOSENMAP 'NIL) (INT CHOSENLAYERIND -1)
-			       (SCM CHOSENTILESET 'NIL) (SCM CHOSENTILE 'NIL)
-			       (SCM STDVERTEXSHADER 'NIL) (SCM STDFRAGMENTSHADER 'NIL)
-			       (SCM STDTILEVIEWFRAGSHADER 'NIL)
-
-			       FUNCTIONS
-			       (CONTENTS-STDFRAGMENT NIL
-						     (SCRIPT-CONTENTS (ROOT-STDFRAGMENTSHADER *THIS*)))
-			       (CONTENTS-STDVERTEX NIL
-						   (SCRIPT-CONTENTS (ROOT-STDVERTEXSHADER *THIS*)))
-			       (CONTENTS-TILEVIEWFRAGSHADER NIL
-							    (SCRIPT-CONTENTS (ROOT-STDTILEVIEWFRAGSHADER *THIS*)))
-			       (REGISTRYSIZE NIL
-					     (+ (LENGTH (ROOT-LAYERS *THIS*))
-						(LENGTH (ROOT-MAPS *THIS*))
-						(LENGTH (ROOT-SCRIPTS *THIS*))
-						(LENGTH (ROOT-TILES *THIS*))
-						(LENGTH (ROOT-TILESETS *THIS*))))
-			       (FETCHREGISTER (TYPE ID)
-					      (PLIST-GET
-					       (CONDP EQUALP TYPE Layer (ROOT-LAYERS *THIS*) Map
-						      (ROOT-MAPS *THIS*) Script (ROOT-SCRIPTS *THIS*)
-						      Tile (ROOT-TILES *THIS*) Tilesets
-						      (ROOT-TILESETS *THIS*))
-					       ID))
-			       (FINDNS (NS)
-				       (LET ((SCRIPTS (ROOT-SCRIPTS *THIS*)))
-					 (FIRST
-					  (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
-						  SCRIPTS))))
-			       (SAVENS (NS CONTENT)
-				       (LET* ((SCRIPTS (ROOT-SCRIPTS *THIS*))
-					      (INDEX
-					       (GET-LIST-INDEX (ROOT-SCRIPTS *THIS*)
-							       (LAMBDA (SC)
-								 (EQUALP (SCRIPT-NS SC) NS))))
-					      (NEW-SCRIPT
-					       (-> (NTH INDEX SCRIPTS)
-						   (SET-SCRIPT-CONTENTS! CONTENT)))
-					      (SCRIPTS (ASSOC-TO-IND SCRIPTS INDEX NEW-SCRIPT)))
-					 (SET-ROOT-SCRIPTS *THIS* SCRIPTS)))
-			       (CONTAINSNS (NS)
-					   (NOT
-					    (FILTER (LAMBDA (SCRIPT) (EQUALP (SCRIPT-NS SCRIPT)))
-						    SCRIPTS)))
-			       (REGISTRYOF (TYPE)
-					   (LET ((RESULT
-						  (COND ((EQUALP TYPE Layer) (ROOT-LAYERS *THIS*))
-							((EQUALP TYPE Map) (ROOT-MAPS *THIS*))
-							((EQUALP TYPE Script)
-							 (ROOT-SCRIPTS *THIS*))
-							((EQUALP TYPE Tile) (ROOT-TILES *THIS*))
-							((EQUALP TYPE Tileset)
-							 (ROOT-TILESETS *THIS*))
-							(T
-							 (SCM-PUTS
-							  registryOf got unrecognized type)
-							 (SCM-PUTS TYPE) NIL))))
-					     (IF RESULT
-						 (DROP-PLIST-KEYS RESULT)
-						 RESULT)))
-			       (REGISTRYTOLIST NIL
-					       (DROP-PLIST-KEYS
-						(CONCATENATE 'LIST (ROOT-LAYERS *THIS*)
-							     (ROOT-MAPS *THIS*) (ROOT-SCRIPTS *THIS*)
-							     (ROOT-TILES *THIS*)
-							     (ROOT-TILESETS *THIS*))))))
- 
-(defmacro defcppclass (classname &rest rst)
-  (declare (optimize (debug 3)))
+(defmacro-export! defcppclass (classname &rest rst)
+  ;; (declare (optimize (debug 3)))
+  ;; (break)
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
 	 ;; (removeMe (format t "visibility-stripped: ~a~%" visibility-stripped))
@@ -302,6 +201,7 @@
 	 ;; (_ (prin1 partitioned))
 	 (props (plist-get partitioned 'properties))
 	 (fields (plist-get partitioned 'fields))
+	 ;; (lololo (format t "fields on ~a~%" fields))
   	 (fields (reverse (->> (concatenate 'list fields
 	 				    props)
 	 		       (mapcar (lambda (field)
@@ -317,10 +217,10 @@
 	 												"-"
 	 												(symbol-name field)
 	 												"!"))))
-										 (list `(defun ,getter (this)
-											  (cdr (assoc ',field this)))
-										       `(defun ,setter (this val)
-											  (alist-cons ',field val this))))))))))
+										 (list `(defun-export! ,getter (this)
+											  (lookup this ',field))
+										       `(defun-export! ,setter (this val)
+											  (with this ',field val))))))))))
   	 (funcs (->> (plist-get partitioned 'functions)
 		     (mapcar (lambda (fn)
 			       (let ((name ;; (first fn)
@@ -330,76 +230,105 @@
 						   	(symbol-name (first fn)))))
 				     (param-list (second fn))
 				     (body (drop fn 2))
-				     (this (gensym)))
-				 `(defun ,name (,this ,@param-list)
+				     (this (sym (format nil "~a" (gensym)))))
+				 `(defun-export! ,name (,this ,@param-list)
 				    (let ((*this* ,this))
 				      ,@body)))))))
 	 (ctr-name (sym (str "make-" (symbol-name classname))))
-	 (ctr `(defun ,ctr-name (,@(reverse fields))
-		 (defun doIt (fields values acc)
-		   (if fields
-		       (let ((f (car fields))
-			     (v (car values)))
-			 (doIt (cdr fields)
-			       (cdr values)
-			       (cons `(,f . ,v) acc)))
-		       acc))
-		 (doIt (list ,@(mapcar (lambda (f)
-					 (list 'quote f))
-				       fields))
-		       (list ,@fields)
-		       `((type-name . ,,(symbol-name classname))))))
+	 (ctr `(defun-export! ,ctr-name (,@(reverse fields))
+		 (let* ((hash (empty-map))
+			(fields (list ,@(mapcar (lambda (f)
+		 				  (list 'quote f))
+		 				fields)))
+			(values (list ,@fields))
+			(fields-and-vals (cons (cons 'type-name (list ,(symbol-name classname)))
+					       (zipmap fields values))))
+
+		   (reduce (lambda (hashmap k-v)
+			     (let ((k (car k-v))
+				   (v (cadr k-v)))
+			       (with hashmap k v))) fields-and-vals :initial-value hash)))))
+
+		   ;; (labels ((doIt (fields values acc)
+		   ;; 	      (if fields
+		   ;; 		  (let ((f (car fields))
+		   ;; 			(v (car values)))
+		   ;; 		    (doIt (cdr fields)
+		   ;; 			  (cdr values)
+		   ;; 			  (cons `(,f . ,v) acc)))
+		   ;; 		  acc)))
+		   ;;   (doIt (list ,@(mapcar (lambda (f)
+		   ;; 			     (list 'quote f))
+		   ;; 			   fields))
+		   ;; 	   (list ,@fields)
+		   ;; 	   `((type-name . ,,(symbol-name classname)))))
 	 ;; (pred-name (sym (str (symbol-name classname) "?")))
-	 )
     `(progn
        ,ctr
        ,fields-with-accessors
        ,@funcs
        (symbol-name ',classname))))
 
-(defun q-type-of  (obj-alist)
+;; (defcppclass lol
+;;     (public
+;;      (properties
+;;       (a 0)
+;;       (b 3))))
+
+;; (make-lol 2 3)
+;; (q-type-of (make-lol 3 3))
+;; (set-prop (make-lol 666 2) 'a 222)
+
+  ;; (reduce #'+ (range 3) :initial-value 4)
+
+(defun-export! q-type-of  (obj-alist)
   (handler-case
-      (cdr (assoc 'type-name obj-alist))
+      (lookup obj-alist 'type-name)
     (SIMPLE-TYPE-ERROR (ste)
       (format t "ste bongattu, obj-alist on ~a~%" obj-alist)
       (explode))
     (SIMPLE-ERROR (lol)
       (format t "Virhe: obj-alsit on ~a~%" (prin1-to-string obj-alist)))))
 
-(defun get-prop  (obj-alist key)
-  (cdr (assoc (intern (string-upcase key)) obj-alist)))
+(defun-export! get-prop  (obj-alist key)
+  (let* ((key (if (symbolp key)
+		  key
+		  (intern (string-upcase key))))
+	 (real-alist (convert 'list obj-alist))
+	 (result (cdr (assoc key real-alist :test #'string=))))
+    result))
 
-(defun set-prop  (obj-alist key val)
-  (alist-cons key val obj-alist))
+(defun-export! set-prop  (obj-alist key val)
+  (with obj-alist key val))
 
 (delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
 
-(defun keys  (a)
+(defun-export! keys  (a)
   (delete-duplicates
    (mapcar #'car a) :test #'equalp))
 
-(defun keys-str  (a)
+(defun-export! keys-str  (a)
   (mapcar #'symbol-name (keys a)))
 
-(defun prop-list?  (alist k)
+(defun-export! prop-list?  (alist k)
   (listp (get-prop alist k)))
 
-(defun prop-str?  (alist k)
+(defun-export! prop-str?  (alist k)
   (stringp (get-prop alist k)))
 
-(defun prop-number?  (alist k)
+(defun-export! prop-number?  (alist k)
   (numberp (get-prop alist k)))
 
-(defun prop-bool?  (alist k)
+(defun-export! prop-bool?  (alist k)
   (let ((v (get-prop alist k)))
     (or (equalp v  t)
 	(equalp v nil))))
 
-(defun prop-float?  (alist k)
+(defun-export! prop-float?  (alist k)
   (let ((v (get-prop alist k)))
     (floatp v)))
 
-(defun prop-sym?  (alist k)
+(defun-export! prop-sym?  (alist k)
   (symbolp (get-prop alist k)))
 
 ;; (tree-il->scheme
@@ -422,7 +351,7 @@
 
 ;; (layer- (make-Layer 'p '(1 2 3) #t 244 "Layer")
 
-(defmacro condp (bin-op param1 &rest rst)
+(defmacro-export! condp (bin-op param1 &rest rst)
   "This is supposed to work like clojure's condp. This evaluates param1 only once.
 (condp equalp \"Lollero ooo\"
        \"Lol\" 3
@@ -434,16 +363,16 @@ and
        \"Lol\" 3
        \"Lollero\" 4) => 4"
   (let ((p1 (gensym)))
-    (defun emit (params)
-      (if (equalp (length params) 1)
-	  (car params)
-	  (if params
-	      (let ((else (emit (cddr params))))
-		`(if (,bin-op ,p1 ,(car params))
-		     ,(cadr params)
-		     ,else)))))
-    `(let ((,p1 ,param1))
-       ,(emit rst))))
+    (labels ((emit (params)
+	       (if (equalp (length params) 1)
+		   (car params)
+		   (if params
+		       (let ((else (emit (cddr params))))
+			 `(if (,bin-op ,p1 ,(car params))
+			      ,(cadr params)
+			      ,else))))))
+      `(let ((,p1 ,param1))
+	 ,(emit rst)))))
 
 ;; (condp equalp "Lollero"
        
@@ -455,7 +384,7 @@ and
 ;;        "Lol" 3
 ;;        "Lollero" 4) => 4
 
-(defun get-list-index  (l pred)
+(defun-export! get-list-index  (l pred)
   (if (not l)
       -1
       (if (funcall pred (car l))
@@ -465,46 +394,46 @@ and
                 -1
                 (1+ result))))))
 
-(defun drop-plist-keys  (lst)
-  (defun dropper (lst acc count)
-    (if (not lst)
-	acc
-	(if (oddp count)
-	    (dropper (cdr lst)
-		     (cons (car lst) acc)
-		     (inc count))
-	    (dropper (cdr lst)
-		     acc
-		     (inc count)))))
-  (reverse (dropper lst '() 0)))
+(defun-export! drop-plist-keys  (lst)
+  (labels ((dropper (lst acc count)
+	     (if (not lst)
+		 acc
+		 (if (oddp count)
+		     (dropper (cdr lst)
+			      (cons (car lst) acc)
+			      (inc count))
+		     (dropper (cdr lst)
+			      acc
+			      (inc count))))))
+    (reverse (dropper lst '() 0))))
 
-(defun drop-alist-keys (lst)
-  (defun dropper2 (lst acc)
-    (if (not lst)
-	acc
-	(dropper2 (cdr lst)
-		 (cons (cdar lst) acc))))
-  (reverse (dropper2 lst '())))
+(defun-export! drop-alist-keys (lst)
+  (labels ((dropper2 (lst acc)
+	     (if (not lst)
+		 acc
+		 (dropper2 (cdr lst)
+			   (cons (cdar lst) acc)))))
+    (reverse (dropper2 lst '()))))
 
 ;; (drop-alist-keys `((AAA . 3) (BEE 2))) => '(3 2)
 
 ;; (drop-plist-keys '(:lol 1 :lollo 3 'asd 33))  => '(1 3 33)
 
-(defun distance  (x1 y1 x2 y2)
+(defun-export! distance  (x1 y1 x2 y2)
   (sqrt (+ (* (- x2 x1) (- x2 x1)) (* (- y2 y1) (- y2 y1)))))
 
-(defun distance-pairs  (xy1 xy2)
+(defun-export! distance-pairs  (xy1 xy2)
   (distance (car xy1) (cadr xy1)
 	    (car xy2) (cadr xy2)))
 
-(defun sort-by  (keyfn coll)
+(defun-export! sort-by  (keyfn coll)
   (sort coll (lambda (x y)
 	       (< (funcall keyfn x) (funcall keyfn y)))))
 
 ;; (sort-by #'car (list (list 3 1 2 22) (list 1 2 3) (list 5 4 22)))
 
 
-(defun find-nearest  (x y lst)
+(defun-export! find-nearest  (x y lst)
   (->> lst
        (mapcar (lambda (sprite)
 		 (list (distance (sprite-x sprite)
@@ -517,17 +446,17 @@ and
 
 ;; (find-nearest 1 1 '((3 3) (50 2) (0 1)))  => (0 1)
 
-(defun sublist  (list max-ind)
+(defun-export! sublist  (list max-ind)
   (if (<= max-ind 0)
       '()
       (cons (car list)
 	    (sublist (cdr list)
 		     (dec max-ind)))))
 
-(defun sublist-from  (list min-ind)
+(defun-export! sublist-from  (list min-ind)
   (drop list (inc min-ind)))
 
-(defun drop-list-i  (lst index)
+(defun-export! drop-list-i  (lst index)
   (concatenate 'list
 	       (sublist lst index)
 	       (sublist-from lst index)))
@@ -535,7 +464,7 @@ and
 ;; (drop-list-i (range 10) 1) => (1 3 4 5 6 7 8 9 10)
 
 
-;; (defun set-timeout  (seconds fn)
+;; (defun-export! set-timeout  (seconds fn)
 ;;   (let ((fut (future
 ;; 	      (begin
 ;; 		(thread-sleep! (seconds->time
@@ -544,7 +473,7 @@ and
 ;; 		(fn)))))
 ;;     (touch fut)))
 
-;; (defun qloop  (l)
+;; (defun-export! qloop  (l)
 ;;   (future
 ;;    (begin
 ;;      (while #t
@@ -569,4 +498,4 @@ and
 
 (format t "~%qmapper-std loaded")
 
-(export-all :qmapper.std)
+;; (export-all :qmapper.std)

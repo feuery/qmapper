@@ -6,7 +6,8 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.script))
+	:qmapper.script)
+  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert))
 
 (in-package :qmapper.root)
 
@@ -32,42 +33,38 @@
      (functions
       (contents-StdFragment ()
 			    (let* ((ns (root-stdfragmentshader *this*))
-				   (result
-				    (->> (root-scripts *this*)
-					 (filter (lambda (script)
-						   (equalp (script-ns script) ns))))))
-			      (cdar result)))
+				   (result (->> (root-scripts *this*)
+						(filter (lambda (b script)
+		    					  (equalp (script-ns script) ns)))
+						(convert 'list)
+						cdar)))
+			      (script-contents result)))
       (contents-StdVertex ()
-			  ;; (format t "Yritetään hakea vertexshaderia~%")
-			  ;; (format t "This on ~a~%" *this*)
 			  (let* ((ns (root-stdvertexshader *this*))
-				 ;; (lol (format t "haettiin vertexshaderin ns~%"))
 				 (result (->> (root-scripts *this*)
-					      (filter (lambda (script-pair)
-							(let ((script (cdr script-pair)))						       
-					      		  (equalp (script-ns script) ns))))))
-				 ;; (aaa (format t "haettiin vertexshaderin ns~%"))
-				 (final-result (cadar result)))
-			    
-			    (cdr final-result)))
+					      (filter (lambda (b script)
+		    					(equalp (script-ns script) ns)))
+					      (convert 'list)
+					      cdar)))
+			    (script-contents result)))
       (contents-stdTileviewFragShader ()				      
 				      (let* ((ns (root-stdtileviewfragshader *this*))
 					     (result (->> (root-scripts *this*)
-							  (filter (lambda (script-pair)
-								    (let ((script (cdr script-pair)))						       
-					      			      (equalp (script-ns script) ns))))))
-					     (final-result (cadar result)))
-					
-					(cdr final-result)))
+							  (filter (lambda (b script)
+		    						    (equalp (script-ns script) ns)))
+							  (convert 'list)
+							  cdar)))
+					(script-contents result)))
       
       (registrySize ()
-		    (+ ;; (length (root-animatedSprites *this*))
-		     (length (root-layers *this*))
-		     (length (root-maps *this*))
-		     (length (root-Scripts *this*))
-		     ;; (length (root-sprites *this*))
-		     (length (root-tiles *this*))
-		     (length (root-tilesets *this*))))
+		    (reduce #'+ (mapcar (lambda (col)
+					  (length (convert 'list col)))
+					(list
+					 (root-layers *this*)
+					 (root-maps *this*)
+					 (root-Scripts *this*)
+					 (root-tiles *this*)
+					 (root-tilesets *this*)))))
       (fetchRegister (Type id)
 		     (plist-get 
 		      (condp equalp Type
@@ -115,24 +112,26 @@
 			result)))
       
       (registryToList ()
-		      (let ((concd (concatenate 'list
+		      (let ((concd (->> (reduce #'concat (seq
 						    ;; (root-animatedSprites *this*)
 						    (root-layers *this*)
 						    (root-maps *this*)
 						    (root-scripts *this*)
 						    ;; (root-sprites *this*)
 						    (root-tiles *this*)
-						    (root-tilesets *this*))))
-			(drop-alist-keys concd))))))
+						    (root-tilesets *this*)))
+					(mapcar #'cdr)
+					)))
+			;(format t "concd is ~a~%" concd)
+			concd)))))
 
-
-(defun init-root! ()
-  (let ((result (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView")))
-    ; (format t "Initiated root to ~a ~%" result)
-    result))
-
+(defun-export! init-root! ()
+  ;; (let ((result
+	 (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
+    ;; ;; (format t "Initiated root to ~a ~%" result)
+;; result))
       
-(defun push-map (root m)
+(defun-export! push-map (root m)
   (let* ((maps (cons (cons (gensym)
 			   m)
 		     (root-maps root)))
@@ -143,12 +142,14 @@
     ;; (format t "Final root at push-map is ~a~%" final-root)
     final-root))
 
-(defun push-script (root scr)
-  (set-root-scripts! root (alist-cons (gensym)
-				      scr
-				      (root-scripts root))))
+(defun-export! push-script (root scr)
+  (declare (optimize (debug 3)))
+  (set-root-scripts! root (let ((result (with (or (root-scripts root) (empty-map))
+					      (gensym)
+					      scr)))
+			    result)))
 
-(defun find-ns (root ns)
+(defun-export! find-ns (root ns)
   (let ((scr (filter
 	      (lambda (scr)
 		(equalp (Script-ns scr) ns))
@@ -157,28 +158,29 @@
 	'()
 	(car scr))))
     
-(defun is-ns-scheme? (root ns)
+(defun-export! is-ns-scheme? (root ns)
   (let ((scr (find-ns root ns)))
     (Script-is-scheme? (car scr))))
 
-(defun is-ns-glsl? (root ns)
+(defun-export! is-ns-glsl? (root ns)
   (let ((scr (find-ns root ns)))
     (Script-is-glsl? (car scr))))
 
-(defun push-sprite-to-chosen-map (root sprite)
+(defun-export! push-sprite-to-chosen-map (root sprite)
   (let ((chosen-map (-> (root-chosenMap root)
 			(push-sprite sprite))))
     (push-selected-map root chosen-map)))
 
 (defvar *document* (init-root!))
+(export '*document*)
 
-(defun set-doc (doc)
+(defun-export! set-doc (doc)
   (assert (not (functionp doc)))
   (setf *document* doc))
 
-(format t "set-doc defun'd")
+; (format t "set-doc defun'd")
 
-(export-all :qmapper.root)
+; (export-all :qmapper.root)
 
 
 ;; (scm-puts "root loaded")

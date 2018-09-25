@@ -24,6 +24,8 @@
 	      (let ((script-type (Script-script_type (this))))
 		(equal? script-type 'glsl))))))
 
-(export-all :qmapper.script)
+;; (get-prop (make-script "contents" "name123" "ns" 'scheme) "nAmE")
+
+;; (export-all :qmapper.script)
 
 ;; (scm-puts "Loaded script")

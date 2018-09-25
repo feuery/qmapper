@@ -17,8 +17,22 @@ std::string type_name(cl_object record) {
 
 cl_object get(cl_object record, const char *prop)
 {
-  static cl_object get = makefn("get-prop");
-  return cl_funcall(3, get, record, c_string_to_object(prop));
+  cl_object get = makefn("get-prop"),
+    prin = makefn("prin1")
+    // format = makefn("format")
+    ;
+  std::string literal = std::string("\"") + prop + "\"";
+  printf("getting %s\n", literal.c_str());
+
+  cl_object key = c_string_to_object(literal.c_str());
+  cl_funcall(2, prin, key);
+  puts("");
+  cl_object result = cl_funcall(3, get, record, key);
+
+  puts("Result:");
+  cl_funcall(2, prin, result);
+
+  return result;  
 }
 
 cl_object set(cl_object record, const char *prop, cl_object val)
@@ -46,7 +60,7 @@ std::string ecl_string_to_string(cl_object echar) {
 
 cl_object makefn(const char *fn) {
   // (format t \"Params ~a~%\" rst)
-  return lisp(std::string("(lambda (&rest rst) (format t \"Calling ") + fn + "~%\")  (apply #'" + fn + " rst))");
+  return lisp(std::string("(lambda (&rest rst) (if *call-logs* (format t \"Calling ") + fn + ", ~%\"))  (apply #'" + fn + " rst))");
 }
 
 static char start_swank[] =
@@ -57,4 +71,8 @@ void run_swank() {
   cl_object cl_start_swank_path = c_string_to_object(path.toStdString().c_str());
   cl_object cl_load =  ecl_make_symbol("LOAD","CL");
   cl_funcall(2, cl_load, cl_start_swank_path);
+}
+
+void setCallLogs(bool val) {
+  lisp(std::string("(setf *call-logs* ")+(val? "t":"nil")+")");
 }

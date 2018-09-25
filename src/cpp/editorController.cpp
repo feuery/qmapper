@@ -81,13 +81,9 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 {
   puts("Looking up scheme definitions in editorController::editorController");
   lisp("(in-package :qmapper.map)");
-  cl_object pushScript = lisp("(lambda (a b) (push-script a b))");
+  cl_object pushScript = makefn("push-script");
   cl_object makeScript = makefn("make-script");
-  
-  // puts("Initializing document root");
-  // cl_object initRoot = makefn("init-root!");
-  // document.setValue(cl_funcall(1, initRoot));
-  
+    
   if(instance) {
     puts("There already exists an editorController");
     throw "";

@@ -1,7 +1,9 @@
 (defpackage :qmapper.map
   (:use :common-lisp
 	:cl-arrows
+	:qmapper.treecache
 	:qmapper.std
+	:qmapper.tileset
 	:qmapper.script
 	:qmapper.layer
 	:qmapper.root
@@ -9,7 +11,8 @@
 
 (in-package :qmapper.map)
 
-(defcppclass Map
+;; (macroexpand-1 '
+ (defcppclass Map
     (public 
      (properties
       (name "Map 1")
@@ -25,17 +28,19 @@
 	     (Layer-width (first (Map-layers *this*))))
       (height ()
 	      (Layer-height (first (Map-layers *this*))))
+      (lol ()
+	   "Lollo")
       ;; this'll be fun
       (resize (w
 	       h
 	       vAnchor
 	       hAnchor)
 	      ;; TODO IMPLEMENT
-	      (error "Don't call Map-resize yet!")))))
+	      (error "Don't call Map-resize yet!"))))) ;)
 
-(format t "Ladataan qmapper.mapia ~%")
+;; (format t "Ladataan qmapper.mapia ~%")
 
-(defun make-map-with-layers (name w h layer-count)
+(defun-export! make-map-with-layers (name w h layer-count)
   (make-map name (repeatedly (lambda (i)
 			       (make-Layer (str (prin1-to-string i) "th layer")
 					   255
@@ -65,23 +70,23 @@
 
 ; (get-prop (make-map-with-layers "Lollo" 2 2 2) "namee")
 
-(defun alist-update (alist k fn)
+(defun-export! alist-update (alist k fn)
   (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
 
 ;; (alist-update `((a . ,(* 3 3))
 ;; 		(b . ,(+ 3 2))) 'a (partial * 3))
 
-(defun alist-get (a k)
+(defun-export! alist-get (a k)
   (cdr (assoc k a)))
 
-(defun alist-update-in (alist path fn)
+(defun-export! alist-update-in (alist path fn)
   (let ((key (car path))
 	(path (cdr path)))
     (if (not path)
 	(alist-update alist key fn)
 	(alist-update-in (alist-get alist key) path fn))))
 
-(defun assoc-in (lst path val)
+(defun-export! assoc-in (lst path val)
   (let ((ind (car path))
 	(path (cdr path)))
     (if (not path)
@@ -89,19 +94,19 @@
 	(assoc-to-ind lst ind
 		      (assoc-in (nth ind lst) path val)))))
 
-(defun get-in (lst path)
+(defun-export! get-in (lst path)
   (let ((ind (car path))
 	(path (cdr path)))
     (if (not path)
 	(list-ref lst ind)
 	(get-in (list-ref lst ind) path))))
 
-(defun get-tile-at (map layer x y)
+(defun-export! get-tile-at (map layer x y)
   (-> map
       Map-layers
       (get-in (list layer x y))))
 
-(defun find-index-of (alist el)
+(defun-export! find-index-of (alist el)
   (let ((result 
 	 (filter
 	  (lambda (m)
@@ -113,12 +118,12 @@
 	(caar result))))
 
 ;; TODO testaa allekommentoidulla paskeella
-(defun find-layer-parent (layer root)
+(defun-export! find-layer-parent (layer root)
   (let* ((maps (mapcar #'cdr (root-maps root))))
     (car
-     (filter (lambda (map)
-	       (position layer (map-layers map)))
-	     maps))))
+     (remove-if-not (lambda (map)
+		      (position layer (map-layers map)))
+		    maps))))
 	 
 
 ;; (let* ((root (-> (init-root!)
@@ -133,40 +138,40 @@
 
 
 
-(defun push-sprite (map sprite)
+(defun-export! push-sprite (map sprite)
   (let ((k (gensym)))
     (alist-update map 'spritesAndAnimatedsprites
 		  (partial alist-cons k sprite))))
 					   
 
 
-(defun index-of-chosen-map (root)
+(defun-export! index-of-chosen-map (root)
   (find-index-of (root-maps root)
 		 (root-chosenMap root)))
 
-(defun get-tile-at-chosen-map (root x y)
+(defun-export! get-tile-at-chosen-map (root x y)
   (let ((m (root-chosenMap root))
 	(l (root-chosenLayerInd root)))
     (get-tile-at m l x y)))
     
 
-(defun set-tile-inner (map layer x y tile)
+(defun-export! set-tile-inner (map layer x y tile)
   (set-Map-layers! map
 		   (-> map
 		       Map-layers
 		       (assoc-in (list layer x y) tile))))
 
-(defun set-tile-at (root x y tile)
+(defun-export! set-tile-at (root x y tile)
   (set-tile-inner (root-chosenMap root)
 		  (root-chosenLayerInd root)
 		  x
 		  y
 		  tile))
 
-(defun set-chosen-tile-at (root x y)
+(defun-export! set-chosen-tile-at (root x y)
   (set-tile-at root x y (root-chosenTile root)))
 
-(defun set-tile-at-chosen-map (root x y tile)
+(defun-export! set-tile-at-chosen-map (root x y tile)
   (let* ((l (root-chosenLayerInd root))
 	 (m (set-tile-at root x y tile))	 
 	 (maps-index (find-index-of (root-maps root) m)))
@@ -174,7 +179,7 @@
 	(set-root-chosenMap! m)
 	(set-root-maps! (alist-cons maps-index m (root-maps root))))))
 
-(defun push-selected-map (root map)
+(defun-export! push-selected-map (root map)
   (let* ((index (index-of-chosen-map root))
 	 ;; let's prepare the chosenmap
 	 (root (set-root-chosenMap! root map)))
@@ -184,13 +189,13 @@
 				
 				root))))
 
-(defun set-tile-rotation-at (root x y rotation)
+(defun-export! set-tile-rotation-at (root x y rotation)
   (let ((map (-> (root-chosenMap root)
 		 (get-tile-at (root-chosenLayerInd root) x y)
 		 (set-Tile-rotation! rotation))))
     (push-selected-map root map)))
 
-(defun add-layer (root map-index)
+(defun-export! add-layer (root map-index)
   (let ((maps (-> (root-maps root)
 		  (alist-update map-index (lambda (m)
 					    (let ((layers (Map-layers m))
@@ -203,13 +208,13 @@
 										   nil) layers))))))))
     (set-root-maps! root maps)))
 
-(defun delete-layer (root map-index layer-index)
+(defun-export! delete-layer (root map-index layer-index)
   (set-root-maps! root
 		  (-> (root-maps root)
 		      (alist-update map-index (lambda (m)
 						(set-Map-layers! m (drop-list-i (Map-layers m) layer-index)))))))
 
-(export-all :qmapper.map)
+; (export-all :qmapper.map)
 	 
 
 ;; (scm-puts "map ladattu")

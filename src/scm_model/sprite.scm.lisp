@@ -23,7 +23,7 @@
     (obj_ptr nil)
     (loadingDone nil))))
 
-(defun is-sprite? (spr)
+(defun-export! is-sprite? (spr)
   (equalp (q-type-of spr)
 	  "Sprite"))
 

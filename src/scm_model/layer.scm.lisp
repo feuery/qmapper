@@ -22,9 +22,11 @@
     (height ()
 	    (length (caar (Layer-tiles (this))))))))
 
-(defun make-tiles (w h)
+(defun-export! make-tiles (w h)
   (repeatedly (lambda (x)
-		(repeatedly (lambda (y)
-			      (make-Tile 0 0 nil 0)) h)) w))
+  		(repeatedly (lambda (y)
+  			      (make-Tile 0 0 nil 0)) h)) w)
+  nil
+  )
 
-(export-all :qmapper.layer)
+;; (export-all :qmapper.layer)

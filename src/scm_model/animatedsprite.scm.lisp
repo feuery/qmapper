@@ -41,4 +41,4 @@
 				   (set-animatedsprite-lastUpdated! (MsTime)))
 			       *this*)))))
 
-(export-all :qmapper.animatedsprite)
+;; (export-all :qmapper.animatedsprite)
