@@ -51,6 +51,9 @@ public:
     void registerController(editorController *ec);
   void setupMainMenu();
   editorController *ec;
+
+
+  void lolTestaa();
 };
 
 #endif //MAIN_H

@@ -282,13 +282,15 @@
   ;; (reduce #'+ (range 3) :initial-value 4)
 
 (defun-export! q-type-of  (obj-alist)
+  ;; (format t "obj-alist on ~a~%" obj-alist)
   (handler-case
       (lookup obj-alist 'type-name)
     (SIMPLE-TYPE-ERROR (ste)
       (format t "ste bongattu, obj-alist on ~a~%" obj-alist)
       (explode))
     (SIMPLE-ERROR (lol)
-      (format t "Virhe: obj-alsit on ~a~%" (prin1-to-string obj-alist)))))
+      (format t "Virhe: obj-alist on ~a~%" (prin1-to-string obj-alist))
+      (explode))))
 
 (defun-export! get-prop  (obj-alist key)
   (let* ((key (if (symbolp key)

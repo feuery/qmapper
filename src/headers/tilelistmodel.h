@@ -31,6 +31,8 @@ public:
   int columnCount(const QModelIndex &parent) const override;
   QModelIndex parent(const QModelIndex &child) const;
 
+  bool hasChildren(const QModelIndex &parent) const override;
+
   void begin(int r);
   void begin();
   void beginMap(int map_row);

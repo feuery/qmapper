@@ -1,2 +1,3 @@
 # XDG_CURRENT_DESKTOP=KDE
-./bin/qt-test --listen=6666
+export QT_LOGGING_RULES="*.debug=true"
+./bin/qt-test

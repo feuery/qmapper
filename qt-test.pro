@@ -15,6 +15,7 @@ INCLUDEPATH += ./src/scm_model
 QT += widgets
 QT += opengl
 QT += network
+QT += testlib
 
 LIBS += -L/opt/local/lib
 LIBS += -lzip

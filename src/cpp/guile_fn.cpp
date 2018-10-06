@@ -1,8 +1,7 @@
 #include <QString>
 #include <guile_fn.h>
 #include <QApplication>
-
-// TODO uudelleenkirjota scheme-filut lispillä
+#include <iostream>
 
 // guile_fn::guile_fn(const char *name)
 // {
@@ -12,7 +11,9 @@
 std::string type_name(cl_object record) {
   cl_object type_of = makefn("q-type-of");
 
-  return ecl_string_to_string(cl_funcall(2, type_of, record));
+  std::string str = ecl_string_to_string(cl_funcall(2, type_of, record));
+  std::cout << str << std::endl;
+  return str;
 }
 
 cl_object get(cl_object record, const char *prop)
@@ -74,5 +75,7 @@ void run_swank() {
 }
 
 void setCallLogs(bool val) {
+  #ifdef FORCE_LOGS
   lisp(std::string("(setf *call-logs* ")+(val? "t":"nil")+")");
+  #endif 
 }

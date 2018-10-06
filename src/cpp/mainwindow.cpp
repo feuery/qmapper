@@ -26,6 +26,8 @@
 #include <ecl/ecl.h>
 #include <guile_fn.h>
 
+#include <QAbstractItemModelTester>
+
 #define btnW 200
 #define btnH 25
 
@@ -50,48 +52,44 @@ void MainWindow::setupTree()
 {
   if(ec) {
     tree.setModel(ec->documentTreeModel);
+   
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
-	if(!index.isValid()) return;
-	puts("We're at DOMTree::clicked");
-
+    	if(!index.isValid()) return;
+    	puts("We're at DOMTree::clicked");
 	
-	// void *ptr = index.internalPointer();
-	// std::cout << "Ptr is " << ptr << std::endl;
-	// std::cout << "int cache is " << int_cache;
-	
-	cl_object b = deref_index(index);
-	std::string type = type_name(b);
+    	cl_object b = deref_index(index);
+    	std::string type = type_name(b);
 
-	if(type == "Tileset") {
-	  cl_object t = static_cast<cl_object >(b);
-	  // Renderable* o = static_cast<Renderable*>(t);
-	  // ec->indexOfChosenTileset = t->getId();
-	  // tileset_view->getDrawQueue().clear();
-	  // tileset_view->getDrawQueue().push_back(o);
-	  puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
-	  throw "";
-	}
-	else if(type == "Map") {
-	  cl_object m = static_cast<cl_object >(b);
-	  // Renderable *o = static_cast<Renderable*>(m);
-	  // ec->indexOfChosenMap = m->getId();
-	  // ec->indexOfChosenLayer = 0;
-	  // map_view->getDrawQueue().clear();
-	  // map_view->getDrawQueue().push_back(o);
-	  puts("TODO IMPLEMENT MAP");
-	}
-	else if(type == "Layer") {
-	  // Layercontainer *l = static_cast<Layercontainer*>(b);
-	  // cl_object m = static_cast<cl_object >(l->parent());
+    	if(type == "TILESET") {
+    	  cl_object t = static_cast<cl_object >(b);
+    	  // Renderable* o = static_cast<Renderable*>(t);
+    	  // ec->indexOfChosenTileset = t->getId();
+    	  // tileset_view->getDrawQueue().clear();
+    	  // tileset_view->getDrawQueue().push_back(o);
+    	  puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
+    	  throw "";
+    	}
+    	else if(type == "MAP") {
+    	  cl_object m = static_cast<cl_object >(b);
+    	  // Renderable *o = static_cast<Renderable*>(m);
+    	  // ec->indexOfChosenMap = m->getId();
+    	  // ec->indexOfChosenLayer = 0;
+    	  // map_view->getDrawQueue().clear();
+    	  // map_view->getDrawQueue().push_back(o);
+    	  puts("TODO IMPLEMENT MAP");
+    	}
+    	else if(type == "LAYER") {
+    	  // Layercontainer *l = static_cast<Layercontainer*>(b);
+    	  // cl_object m = static_cast<cl_object >(l->parent());
 
-	  // ec->indexOfChosenMap = m->getId();
-	  // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
+    	  // ec->indexOfChosenMap = m->getId();
+    	  // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
 
-	  // map_view->getDrawQueue().clear();
-	  // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
-	  puts("TODO IMPLEMENT LAYERS!");
-	}
-	else puts("You didn't click on a recognizable object");
+    	  // map_view->getDrawQueue().clear();
+    	  // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
+    	  puts("TODO IMPLEMENT LAYERS!");
+    	}
+    	else puts("You didn't click on a recognizable object");
       });
   }
   else {
@@ -276,6 +274,37 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 	  });
 }
 
+// wanha
+// void MainWindow::lolTestaa() {
+//   auto model = ec->documentTreeModel;
+//   QModelIndex root = model->index(0,0, QModelIndex()),
+//     rootsParent = model->parent(root);
+//   qDebug() << "Roots parent: " << rootsParent;
+//   assert(!rootsParent.isValid());
+
+//   QModelIndex mapChild = model->index(0, 0, root),
+//     // mistä tää tulee?
+//     childsParent = model->parent(mapChild);
+//   qDebug() << "mapChild: " << mapChild;
+//   qDebug();
+//   qDebug() << "Root: " << root;
+//   qDebug() << "map's parent: " << childsParent;
+//   assert(mapChild.isValid());
+//   assert(childsParent == root);
+//   puts("lolTestaa testattu");
+// }
+
+void MainWindow::lolTestaa() {
+  auto model = ec->documentTreeModel;
+  QModelIndex root = model->index(0, 0, QModelIndex()),
+    map = model->index(1, 0, root),
+    mapsParent = model->parent(map);
+  qDebug() << "Root: " << root;
+  qDebug() << "mapsParent: " << mapsParent;
+  assert(root == mapsParent);
+  puts("Loltestaa läpi");
+}
+
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 {
   // We need to start lisp subsystem before farting up an editorController
@@ -365,6 +394,10 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 
   ui.splitter->addWidget(tb);
   ui.splitter->addWidget(splitter);
+
+  lolTestaa();
+
+  new QAbstractItemModelTester(ec->documentTreeModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 MainWindow::~MainWindow()
