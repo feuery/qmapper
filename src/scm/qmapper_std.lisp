@@ -237,10 +237,10 @@
 	 (ctr-name (sym (str "make-" (symbol-name classname))))
 	 (ctr `(defun-export! ,ctr-name (,@(reverse fields))
 		 (let* ((hash (empty-map))
-			(fields (list ,@(mapcar (lambda (f)
+			(fields (list 'id ,@(mapcar (lambda (f)
 		 				  (list 'quote f))
 		 				fields)))
-			(values (list ,@fields))
+			(values (list (gensym) ,@fields))
 			(fields-and-vals (cons (cons 'type-name (list ,(symbol-name classname)))
 					       (zipmap fields values))))
 
@@ -298,12 +298,16 @@
 		  (intern (string-upcase key))))
 	 (real-alist (convert 'list obj-alist))
 	 (result (cdr (assoc key real-alist :test #'string=))))
-    result))
+    (format t "result is ~a~%" result)
+    (if (symbolp result)
+	;; if not for the prin1, this'd return rubbish strings to c...
+	(prin1-to-string (symbol-name result))
+	result)))
 
 (defun-export! set-prop  (obj-alist key val)
   (with obj-alist key val))
 
-(delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
+;; (delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
 
 (defun-export! keys  (a)
   (delete-duplicates

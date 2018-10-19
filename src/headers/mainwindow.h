@@ -3,7 +3,7 @@
 
 #include <QMainWindow>
 #include <QGroupBox>
-#include <QTreeView>
+#include <QTreeWidget>
 #include <QPushButton>
 #include <QMenu>
 #include <QAction>
@@ -13,6 +13,7 @@
 
 #include <ui_main.h>
 #include <doc-server.h>
+#include <holder.h>
 
 class editorController;
 
@@ -34,7 +35,7 @@ public:
 
   void setupTree();
 
-  QTreeView tree;
+  QTreeWidget tree;
 
   void setupTreeCtxMenu();
   void editObject();
@@ -51,9 +52,7 @@ public:
     void registerController(editorController *ec);
   void setupMainMenu();
   editorController *ec;
-
-
-  void lolTestaa();
+  void prepareModel(QTreeWidget& tree, holder &rootThing);
 };
 
 #endif //MAIN_H

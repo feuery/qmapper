@@ -6,7 +6,6 @@
 #include <QCheckBox>
 #include <editorController.h>
 
-#include <tilelistmodel.h>
 #include <either.h>
 #include <QDoubleValidator>
 #include <QStandardItemModel>
@@ -33,7 +32,7 @@ double getDoubleProp(cl_object base, std::string internedPropname)
 
 std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
 {
-  static cl_object scriptType = ecl_make_symbol("Script-script_type", "CL-USER");
+  static cl_object scriptType = makefn("Script-script_type");
   return  ecl_string_to_string(cl_symbol_name(get(base, internedPropname.c_str())));
 }
   
@@ -157,21 +156,21 @@ QStandardItemModel* dump_to_model_horizontal()
 
 std::vector<std::string> keys(cl_object b)
 {
-  static cl_object keys = ecl_make_symbol("keys-str", "CL-USER");
-  static cl_object list_ref = ecl_make_symbol("list-ref", "CL-USER");
-  static cl_object len = ecl_make_symbol("length", "CL-USER");
+  cl_object keys = makefn("keys-str");
+  cl_object list_ref = makefn("list-ref");
+  cl_object len = makefn("length");
     
-    cl_object k_res = cl_funcall(2, keys, b);
-    int length = fixint(cl_funcall(2, len, k_res));
+  cl_object k_res = cl_funcall(2, keys, b);
+  int length = fixint(cl_funcall(2, len, k_res));
 
-    std::vector<std::string> result;
-    for(int i = 0; i < length; i++) {
-      std::string str(ecl_string_to_string(cl_funcall(3, list_ref,
-						      k_res,
-						      ecl_make_int(i))));
-      result.push_back(str);
-    }
-    return result;
+  std::vector<std::string> result;
+  for(int i = 0; i < length; i++) {
+    std::string str(ecl_string_to_string(cl_funcall(3, list_ref,
+						    k_res,
+						    ecl_make_int(i))));
+    result.push_back(str);
+  }
+  return result;
 }
 
 static void indexChanged(cl_object &b, std::string internedPropName, cl_object editedObject)
@@ -184,15 +183,19 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
 QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
   QFormLayout *data = new QFormLayout;
+  cl_object prin = makefn("prin1");
+
+  puts("Getting keys for: ");
+  cl_funcall(2, prin, base);
 
   std::vector<std::string> properties = keys(base);
 
-  static cl_object str = ecl_make_symbol("prop-str?", "CL-USER");
-  static cl_object list = ecl_make_symbol("prop-list?", "CL-USER");
-  static cl_object prop_number = ecl_make_symbol("prop-number?", "CL-USER");
-  static cl_object prop_bool = ecl_make_symbol("prop-bool?", "CL-USER");
-  static cl_object prop_float = ecl_make_symbol("prop-float?", "CL-USER");
-  static cl_object prop_sym = ecl_make_symbol("prop-sym?", "CL-USER");
+  cl_object str = makefn("prop-str?"),
+    list = makefn("prop-list?"),
+    prop_number = makefn("prop-number?"),
+    prop_bool = makefn("prop-bool?"),
+    prop_float = makefn("prop-float?"),
+    prop_sym = makefn("prop-sym?");
 
   for(int i =0; i<properties.size(); i++) {
 
@@ -395,7 +398,7 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
 void Propertyeditor::resetLayout(cl_object base) {
   cl_object r = editorController::instance->document.getValue();
-  cl_object regToList = ecl_make_symbol("root-registryToList", "CL-USER");
+  cl_object regToList = makefn("root-registryToList");
   auto reg = cl_funcall(2, regToList, r);
   l = new QVBoxLayout;
   

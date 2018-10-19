@@ -11,8 +11,7 @@
 
 (in-package :qmapper.map)
 
-;; (macroexpand-1 '
- (defcppclass Map
+(defcppclass Map
     (public 
      (properties
       (name "Map 1")
@@ -36,7 +35,7 @@
 	       vAnchor
 	       hAnchor)
 	      ;; TODO IMPLEMENT
-	      (error "Don't call Map-resize yet!"))))) ;)
+	      (error "Don't call Map-resize yet!")))))
 
 ;; (format t "Ladataan qmapper.mapia ~%")
 

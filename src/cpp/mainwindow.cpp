@@ -17,7 +17,6 @@
 #include <editorController_guile.h>
 
 #include <tileview_renderer.h>
-#include <tilelistmodel.h>
 
 #include <tool_list.h>
 #include <animationLoaderUi.h>
@@ -48,49 +47,82 @@ QString MainWindow::getTextureLocation() {
   return QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
 }
 
+void MainWindow::prepareModel(QTreeWidget& tree, holder &rootThing)
+{
+  cl_object root = rootThing.getValue(),
+    regToList = makefn("root-registrytolIst"),
+    typeOf = makefn("q-type-of"),
+    nth = makefn("nth"),
+    prin = makefn("prin1"),
+    len = makefn("length"),
+    mapLayers = makefn("map-layers"),
+    rootAsList = cl_funcall(2, regToList, root);
+
+  int length = fixint(cl_funcall(2, len, rootAsList));
+  for(int i = 0; i < length; i++) {
+    cl_object obj = cl_funcall(3, nth, ecl_make_int32_t(i), rootAsList);
+    QTreeWidgetItem *item = new QTreeWidgetItem;
+    QString id (ecl_string_to_string(get(obj, "id")).c_str());
+    item->setText(0, QString(ecl_string_to_string(get(obj, "name")).c_str()) + " | " + id);
+
+    std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
+    if(type == "MAP") {
+      cl_object layers = cl_funcall(2, mapLayers, obj);
+      int layer_len = fixint(cl_funcall(2, len, layers));
+      for(int l = 0; l < layer_len; l++) {
+	cl_object layer = cl_funcall(3, nth, ecl_make_int32_t(l), layers);
+	QTreeWidgetItem *layer_item = new QTreeWidgetItem;
+	layer_item->setText(0, ecl_string_to_string(get(layer, "name")).c_str());
+	item->addChild(layer_item);
+      }
+    }
+    tree.addTopLevelItem(item);
+  }
+}
+
 void MainWindow::setupTree()
 {
   if(ec) {
-    tree.setModel(ec->documentTreeModel);
+    prepareModel(tree, editorController::instance->document);
    
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
-    	if(!index.isValid()) return;
-    	puts("We're at DOMTree::clicked");
+					  puts("We're at DOMTree::clicked");
+					  if(!index.isValid()) return;
 	
-    	cl_object b = deref_index(index);
-    	std::string type = type_name(b);
+					  // cl_object b = deref_index(index);
+					  // std::string type = type_name(b);
 
-    	if(type == "TILESET") {
-    	  cl_object t = static_cast<cl_object >(b);
-    	  // Renderable* o = static_cast<Renderable*>(t);
-    	  // ec->indexOfChosenTileset = t->getId();
-    	  // tileset_view->getDrawQueue().clear();
-    	  // tileset_view->getDrawQueue().push_back(o);
-    	  puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
-    	  throw "";
-    	}
-    	else if(type == "MAP") {
-    	  cl_object m = static_cast<cl_object >(b);
-    	  // Renderable *o = static_cast<Renderable*>(m);
-    	  // ec->indexOfChosenMap = m->getId();
-    	  // ec->indexOfChosenLayer = 0;
-    	  // map_view->getDrawQueue().clear();
-    	  // map_view->getDrawQueue().push_back(o);
-    	  puts("TODO IMPLEMENT MAP");
-    	}
-    	else if(type == "LAYER") {
-    	  // Layercontainer *l = static_cast<Layercontainer*>(b);
-    	  // cl_object m = static_cast<cl_object >(l->parent());
+					  // if(type == "TILESET") {
+					  //   cl_object t = static_cast<cl_object >(b);
+					  //   // Renderable* o = static_cast<Renderable*>(t);
+					  //   // ec->indexOfChosenTileset = t->getId();
+					  //   // tileset_view->getDrawQueue().clear();
+					  //   // tileset_view->getDrawQueue().push_back(o);
+					  //   puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
+					  //   throw "";
+					  // }
+					  // else if(type == "MAP") {
+					  //   cl_object m = static_cast<cl_object >(b);
+					  //   // Renderable *o = static_cast<Renderable*>(m);
+					  //   // ec->indexOfChosenMap = m->getId();
+					  //   // ec->indexOfChosenLayer = 0;
+					  //   // map_view->getDrawQueue().clear();
+					  //   // map_view->getDrawQueue().push_back(o);
+					  //   puts("TODO IMPLEMENT MAP");
+					  // }
+					  // else if(type == "LAYER") {
+					  //   // Layercontainer *l = static_cast<Layercontainer*>(b);
+					  //   // cl_object m = static_cast<cl_object >(l->parent());
 
-    	  // ec->indexOfChosenMap = m->getId();
-    	  // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
+					  //   // ec->indexOfChosenMap = m->getId();
+					  //   // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
 
-    	  // map_view->getDrawQueue().clear();
-    	  // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
-    	  puts("TODO IMPLEMENT LAYERS!");
-    	}
-    	else puts("You didn't click on a recognizable object");
-      });
+					  //   // map_view->getDrawQueue().clear();
+					  //   // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
+					  //   puts("TODO IMPLEMENT LAYERS!");
+					  // }
+					  // else puts("You didn't click on a recognizable object");
+					});
   }
   else {
     puts("ec is null\n");
@@ -122,10 +154,27 @@ QGroupBox* MainWindow::toolbox()
 
 void MainWindow::editObject()
 {
-  QModelIndex l = tree.currentIndex();
+  QString itemtext = tree.currentItem()->text(0);
+  auto splitted = itemtext.split("|");
+  if(splitted.count() < 1) {
+    printf("item %s doesn't have id\n", itemtext.toStdString().c_str());
+    return;
+  }
+  
+  QString id = splitted[1].replace("\"", "");
+
+  printf("id to edit is %s\n", id.toStdString().c_str());
+
+  cl_object find_by_id = makefn("find-by-id"),
+    b = cl_funcall(3, find_by_id, ec->document.getValue(), c_string_to_object(("\""+id+"\"").toStdString().c_str()));
+
+// kattoo valitun puuelementin tekstin ja ettii rekisteristä olio jonka :name == valitun elementin teksti?
+  
   // Then, let's fire a property-editor-dialog with this pointer as parameter
   // And update this pointer's data in-between the model's begin-row-update-thing
-  cl_object b = static_cast<cl_object >(l.internalPointer());
+  // puts("editObject doesn't work!");
+  // throw "";
+  
   Propertyeditor *p = new Propertyeditor(b, this);
   p->show();
 }
@@ -214,9 +263,7 @@ void MainWindow::newTileset() {
     tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
   
     
-  ec->documentTreeModel->begin();
   // (*ec->document.getTilesets())[t->getId()] = t;
-  ec->documentTreeModel->end();
 }
 
 void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
@@ -272,37 +319,6 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 	    // p->show();
 	    puts("TODO implement");
 	  });
-}
-
-// wanha
-// void MainWindow::lolTestaa() {
-//   auto model = ec->documentTreeModel;
-//   QModelIndex root = model->index(0,0, QModelIndex()),
-//     rootsParent = model->parent(root);
-//   qDebug() << "Roots parent: " << rootsParent;
-//   assert(!rootsParent.isValid());
-
-//   QModelIndex mapChild = model->index(0, 0, root),
-//     // mistä tää tulee?
-//     childsParent = model->parent(mapChild);
-//   qDebug() << "mapChild: " << mapChild;
-//   qDebug();
-//   qDebug() << "Root: " << root;
-//   qDebug() << "map's parent: " << childsParent;
-//   assert(mapChild.isValid());
-//   assert(childsParent == root);
-//   puts("lolTestaa testattu");
-// }
-
-void MainWindow::lolTestaa() {
-  auto model = ec->documentTreeModel;
-  QModelIndex root = model->index(0, 0, QModelIndex()),
-    map = model->index(1, 0, root),
-    mapsParent = model->parent(map);
-  qDebug() << "Root: " << root;
-  qDebug() << "mapsParent: " << mapsParent;
-  assert(root == mapsParent);
-  puts("Loltestaa läpi");
 }
 
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
@@ -394,10 +410,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 
   ui.splitter->addWidget(tb);
   ui.splitter->addWidget(splitter);
-
-  lolTestaa();
-
-  new QAbstractItemModelTester(ec->documentTreeModel, QAbstractItemModelTester::FailureReportingMode::Fatal, this);
 }
 
 MainWindow::~MainWindow()
@@ -443,7 +455,6 @@ void MainWindow::setupMainMenu()
 	load_file = load_file + ".qmapper";
       qDebug() << "Trying to load from " << load_file;
       ec->loadFrom(load_file);
-      tree.setModel(ec->documentTreeModel);
     });
 
   filemenu->addAction(save);

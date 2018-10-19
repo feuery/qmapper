@@ -52,7 +52,7 @@ void editorController::populateMaps() {
 			     c_string_to_object(name.c_str()),
 			     ECL_NIL,
 			     ECL_NIL);
-    for(int x = 0; x < 2; x++) {
+    for(int x = 0; x < 5; x++) {
       int w = 10 + 10 * x,
 	h   = 10 + 10 * x;
       std::string lname = "\""+(std::to_string(x)+"th layer") +"\"";
@@ -90,8 +90,6 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   }
 
   instance = this;
-
-  documentTreeModel = new Tilelistmodel(document);
 
   puts("Yritetään luoda eka skribula");
   cl_object scr = cl_funcall(5,
@@ -132,7 +130,6 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
 editorController::~editorController()
 {
-  delete documentTreeModel;
 }
 
 void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer)
@@ -208,17 +205,13 @@ void editorController::rotateTile90Deg(int x, int y) {
 }
 
 void editorController::loadSprite(const char* path) {
-  documentTreeModel->begin();
   // Spritecontainer::make(w->map_view, path);
   puts("TODO implement sprites");
-  documentTreeModel->end();
 }
 
 void editorController::loadAnimation(const char *path, int frameCount, int frameLifeTime) {
-  documentTreeModel->begin();
   // Animatedspritecontainer::make(w->map_view, path, frameCount, frameLifeTime);
   puts("TODO implement animations");
-  documentTreeModel->end();  
 }
 
 static std::vector<QTemporaryFile*> tempFiles;
@@ -415,7 +408,6 @@ void editorController::loadFrom(QString fname) {
   // }
   
 
-  // documentTreeModel = new Tilelistmodel(&document);
   // w->setupTree();
   // loaded = true;
 }
@@ -436,4 +428,8 @@ cl_object explode() {
   puts("Let's explode!");
   throw "";
   return ECL_NIL;
+}
+
+cl_object editorController::findItem(const char *name) {
+  
 }

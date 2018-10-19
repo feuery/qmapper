@@ -1,7 +1,6 @@
 #ifndef EDITORCONTROLLER_H
 #define EDITORCONTROLLER_H
 
-#include <tilelistmodel.h>
 #include <vector>
 #include <mainwindow.h>
 
@@ -23,13 +22,13 @@ class editorController{
 public:
   holder document;
   void registerWindow(MainWindow *w);
-  
-  Tilelistmodel *documentTreeModel;
 
   QObject r;
 
   ~editorController();
   editorController();
+
+  cl_object findItem(const char *name);
 
   void populateMaps();
   

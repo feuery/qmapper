@@ -3,6 +3,8 @@
 #include <QApplication>
 #include <iostream>
 
+#define FORCE_LOGS
+
 // guile_fn::guile_fn(const char *name)
 // {
 //   func = ecl_make_symbol(name, "CL-USER");
@@ -23,15 +25,15 @@ cl_object get(cl_object record, const char *prop)
     // format = makefn("format")
     ;
   std::string literal = std::string("\"") + prop + "\"";
-  printf("getting %s\n", literal.c_str());
+  // printf("getting %s\n", literal.c_str());
 
   cl_object key = c_string_to_object(literal.c_str());
-  cl_funcall(2, prin, key);
-  puts("");
+  // cl_funcall(2, prin, key);
+  // puts("");
   cl_object result = cl_funcall(3, get, record, key);
 
-  puts("Result:");
-  cl_funcall(2, prin, result);
+  // puts("Result:");
+  // cl_funcall(2, prin, result);
 
   return result;  
 }

@@ -5,6 +5,8 @@
 extern "C" { 
 
   cl_object add_map(cl_object w, cl_object h, cl_object layerCount) {
+    puts("EI");
+    throw "";
     static cl_object makeMap   = ecl_make_symbol("make-map-with-layers", "CL-USER");
     static cl_object pushMap   = ecl_make_symbol("push-selected-map", "CL-USER");
     static cl_object registrySize = ecl_make_symbol("root-registrySize", "CL-USER");
@@ -28,12 +30,12 @@ extern "C" {
   {
     cl_object addLayer = ecl_make_symbol("add-layer", "CL-USER");
     
-    editorController::instance->documentTreeModel->begin();
+    // editorController::instance->documentTreeModel->begin();
     editorController::instance->document.setValue( cl_funcall(3, addLayer,
 						      editorController::instance->document.getValue(),
 							      map_index));
     
-    editorController::instance->documentTreeModel->end();
+    // editorController::instance->documentTreeModel->end();
 
     return ECL_T;
     
@@ -42,12 +44,12 @@ extern "C" {
   cl_object delete_layer(cl_object map_index_scm, cl_object layer_index_scm)
   {
     static cl_object deleteLayer = ecl_make_symbol("delete-layer", "CL-USER");
-    editorController::instance->documentTreeModel->begin();
+    // editorController::instance->documentTreeModel->begin();
     editorController::instance->document.setValue( cl_funcall(4, deleteLayer,
 						      editorController::instance->document.getValue(),
 						      map_index_scm,
 							      layer_index_scm));
-    editorController::instance->documentTreeModel->end();
+    // editorController::instance->documentTreeModel->end();
     return ECL_T;
   }
 
@@ -60,7 +62,7 @@ extern "C" {
     static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
     static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
     
-    editorController::instance->documentTreeModel->begin();
+    // editorController::instance->documentTreeModel->begin();
 
     cl_object scrpt = cl_funcall(5, makeScript,
 			   c_string_to_object(""),
@@ -70,7 +72,7 @@ extern "C" {
     editorController::instance->document.setValue( cl_funcall(3, pushScript,
 						      editorController::instance->document.getValue(),
 							      scrpt));
-    editorController::instance->documentTreeModel->end();
+    // editorController::instance->documentTreeModel->end();
 
     return ECL_T;
   }
@@ -80,7 +82,7 @@ extern "C" {
     static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
     static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
     
-    editorController::instance->documentTreeModel->begin();
+    // editorController::instance->documentTreeModel->begin();
 
     cl_object scrpt = cl_funcall(5, makeScript,
 			   c_string_to_object(""),
@@ -90,13 +92,15 @@ extern "C" {
     editorController::instance->document.setValue( cl_funcall(3, pushScript,
 						      editorController::instance->document.getValue(),
 							      scrpt));
-    editorController::instance->documentTreeModel->end();
+    // editorController::instance->documentTreeModel->end();
 
     return ECL_T;
   }
 
   cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor)
   {
+    puts("EI2");
+    throw "";
     editorController *ec = editorController::instance;
 
     // It might cause problems if we screw with data structures while renderer is deep within the same datastructures

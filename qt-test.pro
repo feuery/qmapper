@@ -39,7 +39,6 @@ HEADERS += src/headers/files.h \
            src/headers/guile_thread.h \
            src/headers/editorController.h \
            src/headers/editorController_guile.h \
-           src/headers/tilelistmodel.h \
            src/headers/propertyEditor.h \
            src/headers/tileview_renderer.h \
            src/headers/doc-server.h \
@@ -74,7 +73,6 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/guile_thread.cpp \
            src/cpp/editorController.cpp \
            src/cpp/editorController_guile.cpp \
-           src/cpp/tilelistmodel.cpp \
            src/cpp/propertyEditor.cpp \
            src/cpp/doc-server.cpp \
            src/cpp/nsValidators.cpp \

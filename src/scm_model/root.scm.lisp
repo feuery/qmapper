@@ -5,6 +5,7 @@
 (defpackage :qmapper.root
   (:use :common-lisp
 	:cl-arrows
+	:rutils.abbr
 	:qmapper.std
 	:qmapper.script)
   (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert))
@@ -122,14 +123,11 @@
 						    (root-tilesets *this*)))
 					(mapcar #'cdr)
 					)))
-			;(format t "concd is ~a~%" concd)
+			(format t "concd is ~a~%" concd)
 			concd)))))
 
 (defun-export! init-root! ()
-  ;; (let ((result
-	 (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
-    ;; ;; (format t "Initiated root to ~a ~%" result)
-;; result))
+  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
       
 (defun-export! push-map (root m)
   (let* ((maps (cons (cons (gensym)
@@ -142,12 +140,36 @@
     ;; (format t "Final root at push-map is ~a~%" final-root)
     final-root))
 
+(defun-export! find-by-id (root id)
+  (let* ((result-set (->> root
+			  root-registrytolist
+			  (mapcat (lambda (r)
+				    (if (string= (q-type-of r) "MAP")
+					(cons r
+					      (get-prop r "LAYERS"))
+					(list r))))
+			  (remove-if-not (lambda (r)
+					   ;; (format t "(= ~a ~a)~%" (symbol-name (get-prop r "ID")) id)
+					   (let* ((row-id (get-prop r "ID"))
+						  (row-id (if (symbolp row-id)
+							      (symbol-name row-id)
+							      row-id)))
+			 		     (string= row-id id))))))
+	 (len (length result-set)))
+    ;; (format t "result-set: ~a~%" result-set)
+    ;; (format t "find-by-id found ~a elements~%" len)
+    (when (> len 0)
+	(when (> len 1)
+	  (format t "find-by-id found ~a elements~%" len))
+	(car result-set))))
+
 (defun-export! push-script (root scr)
   (declare (optimize (debug 3)))
-  (set-root-scripts! root (let ((result (with (or (root-scripts root) (empty-map))
-					      (gensym)
-					      scr)))
-			    result)))
+  (set-root-scripts! root
+		     (let ((result (with (or (root-scripts root) (empty-map))
+					 (gensym)
+					 scr)))
+		       result)))
 
 (defun-export! find-ns (root ns)
   (let ((scr (filter
@@ -177,10 +199,3 @@
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
   (setf *document* doc))
-
-; (format t "set-doc defun'd")
-
-; (export-all :qmapper.root)
-
-
-;; (scm-puts "root loaded")
