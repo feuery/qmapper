@@ -7,6 +7,7 @@
 	:qmapper.script
 	:qmapper.layer
 	:qmapper.root
+	:qmapper.export
 	:qmapper.tile))
 
 (in-package :qmapper.map)

@@ -50,12 +50,12 @@ QString MainWindow::getTextureLocation() {
 void MainWindow::prepareModel(QTreeWidget& tree, holder &rootThing)
 {
   cl_object root = rootThing.getValue(),
-    regToList = makefn("root-registrytolIst"),
-    typeOf = makefn("q-type-of"),
-    nth = makefn("nth"),
+    regToList = makefn("qmapper.root:root-registrytolIst"),
+    typeOf = makefn("qmapper.std:q-type-of"),
+    nth = makefn("common-lisp:nth"),
     prin = makefn("prin1"),
     len = makefn("length"),
-    mapLayers = makefn("map-layers"),
+    mapLayers = makefn("qmapper.map:map-layers"),
     rootAsList = cl_funcall(2, regToList, root);
 
   int length = fixint(cl_funcall(2, len, rootAsList));
@@ -165,7 +165,7 @@ void MainWindow::editObject()
 
   printf("id to edit is %s\n", id.toStdString().c_str());
 
-  cl_object find_by_id = makefn("find-by-id"),
+  cl_object find_by_id = makefn("qmapper.rootfind-by-id"),
     b = cl_funcall(3, find_by_id, ec->document.getValue(), c_string_to_object(("\""+id+"\"").toStdString().c_str()));
 
 // kattoo valitun puuelementin tekstin ja ettii rekisteristä olio jonka :name == valitun elementin teksti?
@@ -259,7 +259,7 @@ void MainWindow::setupTreeCtxMenu()
 
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  cl_object make_tset = makefn("load-tileset"),
+  cl_object make_tset = makefn("qmapper.tileset:load-tileset"),
     tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
   
     

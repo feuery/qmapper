@@ -7,6 +7,7 @@
 	:cl-arrows
 	:rutils.abbr
 	:qmapper.std
+	:qmapper.export
 	:qmapper.script)
   (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert))
 
@@ -164,12 +165,18 @@
 	(car result-set))))
 
 (defun-export! push-script (root scr)
-  (declare (optimize (debug 3)))
-  (set-root-scripts! root
-		     (let ((result (with (or (root-scripts root) (empty-map))
-					 (gensym)
-					 scr)))
-		       result)))
+  ;; (declare (optimize (debug 3)))
+  (assert root)
+  (let ((result 
+	 (set-root-scripts! root
+			    (let ((result (with (or (root-scripts root) (empty-map))
+						(gensym)
+						scr)))
+			      result))))
+    (format t "Lol @ push-script~%")
+    result))
+
+;; (push-script *document* (make-script "Lollo" "name" "ns" "glsl"))
 
 (defun-export! find-ns (root ns)
   (let ((scr (filter
@@ -198,4 +205,9 @@
 
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
+  (assert doc)
+  ;; TODO tee tästä joku c++:aan eventtikokoelmaan dispatchaava kikkare
+  (format t "set doc called~%")
+  (if explode
+      (funcall explode))
   (setf *document* doc))

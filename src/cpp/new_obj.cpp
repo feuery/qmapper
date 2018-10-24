@@ -113,8 +113,8 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
 }
 
 std::string getScript(std::string id) {
-  auto fetchRegister = makefn("root-fetchRegister"),
-    fetchContents = makefn("Script-contents");
+  auto fetchRegister = makefn("qmapper.root:root-fetchRegister"),
+    fetchContents = makefn("qmapper.script:Script-contents");
   cl_object script = cl_funcall(3,
 				fetchRegister,
 				c_string_to_object("Script"),
@@ -127,9 +127,9 @@ std::string getScript(std::string id) {
 
 GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 {
-  static cl_object stdFrag = makefn("root-contents-StdFragment");
-  static cl_object stdVertex = makefn("root-contents-StdVertex");
-  static cl_object tileViewFrag = makefn("root-contents-StdTileviewFragShader");
+  static cl_object stdFrag = makefn("qmapper.root:root-contents-StdFragment");
+  static cl_object stdVertex = makefn("qmapper.root:root-contents-StdVertex");
+  static cl_object tileViewFrag = makefn("qmapper.root:root-contents-StdTileviewFragShader");
 
   // fml and c's string handling
   std::string v_c_smells(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),

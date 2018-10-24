@@ -37,12 +37,12 @@ cl_object make2DList(int w, int h, cl_object val) {
 }
 
 void editorController::populateMaps() {
-  static cl_object makeMap   = makefn("make-map");
-  static cl_object makeLayer = makefn("make-layer");
-  static cl_object makeTile  = makefn("make-Tile");
-  static cl_object setLayers = makefn("set-Map-layers!");
-  static cl_object getLayers = makefn("map-layers");
-  static cl_object pushMap   = makefn("push-map");
+  static cl_object makeMap   = makefn("qmapper.map:make-map");
+  static cl_object makeLayer = makefn("qmapper.layer:make-layer");
+  static cl_object makeTile  = makefn("qmapper.tile:make-Tile");
+  static cl_object setLayers = makefn("qmapper.map:set-Map-layers!");
+  static cl_object getLayers = makefn("qmapper.map:map-layers");
+  static cl_object pushMap   = makefn("qmapper.root:push-map");
   static cl_object cons      = makefn("cons");
   
   for(int i = 0; i < 3; i++) {
@@ -80,9 +80,9 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
   puts("Looking up scheme definitions in editorController::editorController");
-  lisp("(in-package :qmapper.map)");
-  cl_object pushScript = makefn("push-script");
-  cl_object makeScript = makefn("make-script");
+  lisp("(use-package :qmapper.map)");
+  cl_object pushScript = makefn("qmapper.root:push-script");
+  cl_object makeScript = makefn("qmapper.script:make-script");
     
   if(instance) {
     puts("There already exists an editorController");
@@ -98,9 +98,14 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 			     c_string_to_object("\"Standard vertex shader\""),
 			     c_string_to_object("\"defaultVertex\""),
 			     c_string_to_object("\"glsl\""));
+
   puts("Luotiin eka skribula");
 
-  document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
+  auto doc = document.getValue();
+  assert(doc != ECL_NIL);
+
+  auto newDoc = cl_funcall(3, pushScript, doc, scr);
+  document.setValue(newDoc);
 
   puts("Tallennettiin eka skribula!");
 
@@ -165,7 +170,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
 
 void editorController::setTileAt(int x, int y)
 {
-  cl_object set_chosen_tile_at = makefn("set-chosen-tile-at");
+  cl_object set_chosen_tile_at = makefn("qmapper.map:set-chosen-tile-at");
 
   document.setValue( cl_funcall(4,
 			set_chosen_tile_at,
@@ -176,7 +181,7 @@ void editorController::setTileAt(int x, int y)
 
 
 void editorController::setTileRotation(int x, int y, int deg_angl) {
-  cl_object set_tile_rotation = makefn("set-tile-rotation-at");
+  cl_object set_tile_rotation = makefn("qmapper.map:set-tile-rotation-at");
 
   document.setValue( cl_funcall(5, set_tile_rotation,
 			document.getValue(),
@@ -186,10 +191,10 @@ void editorController::setTileRotation(int x, int y, int deg_angl) {
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
-  cl_object get_chosen_tile = makefn("root-chosenTile");
-  cl_object set_chosen_tile = makefn("set-tile-at-chosen-map");
-  cl_object set_tile_rotation = makefn("set-tile-rotation-at");
-  cl_object get_rot = makefn("Tile-rotation");
+  cl_object get_chosen_tile = makefn("qmapper.root:root-chosenTile");
+  cl_object set_chosen_tile = makefn("qmapper.map:set-tile-at-chosen-map");
+  cl_object set_tile_rotation = makefn("qmapper.map:set-tile-rotation-at");
+  cl_object get_rot = makefn("qmapper.tile:Tile-rotation");
 
 
   cl_object tile = cl_funcall(2,

@@ -22,6 +22,12 @@
      (defmacro ,name ,@rst)
      (export (quote ,name))))
 
+(defmacro-export! defvar-export!
+    (name value)
+  `(progn
+     (defvar ,name ,value)
+     (export (quote ,name))))
+
 (defmacro-export! defun-export! (name &rest rst)
   `(progn
      (defun ,name ,@rst)
@@ -218,6 +224,10 @@
 	 												(symbol-name field)
 	 												"!"))))
 										 (list `(defun-export! ,getter (this)
+											  (unless this
+											    (format t "~a failed, this is nil~%" (prin1-to-string (quote ,getter)))
+											    ;; Let's try to cause a core dump...
+											    (ext:quit -11))
 											  (lookup this ',field))
 										       `(defun-export! ,setter (this val)
 											  (with this ',field val))))))))))

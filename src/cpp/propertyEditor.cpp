@@ -32,7 +32,7 @@ double getDoubleProp(cl_object base, std::string internedPropname)
 
 std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
 {
-  static cl_object scriptType = makefn("Script-script_type");
+  static cl_object scriptType = makefn("qmapper.script:Script-script_type");
   return  ecl_string_to_string(cl_symbol_name(get(base, internedPropname.c_str())));
 }
   
@@ -156,9 +156,9 @@ QStandardItemModel* dump_to_model_horizontal()
 
 std::vector<std::string> keys(cl_object b)
 {
-  cl_object keys = makefn("keys-str");
-  cl_object list_ref = makefn("list-ref");
-  cl_object len = makefn("length");
+  cl_object keys = makefn("qmapper.std:keys-str");
+  cl_object list_ref = makefn("common-lisp:list-ref");
+  cl_object len = makefn("common-lisp:length");
     
   cl_object k_res = cl_funcall(2, keys, b);
   int length = fixint(cl_funcall(2, len, k_res));
@@ -183,19 +183,19 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
 QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
   QFormLayout *data = new QFormLayout;
-  cl_object prin = makefn("prin1");
+  cl_object prin = makefn("common-lisp:prin1");
 
   puts("Getting keys for: ");
   cl_funcall(2, prin, base);
 
   std::vector<std::string> properties = keys(base);
 
-  cl_object str = makefn("prop-str?"),
-    list = makefn("prop-list?"),
-    prop_number = makefn("prop-number?"),
-    prop_bool = makefn("prop-bool?"),
-    prop_float = makefn("prop-float?"),
-    prop_sym = makefn("prop-sym?");
+  cl_object str = makefn("qmapper.std:prop-str?"),
+    list = makefn("qmapper.std:prop-list?"),
+    prop_number = makefn("qmapper.std:prop-number?"),
+    prop_bool = makefn("qmapper.std:prop-bool?"),
+    prop_float = makefn("qmapper.std:prop-float?"),
+    prop_sym = makefn("qmapper.std:prop-sym?");
 
   for(int i =0; i<properties.size(); i++) {
 
@@ -398,7 +398,7 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
 void Propertyeditor::resetLayout(cl_object base) {
   cl_object r = editorController::instance->document.getValue();
-  cl_object regToList = makefn("root-registryToList");
+  cl_object regToList = makefn("qmapper.root:root-registryToList");
   auto reg = cl_funcall(2, regToList, r);
   l = new QVBoxLayout;
   

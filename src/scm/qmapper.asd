@@ -22,10 +22,12 @@
   	       
   	       (:file "script.scm"
 		      :depends-on ("qmapper_std"))
-	       
+	       (:file "export"
+		      :depends-on ("qmapper_std"))
   	       (:file "map.scm"
 		      :depends-on ("qmapper_std"
 				   "treecache"
+				   "export"
 				   "root.scm"
 				   "tileset.scm"
 				   "sprite.scm"
@@ -35,6 +37,7 @@
 				   "tile.scm"))
 	       (:file "root.scm"
 		      :depends-on ("script.scm" ;; "map.scm"
+				   "export"
 						))
   	       (:file "sprite.scm")
   	       (:file "tile.scm")

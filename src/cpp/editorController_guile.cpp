@@ -59,16 +59,16 @@ extern "C" {
 
   cl_object add_glsl_script()
   {
-    static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
-    static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
+    cl_object makeScript = makefn("make-Script");
+    cl_object pushScript = makefn("push-script");
     
     // editorController::instance->documentTreeModel->begin();
 
     cl_object scrpt = cl_funcall(5, makeScript,
-			   c_string_to_object(""),
-			   c_string_to_object("A new GLSL script"),
-			   c_string_to_object(genNs().c_str()),
-				 ecl_make_symbol("glsl", "CL-USER"));
+				 c_string_to_object("\"\""),
+				 c_string_to_object("\"A new GLSL script\""),
+				 c_string_to_object(genNs().c_str()),
+				 c_string_to_object("\"glsl\""));
     editorController::instance->document.setValue( cl_funcall(3, pushScript,
 						      editorController::instance->document.getValue(),
 							      scrpt));
@@ -79,16 +79,16 @@ extern "C" {
 
   cl_object add_scheme_script()
   {
-    static cl_object makeScript = ecl_make_symbol("make-Script", "CL-USER");
-    static cl_object pushScript = ecl_make_symbol("push-script", "CL-USER");
+    cl_object makeScript = makefn("make-Script");
+    cl_object pushScript = makefn("push-script");
     
     // editorController::instance->documentTreeModel->begin();
 
     cl_object scrpt = cl_funcall(5, makeScript,
-			   c_string_to_object(""),
-			   c_string_to_object("A new Scheme script"),
-			   c_string_to_object(genNs().c_str()),
-				 ecl_make_symbol("scheme", "CL-USER"));
+				 c_string_to_object("\"\""),
+				 c_string_to_object("\"A new Scheme script\""),
+				 c_string_to_object(genNs().c_str()),
+				 c_string_to_object("\"scheme\""));
     editorController::instance->document.setValue( cl_funcall(3, pushScript,
 						      editorController::instance->document.getValue(),
 							      scrpt));

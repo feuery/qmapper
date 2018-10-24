@@ -16,10 +16,11 @@ void setCallLogs(bool val);
 
 void run_swank();
 
-#define DEFUN(name,fun,args) \
- cl_def_c_function(c_string_to_object(name), \
- (cl_objectfn_fixed)fun, \
- args)
+#define DEFUN(name,fun,args)				\
+  cl_def_c_function(c_string_to_object((std::string("exported-")+name).c_str()), \
+		    (cl_objectfn_fixed)fun,		\
+		    args);				\
+  lisp((std::string("(setf qmapper.export:")+name+" #'exported-"+name+")").c_str());
 
 
 // class guile_fn {

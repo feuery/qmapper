@@ -11,7 +11,7 @@
 // }
 
 std::string type_name(cl_object record) {
-  cl_object type_of = makefn("q-type-of");
+  cl_object type_of = makefn("qmapper.std:q-type-of");
 
   std::string str = ecl_string_to_string(cl_funcall(2, type_of, record));
   std::cout << str << std::endl;
@@ -20,7 +20,7 @@ std::string type_name(cl_object record) {
 
 cl_object get(cl_object record, const char *prop)
 {
-  cl_object get = makefn("get-prop"),
+  cl_object get = makefn("qmapper.std:get-prop"),
     prin = makefn("prin1")
     // format = makefn("format")
     ;
@@ -40,7 +40,7 @@ cl_object get(cl_object record, const char *prop)
 
 cl_object set(cl_object record, const char *prop, cl_object val)
 {
-  static cl_object set = makefn("set-prop");
+  static cl_object set = makefn("qmapper.std:set-prop");
 
   return cl_funcall(4, set, record, c_string_to_object(prop), val);
 }
@@ -63,7 +63,7 @@ std::string ecl_string_to_string(cl_object echar) {
 
 cl_object makefn(const char *fn) {
   // (format t \"Params ~a~%\" rst)
-  return lisp(std::string("(lambda (&rest rst) (if *call-logs* (format t \"Calling ") + fn + ", ~%\"))  (apply #'" + fn + " rst))");
+  return lisp(std::string("(lambda (&rest rst) ;(if *call-logs* \n(format t \"Calling ") + fn + ", ~%\");)\n  (apply #'" + fn + " rst))");
 }
 
 static char start_swank[] =
