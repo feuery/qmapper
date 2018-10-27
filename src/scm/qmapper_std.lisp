@@ -227,7 +227,8 @@
 											  (unless this
 											    (format t "~a failed, this is nil~%" (prin1-to-string (quote ,getter)))
 											    ;; Let's try to cause a core dump...
-											    (ext:quit -11))
+											    #+ecl (ext:quit -11)
+											    #+sbcl (sb-ext:quit))
 											  (lookup this ',field))
 										       `(defun-export! ,setter (this val)
 											  (with this ',field val))))))))))
