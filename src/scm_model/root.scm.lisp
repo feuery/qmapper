@@ -203,11 +203,20 @@
 (defvar *document* (init-root!))
 (export '*document*)
 
+(defvar *document-hooks* '())
+
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
   (assert doc)
   ;; TODO tee tästä joku c++:aan eventtikokoelmaan dispatchaava kikkare
-  (format t "set doc called~%")
-  (if explode
-      (funcall explode))
-  (setf *document* doc))
+  (setf *document* doc)
+  (dolist (l *document-hooks*)
+    (if (and l
+	     (functionp l))
+	(funcall l doc))))
+
+(defun-export! register-doc-hook (l)
+  (if (and l
+	   (functionp l))
+      (push l *document-hooks*)
+      (format t "hook ~a can't be registered~%" l)))

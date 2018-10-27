@@ -81,3 +81,17 @@ void setCallLogs(bool val) {
   lisp(std::string("(setf *call-logs* ")+(val? "t":"nil")+")");
   #endif 
 }
+
+cl_object l_lambda(cl_objectfn_fixed fun, int args)
+{
+  auto fn_name = (std::string("fun")+std::to_string(rand())).c_str();
+
+  cl_def_c_function(c_string_to_object(fn_name),
+		    (cl_objectfn_fixed)fun,
+		    args);
+  lisp(std::string("(setf qmapper.export:lambdas (fset:with qmapper.export:lambdas '") + fn_name + " #'"+fn_name+ "))");
+    
+  
+
+  return lisp(std::string("(lambda (&rest rst) (apply (fset:lookup qmapper.export:lambdas '")+fn_name+") rst))");
+}
