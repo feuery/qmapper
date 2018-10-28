@@ -47,8 +47,11 @@ QString MainWindow::getTextureLocation() {
   return QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
 }
 
-void MainWindow::prepareModel(QTreeWidget& tree, holder &rootThing)
+void prepareModel()
 {
+  MainWindow *w = editorController::instance->w;
+  QTreeWidget &tree = w->tree;
+  holder &rootThing = editorController::instance->document;
   cl_object root = rootThing.getValue(),
     regToList = makefn("qmapper.root:root-registrytolIst"),
     typeOf = makefn("qmapper.std:q-type-of"),
@@ -57,6 +60,8 @@ void MainWindow::prepareModel(QTreeWidget& tree, holder &rootThing)
     len = makefn("length"),
     mapLayers = makefn("qmapper.map:map-layers"),
     rootAsList = cl_funcall(2, regToList, root);
+
+  tree.clear();
 
   int length = fixint(cl_funcall(2, len, rootAsList));
   for(int i = 0; i < length; i++) {
@@ -83,7 +88,12 @@ void MainWindow::prepareModel(QTreeWidget& tree, holder &rootThing)
 void MainWindow::setupTree()
 {
   if(ec) {
-    prepareModel(tree, editorController::instance->document);
+    auto reg_hook = makefn("qmapper.root:register-doc-hook");  
+    auto hw_lambda =  LAMBDA(prepareModel, 1);
+    assert(hw_lambda != ECL_NIL);
+    cl_funcall(2, reg_hook, hw_lambda);
+
+    prepareModel();
    
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 					  puts("We're at DOMTree::clicked");

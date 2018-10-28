@@ -59,8 +59,8 @@ extern "C" {
 
   cl_object add_glsl_script()
   {
-    cl_object makeScript = makefn("make-Script");
-    cl_object pushScript = makefn("push-script");
+    cl_object makeScript = makefn("qmapper.script:make-Script");
+    cl_object pushScript = makefn("qmapper.root:push-script");
     
     // editorController::instance->documentTreeModel->begin();
 
@@ -79,8 +79,8 @@ extern "C" {
 
   cl_object add_scheme_script()
   {
-    cl_object makeScript = makefn("make-Script");
-    cl_object pushScript = makefn("push-script");
+    cl_object makeScript = makefn("qmapper.script:make-Script");
+    cl_object pushScript = makefn("qmapper.root:push-script");
     
     // editorController::instance->documentTreeModel->begin();
 

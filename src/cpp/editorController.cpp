@@ -75,12 +75,6 @@ void editorController::populateMaps() {
   }
 }
 
-cl_object helloWorld(cl_object doc) {
-  puts("set doc might have been called!");
-  return ECL_NIL;
-}
-
-
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -131,12 +125,6 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   DEFUN("get-current-doc", get_current_doc, 0);
   DEFUN("explode", explode, 0);
-
-  auto reg_hook = makefn("qmapper.root:register-doc-hook");
-  
-  auto hw_lambda =  LAMBDA(helloWorld, 1);
-  assert(hw_lambda != ECL_NIL);
-  cl_funcall(2, reg_hook, hw_lambda);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx

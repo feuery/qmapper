@@ -52,7 +52,6 @@ public:
     void registerController(editorController *ec);
   void setupMainMenu();
   editorController *ec;
-  void prepareModel(QTreeWidget& tree, holder &rootThing);
 };
 
 #endif //MAIN_H
