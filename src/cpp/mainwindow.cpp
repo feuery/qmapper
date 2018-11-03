@@ -58,14 +58,18 @@ void prepareModel()
     nth = makefn("common-lisp:nth"),
     prin = makefn("prin1"),
     len = makefn("length"),
+    format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
     rootAsList = cl_funcall(2, regToList, root);
 
   tree.clear();
 
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"rootAsList is ~a~%\""), rootAsList);
+
   int length = fixint(cl_funcall(2, len, rootAsList));
   for(int i = 0; i < length; i++) {
     cl_object obj = cl_funcall(3, nth, ecl_make_int32_t(i), rootAsList);
+    assert(obj != ECL_NIL);
     QTreeWidgetItem *item = new QTreeWidgetItem;
     QString id (ecl_string_to_string(get(obj, "id")).c_str());
     item->setText(0, QString(ecl_string_to_string(get(obj, "name")).c_str()) + " | " + id);
@@ -77,7 +81,8 @@ void prepareModel()
       for(int l = 0; l < layer_len; l++) {
 	cl_object layer = cl_funcall(3, nth, ecl_make_int32_t(l), layers);
 	QTreeWidgetItem *layer_item = new QTreeWidgetItem;
-	layer_item->setText(0, ecl_string_to_string(get(layer, "name")).c_str());
+	QString layer_id (ecl_string_to_string(get(layer, "id")).c_str());
+	layer_item->setText(0, QString(ecl_string_to_string(get(layer, "name")).c_str()) + " | " + layer_id);
 	item->addChild(layer_item);
       }
     }
@@ -97,41 +102,45 @@ void MainWindow::setupTree()
    
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 					  puts("We're at DOMTree::clicked");
-					  if(!index.isValid()) return;
-	
-					  // cl_object b = deref_index(index);
-					  // std::string type = type_name(b);
+					  QString selectedText = tree.currentItem()->text(0);
+					  printf("Selected text is %s\n", selectedText.toStdString().c_str());
+					  
+					  QString id = selectedText.split("|").at(1);
+					  id = id.replace("\"", "").replace(" ", "");
+					  cl_object selected_object = find_by_id(id.toStdString().c_str()),
+					    qtype_of = makefn("qmapper.std:q-type-of"),
+					    format = makefn("format");
 
-					  // if(type == "TILESET") {
-					  //   cl_object t = static_cast<cl_object >(b);
-					  //   // Renderable* o = static_cast<Renderable*>(t);
-					  //   // ec->indexOfChosenTileset = t->getId();
-					  //   // tileset_view->getDrawQueue().clear();
-					  //   // tileset_view->getDrawQueue().push_back(o);
-					  //   puts("Valitsit tyhmän tilesetin, tätä pathia ei oo toteutettu");
-					  //   throw "";
-					  // }
-					  // else if(type == "MAP") {
-					  //   cl_object m = static_cast<cl_object >(b);
-					  //   // Renderable *o = static_cast<Renderable*>(m);
-					  //   // ec->indexOfChosenMap = m->getId();
-					  //   // ec->indexOfChosenLayer = 0;
-					  //   // map_view->getDrawQueue().clear();
-					  //   // map_view->getDrawQueue().push_back(o);
-					  //   puts("TODO IMPLEMENT MAP");
-					  // }
-					  // else if(type == "LAYER") {
-					  //   // Layercontainer *l = static_cast<Layercontainer*>(b);
-					  //   // cl_object m = static_cast<cl_object >(l->parent());
+					  std::string type = ecl_string_to_string(cl_funcall(2, qtype_of, selected_object));
+					  printf("type is %s\n", type.c_str());
+					  
+					  if(type == "TILESET") {
+					    cl_object t = selected_object,
+					      select_tileset = makefn("qmapper.tileset:select-tileset");
+					    cl_funcall(2, select_tileset, t);
+					    puts("Selected a tileset");
+					  }
+					  else if(type == "MAP") {
+					    // cl_object m = static_cast<cl_object >(b);
+					    // Renderable *o = static_cast<Renderable*>(m);
+					    // ec->indexOfChosenMap = m->getId();
+					    // ec->indexOfChosenLayer = 0;
+					    // map_view->getDrawQueue().clear();
+					    // map_view->getDrawQueue().push_back(o);
+					    puts("TODO IMPLEMENT MAP");
+					  }
+					  else if(type == "LAYER") {
+					    // Layercontainer *l = static_cast<Layercontainer*>(b);
+					    // cl_object m = static_cast<cl_object >(l->parent());
 
-					  //   // ec->indexOfChosenMap = m->getId();
-					  //   // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
+					    // ec->indexOfChosenMap = m->getId();
+					    // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
 
-					  //   // map_view->getDrawQueue().clear();
-					  //   // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
-					  //   puts("TODO IMPLEMENT LAYERS!");
-					  // }
-					  // else puts("You didn't click on a recognizable object");
+					    // map_view->getDrawQueue().clear();
+					    // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
+					    puts("TODO IMPLEMENT LAYERS!");
+					  }
+					  else puts("You didn't click on a recognizable object");
 					});
   }
   else {
@@ -175,7 +184,7 @@ void MainWindow::editObject()
 
   printf("id to edit is %s\n", id.toStdString().c_str());
 
-  cl_object find_by_id = makefn("qmapper.rootfind-by-id"),
+  cl_object find_by_id = makefn("qmapper.root:find-by-id"),
     b = cl_funcall(3, find_by_id, ec->document.getValue(), c_string_to_object(("\""+id+"\"").toStdString().c_str()));
 
 // kattoo valitun puuelementin tekstin ja ettii rekisteristä olio jonka :name == valitun elementin teksti?
@@ -271,9 +280,6 @@ void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
   cl_object make_tset = makefn("qmapper.tileset:load-tileset"),
     tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
-  
-    
-  // (*ec->document.getTilesets())[t->getId()] = t;
 }
 
 void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
@@ -357,6 +363,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
   _tileview->setMaximumSize(50,50);
 
   tileview = _tileview;
+  ec->tileRenderer = tileview;
 
   tileset_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
       if(e->buttons() != Qt::LeftButton) return;

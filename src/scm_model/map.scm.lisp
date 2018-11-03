@@ -1,7 +1,6 @@
 (defpackage :qmapper.map
   (:use :common-lisp
 	:cl-arrows
-	:qmapper.treecache
 	:qmapper.std
 	:qmapper.tileset
 	:qmapper.script

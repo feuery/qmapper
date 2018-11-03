@@ -11,6 +11,7 @@ cl_object set(cl_object record, const char *prop, cl_object value);
 cl_object lisp(const std::string & call);
 std::string ecl_string_to_string(cl_object echar);
 cl_object makefn(const char *fn);
+cl_object find_by_id(const char *id);
 
 void setCallLogs(bool val);
 
@@ -26,26 +27,5 @@ cl_object l_lambda(cl_objectfn_fixed fun, int args);
 
 #define LAMBDA(fun,args) l_lambda((cl_objectfn_fixed) fun, args)
 
-
-// class guile_fn {
-//   public:
-//     guile_fn(const char *name);
-
-//     template <typename... ArgTypes>
-//     void apply(ArgTypes... args);
-//     template <typename T, typename... ArgTypes>
-//     void apply(T t, ArgTypes...args) {
-//       puts("Lollo");
-//       apply(args...);
-//     }
-
-//     template<> void apply() {}
-
-//   private:
-
-//     cl_object func;
-    
-//   }
-  ;
 
 #endif

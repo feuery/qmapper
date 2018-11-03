@@ -6,7 +6,8 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (ql:quickload 'cl-arrows)
   (ql:quickload :fset)
-  (ql:quickload :rutils))
+  (ql:quickload :rutils)
+  (ql:quickload :cl-strings))
 
 (asdf:defsystem #:qmapper
   :description "QMapper's main package file"
@@ -26,7 +27,6 @@
 		      :depends-on ("qmapper_std"))
   	       (:file "map.scm"
 		      :depends-on ("qmapper_std"
-				   "treecache"
 				   "export"
 				   "root.scm"
 				   "tileset.scm"
@@ -43,7 +43,7 @@
   	       (:file "tile.scm")
   	       (:file "layer.scm"
 		      :depends-on ("tile.scm"))
-  	       (:file "tileset.scm")
-	       (:file "treecache"
-		      :depends-on ("qmapper_std")))
-  )
+  	       (:file "tileset.scm"
+		      :depends-on ("qmapper_std"
+				   "root.scm"
+				   "export"))))

@@ -12,6 +12,7 @@
 #include <sys/param.h>
 
 #include <editorController_guile.h>
+#include <QImage>
 
 using namespace libzippp;
 
@@ -75,6 +76,139 @@ void editorController::populateMaps() {
   }
 }
 
+std::unordered_map<cl_object, std::string> qimages;
+
+obj* toObj(Renderer *r, std::string& k)
+{
+  return (obj*)r->getOwnObject(k);
+}
+
+cl_object load_qimage (cl_object cl_path) {
+  cl_object gensym = makefn("gensym"),
+    key = cl_funcall(1, gensym);
+  
+  std::string path = ecl_string_to_string(cl_path);
+  QImage img;
+  img.load(QString(path.c_str()));
+
+  puts("Loaded img");
+
+  qimages[key] = obj::make(img);
+
+  puts("Persisted objs");
+  
+  return key;  
+}
+
+cl_object qimg_w(cl_object k) {
+  obj *img = toObj(editorController::instance->map_view, qimages.at(k));
+  int w = img->text_w;
+  return ecl_make_fixnum(w);
+}
+
+cl_object qimg_h(cl_object k) {
+  obj *img = toObj(editorController::instance->map_view, qimages.at(k));
+  int h = img->text_h;
+  return ecl_make_fixnum(h);
+}
+
+cl_object copy_qimg(cl_object src_k,
+		    cl_object cl_x,
+		    cl_object cl_y,
+		    cl_object cl_w,
+		    cl_object cl_h) {
+  cl_object gensym = makefn("gensym"),
+    key = cl_funcall(1, gensym);
+
+  int x = fixint(cl_x),
+    y = fixint(cl_y),
+    w = fixint(cl_w),
+    h = fixint(cl_h);
+  
+  
+  QImage &img = toObj(editorController::instance->map_view, qimages.at(src_k))->qi_copy;
+  QImage copy = img.copy(x, y, w, h);
+  auto copy_id = obj::make(copy);
+  qimages[key] = copy_id;
+
+  return key;
+}
+
+Renderer* editorController::getRenderer(cl_object dst_key) {
+  auto symname = makefn("symbol-name");
+  std::string dest_key = ecl_string_to_string(dst_key);
+  printf("Rendering to %s\n", dest_key.c_str());
+  Renderer *dst = dest_key == "MAP"? map_view:
+    dest_key == "TILESET"? tilesetView:
+    nullptr;
+  return dst;
+}
+
+cl_object add_qimg_to_drawqueue (cl_object img,
+				 cl_object dest_key)
+{
+  Renderer *dst = editorController::instance->getRenderer(dest_key);
+  if(!dst) {
+    puts("Destination was invalid. Has to be one of the following: MAP, TILESET"); 
+    return ECL_NIL;
+  } 
+
+  obj *o = toObj(editorController::instance->map_view, qimages.at(img));
+  QVector<Renderable*> vec {o};
+  dst->addToDrawQueue(vec);
+  
+  return ECL_NIL;
+}
+
+cl_object clear_drawqueue(cl_object dst_key)
+{
+  Renderer *dst = editorController::instance->getRenderer(dst_key);
+  if(!dst) {
+    puts("Destination was invalid. Has to be one of the following: map, tileset"); 
+    return ECL_NIL;
+  } 
+  dst->clearOwnObjects();
+  return ECL_NIL;
+}
+
+cl_object set_y(cl_object img, cl_object cl_y) {
+  int y = fixint(cl_y);
+  auto ec = editorController::instance;
+  std::vector<Renderer*> renderers { ec->map_view, ec->tilesetView, ec->tileRenderer };
+  for(Renderer *r: renderers) {
+    obj *o = toObj(r, qimages.at(img));
+    o->position.y = y;
+  }
+  return ECL_NIL;
+}
+
+cl_object set_x(cl_object img, cl_object cl_x) {
+  int x = fixint(cl_x);
+  auto ec = editorController::instance;
+  std::vector<Renderer*> renderers { ec->map_view, ec->tilesetView, ec->tileRenderer };
+  for(Renderer *r: renderers) {
+    obj *o = toObj(r, qimages.at(img));
+    o->position.x = x;
+  }
+  return ECL_NIL;
+}
+
+cl_object scheduleOnce(cl_object dst_key, cl_object key_lambda) {
+  cl_object format = makefn("format");
+  dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
+  std::string dst_str = ecl_string_to_string(dst_key);
+  printf("Scheduling! %s\n", dst_str.c_str());
+  Renderer *dst = editorController::instance->getRenderer(dst_key);
+  puts("got dst");
+  assert(dst != nullptr);
+  puts("dst is good");
+  dst->glLambdas.enqueue([=]() {  cl_funcall(1, key_lambda ); });
+
+  puts("Scheduled!");
+  
+  return ECL_NIL;
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -125,11 +259,23 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   DEFUN("get-current-doc", get_current_doc, 0);
   DEFUN("explode", explode, 0);
+  DEFUN("load-image", load_qimage, 1);
+  DEFUN("image-w", qimg_w, 1);
+  DEFUN("image-h", qimg_h, 1);
+  DEFUN("copy-image", copy_qimg, 5);
+  
+  DEFUN("add-to-drawingqueue", add_qimg_to_drawqueue, 2);
+  DEFUN("clear-drawingqueue", clear_drawqueue, 1);
+  DEFUN("set-img-x", set_x, 2);
+  DEFUN("set-img-y", set_y, 2);
+  DEFUN("do-schedule-lambda", scheduleOnce, 2);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
   e->show();
 }
+
+
 	
 
 editorController::~editorController()
@@ -172,9 +318,9 @@ void editorController::setTileAt(int x, int y)
   cl_object set_chosen_tile_at = makefn("qmapper.map:set-chosen-tile-at");
 
   document.setValue( cl_funcall(4,
-			set_chosen_tile_at,
-			document.getValue(),
-			ecl_make_fixnum(x),
+				set_chosen_tile_at,
+				document.getValue(),
+				ecl_make_fixnum(x),
 				ecl_make_fixnum(y)));
 }
 
@@ -424,7 +570,6 @@ void editorController::clearDrawQueues() {
 }
 
 cl_object get_current_doc() {
-  puts("Lollo, palautetaan docu");
   return editorController::instance->document.getValue();
 }
 
@@ -434,6 +579,3 @@ cl_object explode() {
   return ECL_NIL;
 }
 
-cl_object editorController::findItem(const char *name) {
-  
-}

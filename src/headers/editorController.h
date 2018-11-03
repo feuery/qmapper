@@ -28,8 +28,6 @@ public:
   ~editorController();
   editorController();
 
-  cl_object findItem(const char *name);
-
   void populateMaps();
   
   std::vector<Renderer*> renderers;
@@ -54,7 +52,7 @@ public:
   void loadAnimation(const char *path, int frameCount, int frameLifetime = 25);
 
   // Goddammit
-  Renderer *map_view, *tilesetView;
+  Renderer *map_view, *tilesetView, *tileRenderer;
   Tool *t;
 
   bool renderingEnabled = true;
@@ -67,6 +65,8 @@ public:
   void loadFrom(QString filename);
 
   MainWindow *w;
+
+    Renderer* getRenderer(cl_object dst_key);
 
 private:
   void dumpTextures(libzippp::ZipArchive &arch);

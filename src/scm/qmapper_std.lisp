@@ -64,12 +64,17 @@
   (+ n 1))
 
 (defun-export! range (max)
-  (defun-export! -range (max acc)
+  (defun -range (max acc)
     (if (= 0 max)
 	acc
 	(-range (dec max) (cons max acc))))
 
   (-range max '()))
+
+(defun-export! pairs (r1 r2)
+  (loop for x in r1
+	      append (loop for y in r2
+			collect (list x y))))
 
 (defun-export! partial (f &rest args)
   (lambda (&rest rst-args)
@@ -297,11 +302,10 @@
   (handler-case
       (lookup obj-alist 'type-name)
     (SIMPLE-TYPE-ERROR (ste)
-      (format t "ste bongattu, obj-alist on ~a~%" obj-alist)
-      (explode))
+      (format t "ste bongattu, obj-alist on ~a~%" obj-alist))
     (SIMPLE-ERROR (lol)
       (format t "Virhe: obj-alist on ~a~%" (prin1-to-string obj-alist))
-      (explode))))
+      "NULL-TYPE")))
 
 (defun-export! get-prop  (obj-alist key)
   (let* ((key (if (symbolp key)
@@ -309,7 +313,7 @@
 		  (intern (string-upcase key))))
 	 (real-alist (convert 'list obj-alist))
 	 (result (cdr (assoc key real-alist :test #'string=))))
-    (format t "result is ~a~%" result)
+    ;; (format t "result is ~a~%" result)
     (if (symbolp result)
 	;; if not for the prin1, this'd return rubbish strings to c...
 	(prin1-to-string (symbol-name result))

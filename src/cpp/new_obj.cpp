@@ -127,13 +127,13 @@ std::string getScript(std::string id) {
 
 GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 {
-  static cl_object stdFrag = makefn("qmapper.root:root-contents-StdFragment");
-  static cl_object stdVertex = makefn("qmapper.root:root-contents-StdVertex");
-  static cl_object tileViewFrag = makefn("qmapper.root:root-contents-StdTileviewFragShader");
+  cl_object stdFrag = makefn("qmapper.root:root-contents-StdFragment");
+  cl_object stdVertex = makefn("qmapper.root:root-contents-StdVertex");
+  cl_object tileViewFrag = makefn("qmapper.root:root-contents-StdTileviewFragShader");
 
   // fml and c's string handling
-  std::string v_c_smells(ecl_string_to_string(cl_funcall(2, stdVertex, ec->document))),
-    fr_c_smells(ecl_string_to_string(cl_funcall(2, stdFrag, ec->document)));
+  std::string v_c_smells("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
+    fr_c_smells("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}");
 
 
   const char *v_lol = v_c_smells.c_str();
@@ -228,7 +228,8 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
   auto ec = editorController::instance;
   text_w = img.width();
   text_h = img.height();
-  prepare(f, r->width(), r->height(), ec);
+  int r_w = r->width(), r_h = r->height();
+  prepare(f, r_w, r_h, ec);
 
   qi_copy = img;
 
@@ -364,6 +365,7 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
     qDebug()<<"Preparing obj " << id.c_str() << " for parent" << r->name.c_str();
     
     obj *o = new obj(r, f, img);
+    puts("Prepared");
     o->id = id;
     o->qi_copied = true;
     r->setOwnObject(id, o);

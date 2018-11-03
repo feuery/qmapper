@@ -2,6 +2,7 @@
 #include <guile_fn.h>
 #include <QApplication>
 #include <iostream>
+#include <editorController.h>
 
 #define FORCE_LOGS
 
@@ -94,4 +95,11 @@ cl_object l_lambda(cl_objectfn_fixed fun, int args)
   
 
   return lisp(std::string("(lambda (&rest rst) (apply (fset:lookup qmapper.export:lambdas '")+fn_name+") rst))");
+}
+
+cl_object find_by_id(const char *id) {
+  auto ec = editorController::instance;
+  cl_object find = makefn("qmapper.root:find-by-id");
+
+  return cl_funcall(3, find, ec->document.getValue(), c_string_to_object((std::string("\"")+id+"\"").c_str()));
 }

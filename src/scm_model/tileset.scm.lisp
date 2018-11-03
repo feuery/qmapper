@@ -2,54 +2,110 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.root))
+	:qmapper.root)
+  (:import-from :qmapper.export
+		:load-image :image-w :image-h :copy-image
+		:add-to-drawingqueue  :clear-drawingqueue
+		:set-img-x :set-img-y
+		:do-schedule-lambda))		
 
 (in-package :qmapper.tileset)
+
+(defun-export! set-image-x (img x)
+  (funcall set-img-x img x))
+
+(defun-export! set-image-y (img y)
+  (funcall set-img-y img y))
+
+(defun-export! load-img (path)
+  (funcall load-image path))
+
+(defun-export! img-width (img)
+  (funcall image-w img))
+
+(defun-export! img-height (img)
+  (funcall image-h img))
+
+(defun-export! copy-img (img x y w h)
+  (funcall copy-image img x y w h))
+
+(defun-export! add-to-drawqueue (img dst_key)
+  (funcall add-to-drawignqueue img (symbol-name dst_key)))
+
+(defun clear-draw-queue (dst_key)
+  (funcall clear-drawingqueue (symbol-name dst-key)))
+
+(defun schedule-once (dst l)
+  (format t "scheduling once to dst ~a~%" (symbol-name dst))
+  (funcall do-schedule-lambda (symbol-name dst) l))
 
 (defcppclass Tileset
     (public
      (fields
-      (name "")
+      (name "Tileset 1")
       ;; (vertexShader nullptr)
       ;; (fragmentShader nullptr)
-      (tiles '()))))
-	       
+      (tiles '())
+      (w 0) 				; in tiles
+      (h 0))))				; in tiles
 
-
-;; (defun-export! load-img (path)
-;;   (format t "Loading from ~a~%" path)
-;;   (format t "TODO replace with a call to qt~%"))
-
-;; (defun-export! img-width (img)
-;;   (format t "TODO delegate to qt~%")
-;;   100)
-
-;; (defun-export! img-height (img)
-;;   (format t "TODO delegate to qt~%")
-;;   100)
-
-;; (defun-export! copy-img (img x y w h)
-;;   (format t "TODO delegate to qt~%")
-;;   img)
+(defun-export! select-tileset (*this*)
+  (clear-draw-queue :TILESET)
+  (let ((coords (pairs (range (Tileset-w *this*))
+		       (range (Tileset-h *this*))))
+	(tiles (Tileset-tiles *this*)))
+    (dolist (c-pair coords)
+      (let* ((x (car c-pair))
+      	 (y (cadr c-pair))
+      	 (img (->> tiles
+      		  (nth x)
+      		  (nth y))))
+        (set-image-x img (* x 50.0))
+        (set-image-y img (* y 50.0))
+        (add-to-drawqueue img :TILESET)))))
+				 
+	      
 
 (defun-export! load-texture-splitted (path)
-  nil
-  ;; (let* ((root-img (load-img path))
-  ;; 	 (w (img-width root-img))
-  ;; 	 (h (img-height root-img)))
-  ;;   (mapcar (lambda (x)
-  ;; 	      (mapcar (lambda (y)
-  ;; 			(copy-img root-img
-  ;; 				  x y
-  ;; 				  (* x 50)
-  ;; 				  (* y 50)))
-  ;; 		      (range h)))
-  ;; 	    (range w)))
-  )
+  (let* ((root-img (load-img path))
+	 (_ (format t "img loaded~%"))
+  	 (w (/ (img-width root-img) 50))
+  	 (h (/ (img-height root-img) 50))
+	 (_ (format t "dimensions found~%"))
+	 (textures (mapcar (lambda (x)
+  			     (mapcar (lambda (y)
+  				       (copy-img root-img
+  						 x y
+  						 (* x 50)
+  						 (* y 50)))
+  				     (range h)))
+  			   (range w))))
+    (format t "textures loaded!")
+    (values
+     textures
+     w
+     h)))
+
+(defun-export! push-tileset (root tileset)
+  (let* ((tilesets (cons (cons (gensym)
+			      tileset)
+			 (root-tilesets root)))
+	 (_ (format t "Pushing tileset ~a~%" tilesets))
+	 ;; (r (if (not (root-chosenMap root))
+	 ;; 	(set-root-chosenMap! root (first maps))
+	 ;; 	root))
+	 (final-root (set-root-tilesets! root tilesets)))
+    final-root))
 
 (defun-export! load-tileset (path)
-  (let ((tiles (load-texture-splitted path)))
-    (make-tileset "New tileset" tiles)))
+  (format t "Going into load-tileset~%")
+  (schedule-once :TILESET (lambda ()
+			    (format t "Prööt prööt ~%")
+			    (multiple-value-bind (tiles w h) (load-texture-splitted path)
+			      (format t "Loaded tile textures, going to make tileset ~%")
+			      (let ((tileset (make-tileset "New tileset" tiles w h)))
+				(set-doc (push-tileset *document* tileset)))))))
+				
     
 
 ;; void Tilesetcontainer::load_texture_splitted(Renderer *parent, const char *filename)

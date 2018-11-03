@@ -9,7 +9,8 @@
 	:qmapper.std
 	:qmapper.export
 	:qmapper.script)
-  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert))
+  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert)
+  (:shadowing-import-from :cl-strings :replace-all))
 
 (in-package :qmapper.root)
 
@@ -124,7 +125,6 @@
 						    (root-tilesets *this*)))
 					(mapcar #'cdr)
 					)))
-			(format t "concd is ~a~%" concd)
 			concd)))))
 
 (defun-export! init-root! ()
@@ -142,6 +142,7 @@
     final-root))
 
 (defun-export! find-by-id (root id)
+  (declaim (optimize (debug 3)))
   (let* ((result-set (->> root
 			  root-registrytolist
 			  (mapcat (lambda (r)
@@ -150,12 +151,14 @@
 					      (get-prop r "LAYERS"))
 					(list r))))
 			  (remove-if-not (lambda (r)
-					   ;; (format t "(= ~a ~a)~%" (symbol-name (get-prop r "ID")) id)
 					   (let* ((row-id (get-prop r "ID"))
-						  (row-id (if (symbolp row-id)
-							      (symbol-name row-id)
-							      row-id)))
-			 		     (string= row-id id))))))
+						  (row-id (replace-all (if (symbolp row-id)
+									   (symbol-name row-id)
+									   row-id)
+								       "\"" ""))				    
+						  (result (string= row-id id)))
+					     ;; (format t "(string= ~a ~a) => ~a~%" (prin1-to-string row-id) (prin1-to-string id) result)
+					     result)))))
 	 (len (length result-set)))
     ;; (format t "result-set: ~a~%" result-set)
     ;; (format t "find-by-id found ~a elements~%" len)
