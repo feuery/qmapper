@@ -4,6 +4,7 @@
 	:qmapper.std
 	:qmapper.root)
   (:import-from :qmapper.export
+		:explode
 		:load-image :image-w :image-h :copy-image
 		:add-to-drawingqueue  :clear-drawingqueue
 		:set-img-x :set-img-y
@@ -29,10 +30,10 @@
 (defun-export! copy-img (img x y w h)
   (funcall copy-image img x y w h))
 
-(defun-export! add-to-drawqueue (img dst_key)
-  (funcall add-to-drawignqueue img (symbol-name dst_key)))
+(defun-export! add-to-drawqueue (img dst-key)
+  (funcall add-to-drawingqueue img (symbol-name dst-key)))
 
-(defun clear-draw-queue (dst_key)
+(defun clear-draw-queue (dst-key)
   (funcall clear-drawingqueue (symbol-name dst-key)))
 
 (defun schedule-once (dst l)
@@ -51,18 +52,27 @@
 
 (defun-export! select-tileset (*this*)
   (clear-draw-queue :TILESET)
-  (let ((coords (pairs (range (Tileset-w *this*))
-		       (range (Tileset-h *this*))))
+  (let ((coords (pairs (mapcar #'dec (range (Tileset-w *this*)))
+		       (mapcar #'dec (range (Tileset-h *this*)))))
 	(tiles (Tileset-tiles *this*)))
+    ;; (format t "coord-pairs are ~a~%w and h are ~a & ~a ~%" coords
+    ;; 	    (Tileset-w *this*)
+    ;; 	    (Tileset-h *this*))
     (dolist (c-pair coords)
       (let* ((x (car c-pair))
-      	 (y (cadr c-pair))
-      	 (img (->> tiles
-      		  (nth x)
-      		  (nth y))))
-        (set-image-x img (* x 50.0))
-        (set-image-y img (* y 50.0))
-        (add-to-drawqueue img :TILESET)))))
+      	     (y (cadr c-pair))
+      	     (img (->> tiles
+      		       (nth x)
+      		       (nth y))))
+	(if img
+	    (progn
+              (set-image-x img (* x 50.0))
+              (set-image-y img (* y 50.0))
+              (add-to-drawqueue img :TILESET))
+	    (progn
+	      ;; (format t "img is nil~%tiles are ~a~%" tiles)
+	      (format t "x and y are [~a ~a]~%" x y)
+	      (funcall explode)))))))
 				 
 	      
 

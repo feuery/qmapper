@@ -20,8 +20,8 @@ Renderer::Renderer(QWidget *parent): QOpenGLWidget(parent)
   //   timer.setInterval(17);
   // }
   // else
-    timer.setInterval(0);
-  // timer.start();
+  timer.setInterval(0);
+  timer.start();
 
   // This trickery-pockery tricks the scrollarea to function as expected
   const int w = 2000;
@@ -115,13 +115,20 @@ void Renderer::addToDrawQueue(QVector<Renderable*>& v)
 }
 
 void Renderer::setOwnObject(std::string id, Renderable *obj) {
+  // printf("registered object %s in %s\n", id.c_str(), name.c_str());
   owned_objects[id] = obj;
+  // printf("sizeof owned_objects: %d\n", owned_objects.size());
+  assert(owned_objects.size() > 0);
 }
 
-Renderable* Renderer::getOwnObject(std::string id) {
+Renderable* Renderer::getOwnObject(std::string id) {  
   auto it = owned_objects.find(id);
 
-  if(it == owned_objects.end()) return nullptr;
+  if(it == owned_objects.end()) {
+    printf("can't find %s in %s\n", id.c_str(), name.c_str());
+    // printf("owned_object's size in %s is %d\n", name.c_str(), owned_objects.size());
+    return nullptr;
+  }
 
   return it->second;
 }

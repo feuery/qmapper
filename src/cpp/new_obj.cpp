@@ -369,6 +369,7 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
     o->id = id;
     o->qi_copied = true;
     r->setOwnObject(id, o);
+    // assert(r->owned_objects.size() > 0);
   }
 
   // These are always producing objs so this is a safe cast

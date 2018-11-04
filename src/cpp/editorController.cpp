@@ -135,12 +135,15 @@ cl_object copy_qimg(cl_object src_k,
 }
 
 Renderer* editorController::getRenderer(cl_object dst_key) {
+  cl_object format = makefn("format");
+  dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
   auto symname = makefn("symbol-name");
   std::string dest_key = ecl_string_to_string(dst_key);
   printf("Rendering to %s\n", dest_key.c_str());
   Renderer *dst = dest_key == "MAP"? map_view:
     dest_key == "TILESET"? tilesetView:
     nullptr;
+  assert(dst);
   return dst;
 }
 
@@ -153,7 +156,7 @@ cl_object add_qimg_to_drawqueue (cl_object img,
     return ECL_NIL;
   } 
 
-  obj *o = toObj(editorController::instance->map_view, qimages.at(img));
+  obj *o = toObj(dst, qimages.at(img));
   QVector<Renderable*> vec {o};
   dst->addToDrawQueue(vec);
   
@@ -167,15 +170,14 @@ cl_object clear_drawqueue(cl_object dst_key)
     puts("Destination was invalid. Has to be one of the following: map, tileset"); 
     return ECL_NIL;
   } 
-  dst->clearOwnObjects();
+  dst->getDrawQueue().clear();
   return ECL_NIL;
 }
 
 cl_object set_y(cl_object img, cl_object cl_y) {
-  int y = fixint(cl_y);
+  int y = ecl_double_float(cl_y);
   auto ec = editorController::instance;
-  std::vector<Renderer*> renderers { ec->map_view, ec->tilesetView, ec->tileRenderer };
-  for(Renderer *r: renderers) {
+  for(Renderer *r: ec->renderers) {
     obj *o = toObj(r, qimages.at(img));
     o->position.y = y;
   }
@@ -183,11 +185,15 @@ cl_object set_y(cl_object img, cl_object cl_y) {
 }
 
 cl_object set_x(cl_object img, cl_object cl_x) {
-  int x = fixint(cl_x);
+  // auto format = makefn("format");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"x is ~a~%\""), cl_x);
+  int x = ecl_double_float(cl_x);
   auto ec = editorController::instance;
-  std::vector<Renderer*> renderers { ec->map_view, ec->tilesetView, ec->tileRenderer };
-  for(Renderer *r: renderers) {
+  for(Renderer *r: ec->renderers) {
+    puts("haetaan obj");
     obj *o = toObj(r, qimages.at(img));
+    assert(o);
+    puts("sijoitetaan x ");
     o->position.x = x;
   }
   return ECL_NIL;
