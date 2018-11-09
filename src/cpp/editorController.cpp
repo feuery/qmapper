@@ -101,13 +101,13 @@ cl_object load_qimage (cl_object cl_path) {
 }
 
 cl_object qimg_w(cl_object k) {
-  obj *img = toObj(editorController::instance->map_view, qimages.at(k));
+  obj *img = toObj(editorController::instance->w->map_view, qimages.at(k));
   int w = img->text_w;
   return ecl_make_fixnum(w);
 }
 
 cl_object qimg_h(cl_object k) {
-  obj *img = toObj(editorController::instance->map_view, qimages.at(k));
+  obj *img = toObj(editorController::instance->w->map_view, qimages.at(k));
   int h = img->text_h;
   return ecl_make_fixnum(h);
 }
@@ -126,7 +126,8 @@ cl_object copy_qimg(cl_object src_k,
     h = fixint(cl_h);
   
   
-  QImage &img = toObj(editorController::instance->map_view, qimages.at(src_k))->qi_copy;
+  QImage img = toObj(editorController::instance->map_view, qimages.at(src_k))->qi_copy;
+  printf("copying from %d, %d with dimensions %d, %d\n", x, y, w, h);
   QImage copy = img.copy(x, y, w, h);
   auto copy_id = obj::make(copy);
   qimages[key] = copy_id;
@@ -175,7 +176,7 @@ cl_object clear_drawqueue(cl_object dst_key)
 }
 
 cl_object set_y(cl_object img, cl_object cl_y) {
-  int y = ecl_double_float(cl_y);
+  int y = fixint(cl_y);
   auto ec = editorController::instance;
   for(Renderer *r: ec->renderers) {
     obj *o = toObj(r, qimages.at(img));
@@ -187,7 +188,7 @@ cl_object set_y(cl_object img, cl_object cl_y) {
 cl_object set_x(cl_object img, cl_object cl_x) {
   // auto format = makefn("format");
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"x is ~a~%\""), cl_x);
-  int x = ecl_double_float(cl_x);
+  int x = fixint(cl_x);
   auto ec = editorController::instance;
   for(Renderer *r: ec->renderers) {
     puts("haetaan obj");
@@ -281,42 +282,51 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   e->show();
 }
 
-
-	
-
 editorController::~editorController()
 {
 }
 
 void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tileview_renderer *tileRenderer)
 {
-  puts("TODO reimplement setSelectedTile");
-  // selectedTileX = x;
-  // selectedTileY = y;
+  selectedTileX = x;
+  selectedTileY = y;
 
-  // int tilesetViewObjSize = tilesetView->getDrawQueue().size();
-  // if(tilesetViewObjSize == 1) {
-  //   Renderable *tileset = tilesetView->getDrawQueue().at(0);
+  cl_object get_selected_tileset = makefn("qmapper.root:get-selected-tileset"),
+    format = makefn("format"),
+    tileset = cl_funcall(2, get_selected_tileset, document.getValue());
+  assert(tileset != ECL_NIL);
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"tileset is ~a~%\""), tileset);
+  cl_object w_fn = makefn("qmapper.tileset:tileset-w"),
+    h_fn = makefn("qmapper.tileset:tileset-h"),
+    cl_w = cl_funcall(2, w_fn, tileset),
+    cl_h = cl_funcall(2, h_fn, tileset);
+  assert(cl_w != ECL_NIL);
+  assert(cl_h != ECL_NIL);
+  cl_object get_tile = makefn("qmapper.tileset:get-tile"),
+    tile = cl_funcall(4, get_tile, tileset, ecl_make_int32_t(x), ecl_make_int32_t(y));
+  assert(tile != ECL_NIL);
 
-  //   Tilesetcontainer *tc = dynamic_cast<Tilesetcontainer*>(tileset);
+  int w = fixint(cl_w), h = fixint(cl_h);
 
-  //   if(x >= tc->tiles_w || y >= tc->tiles_h) return;
-  //   if(x < 0 || y < 0) return;
+  if(x >= w || y >= h) return;
+  if(x < 0 || y < 0) return;
 
-  //   obj *tile = static_cast<obj*>(tilesetView->getOwnObject(tc->tiles[x][y]));
+  obj* tileObj = toObj(tileRenderer, qimages.at(tile));
+  puts("Found tile_surface");
 
-  //   if(!tileRenderer) qDebug() << "tileRenderer is nil";
+  if(!tileRenderer) qDebug() << "tileRenderer is nil";
     
-  //   tileRenderer->setSelectedTile(tile);
+  tileRenderer->setSelectedTile(tileObj);
 
-  //   selectedTileData.setX(x);
-  //   selectedTileData.setY(y);
-  //   selectedTileData.setRotation(0);
-  //   selectedTileData.setTileset(indexOfChosenTileset);
+  puts("Pitäis varmaan koodata myös datan pallottelu eikä pelkkiän tekstuurien");
 
-  //   qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().c_str() << "}";
-  // }
-  // else qDebug() << "Can't update selectedtile to tileset's shader. Found " << tilesetViewObjSize << " tilesets";
+  // selectedTileData.setX(x);
+  // selectedTileData.setY(y);
+  // selectedTileData.setRotation(0);
+  // selectedTileData.setTileset(indexOfChosenTileset);
+
+  // qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().c_str() << "}";
+
 }
 
 void editorController::setTileAt(int x, int y)

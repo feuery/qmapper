@@ -22,6 +22,8 @@ public:
   Renderer(QWidget *parent);
   ~Renderer();
 
+  QOpenGLFunctions_4_3_Core* getGlFns();
+  void freeCtx();
   QVector<std::function<void(QMouseEvent*)>> mouseMoveEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseDownEvents;
   QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;
@@ -44,6 +46,8 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent *e) override;
   virtual void mousePressEvent(QMouseEvent *e) override;
   virtual void mouseReleaseEvent(QMouseEvent *e) override;
+
+  std::unordered_map<std::string, Renderable*> owned_objects;
 							 
 protected slots:
   void doRepaint();
@@ -55,7 +59,6 @@ private:
   QVector<Renderable*> drawQueue;
   float r = 0.0f;
   QTimer timer;
-  std::unordered_map<std::string, Renderable*> owned_objects;
 };
 
 #else

@@ -57,21 +57,13 @@ void Renderer::paintGL()
   editorController *ec = editorController::instance;
   if(!ec->renderingEnabled) return;
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  if(f) {
-    f->glClear(GL_COLOR_BUFFER_BIT);
+  if(!f) return;
+  f->glClear(GL_COLOR_BUFFER_BIT);
     
-    for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
-      auto id = (*i)->getRenderId();
-      Renderable *o = owned_objects// .at(
-	[id]; // );
-      if (o) 
-	o->render(this);
-      else {
-	// It's probably a mapcontainer in the engine window
-	// If we're incorrect about that, I guess we'll perish
-	(*i)->render(f);
-      }
-    }
+  for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
+    auto id = (*i)->getRenderId();
+    Renderable *o = owned_objects[id];
+    o->render(this);
   }
 
   while(!glLambdas.empty()) {
@@ -80,14 +72,14 @@ void Renderer::paintGL()
   }
 }
 
-// QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
-//   makeCurrent();
-//   return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-// }
+QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
+  makeCurrent();
+  return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+}
 
-// void Renderer::freeCtx() {
-//   doneCurrent();
-// }
+void Renderer::freeCtx() {
+  doneCurrent();
+}
 
 void Renderer::mouseMoveEvent(QMouseEvent *e) {
   for(auto fn: mouseMoveEvents) fn(e);
@@ -117,7 +109,7 @@ void Renderer::addToDrawQueue(QVector<Renderable*>& v)
 void Renderer::setOwnObject(std::string id, Renderable *obj) {
   // printf("registered object %s in %s\n", id.c_str(), name.c_str());
   owned_objects[id] = obj;
-  // printf("sizeof owned_objects: %d\n", owned_objects.size());
+  printf("sizeof %s's owned_objects: %d\n", name.c_str(), owned_objects.size());
   assert(owned_objects.size() > 0);
 }
 
@@ -131,4 +123,8 @@ Renderable* Renderer::getOwnObject(std::string id) {
   }
 
   return it->second;
+
+  // assert(owned_objects.size() > 0);
+
+  // return owned_objects.at(id);
 }

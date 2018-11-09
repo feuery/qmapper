@@ -277,7 +277,6 @@ void obj::render()
   // qDebug() << "Position " << position.x << ", " << position.y;
   glm::mat4 model;
   model = glm::translate(model, glm::vec3(position, 0.0f));
-
   //Move pivot point to center
   // qDebug() << "Size: " << size.x << " * " << size.y;
   model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
@@ -358,9 +357,9 @@ bool obj::load_new_texture(const char *path, Renderer *r)
 }
 
 obj* obj::make(Renderer *parent, QImage img, std::string id) {
-
+  assert(editorController::instance->renderers.size() > 3);
   for(Renderer *r: editorController::instance->renderers) {
-    auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+    auto f = r->getGlFns();
 
     qDebug()<<"Preparing obj " << id.c_str() << " for parent" << r->name.c_str();
     
@@ -369,6 +368,7 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
     o->id = id;
     o->qi_copied = true;
     r->setOwnObject(id, o);
+    r->freeCtx();
     // assert(r->owned_objects.size() > 0);
   }
 

@@ -369,7 +369,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
       if(e->buttons() != Qt::LeftButton) return;
 
       int x = e->x() / 50, y = e->y() / 50;
-
+      // QMessageBox::information(this, QString("Selected tile %1, %2").arg(x).arg(y), QString("Selected tile %1, %2").arg(x).arg(y));
       ec->setSelectedTile(x, y, tileset_view, _tileview);
 
     });

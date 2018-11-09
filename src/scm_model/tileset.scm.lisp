@@ -50,7 +50,12 @@
       (w 0) 				; in tiles
       (h 0))))				; in tiles
 
-(defun-export! select-tileset (*this*)
+(defun-export! get-tile (tileset x y)
+  (->> (tileset-tiles tileset)
+       (nth x)
+       (nth y)))
+
+(defun-export! select-tileset-to-draw (*this*)
   (clear-draw-queue :TILESET)
   (let ((coords (pairs (mapcar #'dec (range (Tileset-w *this*)))
 		       (mapcar #'dec (range (Tileset-h *this*)))))
@@ -66,13 +71,29 @@
       		       (nth y))))
 	(if img
 	    (progn
-              (set-image-x img (* x 50.0))
-              (set-image-y img (* y 50.0))
+              (set-image-x img (truncate (* x 50.0)))
+              (set-image-y img (truncate (* y 50.0)))
               (add-to-drawqueue img :TILESET))
 	    (progn
 	      ;; (format t "img is nil~%tiles are ~a~%" tiles)
 	      (format t "x and y are [~a ~a]~%" x y)
-	      (funcall explode)))))))
+	      (funcall explode)))))
+    (format t "dolist is done~%")))
+
+(defun-export! select-tileset (tileset)
+  (format t "Selecting tileset~%")
+  (select-tileset-to-draw tileset)
+  (assert (not (consp tileset)))
+  
+  (let* ((tilesets (mapcar #'cdr (root-tilesets qmapper.root:*document*)))
+	 (tile-index (position tileset tilesets)))
+    ;; (format t "haetaan indeksiä (position ~a ~a)~%" tileset tilesets)
+    ;; (format t "selected tile-index is ~a~%" tile-index)
+    (assert tile-index)
+    (let ((new-root (set-root-chosenTileset! qmapper.root:*document* tile-index)))
+      ;; (format t "new root: ~a~%" new-root)
+      ;; Tää assertio feilaa?
+      (assert (root-chosenTileset *document*)))))
 				 
 	      
 
@@ -85,11 +106,10 @@
 	 (textures (mapcar (lambda (x)
   			     (mapcar (lambda (y)
   				       (copy-img root-img
-  						 x y
-  						 (* x 50)
-  						 (* y 50)))
-  				     (range h)))
-  			   (range w))))
+  						 (* x 50) (* y 50)
+  						 50 50))
+  				     (mapcar #'dec (range h))))
+  			   (mapcar #'dec (range w)))))
     (format t "textures loaded!")
     (values
      textures

@@ -127,6 +127,10 @@
 					)))
 			concd)))))
 
+(defun-export! get-selected-tileset (root)
+  (let ((selected-ind (root-chosenTileset root)))
+    (cdr (nth selected-ind (root-tilesets root)))))
+
 (defun-export! init-root! ()
   (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
       

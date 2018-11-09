@@ -52,10 +52,11 @@ static GLuint createShader(QOpenGLFunctions_4_3_Core *f)
   return p;  
 }
 
-tileview_renderer::tileview_renderer(QWidget *parent): Renderer(parent)
+tileview_renderer::tileview_renderer(QWidget *parent): Renderer(parent), o(nullptr)
 {
-  size = glm::vec2(50.0f, 50.0f);
-  position = glm::vec2(0.0f, 0.0f);
+  // size = glm::vec2(50.0f, 50.0f);
+  // position = glm::vec2(0.0f, 0.0f);
+  // printf("tileview::owned_objects.size() => %d\n", owned_objects.size());
 }
 
 void tileview_renderer::initializeGL()
@@ -64,52 +65,70 @@ void tileview_renderer::initializeGL()
 
     if(!f) return;
 
-    shader = createShader(f);
-    VAO = getVAO(f, shader);
-    doProjection(f, 50.0f, 50.0f, shader);
+    // shader = createShader(f);
+    // VAO = getVAO(f, shader);
+    // doProjection(f, 50.0f, 50.0f, shader);
 
     f->glClearColor(0.0f, 0.5f, 1.0f, 0.0f);
+    f->glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   
 }
+
+// GLuint tileview_renderer::getTexture(std::string id) {
+//   auto res = getOwnObject(id);
+//   if(!res) return -1;
+//   obj *o = static_cast<obj*>(res);
+//   return o->texture;
+// }
 
 void tileview_renderer::paintGL()
 {
   auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  if(!f || !texture) return;
+  // puts("paintGLing tileview");
+  if(!f || !o ) { // puts("can't paintGL");
+    return; }
+  // puts("Really paintGLling");
 
-  GLfloat rotate = 0.0f;
+  // texture = getTexture(tileid);
+  
+  o->position.x = 0;
+  o->position.y = 0;
+  assert(o->size.x == 50.0 && o->size.y == 50.0);
+  o->render();
 
-  f->glClear(GL_COLOR_BUFFER_BIT);
+  // GLfloat rotate = 0.0f;
 
-  f->glUseProgram(shader);
-  glm::mat4 model;
-  model = glm::translate(model, glm::vec3(position, 0.0f));
+  // f->glClear(GL_COLOR_BUFFER_BIT);
 
-  //Move pivot point to center
-  model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
+  // f->glUseProgram(shader);
+  // glm::mat4 model;
+  // model = glm::translate(model, glm::vec3(position, 0.0f));
 
-  //Rotate if needed
-  model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f));
+  // //Move pivot point to center
+  // model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
 
-  //Move object
-  model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
+  // //Rotate if needed
+  // model = glm::rotate(model, rotate, glm::vec3(0.0f, 0.0f, 1.0f));
 
-  //Scale object
-  model = glm::scale(model, glm::vec3(size, 1.0f));
+  // //Move object
+  // model = glm::translate(model, glm::vec3(-0.5f * size.x, -0.5f * size.y, 0.0f));
 
-  f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
-  f->glUniform3f(f->glGetUniformLocation(shader, "spriteColor"), 0.0f, 1.0f, 0.0f);
+  // //Scale object
+  // model = glm::scale(model, glm::vec3(size, 1.0f));
 
-  f->glActiveTexture(GL_TEXTURE0);
-  f->glBindTexture(GL_TEXTURE_2D, texture);
+  // f->glUniformMatrix4fv(f->glGetUniformLocation(shader, "model"), 1, GL_FALSE, glm::value_ptr(model));
+  // // f->glUniform3f(f->glGetUniformLocation(shader, "spriteColor"), 0.0f, 1.0f, 0.0f);
 
-  f->glBindVertexArray(VAO);
-  f->glDrawArrays(GL_TRIANGLES, 0, 6);
+  // f->glActiveTexture(GL_TEXTURE0);
+  // f->glBindTexture(GL_TEXTURE_2D, texture);
 
-  f->glBindVertexArray(0);
+  // f->glBindVertexArray(VAO);
+  // f->glDrawArrays(GL_TRIANGLES, 0, 6);
+
+  // f->glBindVertexArray(0);
 }
 
 void tileview_renderer::setSelectedTile(obj *selectedTile)
 {
-  texture = selectedTile->texture;
+  o = selectedTile;
 }

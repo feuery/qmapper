@@ -10,7 +10,7 @@ class tileview_renderer: public Renderer {
 public:
 
   tileview_renderer(QWidget *parent);
-  void setSelectedTile(obj *selectedTile);
+  void setSelectedTile(obj *obj);
 								      
 protected slots:
   virtual void paintGL() override;
@@ -18,9 +18,7 @@ protected slots:
   
 private:
 
-  glm::vec2 size;
-  glm::vec2 position, selectedTileCoord;
-  GLuint shader, texture, VAO;
+  obj *o;
 
 };
 

@@ -234,8 +234,11 @@
 											    ;; Let's try to cause a core dump...
 											    #+ecl (ext:quit -11)
 											    #+sbcl (sb-ext:quit))
+											  ;; (format t "this is ~a~%" this)
+											  (assert (not (consp this)))
 											  (lookup this ',field))
 										       `(defun-export! ,setter (this val)
+											  (assert this)
 											  (with this ',field val))))))))))
   	 (funcs (->> (plist-get partitioned 'functions)
 		     (mapcar (lambda (fn)
