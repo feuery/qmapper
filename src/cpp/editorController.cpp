@@ -62,12 +62,13 @@ void editorController::populateMaps() {
 			       c_string_to_object(lname.c_str()),
 			       ecl_make_fixnum(255),
 			       ECL_T,
-			       make2DList(w, h, cl_funcall(5,
+			       make2DList(w, h, cl_funcall(6,
 							   makeTile,
 							   ecl_make_fixnum(0),
 							   ecl_make_fixnum(0),
 							   ecl_make_fixnum(0),
-							   ecl_make_fixnum(0))));
+							   ecl_make_fixnum(0),
+							   ECL_NIL)));
       cl_object old_layers = cl_funcall(2 , getLayers, m);
       
       m = cl_funcall(3, setLayers, m, cl_funcall(3, cons, l, old_layers));
@@ -76,16 +77,31 @@ void editorController::populateMaps() {
   }
 }
 
-std::unordered_map<cl_object, std::string> qimages;
+// lol muuta ne gensymmatut pasket std::stringeiksi
+std::unordered_map<std::string, std::string> qimages;
 
 obj* toObj(Renderer *r, std::string& k)
 {
   return (obj*)r->getOwnObject(k);
 }
 
+std::string toKey(cl_object cl_key)
+{
+  cl_object format = makefn("format");
+  return ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), cl_key));
+}
+
+cl_object from_key(std::string &key)
+{
+  return c_string_to_object(std::string("\""+key+"\"").c_str());
+}
+
 cl_object load_qimage (cl_object cl_path) {
   cl_object gensym = makefn("gensym"),
-    key = cl_funcall(1, gensym);
+    format = makefn("format"),
+    cl_key = cl_funcall(1, gensym);
+
+  std::string key = toKey(cl_key);
   
   std::string path = ecl_string_to_string(cl_path);
   QImage img;
@@ -97,28 +113,33 @@ cl_object load_qimage (cl_object cl_path) {
 
   puts("Persisted objs");
   
-  return key;  
+  return from_key(key);
 }
 
-cl_object qimg_w(cl_object k) {
+cl_object qimg_w(cl_object kk) {
+  std::string k = toKey(kk);
   obj *img = toObj(editorController::instance->w->map_view, qimages.at(k));
   int w = img->text_w;
   return ecl_make_fixnum(w);
 }
 
-cl_object qimg_h(cl_object k) {
+cl_object qimg_h(cl_object kk) {
+  std::string k = toKey(kk);
   obj *img = toObj(editorController::instance->w->map_view, qimages.at(k));
   int h = img->text_h;
   return ecl_make_fixnum(h);
 }
 
-cl_object copy_qimg(cl_object src_k,
+cl_object copy_qimg(cl_object cl_src_k,
 		    cl_object cl_x,
 		    cl_object cl_y,
 		    cl_object cl_w,
 		    cl_object cl_h) {
   cl_object gensym = makefn("gensym"),
-    key = cl_funcall(1, gensym);
+    cl_key = cl_funcall(1, gensym);
+
+  std::string src_k = toKey(cl_src_k),
+    key = toKey(cl_key);
 
   int x = fixint(cl_x),
     y = fixint(cl_y),
@@ -132,7 +153,7 @@ cl_object copy_qimg(cl_object src_k,
   auto copy_id = obj::make(copy);
   qimages[key] = copy_id;
 
-  return key;
+  return from_key(key);
 }
 
 Renderer* editorController::getRenderer(cl_object dst_key) {
@@ -148,14 +169,16 @@ Renderer* editorController::getRenderer(cl_object dst_key) {
   return dst;
 }
 
-cl_object add_qimg_to_drawqueue (cl_object img,
+cl_object add_qimg_to_drawqueue (cl_object cl_img,
 				 cl_object dest_key)
 {
   Renderer *dst = editorController::instance->getRenderer(dest_key);
   if(!dst) {
     puts("Destination was invalid. Has to be one of the following: MAP, TILESET"); 
     return ECL_NIL;
-  } 
+  }
+
+  std::string img = toKey(cl_img);
 
   obj *o = toObj(dst, qimages.at(img));
   QVector<Renderable*> vec {o};
@@ -175,7 +198,8 @@ cl_object clear_drawqueue(cl_object dst_key)
   return ECL_NIL;
 }
 
-cl_object set_y(cl_object img, cl_object cl_y) {
+cl_object set_y(cl_object cl_img, cl_object cl_y) {
+  std::string img = toKey(cl_img);
   int y = fixint(cl_y);
   auto ec = editorController::instance;
   for(Renderer *r: ec->renderers) {
@@ -185,13 +209,20 @@ cl_object set_y(cl_object img, cl_object cl_y) {
   return ECL_NIL;
 }
 
-cl_object set_x(cl_object img, cl_object cl_x) {
-  // auto format = makefn("format");
+cl_object set_x(cl_object cl_img, cl_object cl_x) {
+  auto format = makefn("format");
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"cl_img is ~a~%\""), cl_img);
+  assert(cl_img != ECL_NIL);
+  std::string img = toKey(cl_img);
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"x is ~a~%\""), cl_x);
   int x = fixint(cl_x);
   auto ec = editorController::instance;
+
+  // for(auto i: qimages) cl_funcall(4, format, ECL_T, c_string_to_object("\"qimage-key ~a~%\""), i.first);
+  
   for(Renderer *r: ec->renderers) {
     puts("haetaan obj");
+    
     obj *o = toObj(r, qimages.at(img));
     assert(o);
     puts("sijoitetaan x ");
@@ -303,15 +334,18 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   assert(cl_w != ECL_NIL);
   assert(cl_h != ECL_NIL);
   cl_object get_tile = makefn("qmapper.tileset:get-tile"),
-    tile = cl_funcall(4, get_tile, tileset, ecl_make_int32_t(x), ecl_make_int32_t(y));
+    tile = cl_funcall(4, get_tile, tileset, ecl_make_int32_t(x), ecl_make_int32_t(y)),
+    cl_key = get(tile, "gl-key");
   assert(tile != ECL_NIL);
+
+  std::string tile_img_key = toKey(cl_key);
 
   int w = fixint(cl_w), h = fixint(cl_h);
 
   if(x >= w || y >= h) return;
   if(x < 0 || y < 0) return;
 
-  obj* tileObj = toObj(tileRenderer, qimages.at(tile));
+  obj* tileObj = toObj(tileRenderer, qimages.at(tile_img_key));
   puts("Found tile_surface");
 
   if(!tileRenderer) qDebug() << "tileRenderer is nil";

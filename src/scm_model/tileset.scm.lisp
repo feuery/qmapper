@@ -2,7 +2,9 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.root)
+	:qmapper.root
+	:qmapper.tile)
+  (:import-from :fset :lookup :with :empty-map)
   (:import-from :qmapper.export
 		:explode
 		:load-image :image-w :image-h :copy-image
@@ -13,10 +15,12 @@
 (in-package :qmapper.tileset)
 
 (defun-export! set-image-x (img x)
-  (funcall set-img-x img x))
+  (let ((i (get-prop img "GL-KEY")))
+    (assert i)
+    (funcall set-img-x i x)))
 
 (defun-export! set-image-y (img y)
-  (funcall set-img-y img y))
+  (funcall set-img-y (get-prop img "GL-KEY") y))
 
 (defun-export! load-img (path)
   (funcall load-image path))
@@ -31,7 +35,9 @@
   (funcall copy-image img x y w h))
 
 (defun-export! add-to-drawqueue (img dst-key)
-  (funcall add-to-drawingqueue img (symbol-name dst-key)))
+  (let ((i (get-prop img "GL-KEY")))
+    (assert i)
+    (funcall add-to-drawingqueue i (symbol-name dst-key))))
 
 (defun clear-draw-queue (dst-key)
   (funcall clear-drawingqueue (symbol-name dst-key)))
@@ -105,9 +111,10 @@
 	 (_ (format t "dimensions found~%"))
 	 (textures (mapcar (lambda (x)
   			     (mapcar (lambda (y)
-  				       (copy-img root-img
-  						 (* x 50) (* y 50)
-  						 50 50))
+				       (make-tile x y (tileset-count!) 0
+  						  (copy-img root-img
+  							    (* x 50) (* y 50)
+  							    50 50)))
   				     (mapcar #'dec (range h))))
   			   (mapcar #'dec (range w)))))
     (format t "textures loaded!")
@@ -130,7 +137,6 @@
 (defun-export! load-tileset (path)
   (format t "Going into load-tileset~%")
   (schedule-once :TILESET (lambda ()
-			    (format t "Prööt prööt ~%")
 			    (multiple-value-bind (tiles w h) (load-texture-splitted path)
 			      (format t "Loaded tile textures, going to make tileset ~%")
 			      (let ((tileset (make-tileset "New tileset" tiles w h)))

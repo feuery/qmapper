@@ -25,7 +25,7 @@
 (defun-export! make-tiles (w h)
   (repeatedly (lambda (x)
   		(repeatedly (lambda (y)
-  			      (make-Tile 0 0 nil 0)) h)) w)
+  			      (make-Tile 0 0 0 0 nil)) h)) w)
   nil
   )
 

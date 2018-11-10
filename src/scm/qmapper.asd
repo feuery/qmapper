@@ -45,5 +45,6 @@
 		      :depends-on ("tile.scm"))
   	       (:file "tileset.scm"
 		      :depends-on ("qmapper_std"
+				   "tile.scm"
 				   "root.scm"
 				   "export"))))

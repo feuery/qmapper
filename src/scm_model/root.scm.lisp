@@ -227,3 +227,6 @@
 	   (functionp l))
       (push l *document-hooks*)
       (format t "hook ~a can't be registered~%" l)))
+
+(defun-export! tileset-count! ()
+  (length (root-tilesets *document*)))
