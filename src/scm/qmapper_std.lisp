@@ -191,7 +191,7 @@
 (export '*this*)
 
 (defun-export! alist-cons (k v list)
-  (cons (cons k v) list))
+  (append (list (cons k v)) list))
 
 (defun-export! sym (str)
   (let ((*read-eval* nil))

@@ -121,13 +121,10 @@ void MainWindow::setupTree()
 					    puts("Selected a tileset");
 					  }
 					  else if(type == "MAP") {
-					    // cl_object m = static_cast<cl_object >(b);
-					    // Renderable *o = static_cast<Renderable*>(m);
-					    // ec->indexOfChosenMap = m->getId();
-					    // ec->indexOfChosenLayer = 0;
-					    // map_view->getDrawQueue().clear();
-					    // map_view->getDrawQueue().push_back(o);
-					    puts("TODO IMPLEMENT MAP");
+					    cl_object m = selected_object,
+					      push_selected_map = makefn("qmapper.map:select-map");
+
+					    ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), m));
 					  }
 					  else if(type == "LAYER") {
 					    // Layercontainer *l = static_cast<Layercontainer*>(b);
