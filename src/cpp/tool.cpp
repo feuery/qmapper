@@ -2,16 +2,21 @@
 
 cl_object getChosenMap()
 {
-  static cl_object chosenMap = ecl_make_symbol("root-chosenMap", "CL-USER");
-  return cl_funcall(2, chosenMap, editorController::instance->document);
+  cl_object chosenMap = makefn("qmapper.root:root-chosenMap"),
+    nth = makefn("nth"),
+    maps = makefn("qmapper.root:root-maps"),
+    cdr = makefn("cdr");
+  return cl_funcall(2, cdr, cl_funcall(3, nth,
+				      cl_funcall(2, chosenMap, editorController::instance->document.getValue()),
+				      cl_funcall(2, maps, editorController::instance->document.getValue())));
 }
 
 bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 {
-  static cl_object map_w = ecl_make_symbol("Map-width", "CL-USER");
-  static cl_object map_h = ecl_make_symbol("Map-height", "CL-USER");
+  cl_object map_w = makefn("qmapper.map:Map-Width");
+  cl_object map_h = makefn("qmapper.map:Map-height");
   cl_object map = getChosenMap();
-  if(!Null(map)) return false;
+  if(map == ECL_NIL) { puts("can't use tool, map is ECL_NIL"); return false; }
   
   return tilex < fixint(cl_funcall(2, map_w, map)) &&
 		 tiley < fixint(cl_funcall(2, map_h, map)) &&
@@ -19,15 +24,28 @@ bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 }
 
 void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
-  static cl_object chosenMap = ecl_make_symbol("root-chosenMap", "CL-USER");
-  static cl_object map_w = ecl_make_symbol("Map-width", "CL-USER");
-  static cl_object map_h = ecl_make_symbol("Map-height", "CL-USER");
+  cl_object chosenMap = makefn("qmapper.root:root-chosenMap"),
+    drop_keys = makefn("qmapper.std:drop-alist-keys"),
+    maps = makefn("qmapper.root:root-maps");
+  cl_object map_w = makefn("qmapper.map:Map-width");
+  cl_object map_h = makefn("qmapper.map:Map-height"),
+    nth = makefn("nth");
   
-  cl_object map = cl_funcall(2, chosenMap, editorController::instance->document);
-  if(!Null(map)) return;
+  cl_object map = cl_funcall(3, nth, cl_funcall(2, chosenMap, editorController::instance->document.getValue()),
+			     cl_funcall(2, drop_keys,
+					cl_funcall(2, maps, ec->document.getValue())));
+  // cl_object format = makefn("format");
+  if(map == ECL_NIL) return;
+
+  puts("Getting dimensions");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"map is ~a~%\""), map);
+  int map_width = fixint(cl_funcall(2, map_w, map));
+  puts("We have map_w");
+  int map_height = fixint(cl_funcall(2, map_h, map));
+  puts("We have map_h");
     
-  mouse_map = std::vector<std::vector<bool>>(fixint(cl_funcall(2, map_w, map)),
-					     std::vector<bool> (fixint(cl_funcall(2, map_h, map)), false));
+  mouse_map = std::vector<std::vector<bool>>(map_width,
+					     std::vector<bool> (map_height, false));
 }
 
 void Tool::mouseUp(QMouseEvent *e) { }
@@ -37,9 +55,14 @@ bool Tool::toolAppliedTo(int tilex, int tiley) {
 }
 
 void Tool::registerDrag(int tilex, int tiley) {
+  puts("registered_drag");
+  printf("mousemap size %d\n", mouse_map.size());
   if(mouse_map.size() == 0) return;
 
-  if(!canUse(nullptr, tilex, tiley, editorController::instance)) return;
+  if(!canUse(nullptr, tilex, tiley, editorController::instance)) {
+    puts("can't use");
+    return;
+  }
   
   mouse_map.at(tilex).at(tiley) = true;
 }

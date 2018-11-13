@@ -18,15 +18,14 @@
     )
    (functions
     (width ()
-	   (length (first (Layer-tiles (this)))))
+	   (length (Layer-tiles *this*)))
     (height ()
-	    (length (caar (Layer-tiles (this))))))))
+	    (length (car (Layer-tiles *this*)))))))
 
 (defun-export! make-tiles (w h)
-  (repeatedly (lambda (x)
-  		(repeatedly (lambda (y)
-  			      (make-Tile 0 0 0 0 nil)) h)) w)
-  nil
-  )
+  (let ((all-tiles
+	 (repeatedly (lambda (x)
+  		       (repeatedly (lambda (y)
+  				     (make-Tile x y 0 0 nil)) h)) w)))
+    all-tiles))
 
-;; (export-all :qmapper.layer)

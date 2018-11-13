@@ -1,62 +1,15 @@
-;; (let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
-;;                                        (user-homedir-pathname))))
-;;   (when (probe-file quicklisp-init)
-;;     (load quicklisp-init)))
-
-;; (ql:quickload "cl-arrows")
-;; (ql:quickload "split-sequence")
-;; (ql:quickload :fset)
-
 (defpackage :qmapper.std
   (:use :common-lisp
 	:cl-arrows)
+  (:import-from :qmapper.export :defmacro-export! :defvar-export!)
   (:import-from :fset :empty-map :convert :with :lookup))
 
-;; (use 'cl-arrows)
-
 (in-package :qmapper.std)
-
-(defmacro defmacro-export! (name &rest rst)
-  `(progn
-     ;(format t "Current package is ~a~%" *package*)
-     (defmacro ,name ,@rst)
-     (export (quote ,name))))
-
-(defmacro-export! defvar-export!
-    (name value)
-  `(progn
-     (defvar ,name ,value)
-     (export (quote ,name))))
 
 (defmacro-export! defun-export! (name &rest rst)
   `(progn
      (defun ,name ,@rst)
      (export (quote ,name))))
-
-;; (defun export-all (pkg)
-;;   (let ((pack (find-package pkg)))
-;;     (do-all-symbols (sym pack)
-;;       (if (and (eql (symbol-package sym) pack)
-;; 	       ;; Tää rikkoo defcppclassin
-;; 	       ;; (fboundp sym)
-;; 	       (not (equalp (symbol-name sym) "PUBLIC")))
-;; 	  (progn
-;; 	    (format t "Exporting ~a~%" sym)
-;; 	    (export sym)))
-;;       ;; (if (and (eql (symbol-package sym) pack)
-;;       ;; 	       (not (fboundp sym))
-;;       ;; 	       (not (equalp (symbol-name sym) "PUBLIC")))
-;;       ;; 	  (format t "~a is not fboundp~%" sym))
-;;       )))
-
-;; (define-macro (define-and-reg nameparams . body)
-;;   (let ((name (car nameparams))
-;; 	(params (cdr nameparams)))
-;;     `(begin
-;;        (define-public (,name ,@params)
-;; 	 ,@body)
-;;        (register-fn! ,(symbol->string name) ,name)
-;;        ,name)))
 
 (defun-export! dec (n)
   (- n 1))
@@ -79,9 +32,6 @@
 (defun-export! partial (f &rest args)
   (lambda (&rest rst-args)
     (apply f (concatenate 'list args rst-args))))
-
-;; (defun-export! filter (f coll)
-;;   (remove-if-not f coll))
 
 (defun-export! repeatedly (fn n)
   (if (equalp n 0)
@@ -235,7 +185,9 @@
 											    #+ecl (ext:quit -11)
 											    #+sbcl (sb-ext:quit))
 											  ;; (format t "this is ~a~%" this)
-											  (assert (not (consp this)))
+											  (when (consp this)
+											    (format t "*this* is funny: ~a~%" this)
+											    (funcall qmapper.export:explode))
 											  (lookup this ',field))
 										       `(defun-export! ,setter (this val)
 											  (assert this)
@@ -267,38 +219,11 @@
 			     (let ((k (car k-v))
 				   (v (cadr k-v)))
 			       (with hashmap k v))) fields-and-vals :initial-value hash)))))
-
-		   ;; (labels ((doIt (fields values acc)
-		   ;; 	      (if fields
-		   ;; 		  (let ((f (car fields))
-		   ;; 			(v (car values)))
-		   ;; 		    (doIt (cdr fields)
-		   ;; 			  (cdr values)
-		   ;; 			  (cons `(,f . ,v) acc)))
-		   ;; 		  acc)))
-		   ;;   (doIt (list ,@(mapcar (lambda (f)
-		   ;; 			     (list 'quote f))
-		   ;; 			   fields))
-		   ;; 	   (list ,@fields)
-		   ;; 	   `((type-name . ,,(symbol-name classname)))))
-	 ;; (pred-name (sym (str (symbol-name classname) "?")))
     `(progn
        ,ctr
        ,fields-with-accessors
        ,@funcs
        (symbol-name ',classname))))
-
-;; (defcppclass lol
-;;     (public
-;;      (properties
-;;       (a 0)
-;;       (b 3))))
-
-;; (make-lol 2 3)
-;; (q-type-of (make-lol 3 3))
-;; (set-prop (make-lol 666 2) 'a 222)
-
-  ;; (reduce #'+ (range 3) :initial-value 4)
 
 (defun-export! q-type-of  (obj-alist)
   ;; (format t "obj-alist on ~a~%" obj-alist)
@@ -484,6 +409,9 @@ and
   (concatenate 'list
 	       (sublist lst index)
 	       (sublist-from lst index)))
+
+(defun-export! drop-alist-keys (alist)
+  (mapcar #'cdr alist))
 
 ;; (drop-list-i (range 10) 1) => (1 3 4 5 6 7 8 9 10)
 

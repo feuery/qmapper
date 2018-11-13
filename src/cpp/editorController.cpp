@@ -37,47 +37,22 @@ cl_object make2DList(int w, int h, cl_object val) {
   // return toret;
 }
 
-void editorController::populateMaps() {
-  static cl_object makeMap   = makefn("qmapper.map:make-map");
-  static cl_object makeLayer = makefn("qmapper.layer:make-layer");
-  static cl_object makeTile  = makefn("qmapper.tile:make-Tile");
-  static cl_object setLayers = makefn("qmapper.map:set-Map-layers!");
-  static cl_object getLayers = makefn("qmapper.map:map-layers");
-  static cl_object pushMap   = makefn("qmapper.root:push-map");
-  static cl_object cons      = makefn("cons");
+void editorController::populateMaps()
+{
+  cl_object make_map_with_layers = makefn("qmapper.map:make-map-with-layers"),
+    pushMap = makefn("qmapper.root:push-map");
+  const int w = 10, h = 10, layer_count = 4;
   
   for(int i = 0; i < 3; i++) {
     std::string name = "\""+(std::to_string(i)+"th map")+"\"";
-    cl_object m = cl_funcall(4,
-			     makeMap,
-			     c_string_to_object(name.c_str()),
-			     ECL_NIL,
-			     ECL_NIL);
-    for(int x = 0; x < 5; x++) {
-      int w = 10 + 10 * x,
-	h   = 10 + 10 * x;
-      std::string lname = "\""+(std::to_string(x)+"th layer") +"\"";
-      cl_object l = cl_funcall(5,
-			       makeLayer,
-			       c_string_to_object(lname.c_str()),
-			       ecl_make_fixnum(255),
-			       ECL_T,
-			       make2DList(w, h, cl_funcall(6,
-							   makeTile,
-							   ecl_make_fixnum(0),
-							   ecl_make_fixnum(0),
-							   ecl_make_fixnum(0),
-							   ecl_make_fixnum(0),
-							   ECL_NIL)));
-      cl_object old_layers = cl_funcall(2 , getLayers, m);
-      
-      m = cl_funcall(3, setLayers, m, cl_funcall(3, cons, l, old_layers));
-    }
-    document.setValue( cl_funcall(3, pushMap, document.getValue(), m));
-  }
+    cl_object map = cl_funcall(5, make_map_with_layers,
+			       c_string_to_object(name.c_str()),
+			       ecl_make_fixnum(w), ecl_make_fixnum(h),
+			       ecl_make_fixnum(layer_count));
+    document.setValue( cl_funcall(3, pushMap, document.getValue(), map));
+  }  
 }
 
-// lol muuta ne gensymmatut pasket std::stringeiksi
 std::unordered_map<std::string, std::string> qimages;
 
 obj* toObj(Renderer *r, std::string& k)

@@ -24,11 +24,10 @@
 		   ;; Let's search the nearest animatedsprite or sprite
 		   (find-nearest x y (Map-spritesAndAnimatedsprites *this*)))
       (width ()
-	     (Layer-width (first (Map-layers *this*))))
+	     (let ((layers (first (Map-layers *this*))))
+	       (Layer-width layers)))
       (height ()
 	      (Layer-height (first (Map-layers *this*))))
-      (lol ()
-	   "Lollo")
       ;; this'll be fun
       (resize (w
 	       h
@@ -37,37 +36,16 @@
 	      ;; TODO IMPLEMENT
 	      (error "Don't call Map-resize yet!")))))
 
-;; (format t "Ladataan qmapper.mapia ~%")
-
 (defun-export! make-map-with-layers (name w h layer-count)
   (make-map name (repeatedly (lambda (i)
-			       (make-Layer (str (prin1-to-string i) "th layer")
-					   255
-					   t
-					   (make-tiles w h))) layer-count)
+			       (let ((l 
+				      (make-Layer (str (prin1-to-string i) "th layer")
+						  255
+						  t
+						  (make-tiles w h))))
+				 ;(format t "making layer ~a ~%" l)
+				 l)) layer-count)
 	    '()))
-
-;; (cadr (assoc 'layers (make-map-with-layers "NAME" 3 3 2)))
-
-; (make-map-with-layers "lol" 2 2 2)
-
-;; (map-layers (make-map-with-layers "Lollo" 2 2 2))
-;; (((NAME . "2th layer") (OPACITY . 255) (VISIBLE . T)
-;;   (TILES
-;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
-;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE")))
-;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
-;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))))
-;;   (TYPE-NAME . "LAYER"))
-;;  ((NAME . "1th layer") (OPACITY . 255) (VISIBLE . T)
-;;   (TILES
-;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
-;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE")))
-;;    (((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))
-;;     ((X . 0) (Y . 0) (TILESET) (ROTATION . 0) (TYPE-NAME . "TILE"))))
-;;   (TYPE-NAME . "LAYER")))
-
-; (get-prop (make-map-with-layers "Lollo" 2 2 2) "namee")
 
 (defun-export! alist-update (alist k fn)
   (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
@@ -212,8 +190,3 @@
 		  (-> (root-maps root)
 		      (alist-update map-index (lambda (m)
 						(set-Map-layers! m (drop-list-i (Map-layers m) layer-index)))))))
-
-; (export-all :qmapper.map)
-	 
-
-;; (scm-puts "map ladattu")

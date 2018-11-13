@@ -1,10 +1,21 @@
 (defpackage :qmapper.export
   (:use :common-lisp
-	:cl-arrows
-	:qmapper.std)
+	:cl-arrows)
   (:import-from :fset :empty-map :convert :with :lookup))
 
 (in-package :qmapper.export)
+
+(defmacro defmacro-export! (name &rest rst)
+  `(progn
+     ;(format t "Current package is ~a~%" *package*)
+     (defmacro ,name ,@rst)
+     (export (quote ,name))))
+
+(defmacro-export! defvar-export!
+    (name value)
+  `(progn
+     (defvar ,name ,value)
+     (export (quote ,name))))
 
 (defvar-export! explode nil)
 (defvar-export! get-current-doc nil)

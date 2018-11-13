@@ -16,15 +16,14 @@
   :depends-on ("cl-arrows" "fset")
   :components ((:file "qmapper_std"
 		      ;; :depends-on (:cl-arrows)
-		      )
+		      :depends-on ("export"))
 	       (:file "animatedsprite.scm"
 		      :depends-on ("qmapper_std"
 				   "root.scm"))
   	       
   	       (:file "script.scm"
 		      :depends-on ("qmapper_std"))
-	       (:file "export"
-		      :depends-on ("qmapper_std"))
+	       (:file "export")
   	       (:file "map.scm"
 		      :depends-on ("qmapper_std"
 				   "export"
