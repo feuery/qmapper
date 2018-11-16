@@ -13,6 +13,7 @@
 
 #include <scroll.h>
 #include <unordered_map>
+#include <guile_fn.h>
 
 class Renderable;
 
@@ -29,6 +30,7 @@ public:
   QVector<std::function<void(QMouseEvent*)>> mouseUpEvents;
 
   virtual QVector<Renderable*>& getDrawQueue();
+  virtual QVector<cl_object>& getLispyDrawQueue();
   
   std::string name;
 
@@ -37,6 +39,7 @@ public:
   QQueue<std::function<void()>> glLambdas;
 
   void addToDrawQueue(QVector<Renderable*>&);
+  void addToDrawQueue(cl_object lambda);
   void setOwnObject(std::string id, Renderable *obj);
   Renderable* getOwnObject(std::string id);
   void clearOwnObjects() {
@@ -57,6 +60,7 @@ protected slots:
 
 private:
   QVector<Renderable*> drawQueue;
+  QVector<cl_object> lispyDrawQueue;
   float r = 0.0f;
   QTimer timer;
 };

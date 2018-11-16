@@ -62,6 +62,10 @@ std::string ecl_string_to_string(cl_object echar) {
     return res;
 }
 
+cl_object makeSilentFn(const char *fn) {
+  return lisp(std::string("(lambda (&rest rst) (apply #'") + fn +" rst))");
+}
+
 cl_object makefn(const char *fn) {
   // (format t \"Params ~a~%\" rst)
   return lisp(std::string("(lambda (&rest rst) ;(if *call-logs* \n(format t \"Calling ") + fn + ", ~%\");)\n  (apply #'" + fn + " rst))");

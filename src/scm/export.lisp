@@ -34,3 +34,6 @@
 
 (defvar-export! do-schedule-lambda nil)
 
+(defvar-export! render nil)
+(defvar-export! add-lambda-to-drawingqueue nil)
+(defvar-export! clear-lisp-drawingqueue nil)

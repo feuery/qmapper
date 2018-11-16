@@ -62,7 +62,7 @@ obj* toObj(Renderer *r, std::string& k)
 
 std::string toKey(cl_object cl_key)
 {
-  cl_object format = makefn("format");
+  cl_object format = makeSilentFn("format");
   return ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), cl_key));
 }
 
@@ -73,7 +73,7 @@ cl_object from_key(std::string &key)
 
 cl_object load_qimage (cl_object cl_path) {
   cl_object gensym = makefn("gensym"),
-    format = makefn("format"),
+    format = makeSilentFn("format"),
     cl_key = cl_funcall(1, gensym);
 
   std::string key = toKey(cl_key);
@@ -132,11 +132,11 @@ cl_object copy_qimg(cl_object cl_src_k,
 }
 
 Renderer* editorController::getRenderer(cl_object dst_key) {
-  cl_object format = makefn("format");
+  cl_object format = makeSilentFn("FormAT");
   dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
   auto symname = makefn("symbol-name");
   std::string dest_key = ecl_string_to_string(dst_key);
-  printf("Rendering to %s\n", dest_key.c_str());
+  // printf("Rendering to %s\n", dest_key.c_str());
   Renderer *dst = dest_key == "MAP"? map_view:
     dest_key == "TILESET"? tilesetView:
     nullptr;
@@ -162,6 +162,15 @@ cl_object add_qimg_to_drawqueue (cl_object cl_img,
   return ECL_NIL;
 }
 
+cl_object add_lambda_to_drawqueue (cl_object dest_key,
+				   cl_object lambda)
+{
+  Renderer *dst = editorController::instance->getRenderer(dest_key);
+  dst->addToDrawQueue(lambda);
+  
+  return ECL_NIL;
+}
+
 cl_object clear_drawqueue(cl_object dst_key)
 {
   Renderer *dst = editorController::instance->getRenderer(dst_key);
@@ -170,6 +179,17 @@ cl_object clear_drawqueue(cl_object dst_key)
     return ECL_NIL;
   } 
   dst->getDrawQueue().clear();
+  return ECL_NIL;
+}
+
+cl_object clear_lispdrawqueue(cl_object dst_key)
+{
+  Renderer *dst = editorController::instance->getRenderer(dst_key);
+  if(!dst) {
+    puts("Destination was invalid. Has to be one of the following: map, tileset"); 
+    return ECL_NIL;
+  } 
+  dst->getLispyDrawQueue().clear();
   return ECL_NIL;
 }
 
@@ -185,29 +205,27 @@ cl_object set_y(cl_object cl_img, cl_object cl_y) {
 }
 
 cl_object set_x(cl_object cl_img, cl_object cl_x) {
-  auto format = makefn("format");
-  cl_funcall(4, format, ECL_T, c_string_to_object("\"cl_img is ~a~%\""), cl_img);
+  auto format = makefn("forMat");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"cl_img is ~a~%\""), cl_img);
   assert(cl_img != ECL_NIL);
   std::string img = toKey(cl_img);
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"x is ~a~%\""), cl_x);
   int x = fixint(cl_x);
   auto ec = editorController::instance;
-
-  // for(auto i: qimages) cl_funcall(4, format, ECL_T, c_string_to_object("\"qimage-key ~a~%\""), i.first);
   
   for(Renderer *r: ec->renderers) {
-    puts("haetaan obj");
+    // puts("haetaan obj");
     
     obj *o = toObj(r, qimages.at(img));
     assert(o);
-    puts("sijoitetaan x ");
+    // puts("sijoitetaan x ");
     o->position.x = x;
   }
   return ECL_NIL;
 }
 
 cl_object scheduleOnce(cl_object dst_key, cl_object key_lambda) {
-  cl_object format = makefn("format");
+  cl_object format = makeSilentFn("fOrmat");
   dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
   std::string dst_str = ecl_string_to_string(dst_key);
   printf("Scheduling! %s\n", dst_str.c_str());
@@ -220,6 +238,19 @@ cl_object scheduleOnce(cl_object dst_key, cl_object key_lambda) {
   puts("Scheduled!");
   
   return ECL_NIL;
+}
+
+cl_object render(cl_object dst_key,
+		 cl_object img_key) {
+  // puts("In render()");
+  Renderer *dst = editorController::instance->getRenderer(dst_key);
+  // puts("got dst");
+  std::string img = toKey(img_key);
+  // puts("converted img to std::string");
+  obj *o = toObj(dst, qimages.at(img));
+  // puts("found o");
+  o->render();
+  // puts("out render");
 }
 
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
@@ -278,10 +309,14 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("copy-image", copy_qimg, 5);
   
   DEFUN("add-to-drawingqueue", add_qimg_to_drawqueue, 2);
+  DEFUN("add-lambda-to-drawingqueue", add_lambda_to_drawqueue, 2);
   DEFUN("clear-drawingqueue", clear_drawqueue, 1);
+  DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
   DEFUN("set-img-x", set_x, 2);
   DEFUN("set-img-y", set_y, 2);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
+
+  DEFUN("render", render, 2);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
@@ -298,7 +333,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   selectedTileY = y;
 
   cl_object get_selected_tileset = makefn("qmapper.root:get-selected-tileset"),
-    format = makefn("format"),
+    format = makefn("formAt"),
     tileset = cl_funcall(2, get_selected_tileset, document.getValue());
   assert(tileset != ECL_NIL);
   cl_funcall(4, format, ECL_T, c_string_to_object("\"tileset is ~a~%\""), tileset);

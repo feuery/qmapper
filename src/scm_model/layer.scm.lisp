@@ -26,6 +26,6 @@
   (let ((all-tiles
 	 (repeatedly (lambda (x)
   		       (repeatedly (lambda (y)
-  				     (make-Tile x y 0 0 nil)) h)) w)))
+  				     (make-Tile 0 0 0 0 nil)) h)) w)))
     all-tiles))
 

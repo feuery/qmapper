@@ -66,6 +66,8 @@ void Renderer::paintGL()
     o->render(this);
   }
 
+  for(cl_object o: getLispyDrawQueue()) { cl_funcall(1, o); }
+
   while(!glLambdas.empty()) {
     auto lambda = glLambdas.dequeue();
     lambda();
@@ -101,9 +103,19 @@ QVector<Renderable*>& Renderer::getDrawQueue()
   return drawQueue;
 }
 
+QVector<cl_object>& Renderer::getLispyDrawQueue()
+{
+  return lispyDrawQueue;
+}
+
 void Renderer::addToDrawQueue(QVector<Renderable*>& v)
 {
   drawQueue << v;
+}
+
+void Renderer::addToDrawQueue(cl_object lambda)
+{
+  lispyDrawQueue << lambda;
 }
 
 void Renderer::setOwnObject(std::string id, Renderable *obj) {

@@ -7,7 +7,8 @@
 	:qmapper.layer
 	:qmapper.root
 	:qmapper.export
-	:qmapper.tile))
+	:qmapper.tile)
+  (:import-from :qmapper.export :clear-lisp-drawingqueue :add-lambda-to-drawingqueue))
 
 (in-package :qmapper.map)
 
@@ -75,13 +76,17 @@
   (let ((ind (car path))
 	(path (cdr path)))
     (if (not path)
-	(list-ref lst ind)
-	(get-in (list-ref lst ind) path))))
+	(nth ind lst)
+	(get-in (nth ind lst) path))))
 
 (defun-export! get-tile-at (map layer x y)
-  (-> map
-      Map-layers
-      (get-in (list layer x y))))
+  (->> map
+       Map-layers
+       (nth layer)
+       layer-tiles
+       (nth x)
+       (nth y)))
+
 
 (defun filter (l s)
   (remove-if-not l s))
@@ -149,9 +154,76 @@
   ;; 	(set-root-maps! (alist-cons maps-index m (root-maps root)))))
   )
 
+(defun-export! clear-lisp-dq (dst)
+  (funcall clear-lisp-drawingqueue (symbol-name dst)))
+
+(defun-export! add-to-lisp-qd (dst fn)
+  (funcall add-lambda-to-drawingqueue dst fn))
+
+(defun-export! render-img (dst img)
+  (funcall render dst img))
+
+(defun fetch-tile-from-tileset (root tileset x y)
+  (let ((tileset (->> root
+		      (root-tilesets)
+		      (mapcar #'cdr)
+		      (nth tileset))))
+    ;; (format t "(< ~a ~a)~%(< ~a ~a)~%"
+    ;; 	    x (tileset-w tileset)
+    ;; 	    y (tileset-h tileset))
+    
+    (assert (< x (tileset-w tileset)))
+    (assert (< y (tileset-h tileset)))
+    (let ((tile 
+	   (->> tileset
+		tileset-tiles
+		;; v
+		(nth x)
+		;; v
+		(nth y))))
+      (if tile
+	  tile
+	  ;; (format t "didn't find a tile ~%")
+	  ))))
+
 (defun-export! select-map (root map)
-  (let ((old-index (position map (mapcar #'cdr (root-maps root)))))
-    (set-root-chosenMap! root old-index)))
+  (let ((index (position map (mapcar #'cdr (root-maps root))))
+	(name (map-name map)))
+    (clear-lisp-dq :MAP)
+    (add-to-lisp-qd :MAP (lambda ()
+    			   (let* ((w (map-width map))
+    				  (x-coords (mapcar #'dec (range w)))
+    				  (h (map-width map))
+    				  (y-coords (mapcar #'dec (range h)))
+    				  (layers (length (map-layers map)))
+    				  (l-coords (mapcar #'dec (range layers))))
+			     ;(format t "rendering map~%")
+    			     (mapcar (lambda (l)
+    			     	       (mapcar (lambda (x)
+    			     			 (mapcar (lambda (y)
+    			     				   (let* ((tile (get-tile-at map l x y))
+								  (tile (if (tile-gl-key tile)
+									    tile
+									    (fetch-tile-from-tileset root
+													(tile-tileset tile)
+													(tile-x tile)
+													(tile-y tile))))
+    			     					  (gl-key (tile-gl-key tile)))
+							     (when gl-key
+							       ; (format t "rendering gl-key ~a to ~a, ~a~%" gl-key (* 50 x) (* 50 y))
+							       (set-image-x tile (* 50 x))
+							       (set-image-y tile (* 50 y))
+							       
+    			     				       (render-img :MAP gl-key))
+							     ;; (unless gl-key
+							     ;;   (format t "gl-key is nil~%"))
+							     ))
+    			     				 y-coords))
+    			     		       x-coords))
+    			     	     l-coords)
+			     ;; (format t "done rendering map ~%")
+			     )))
+    (set-root-chosenMap! root index)))
 
 (defun-export! push-selected-map (root map)
   (let* (;; let's prepare the chosenmap
