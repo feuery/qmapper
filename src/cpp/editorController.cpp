@@ -333,6 +333,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   selectedTileY = y;
 
   cl_object get_selected_tileset = makefn("qmapper.root:get-selected-tileset"),
+    root_set_selected_tile = makefn("qmapper.root:set-root-chosenTile!"),
     format = makefn("formAt"),
     tileset = cl_funcall(2, get_selected_tileset, document.getValue());
   assert(tileset != ECL_NIL);
@@ -347,6 +348,9 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     tile = cl_funcall(4, get_tile, tileset, ecl_make_int32_t(x), ecl_make_int32_t(y)),
     cl_key = get(tile, "gl-key");
   assert(tile != ECL_NIL);
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"tile is ~a\""), tile);
+  auto new_doc = cl_funcall(3, root_set_selected_tile, document.getValue(), tile);
+  document.setValue(new_doc);
 
   std::string tile_img_key = toKey(cl_key);
 

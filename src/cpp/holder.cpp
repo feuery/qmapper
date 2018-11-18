@@ -5,7 +5,7 @@ cl_object holder::getValue() const {
 }
 
 void holder::setValue(cl_object v) {
-  if(setter == ECL_NIL)
+  // if(setter == ECL_NIL)
     setter = makefn("qmapper.root:set-doc");
   cl_funcall(2, setter, v);
 }

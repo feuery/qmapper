@@ -126,22 +126,34 @@
   (let ((m (root-chosenMap root))
 	(l (root-chosenLayerInd root)))
     (get-tile-at m l x y)))
-    
 
+(defun set-tile-innest (tiles x y tile)
+  (assoc-in tiles (list x y) tile))
+    
 (defun-export! set-tile-inner (map layer x y tile)
-  (set-Map-layers! map
-		   (-> map
-		       Map-layers
-		       (assoc-in (list layer x y) tile))))
+  (let* ((ind layer)
+	 (layers (map-layers map))
+	 (layer (nth ind layers))	 
+	 (layer (set-layer-tiles! layer (set-tile-innest (layer-tiles layer) x y tile)))
+	 (layers (assoc-to-ind layers ind layer)))  
+    (set-Map-layers! map layers)))
 
 (defun-export! set-tile-at (root x y tile)
-  (set-tile-inner (root-chosenMap root)
-		  (root-chosenLayerInd root)
-		  x
-		  y
-		  tile))
+  (let* ((ind (root-chosenMap root))
+	 (maps (root-maps root))
+	 (map-k-v (nth ind maps))
+	 (map (cdr map-k-v))
+	 (stupid-useless-key (car map-k-v))
+	 (map (set-tile-inner map
+		    (root-chosenLayerInd root)
+		    x
+		    y
+		    tile))
+	 (maps (assoc-to-ind maps ind (cons stupid-useless-key map))))
+    (set-root-maps! root maps)))
 
 (defun-export! set-chosen-tile-at (root x y)
+  (assert (root-chosenTile root))
   (set-tile-at root x y (root-chosenTile root)))
 
 (defun-export! set-tile-at-chosen-map (root x y tile)
@@ -191,12 +203,15 @@
 	(name (map-name map)))
     (clear-lisp-dq :MAP)
     (add-to-lisp-qd :MAP (lambda ()
-    			   (let* ((w (map-width map))
+    			   (let* ((root *document*)
+				  (map (cdr (nth (root-chosenmap root)
+						 (root-maps root))))
+				  (w (map-width map))
     				  (x-coords (mapcar #'dec (range w)))
     				  (h (map-width map))
     				  (y-coords (mapcar #'dec (range h)))
     				  (layers (length (map-layers map)))
-    				  (l-coords (mapcar #'dec (range layers))))
+    				  (l-coords (reverse (mapcar #'dec (range layers)))))
 			     ;(format t "rendering map~%")
     			     (mapcar (lambda (l)
     			     	       (mapcar (lambda (x)
@@ -210,7 +225,6 @@
 													(tile-y tile))))
     			     					  (gl-key (tile-gl-key tile)))
 							     (when gl-key
-							       ; (format t "rendering gl-key ~a to ~a, ~a~%" gl-key (* 50 x) (* 50 y))
 							       (set-image-x tile (* 50 x))
 							       (set-image-y tile (* 50 y))
 							       
@@ -223,7 +237,9 @@
     			     	     l-coords)
 			     ;; (format t "done rendering map ~%")
 			     )))
-    (set-root-chosenMap! root index)))
+    (-> (set-root-chosenMap! root index)
+	(set-root-chosenLayerInd! 0  ;; (dec (length (map-layers map)))
+				  ))))
 
 (defun-export! push-selected-map (root map)
   (let* (;; let's prepare the chosenmap
