@@ -14,13 +14,12 @@
 
 (in-package :qmapper.tileset)
 
-(defun-export! set-image-x (img x)
+(defun-export! set-image-x (dst img x)
   (let ((i (get-prop img "GL-KEY")))
-    (assert i)
-    (funcall set-img-x i x)))
+    (funcall set-img-x (symbol-name dst) i x)))
 
-(defun-export! set-image-y (img y)
-  (funcall set-img-y (get-prop img "GL-KEY") y))
+(defun-export! set-image-y (dst img y)
+  (funcall set-img-y (symbol-name dst) (get-prop img "GL-KEY") y))
 
 (defun-export! load-img (path)
   (funcall load-image path))
@@ -77,8 +76,8 @@
       		       (nth y))))
 	(if img
 	    (progn
-              (set-image-x img (truncate (* x 50.0)))
-              (set-image-y img (truncate (* y 50.0)))
+              (set-image-x :TILESET img (truncate (* x 50.0)))
+              (set-image-y :TILESET img (truncate (* y 50.0)))
               (add-to-drawqueue img :TILESET))
 	    (progn
 	      ;; (format t "img is nil~%tiles are ~a~%" tiles)

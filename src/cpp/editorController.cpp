@@ -193,18 +193,18 @@ cl_object clear_lispdrawqueue(cl_object dst_key)
   return ECL_NIL;
 }
 
-cl_object set_y(cl_object cl_img, cl_object cl_y) {
+cl_object set_y_dst(cl_object dst_key, cl_object cl_img, cl_object cl_y) {
   std::string img = toKey(cl_img);
   int y = fixint(cl_y);
   auto ec = editorController::instance;
-  for(Renderer *r: ec->renderers) {
-    obj *o = toObj(r, qimages.at(img));
-    o->position.y = y;
-  }
+  Renderer *r = editorController::instance->getRenderer(dst_key);
+  obj *o = toObj(r, qimages.at(img));
+  o->position.y = y;
+  
   return ECL_NIL;
 }
 
-cl_object set_x(cl_object cl_img, cl_object cl_x) {
+cl_object set_x_dst(cl_object dst_key, cl_object cl_img, cl_object cl_x) {
   auto format = makefn("forMat");
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"cl_img is ~a~%\""), cl_img);
   assert(cl_img != ECL_NIL);
@@ -213,14 +213,9 @@ cl_object set_x(cl_object cl_img, cl_object cl_x) {
   int x = fixint(cl_x);
   auto ec = editorController::instance;
   
-  for(Renderer *r: ec->renderers) {
-    // puts("haetaan obj");
-    
-    obj *o = toObj(r, qimages.at(img));
-    assert(o);
-    // puts("sijoitetaan x ");
-    o->position.x = x;
-  }
+  Renderer *r = editorController::instance->getRenderer(dst_key);    
+  obj *o = toObj(r, qimages.at(img));
+  o->position.x = x;
   return ECL_NIL;
 }
 
@@ -312,8 +307,8 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("add-lambda-to-drawingqueue", add_lambda_to_drawqueue, 2);
   DEFUN("clear-drawingqueue", clear_drawqueue, 1);
   DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
-  DEFUN("set-img-x", set_x, 2);
-  DEFUN("set-img-y", set_y, 2);
+  DEFUN("set-img-x", set_x_dst, 3);
+  DEFUN("set-img-y", set_y_dst, 3);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
 
   DEFUN("render", render, 2);

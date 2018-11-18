@@ -225,8 +225,8 @@
 													(tile-y tile))))
     			     					  (gl-key (tile-gl-key tile)))
 							     (when gl-key
-							       (set-image-x tile (* 50 x))
-							       (set-image-y tile (* 50 y))
+							       (set-image-x :MAP tile (* 50 x))
+							       (set-image-y :MAP tile (* 50 y))
 							       
     			     				       (render-img :MAP gl-key))
 							     ;; (unless gl-key
