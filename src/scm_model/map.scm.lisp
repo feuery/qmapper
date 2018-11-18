@@ -91,12 +91,11 @@
 (defun filter (l s)
   (remove-if-not l s))
 
-;; TODO testaa allekommentoidulla paskeella
 (defun-export! find-layer-parent (layer root)
   (let* ((maps (mapcar #'cdr (root-maps root))))
-    (remove-if-not (lambda (map)
-		     (position layer (map-layers map)))
-		   maps)))
+    (car (remove-if-not (lambda (map)
+			  (position layer (map-layers map)))
+			maps))))
 	 
 
 ;; (let* ((root (-> (init-root!)

@@ -127,15 +127,16 @@ void MainWindow::setupTree()
 					    ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), m));
 					  }
 					  else if(type == "LAYER") {
-					    // Layercontainer *l = static_cast<Layercontainer*>(b);
-					    // cl_object m = static_cast<cl_object >(l->parent());
-
-					    // ec->indexOfChosenMap = m->getId();
-					    // ec->indexOfChosenLayer = indexOf(m->getLayers(), static_cast<Layer*>(l));
-
-					    // map_view->getDrawQueue().clear();
-					    // map_view->getDrawQueue().push_back(static_cast<Renderable*>(m));
-					    puts("TODO IMPLEMENT LAYERS!");
+					    cl_object find_l_parent = makefn("qmapper.map:find-layer-parent"),				      
+					      map = cl_funcall(3, find_l_parent, selected_object, ec->document.getValue()),
+					      m_layers = makefn("qmapper.map:map-layers"),
+					      position = makefn("position"),
+					      push_selected_map = makefn("qmapper.map:select-map"),
+					      set_layer_index = makefn("qmapper.root:set-root-chosenLayerInd!");
+					    ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), map));
+					    ec->document.setValue(cl_funcall(3, set_layer_index, ec->document.getValue(),
+									     cl_funcall(3, position, selected_object,
+											cl_funcall(2, m_layers, map))));
 					  }
 					  else puts("You didn't click on a recognizable object");
 					});
