@@ -178,12 +178,13 @@ void MainWindow::editObject()
     return;
   }
   
-  QString id = splitted[1].replace("\"", "");
+  QString id = splitted[1].replace("\"", "").replace(" ", "");
 
   printf("id to edit is %s\n", id.toStdString().c_str());
 
   cl_object find_by_id = makefn("qmapper.root:find-by-id"),
     b = cl_funcall(3, find_by_id, ec->document.getValue(), c_string_to_object(("\""+id+"\"").toStdString().c_str()));
+  assert(b != ECL_NIL);
 
 // kattoo valitun puuelementin tekstin ja ettii rekisteristä olio jonka :name == valitun elementin teksti?
   

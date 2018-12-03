@@ -37,10 +37,21 @@ std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
 }
   
 
-void Propertyeditor::editingStdStringFinished(cl_object &base, std::string internedPropname, QLineEdit *edit)
+void Propertyeditor::editingStdStringFinished(cl_object base, std::string internedPropname, QLineEdit *edit)
 {
-  base = set(base, internedPropname.c_str(), c_string_to_object(edit->text().toStdString().c_str()));
-  puts("TODO error handling is not done");
+  std::string value = "\""+edit->text().toStdString()+"\"";
+  // printf("setting obj's %s to %s\n", internedPropname.c_str(), value.c_str());
+  base = set(base, internedPropname.c_str(), c_string_to_object(value.c_str()));
+  // set toimii lopultakin oikein
+  // nyt vaan pitäis dumpata tää cl_objecti takaisin documenttiin
+
+
+
+  
+  // auto format = makefn("format");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"edited object is ~a ~%\""), base);
+
+  
   // std::string errors = base->getErrorsOf(internedPropname);
   // if(QLabel *l = field_errorlabel_mapping[internedPropname]) {
   //   l->setText(QString(errors.c_str()));
@@ -157,17 +168,20 @@ QStandardItemModel* dump_to_model_horizontal()
 std::vector<std::string> keys(cl_object b)
 {
   cl_object keys = makefn("qmapper.std:keys-str");
-  cl_object list_ref = makefn("common-lisp:list-ref");
+  cl_object car = makefn("car"),
+    cdr = makefn("cdr");
   cl_object len = makefn("common-lisp:length");
     
   cl_object k_res = cl_funcall(2, keys, b);
   int length = fixint(cl_funcall(2, len, k_res));
 
   std::vector<std::string> result;
+  cl_object format = makefn("common-lisp:format");
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"key-collection is ~a~%\""), k_res);
   for(int i = 0; i < length; i++) {
-    std::string str(ecl_string_to_string(cl_funcall(3, list_ref,
-						    k_res,
-						    ecl_make_int(i))));
+    auto str = ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), cl_funcall(2, car, k_res)));
+    k_res = cl_funcall(2, cdr, k_res);
+    printf("found key %s\n", str.c_str());
     result.push_back(str);
   }
   return result;
@@ -183,10 +197,9 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
 QFormLayout* Propertyeditor::makeLayout(cl_object base) {
 
   QFormLayout *data = new QFormLayout;
-  cl_object prin = makefn("common-lisp:prin1");
+  cl_object format = makefn("common-lisp:format");
 
-  puts("Getting keys for: ");
-  cl_funcall(2, prin, base);
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"building layout for ~a~%\""), base);
 
   std::vector<std::string> properties = keys(base);
 
@@ -209,7 +222,7 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
       QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [&]() { editingStdStringFinished(base, properties.at(i), edit); });
+      	      [=]() { editingStdStringFinished(base, properties.at(i), edit); });
 
       std::string fieldName = properties.at(i);
       // std::string errors = base->getErrorsOf(fieldName);
@@ -424,7 +437,9 @@ void Propertyeditor::resetLayout(cl_object base) {
 }
 
 Propertyeditor::Propertyeditor(cl_object base, QWidget *parent): QDialog(parent)
-{  
+{
+  cl_object format = makefn("format");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"base in ctr is ~a ~%\""), base);
   resetLayout(base);
     
   setMinimumWidth(800);

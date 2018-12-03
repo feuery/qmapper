@@ -161,11 +161,11 @@
 									   row-id)
 								       "\"" ""))				    
 						  (result (string= row-id id)))
-					     ;; (format t "(string= ~a ~a) => ~a~%" (prin1-to-string row-id) (prin1-to-string id) result)
+					     (format t "(string= ~a ~a) => ~a~%" (prin1-to-string row-id) (prin1-to-string id) result)
 					     result)))))
 	 (len (length result-set)))
     ;; (format t "result-set: ~a~%" result-set)
-    ;; (format t "find-by-id found ~a elements~%" len)
+    (format t "find-by-id found ~a elements~%" len)
     (when (> len 0)
 	(when (> len 1)
 	  (format t "find-by-id found ~a elements~%" len))
@@ -211,6 +211,7 @@
 (export '*document*)
 
 (defvar *document-hooks* '())
+
 
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))

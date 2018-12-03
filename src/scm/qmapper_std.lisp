@@ -152,17 +152,17 @@
        for v in vals
        collecting (list k v)))
 
+(defmethod fset:compare ((x symbol) (y symbol))
+  (if (string= x y)
+      :equal
+      :unequal))
+
 (defmacro-export! defcppclass (classname &rest rst)
-  ;; (declare (optimize (debug 3)))
-  ;; (break)
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
-	 ;; (removeMe (format t "visibility-stripped: ~a~%" visibility-stripped))
   	 (partitioned (partition-by #'listp visibility-stripped))
-	 ;; (_ (prin1 partitioned))
 	 (props (plist-get partitioned 'properties))
 	 (fields (plist-get partitioned 'fields))
-	 ;; (lololo (format t "fields on ~a~%" fields))
   	 (fields (reverse (->> (concatenate 'list fields
 	 				    props)
 	 		       (mapcar (lambda (field)
@@ -249,7 +249,18 @@
 	result)))
 
 (defun-export! set-prop  (obj-alist key val)
-  (with obj-alist key val))
+  (let* ((key (if (stringp key)
+		  (intern (string-upcase key))
+		  key))
+	 
+	 (result (with obj-alist key val)))
+    (format t "setting ~a (~a) to ~a~%" key (type-of key) val)
+    (dolist (kv (convert 'list result))
+      (format t "key ~a (~a) - are they equal? ~a~%" (prin1-to-string (car kv)) (type-of (car kv))
+	      (string= (car kv) key)))
+    (format t "name is ~a~%" (get-prop result 'name))
+    
+    result))    
 
 ;; (delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
 
@@ -258,7 +269,9 @@
    (mapcar #'car a) :test #'equalp))
 
 (defun-export! keys-str  (a)
-  (mapcar #'symbol-name (keys a)))
+  (let ((result (mapcar #'symbol-name (keys (convert 'list a)))))
+    ;;(format t "keys of ~a are ~a~%" a result)
+    result))
 
 (defun-export! prop-list?  (alist k)
   (listp (get-prop alist k)))
