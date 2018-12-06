@@ -126,10 +126,6 @@
   (let* ((tilesets (cons (cons (gensym)
 			      tileset)
 			 (root-tilesets root)))
-	 (_ (format t "Pushing tileset ~a~%" tilesets))
-	 ;; (r (if (not (root-chosenMap root))
-	 ;; 	(set-root-chosenMap! root (first maps))
-	 ;; 	root))
 	 (final-root (set-root-tilesets! root tilesets)))
     final-root))
 

@@ -157,6 +157,72 @@
       :equal
       :unequal))
 
+(defun-export! get-prop  (obj-alist key)
+  (if (numberp key)
+      (nth key obj-alist)
+      (let* ((key (if (symbolp key)
+	      	      (intern (string-upcase (symbol-name key)))
+		      (intern (string-upcase key))))
+	     (real-alist (convert 'list obj-alist))
+	     (result (cdr (assoc key real-alist :test #'string=))))
+	
+	(values (if (and result
+			 (symbolp result))
+		    ;; if not for the prin1, this'd return rubbish strings to c...
+		    (prin1-to-string (symbol-name result))
+		    result)
+		key))))
+
+(defun-export! get-prop-in (obj ks)
+  (values 
+   (let* ((key (car ks))
+	  (cdr? (equal 'cdr key))
+	  (ks (cdr ks)))
+     (if cdr?
+	 (if ks
+	     (get-prop-in (cdr obj) ks)
+	     (cdr obj))
+	 (if ks
+	     (get-prop-in (get-prop obj key) ks)
+	     (if (numberp key)
+		 (nth key obj)
+		 (get-prop obj key))))) ks))
+
+(defun substitute-nth (list n val)
+  (loop for i from 0 for j in list collect (if (= i n) val j)))
+
+(defun-export! set-prop-in (obj ks value)
+  (let* ((key (car ks))
+	 (cdr? (equal 'cdr key))
+	 (ks (cdr ks)))
+;;    (break)
+    (if cdr?
+	(if ks
+	    (cons (car obj) (set-prop-in (cdr obj) ks value))
+	    (cons (car obj) value))
+	(if ks
+	    (if (numberp key)
+		(substitute-nth obj key (set-prop-in (nth key obj) ks value))
+		(progn
+		  (unless obj
+		    (format t "obj is nil #1"))
+		  ;; (format t "(get-prop ~a ~a) => ~a~%" obj value 
+		  (set-prop obj key (set-prop-in (get-prop obj key) ks value))))
+	    (if (numberp key)
+		(substitute-nth obj key value)
+		(progn
+		  (unless obj
+		    (format t "obj is nil #2, key is ~a~%" key))
+		  (set-prop obj key value)))))))
+
+(defun-export! set-prop  (obj-alist key val)
+  (let* ((key (if (stringp key)
+		  (intern (string-upcase key))
+		  key))
+	 
+	 (result (with obj-alist key val)))    
+    result))
+
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
@@ -166,7 +232,6 @@
   	 (fields (reverse (->> (concatenate 'list fields
 	 				    props)
 	 		       (mapcar (lambda (field)
-					 ;; oli cadr
 	 				 (car field))))))
 	 (fields-with-accessors (cons 'progn (concatenate 'list (->> fields
 	 							     (mapcan (lambda (field)
@@ -189,10 +254,10 @@
 												    (integerp this))
 											    (format t "*this* is funny: ~a~%" this)
 											    (funcall qmapper.export:explode))
-											  (lookup this ',field))
+											  (get-prop this ',field))
 										       `(defun-export! ,setter (this val)
 											  (assert this)
-											  (with this ',field val))))))))))
+											  (set-prop this ',field val))))))))))
   	 (funcs (->> (plist-get partitioned 'functions)
 		     (mapcar (lambda (fn)
 			       (let ((name ;; (first fn)
@@ -234,33 +299,7 @@
       (format t "ste bongattu, obj-alist on ~a~%" obj-alist))
     (SIMPLE-ERROR (lol)
       (format t "Virhe: obj-alist on ~a~%" (prin1-to-string obj-alist))
-      "NULL-TYPE")))
-
-(defun-export! get-prop  (obj-alist key)
-  (let* ((key (if (symbolp key)
-		  key
-		  (intern (string-upcase key))))
-	 (real-alist (convert 'list obj-alist))
-	 (result (cdr (assoc key real-alist :test #'string=))))
-    ;; (format t "result is ~a~%" result)
-    (if (symbolp result)
-	;; if not for the prin1, this'd return rubbish strings to c...
-	(prin1-to-string (symbol-name result))
-	result)))
-
-(defun-export! set-prop  (obj-alist key val)
-  (let* ((key (if (stringp key)
-		  (intern (string-upcase key))
-		  key))
-	 
-	 (result (with obj-alist key val)))
-    (format t "setting ~a (~a) to ~a~%" key (type-of key) val)
-    (dolist (kv (convert 'list result))
-      (format t "key ~a (~a) - are they equal? ~a~%" (prin1-to-string (car kv)) (type-of (car kv))
-	      (string= (car kv) key)))
-    (format t "name is ~a~%" (get-prop result 'name))
-    
-    result))    
+      "NULL-TYPE")))    
 
 ;; (delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
 

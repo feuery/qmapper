@@ -176,7 +176,9 @@
   (assert root)
   (let ((result 
 	 (set-root-scripts! root
-			    (let ((result (with (or (root-scripts root) (empty-map))
+			    (let* ((root-scripts (or (root-scripts root) (empty-map)))
+				   (_ (format t "root-scripts: ~a~%" root-scripts))
+				   (result (with root-scripts
 						(gensym)
 						scr)))
 			      result))))
@@ -211,7 +213,6 @@
 (export '*document*)
 
 (defvar *document-hooks* '())
-
 
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
