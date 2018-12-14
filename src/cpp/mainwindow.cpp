@@ -54,21 +54,34 @@ void prepareModel()
   holder &rootThing = editorController::instance->document;
   cl_object root = rootThing.getValue(),
     regToList = makefn("qmapper.root:root-registrytolIst"),
+    rootLayers = makefn("qmapper.root:root-layers"),
     typeOf = makefn("qmapper.std:q-type-of"),
+    get_prop = makefn("qmapper.std:get-prop"),
     nth = makefn("common-lisp:nth"),
     prin = makefn("prin1"),
     len = makefn("length"),
     format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
-    rootAsList = cl_funcall(2, regToList, root);
+    rootAsList = cl_funcall(2, regToList, root),
+    map_keys = makefn("qmapper.std:fset-map-keys"),
+    keys = cl_funcall(2, map_keys, rootAsList);
 
   tree.clear();
 
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"rootAsList is ~a~%\""), rootAsList);
 
-  int length = fixint(cl_funcall(2, len, rootAsList));
+  puts("Trying length");
+
+  // this blows up because rootAsList is a hashmap nowadays
+  int length = fixint(cl_funcall(2, len, keys));
+  printf("Got length: %d\n", length);
   for(int i = 0; i < length; i++) {
-    cl_object obj = cl_funcall(3, nth, ecl_make_int32_t(i), rootAsList);
+    cl_object key = cl_funcall(3, nth, ecl_make_int32_t(i), keys);
+    puts("Trying get-prop");
+    cl_object obj = cl_funcall(3, get_prop, rootAsList, key),
+      format = makefn("format");
+    puts("Finished with get-prop");
+
     assert(obj != ECL_NIL);
     QTreeWidgetItem *item = new QTreeWidgetItem;
     QString id (ecl_string_to_string(get(obj, "id")).c_str());
@@ -79,7 +92,9 @@ void prepareModel()
       cl_object layers = cl_funcall(2, mapLayers, obj);
       int layer_len = fixint(cl_funcall(2, len, layers));
       for(int l = 0; l < layer_len; l++) {
-	cl_object layer = cl_funcall(3, nth, ecl_make_int32_t(l), layers);
+	cl_object cl_layer_id = cl_funcall(3, nth, ecl_make_int32_t(l), layers),
+	  layer = cl_funcall(3, get_prop, cl_funcall(2, rootLayers, root), cl_layer_id);
+	
 	QTreeWidgetItem *layer_item = new QTreeWidgetItem;
 	QString layer_id (ecl_string_to_string(get(layer, "id")).c_str());
 	layer_item->setText(0, QString(ecl_string_to_string(get(layer, "name")).c_str()) + " | " + layer_id);
@@ -123,8 +138,8 @@ void MainWindow::setupTree()
 					  else if(type == "MAP") {
 					    cl_object m = selected_object,
 					      push_selected_map = makefn("qmapper.map:select-map");
-
-					    ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), m));
+					    puts("TODO UNCOMMENT FIX #1");
+					    // ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), m));
 					  }
 					  else if(type == "LAYER") {
 					    cl_object find_l_parent = makefn("qmapper.map:find-layer-parent"),				      
@@ -133,7 +148,8 @@ void MainWindow::setupTree()
 					      position = makefn("position"),
 					      push_selected_map = makefn("qmapper.map:select-map"),
 					      set_layer_index = makefn("qmapper.root:set-root-chosenLayerInd!");
-					    ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), map));
+					    puts("TODO UNCOMMENT FIX #2");
+					    // ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), map));
 					    ec->document.setValue(cl_funcall(3, set_layer_index, ec->document.getValue(),
 									     cl_funcall(3, position, selected_object,
 											cl_funcall(2, m_layers, map))));
@@ -181,19 +197,23 @@ void MainWindow::editObject()
   QString id = splitted[1].replace("\"", "").replace(" ", "");
 
   printf("id to edit is %s\n", id.toStdString().c_str());
-
-  cl_object find_by_id = makefn("qmapper.root:find-by-id"),
-    b = cl_funcall(3, find_by_id, ec->document.getValue(), c_string_to_object(("\""+id+"\"").toStdString().c_str()));
+  holder &rootThing = editorController::instance->document;
+  cl_object root = rootThing.getValue(),
+    regToList = makefn("qmapper.root:root-registrytolIst"),
+    get_prop = makefn("qmapper.std:get-prop"),
+    nth = makefn("common-lisp:nth"),
+    len = makefn("length"),
+    format = makefn("format"),
+    rootAsList = cl_funcall(2, regToList, root),
+    b = cl_funcall(3, get_prop, rootAsList, c_string_to_object((QString("\"")+id+"\"").toStdString().c_str())),
+    find_path = makefn("qmapper.root:find-path-of"),
+    path = cl_funcall(3, find_path, root, b);
   assert(b != ECL_NIL);
+  assert(path != ECL_NIL);
 
-// kattoo valitun puuelementin tekstin ja ettii rekisteristä olio jonka :name == valitun elementin teksti?
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"path to b is ~a~%\""), path);
   
-  // Then, let's fire a property-editor-dialog with this pointer as parameter
-  // And update this pointer's data in-between the model's begin-row-update-thing
-  // puts("editObject doesn't work!");
-  // throw "";
-  
-  Propertyeditor *p = new Propertyeditor(b, this);
+  Propertyeditor *p = new Propertyeditor(path, this, true);
   p->show();
 }
 

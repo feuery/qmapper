@@ -37,28 +37,15 @@ std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
 }
   
 
-void Propertyeditor::editingStdStringFinished(cl_object base, std::string internedPropname, QLineEdit *edit)
+void Propertyeditor::editingStdStringFinished(cl_object base, cl_object obj_path,  std::string internedPropname, QLineEdit *edit)
 {
   std::string value = "\""+edit->text().toStdString()+"\"";
-  // printf("setting obj's %s to %s\n", internedPropname.c_str(), value.c_str());
+
   base = set(base, internedPropname.c_str(), c_string_to_object(value.c_str()));
-  // set toimii lopultakin oikein
-  // nyt vaan pitäis dumpata tää cl_objecti takaisin documenttiin
 
-
-
-  
-  // auto format = makefn("format");
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"edited object is ~a ~%\""), base);
-
-  
-  // std::string errors = base->getErrorsOf(internedPropname);
-  // if(QLabel *l = field_errorlabel_mapping[internedPropname]) {
-  //   l->setText(QString(errors.c_str()));
-  // }
-  // else
-  //   printf("No error-label found for %s\n", internedPropname.c_str());
-  // base->clearErrorsOf(internedPropname);
+  cl_object doc = editorController::instance->document.getValue(),
+    set_prop_in = makefn("qmapper.std:set-prop-in");
+  editorController::instance->document.setValue(cl_funcall(4, set_prop_in, doc, obj_path, base));
 }
 
 void editingIntNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
@@ -194,7 +181,7 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
   qDebug()<<"Successfully changed " << internedPropName.c_str();
 }
 
-QFormLayout* Propertyeditor::makeLayout(cl_object base) {
+QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 
   QFormLayout *data = new QFormLayout;
   cl_object format = makefn("common-lisp:format");
@@ -222,7 +209,7 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
       QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { editingStdStringFinished(base, properties.at(i), edit); });
+      	      [=]() { editingStdStringFinished(base, path, properties.at(i), edit); });
 
       std::string fieldName = properties.at(i);
       // std::string errors = base->getErrorsOf(fieldName);
@@ -409,13 +396,13 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base) {
   return data;
 }
 
-void Propertyeditor::resetLayout(cl_object base) {
+void Propertyeditor::resetLayout(cl_object base, cl_object path) {
   cl_object r = editorController::instance->document.getValue();
   cl_object regToList = makefn("qmapper.root:root-registryToList");
   auto reg = cl_funcall(2, regToList, r);
   l = new QVBoxLayout;
   
-  data = makeLayout(base);
+  data = makeLayout(base, path);
 
   // data->addRow(QString("Row: "),
   // 	       new QLabel(QString(std::to_string(indexOf<cl_object>(&reg, base)).c_str()), this));
@@ -436,11 +423,13 @@ void Propertyeditor::resetLayout(cl_object base) {
     });
 }
 
-Propertyeditor::Propertyeditor(cl_object base, QWidget *parent): QDialog(parent)
+Propertyeditor::Propertyeditor(cl_object list_path_to_object, QWidget *parent, bool updated): QDialog(parent)
 {
-  cl_object format = makefn("format");
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"base in ctr is ~a ~%\""), base);
-  resetLayout(base);
+  cl_object get_in = makefn("qmapper.std:get-prop-in"),
+    root = editorController::instance->document.getValue(),
+    base = cl_funcall(3, get_in, root, list_path_to_object);
+  
+  resetLayout(base, list_path_to_object);
     
   setMinimumWidth(800);
   setMinimumHeight(600);

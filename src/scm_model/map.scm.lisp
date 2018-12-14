@@ -37,32 +37,37 @@
 	      ;; TODO IMPLEMENT
 	      (error "Don't call Map-resize yet!")))))
 
-(defun-export! make-map-with-layers (name w h layer-count)
-  (make-map name (repeatedly (lambda (i)
+(defun-export! make-map-with-layers (doc name w h layer-count)
+  (let* ((layers (repeatedly (lambda (i)
 			       (let ((l 
 				      (make-Layer (str (prin1-to-string i) "th layer")
 						  255
 						  t
 						  (make-tiles w h))))
 				 ;(format t "making layer ~a ~%" l)
-				 l)) layer-count)
-	    '()))
+				 l)) layer-count))
+	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
+	 (map (make-map name ids '())))
+    (-> (set-root-layers! doc
+			  (reduce (lambda (all-layers layer)
+				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))
+	(set-root-maps! (set-prop (root-maps doc) (get-prop map "ID") map)))))
 
-(defun-export! alist-update (alist k fn)
-  (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
+;; (defun-export! alist-update (alist k fn)
+;;   (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
 
 ;; (alist-update `((a . ,(* 3 3))
 ;; 		(b . ,(+ 3 2))) 'a (partial * 3))
 
-(defun-export! alist-get (a k)
-  (cdr (assoc k a)))
+;; (defun-export! alist-get (a k)		
+;;   (cdr (assoc k a)))
 
-(defun-export! alist-update-in (alist path fn)
-  (let ((key (car path))
-	(path (cdr path)))
-    (if (not path)
-	(alist-update alist key fn)
-	(alist-update-in (alist-get alist key) path fn))))
+;; (defun-export! alist-update-in (alist path fn)
+;;   (let ((key (car path))
+;; 	(path (cdr path)))
+;;     (if (not path)
+;; 	(alist-update alist key fn)
+;; 	(alist-update-in (alist-get alist key) path fn))))
 
 (defun-export! assoc-in (lst path val)
   (let ((ind (car path))
@@ -112,7 +117,7 @@
 
 
 (defun-export! push-sprite (map sprite)
-  (let ((k (gensym)))
+  (let ((k (get-prop sprite "ID")))
     (alist-update map 'spritesAndAnimatedsprites
 		  (partial alist-cons k sprite))))
 					   
@@ -248,6 +253,8 @@
 	 (new-map-consed (alist-cons (get-prop map "id") map
 				
 				     (root-maps root))))
+    (format t "Lol1~%")
+    (assert nil)
     (set-root-maps! root new-map-consed)))
 
 (defun-export! set-tile-rotation-at (root x y rotation)

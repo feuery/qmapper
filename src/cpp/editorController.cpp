@@ -40,16 +40,19 @@ cl_object make2DList(int w, int h, cl_object val) {
 void editorController::populateMaps()
 {
   cl_object make_map_with_layers = makefn("qmapper.map:make-map-with-layers"),
-    pushMap = makefn("qmapper.root:push-map");
+    pushMap = makefn("qmapper.root:push-map"),
+    format = makefn("format");
   const int w = 10, h = 10, layer_count = 4;
   
   for(int i = 0; i < 3; i++) {
     std::string name = "\""+(std::to_string(i)+"th map")+"\"";
-    cl_object map = cl_funcall(5, make_map_with_layers,
-			       c_string_to_object(name.c_str()),
-			       ecl_make_fixnum(w), ecl_make_fixnum(h),
-			       ecl_make_fixnum(layer_count));
-    document.setValue( cl_funcall(3, pushMap, document.getValue(), map));
+    document.setValue(cl_funcall(6, make_map_with_layers,
+				 document.getValue(),
+				 c_string_to_object(name.c_str()),
+				 ecl_make_fixnum(w), ecl_make_fixnum(h),
+				 ecl_make_fixnum(layer_count)));
+
+    // document.setValue( cl_funcall(3, pushMap, document.getValue(), map));
   }  
 }
 

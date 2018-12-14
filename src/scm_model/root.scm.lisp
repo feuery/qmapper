@@ -1,7 +1,3 @@
-;; (define-module (qmapper-root)
-;;   #:use-module (srfi srfi-1)
-;;   :use-module (qmapper-std))
-
 (defpackage :qmapper.root
   (:use :common-lisp
 	:cl-arrows
@@ -9,10 +5,18 @@
 	:qmapper.std
 	:qmapper.export
 	:qmapper.script)
-  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert)
+  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert :wb-map-from-list)
   (:shadowing-import-from :cl-strings :replace-all))
 
 (in-package :qmapper.root)
+
+;; ((to-type (eql 'map)) (list list)
+;;  &key (key-fn #'car) (value-fn #'cdr))
+;;  (list `(,(gensym) . 33) `(,(gensym) . 32)))
+;; (convert 'map (list `(,(gensym) . 33) `(,(gensym) . 32)))
+
+(defun alist->map (list)
+  (wb-map-from-list list #'car #'cdr))
 
 (defcppclass root
     (public   
@@ -115,17 +119,17 @@
 			result)))
       
       (registryToList ()
-		      (let ((concd (->> (reduce #'concat (seq
-						    ;; (root-animatedSprites *this*)
-						    (root-layers *this*)
-						    (root-maps *this*)
-						    (root-scripts *this*)
-						    ;; (root-sprites *this*)
-						    (root-tiles *this*)
-						    (root-tilesets *this*)))
-					(mapcar #'cdr)
-					)))
-			concd)))))
+		      (let* ((alist (reduce #'concat (seq
+		      					  ;; (root-animatedSprites *this*)
+		      					  (convert 'list (root-layers *this*))
+		      					  (convert 'list (root-maps *this*))
+		      					  (convert 'list (root-scripts *this*))
+		      					  ;; (root-sprites *this*)
+		      					  (convert 'list (root-tiles *this*))
+		      					  (convert 'list (root-tilesets *this*)))))
+			     ;; (_ (format t "we have alist ~a~%" alist))
+			    (concd (alist->map alist)))
+		      	concd)))))
 
 (defun-export! get-selected-tileset (root)
   (let ((selected-ind (root-chosenTileset root)))
@@ -135,25 +139,41 @@
   (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
       
 (defun-export! push-map (root m)
-  (let* ((maps (cons (cons (gensym)
-			   m)
-		     (root-maps root)))
+  (let* ((maps (set-prop (root-maps root)
+			 (get-prop m "ID")
+			 m))
 	 (r (if (not (root-chosenMap root))
-		(set-root-chosenMap! root (first maps))
+		(set-root-chosenMap! root (get-prop m "ID"))
 		root))
 	 (final-root (set-root-maps! root maps)))
     ;; (format t "Final root at push-map is ~a~%" final-root)
     final-root))
 
+;; (get-prop-in *document* '(maps))
+;; (assoc 'G1468 '((G1468 . 2323)))
+
+(defun-export! find-path-of (root obj)
+  (let ((type-sym (condp string= (q-type-of obj)
+			 "LAYER" 'layers
+			 "MAP" 'maps
+			 "SCRIPT" 'scripts
+			 "TILE" 'tiles
+			 "TILESET" 'tilesets)))
+    (unless type-sym
+      (format t "didn't recognize type ~a~%" (q-type-of obj)))
+    (list type-sym (get-prop obj "ID"))))
+		    
+
 (defun-export! find-by-id (root id)
-  (declaim (optimize (debug 3)))
+;  (declaim (optimize (debug 3)))
   (let* ((result-set (->> root
 			  root-registrytolist
-			  (mapcat (lambda (r)
-				    (if (string= (q-type-of r) "MAP")
-					(cons r
-					      (get-prop r "LAYERS"))
-					(list r))))
+			  
+			  ;; (mapcat (lambda (r)
+			  ;; 	    (if (string= (q-type-of r) "MAP")
+			  ;; 		(cons r
+			  ;; 		      (get-prop r "LAYERS"))
+			  ;; 		(list r))))
 			  (remove-if-not (lambda (r)
 					   (let* ((row-id (get-prop r "ID"))
 						  (row-id (replace-all (if (symbolp row-id)
@@ -179,10 +199,9 @@
 			    (let* ((root-scripts (or (root-scripts root) (empty-map)))
 				   (_ (format t "root-scripts: ~a~%" root-scripts))
 				   (result (with root-scripts
-						(gensym)
-						scr)))
+						 (get-prop scr "ID")
+						 scr)))
 			      result))))
-    (format t "Lol @ push-script~%")
     result))
 
 ;; (push-script *document* (make-script "Lollo" "name" "ns" "glsl"))

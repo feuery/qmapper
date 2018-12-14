@@ -22,16 +22,18 @@ std::string type_name(cl_object record) {
 cl_object get(cl_object record, const char *prop)
 {
   cl_object get = makefn("qmapper.std:get-prop"),
-    prin = makefn("prin1")
-    // format = makefn("format")
-    ;
+    prin = makefn("prin1"),
+    format = makefn("format");
   std::string literal = std::string("\"") + prop + "\"";
-  // printf("getting %s\n", literal.c_str());
+  // printf("getting %s\n", prop);
 
   cl_object key = c_string_to_object(literal.c_str());
   // cl_funcall(2, prin, key);
   // puts("");
+  puts("trying to GET() at guile_fn");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"record ~a~%\""), record);
   cl_object result = cl_funcall(3, get, record, key);
+  puts("did GET() at guile_fn");
 
   // puts("Result:");
   // cl_funcall(2, prin, result);
