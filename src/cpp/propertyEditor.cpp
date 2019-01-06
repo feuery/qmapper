@@ -35,17 +35,22 @@ std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
   static cl_object scriptType = makefn("qmapper.script:Script-script_type");
   return  ecl_string_to_string(cl_symbol_name(get(base, internedPropname.c_str())));
 }
-  
 
 void Propertyeditor::editingStdStringFinished(cl_object base, cl_object obj_path,  std::string internedPropname, QLineEdit *edit)
 {
+  cl_object format = makefn("format");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"editing path ~a~%\""), obj_path);
   std::string value = "\""+edit->text().toStdString()+"\"";
 
   base = set(base, internedPropname.c_str(), c_string_to_object(value.c_str()));
-
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"base is now ~a~%\""), base);
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"obj_path is ~a~%\""), obj_path);
+  
   cl_object doc = editorController::instance->document.getValue(),
-    set_prop_in = makefn("qmapper.std:set-prop-in");
-  editorController::instance->document.setValue(cl_funcall(4, set_prop_in, doc, obj_path, base));
+    set_prop_in = makefn("qmapper.std:set-prop-in"),
+    new_doc = cl_funcall(4, set_prop_in, doc, obj_path, base);
+
+  editorController::instance->document.setValue(new_doc);
 }
 
 void editingIntNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
@@ -154,6 +159,7 @@ QStandardItemModel* dump_to_model_horizontal()
 
 std::vector<std::string> keys(cl_object b)
 {
+  assert(b != ECL_NIL);
   cl_object keys = makefn("qmapper.std:keys-str");
   cl_object car = makefn("car"),
     cdr = makefn("cdr");
@@ -184,18 +190,17 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
 QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 
   QFormLayout *data = new QFormLayout;
-  cl_object format = makefn("common-lisp:format");
-
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"building layout for ~a~%\""), base);
 
   std::vector<std::string> properties = keys(base);
 
   cl_object str = makefn("qmapper.std:prop-str?"),
     list = makefn("qmapper.std:prop-list?"),
+    format = makefn("format"),
     prop_number = makefn("qmapper.std:prop-number?"),
     prop_bool = makefn("qmapper.std:prop-bool?"),
     prop_float = makefn("qmapper.std:prop-float?"),
-    prop_sym = makefn("qmapper.std:prop-sym?");
+    prop_sym = makefn("qmapper.std:prop-sym?"),
+    type_of = makefn("q-type-of2");
 
   for(int i =0; i<properties.size(); i++) {
 
@@ -428,6 +433,8 @@ Propertyeditor::Propertyeditor(cl_object list_path_to_object, QWidget *parent, b
   cl_object get_in = makefn("qmapper.std:get-prop-in"),
     root = editorController::instance->document.getValue(),
     base = cl_funcall(3, get_in, root, list_path_to_object);
+
+  assert(base != ECL_NIL);
   
   resetLayout(base, list_path_to_object);
     

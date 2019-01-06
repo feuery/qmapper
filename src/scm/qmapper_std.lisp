@@ -2,7 +2,8 @@
   (:use :common-lisp
 	:cl-arrows)
   (:import-from :qmapper.export :defmacro-export! :defvar-export!)
-  (:import-from :fset :empty-map :convert :with :lookup))
+  (:import-from :fset :empty-map :convert :with :lookup :wb-map-from-list)
+  (:shadowing-import-from :cl-strings :replace-all))
 
 (in-package :qmapper.std)
 
@@ -49,6 +50,9 @@
       (drop (cdr list)
 	    (dec n))
       list))
+
+(defun-export! alist->map (list)
+  (wb-map-from-list list #'car #'cdr))
 
 (defun-export! partition-by2 (pred lst)
   (reduce (lambda (acc e)
@@ -169,14 +173,17 @@
 	(let* ((key (if (symbolp key)
 	      		(intern (string-upcase (symbol-name key)))
 			(intern (string-upcase key))))
+	       (key2 (symbol-name key))
 	       (real-alist (convert 'list obj-alist))
-	       (result (cdr (assoc key real-alist :test #'string=))))
-	  (values (if (and result
-			   (symbolp result))
-		      ;; if not for the prin1, this'd return rubbish strings to c...
-		      (prin1-to-string (symbol-name result))
-		      result)
-		  key)))))
+	       (result (cdr (or
+			     (assoc key real-alist :test #'string=)
+			     (assoc key2 real-alist :test #'string=)))))
+	      (values (if (and result
+			       (symbolp result))
+			  ;; if not for the prin1, this'd return rubbish strings to c...
+			  (prin1-to-string (symbol-name result))
+			  result)
+		      key)))));)
 
 (defun-export! get-prop-in (obj ks)
   (values 
@@ -201,9 +208,10 @@
     (format t "obj-alist is cons ~a~%" obj-alist)
     (funcall qmapper.export:explode))
   (assert (not (consp obj-alist)))
-  (let* ((key (if (stringp key)
-		  (intern (string-upcase key))
-		  key)))
+  (let* ((key (intern (replace-all (if (symbolp key)
+				       (symbol-name key)
+				       key) "\"" ""))))
+    ;; (format t "setting prop in ~a (~a) - string? ~a~%" (prin1-to-string key) (type-of key) (if (stringp key) "it is" "it isn't"))
     (with (or obj-alist (empty-map)) key val)))
 
 (defun-export! set-prop-in (obj ks value)
@@ -321,7 +329,16 @@
       (format t "ste bongattu, obj-alist on ~a~%" obj-alist))
     (SIMPLE-ERROR (lol)
       (format t "Virhe: obj-alist on ~a~%" (prin1-to-string obj-alist))
-      "NULL-TYPE")))    
+      "NULL-TYPE")))
+
+(defun-export! q-type-of-2 (obj)
+  "If the object isn't compatible with the qmapper object model, it's dumped to cl's type-of"
+    (handler-case
+      (lookup obj 'type-name)
+    (SIMPLE-TYPE-ERROR (ste)
+      (format t "ste bongattu, obj on ~a~%" obj))
+    (SIMPLE-ERROR (lol)
+      (type-of obj))))
 
 ;; (delete-duplicates (concatenate 'list (range 10) (range 12)) :test #'equalp)
 
@@ -329,12 +346,16 @@
   (delete-duplicates
    (mapcar #'car a) :test #'equalp))
 
+(defun contains? (key list)
+  (remove-if-not (lambda (l) (equalp l key)) list))
+
 (defun-export! fset-map-keys (m)
-  (keys (convert 'list m)))
+  (let ((result (remove-if #'not (keys (convert 'list m)))))
+    
+    result))
 
 (defun-export! keys-str  (a)
   (let ((result (mapcar #'symbol-name (keys (convert 'list a)))))
-    ;;(format t "keys of ~a are ~a~%" a result)
     result))
 
 (defun-export! prop-list?  (alist k)

@@ -66,36 +66,44 @@ void prepareModel()
     map_keys = makefn("qmapper.std:fset-map-keys"),
     keys = cl_funcall(2, map_keys, rootAsList);
 
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"keys are ~a~%\""), keys);
+
   tree.clear();
 
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"rootAsList is ~a~%\""), rootAsList);
 
   puts("Trying length");
 
-  // this blows up because rootAsList is a hashmap nowadays
   int length = fixint(cl_funcall(2, len, keys));
   printf("Got length: %d\n", length);
   for(int i = 0; i < length; i++) {
     cl_object key = cl_funcall(3, nth, ecl_make_int32_t(i), keys);
-    puts("Trying get-prop");
+    // cl_funcall(5, format, ECL_T, c_string_to_object("\"searching for ~a in ~a~%\""), key, rootAsList);
+    
     cl_object obj = cl_funcall(3, get_prop, rootAsList, key),
       format = makefn("format");
-    puts("Finished with get-prop");
+    std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
+
+    if(type == "LAYER") continue;
 
     assert(obj != ECL_NIL);
     QTreeWidgetItem *item = new QTreeWidgetItem;
     QString id (ecl_string_to_string(get(obj, "id")).c_str());
     item->setText(0, QString(ecl_string_to_string(get(obj, "name")).c_str()) + " | " + id);
 
-    std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
     if(type == "MAP") {
       cl_object layers = cl_funcall(2, mapLayers, obj);
       int layer_len = fixint(cl_funcall(2, len, layers));
       for(int l = 0; l < layer_len; l++) {
-	cl_object cl_layer_id = cl_funcall(3, nth, ecl_make_int32_t(l), layers),
-	  layer = cl_funcall(3, get_prop, cl_funcall(2, rootLayers, root), cl_layer_id);
+	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, nth, ecl_make_int32_t(l), layers)).c_str());
+	cl_layer_id = cl_layer_id.replace("\"", "");
+	
+	
+	auto layer = get(cl_funcall(2, rootLayers, root), cl_layer_id.toStdString().c_str());
 	
 	QTreeWidgetItem *layer_item = new QTreeWidgetItem;
+	assert(layer != ECL_NIL);
+
 	QString layer_id (ecl_string_to_string(get(layer, "id")).c_str());
 	layer_item->setText(0, QString(ecl_string_to_string(get(layer, "name")).c_str()) + " | " + layer_id);
 	item->addChild(layer_item);
@@ -122,6 +130,7 @@ void MainWindow::setupTree()
 					  
 					  QString id = selectedText.split("|").at(1);
 					  id = id.replace("\"", "").replace(" ", "");
+					  printf("finding by id %s\n", id.toStdString().c_str());
 					  cl_object selected_object = find_by_id(id.toStdString().c_str()),
 					    qtype_of = makefn("qmapper.std:q-type-of"),
 					    format = makefn("format");
@@ -204,17 +213,21 @@ void MainWindow::editObject()
     nth = makefn("common-lisp:nth"),
     len = makefn("length"),
     format = makefn("format"),
-    rootAsList = cl_funcall(2, regToList, root),
-    b = cl_funcall(3, get_prop, rootAsList, c_string_to_object((QString("\"")+id+"\"").toStdString().c_str())),
-    find_path = makefn("qmapper.root:find-path-of"),
-    path = cl_funcall(3, find_path, root, b);
+    rootAsList = cl_funcall(2, regToList, root);
+
+  printf("id is %s\n", id.toStdString().c_str());
+  auto b = cl_funcall(3, get_prop, rootAsList, c_string_to_object((QString("\"")+id+"\"").toStdString().c_str()));
   assert(b != ECL_NIL);
+  
+  auto find_path = makefn("qmapper.root:find-path-of"),
+    path = cl_funcall(3, find_path, root, b);
   assert(path != ECL_NIL);
 
   cl_funcall(4, format, ECL_T, c_string_to_object("\"path to b is ~a~%\""), path);
   
   Propertyeditor *p = new Propertyeditor(path, this, true);
   p->show();
+  
 }
 
 void MainWindow::prepare_server_button(QVBoxLayout *toolbox_layout)
@@ -390,7 +403,6 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
       int x = e->x() / 50, y = e->y() / 50;
       // QMessageBox::information(this, QString("Selected tile %1, %2").arg(x).arg(y), QString("Selected tile %1, %2").arg(x).arg(y));
       ec->setSelectedTile(x, y, tileset_view, _tileview);
-
     });
 
   map_view->mouseDownEvents.push_back([=](QMouseEvent *e) {

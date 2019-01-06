@@ -10,14 +10,6 @@
 
 (in-package :qmapper.root)
 
-;; ((to-type (eql 'map)) (list list)
-;;  &key (key-fn #'car) (value-fn #'cdr))
-;;  (list `(,(gensym) . 33) `(,(gensym) . 32)))
-;; (convert 'map (list `(,(gensym) . 33) `(,(gensym) . 32)))
-
-(defun alist->map (list)
-  (wb-map-from-list list #'car #'cdr))
-
 (defcppclass root
     (public   
      (fields
@@ -119,16 +111,24 @@
 			result)))
       
       (registryToList ()
-		      (let* ((alist (reduce #'concat (seq
-		      					  ;; (root-animatedSprites *this*)
-		      					  (convert 'list (root-layers *this*))
-		      					  (convert 'list (root-maps *this*))
-		      					  (convert 'list (root-scripts *this*))
-		      					  ;; (root-sprites *this*)
-		      					  (convert 'list (root-tiles *this*))
-		      					  (convert 'list (root-tilesets *this*)))))
-			     ;; (_ (format t "we have alist ~a~%" alist))
-			    (concd (alist->map alist)))
+		      (let* ((s (->> (concatenate 'list
+		      				  ;; (root-animatedSprites *this*)
+		      				  (convert 'list (root-layers *this*))
+		      				  (convert 'list (root-maps *this*))
+		      				  (convert 'list (root-scripts *this*))
+		      				  ;; (root-sprites *this*)
+		      				  (convert 'list (root-tiles *this*))
+		      				  (convert 'list (root-tilesets *this*)))
+				     (mapcar (lambda (l)
+					       (if (symbolp (car l))
+						   (cons (replace-all (symbol-name (car l)) "\"" "")
+							 (cdr l))
+						   (cons (replace-all (car l) "\"" "")
+							 (cdr l)))))))
+			     (alist (->>  s
+					  seq
+					  (reduce #'concat)))
+			     (concd (alist->map alist)))
 		      	concd)))))
 
 (defun-export! get-selected-tileset (root)
@@ -160,8 +160,12 @@
 			 "TILE" 'tiles
 			 "TILESET" 'tilesets)))
     (unless type-sym
-      (format t "didn't recognize type ~a~%" (q-type-of obj)))
-    (list type-sym (get-prop obj "ID"))))
+      (format t "didn't recognize type ~a~%" (q-type-of obj))
+      (format t "obj is ~a~%" obj))
+    (let ((key (get-prop obj "ID")))
+      (list type-sym (intern (replace-all (if (symbolp key)
+					      (symbol-name key)
+					      key) "\"" ""))))))
 		    
 
 (defun-export! find-by-id (root id)
@@ -198,7 +202,7 @@
 	 (set-root-scripts! root
 			    (let* ((root-scripts (or (root-scripts root) (empty-map)))
 				   (_ (format t "root-scripts: ~a~%" root-scripts))
-				   (result (with root-scripts
+				   (result (set-prop root-scripts
 						 (get-prop scr "ID")
 						 scr)))
 			      result))))
