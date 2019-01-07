@@ -123,9 +123,9 @@
      h)))
 
 (defun-export! push-tileset (root tileset)
-  (let* ((tilesets (cons (cons (get-prop tileset "ID")
-			      tileset)
-			 (root-tilesets root)))
+  (let* ((tilesets (set-prop (root-tilesets root)
+			     (get-prop tileset "ID")
+			      tileset))
 	 (final-root (set-root-tilesets! root tilesets)))
     final-root))
 

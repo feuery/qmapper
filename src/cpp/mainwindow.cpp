@@ -134,6 +134,7 @@ void MainWindow::setupTree()
 					  cl_object selected_object = find_by_id(id.toStdString().c_str()),
 					    qtype_of = makefn("qmapper.std:q-type-of"),
 					    format = makefn("format");
+					  puts("Found by id");
 
 					  std::string type = ecl_string_to_string(cl_funcall(2, qtype_of, selected_object));
 					  printf("type is %s\n", type.c_str());
