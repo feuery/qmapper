@@ -163,6 +163,11 @@
       :equal
       :unequal))
 
+(defun clean-key (key)
+  (intern (string-upcase (replace-all (if (symbolp key)
+					  (symbol-name key)
+					  key) "\"" ""))))
+
 (defun-export! get-prop  (obj-alist key)
   (assert (or (and (numberp key)
 		   (consp obj-alist))
@@ -170,20 +175,19 @@
   (if (numberp key)
       (nth key obj-alist)
       (progn
-	(let* ((key (if (symbolp key)
-	      		(intern (string-upcase (symbol-name key)))
-			(intern (string-upcase key))))
+	(let* ((key (clean-key key))
 	       (key2 (symbol-name key))
 	       (real-alist (convert 'list obj-alist))
 	       (result (cdr (or
 			     (assoc key real-alist :test #'string=)
 			     (assoc key2 real-alist :test #'string=)))))
+	  ;; (format t "key is ~a, real alist is ~a~%" key real-alist)
 	      (values (if (and result
 			       (symbolp result))
 			  ;; if not for the prin1, this'd return rubbish strings to c...
 			  (prin1-to-string (symbol-name result))
 			  result)
-		      key)))));)
+		      key)))))
 
 (defun-export! get-prop-in (obj ks)
   (values 
@@ -208,9 +212,7 @@
     (format t "obj-alist is cons ~a~%" obj-alist)
     (funcall qmapper.export:explode))
   (assert (not (consp obj-alist)))
-  (let* ((key (intern (replace-all (if (symbolp key)
-				       (symbol-name key)
-				       key) "\"" ""))))
+  (let* ((key (clean-key key)))
     ;; (format t "setting prop in ~a (~a) - string? ~a~%" (prin1-to-string key) (type-of key) (if (stringp key) "it is" "it isn't"))
     (with (or obj-alist (empty-map)) key val)))
 

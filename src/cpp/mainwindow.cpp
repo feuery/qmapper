@@ -147,22 +147,28 @@ void MainWindow::setupTree()
 					  }
 					  else if(type == "MAP") {
 					    cl_object m = selected_object,
-					      push_selected_map = makefn("qmapper.map:select-map");
-					    puts("TODO UNCOMMENT FIX #1");
-					    // ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), m));
+					      first = makefn("first"),
+					      map_layers = makefn("qmapper.map:map-layers"),
+					      layer_id = cl_funcall(2, first, cl_funcall(2, map_layers, m)),
+					      map_id = get(m, "id"),
+					      select_map_layer = makefn("qmapper.map:select-map-layer");
+					    
+					    ec->document.setValue(cl_funcall(4, select_map_layer, ec->document.getValue(), map_id, layer_id));
 					  }
 					  else if(type == "LAYER") {
+					    auto format = makefn("format");
+					    cl_funcall(4, format, ECL_T, c_string_to_object("\"layer is ~a~%\""), selected_object);
 					    cl_object find_l_parent = makefn("qmapper.map:find-layer-parent"),				      
-					      map = cl_funcall(3, find_l_parent, selected_object, ec->document.getValue()),
-					      m_layers = makefn("qmapper.map:map-layers"),
-					      position = makefn("position"),
-					      push_selected_map = makefn("qmapper.map:select-map"),
-					      set_layer_index = makefn("qmapper.root:set-root-chosenLayerInd!");
-					    puts("TODO UNCOMMENT FIX #2");
-					    // ec->document.setValue(cl_funcall(3, push_selected_map, ec->document.getValue(), map));
-					    ec->document.setValue(cl_funcall(3, set_layer_index, ec->document.getValue(),
-									     cl_funcall(3, position, selected_object,
-											cl_funcall(2, m_layers, map))));
+					      map = cl_funcall(3, find_l_parent, get(selected_object, "id"), ec->document.getValue()),
+					      map_id = get(map, "ID"),
+					      layer_id = get(selected_object, "ID"),
+					      select_map_layer = makefn("qmapper.map:select-map-layer");
+					    
+
+					    cl_funcall(6, format, ECL_T, c_string_to_object("\"selecting layer ~a from map ~a (~a)~%\""), layer_id, map_id, map);
+					    
+					    ec->document.setValue(cl_funcall(4, select_map_layer, ec->document.getValue(), map_id, layer_id));
+					    
 					  }
 					  else puts("You didn't click on a recognizable object");
 					});

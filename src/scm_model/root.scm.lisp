@@ -6,7 +6,8 @@
 	:qmapper.export
 	:qmapper.script)
   (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert :wb-map-from-list)
-  (:shadowing-import-from :cl-strings :replace-all))
+  (:shadowing-import-from :cl-strings :replace-all)
+  (:import-from :qmapper.export :clear-lisp-drawingqueue :add-lambda-to-drawingqueue))
 
 (in-package :qmapper.root)
 
@@ -133,7 +134,8 @@
 
 (defun-export! get-selected-tileset (root)
   (let ((selected-ind (root-chosenTileset root)))
-    (cdr (nth selected-ind (root-tilesets root)))))
+    (format t "selected tileset is ~a~%" selected-ind)
+    (cdr (nth selected-ind (convert 'list (root-tilesets root))))))
 
 (defun-export! init-root! ()
   (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
@@ -172,12 +174,8 @@
 ;  (declaim (optimize (debug 3)))
   (let* ((result-set (->> root
 			  root-registrytolist
-			  
-			  ;; (mapcat (lambda (r)
-			  ;; 	    (if (string= (q-type-of r) "MAP")
-			  ;; 		(cons r
-			  ;; 		      (get-prop r "LAYERS"))
-			  ;; 		(list r))))
+			  (convert 'list)
+			  (mapcar #'cdr)
 			  (remove-if-not (lambda (r)
 					   (let* ((row-id (get-prop r "ID"))
 						  (row-id (replace-all (if (symbolp row-id)
@@ -188,8 +186,8 @@
 					     (format t "(string= ~a ~a) => ~a~%" (prin1-to-string row-id) (prin1-to-string id) result)
 					     result)))))
 	 (len (length result-set)))
-    ;; (format t "result-set: ~a~%" result-set)
-    (format t "find-by-id found ~a elements~%" len)
+    ;; (format t "result-set: ~a members~%" len)
+    ;; (format t "find-by-id found ~a elements~%" len)
     (when (> len 0)
 	(when (> len 1)
 	  (format t "find-by-id found ~a elements~%" len))

@@ -5,6 +5,7 @@
 	:qmapper.root
 	:qmapper.tile)
   (:import-from :fset :lookup :with :empty-map)
+  (:shadowing-import-from :fset :convert)
   (:import-from :qmapper.export
 		:explode
 		:load-image :image-w :image-h :copy-image
@@ -90,7 +91,7 @@
   (select-tileset-to-draw tileset)
   (assert (not (consp tileset)))
   
-  (let* ((tilesets (mapcar #'cdr (root-tilesets qmapper.root:*document*)))
+  (let* ((tilesets (mapcar #'cdr (convert 'list (root-tilesets qmapper.root:*document*))))
 	 (tile-index (position tileset tilesets)))
     ;; (format t "haetaan indeksiä (position ~a ~a)~%" tileset tilesets)
     ;; (format t "selected tile-index is ~a~%" tile-index)
