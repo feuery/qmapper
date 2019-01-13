@@ -30,7 +30,7 @@
 		    (layers (get-prop (root-layers *document*) layer-id)))
 	       (Layer-width layers)))
       (height ()
-	      (let ((layer-id (first (Map-layers *this*)))
+	      (let* ((layer-id (first (Map-layers *this*)))
 		    (layers (get-prop (root-layers *document*) layer-id)))
 		(Layer-height layers)))
       ;; this'll be fun
@@ -143,30 +143,27 @@
 (defun set-tile-innest (tiles x y tile)
   (assoc-in tiles (list x y) tile))
     
-(defun-export! set-tile-inner (map layer x y tile)
-  (let* ((ind layer)
+(defun-export! set-tile-inner (root map layer x y tile)
+  (let* ((layer-id layer)
 	 (layers (map-layers map))
-	 (layer (nth ind layers))	 
-	 (layer (set-layer-tiles! layer (set-tile-innest (layer-tiles layer) x y tile)))
-	 (layers (assoc-to-ind layers ind layer)))  
-    (set-Map-layers! map layers)))
+	 (layer (get-prop (root-layers root) layer-id))
+	 (layer (set-layer-tiles! layer (set-tile-innest (layer-tiles layer) x y tile))))
+    (set-root-layers! root (set-prop (root-layers root) layer-id layer))))
 
 (defun-export! set-tile-at (root x y tile)
   (let* ((ind (root-chosenMap root))
 	 (maps (root-maps root))
-	 (map-k-v (nth ind maps))
-	 (map (cdr map-k-v))
-	 (stupid-useless-key (car map-k-v))
-	 (map (set-tile-inner map
+	 (map (get-prop maps ind)))
+    (set-tile-inner root
+		    map
 		    (root-chosenLayerInd root)
 		    x
 		    y
-		    tile))
-	 (maps (assoc-to-ind maps ind (cons stupid-useless-key map))))
-    (set-root-maps! root maps)))
+		    tile)))
 
 (defun-export! set-chosen-tile-at (root x y)
   (assert (root-chosenTile root))
+  (format t "chosenTile is ~a~%" (root-chosenTile root))
   (set-tile-at root x y (root-chosenTile root)))
 
 (defun-export! set-tile-at-chosen-map (root x y tile)

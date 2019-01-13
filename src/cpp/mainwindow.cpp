@@ -79,9 +79,10 @@ void prepareModel()
   for(int i = 0; i < length; i++) {
     cl_object key = cl_funcall(3, nth, ecl_make_int32_t(i), keys);
     // cl_funcall(5, format, ECL_T, c_string_to_object("\"searching for ~a in ~a~%\""), key, rootAsList);
-    
-    cl_object obj = cl_funcall(3, get_prop, rootAsList, key),
-      format = makefn("format");
+
+    cl_funcall(4, format, ECL_T, c_string_to_object("\"key is ~a~%\""), key);
+    cl_object obj = cl_funcall(3, get_prop, rootAsList, key);
+
     std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
 
     if(type == "LAYER") continue;

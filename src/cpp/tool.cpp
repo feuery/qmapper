@@ -1,14 +1,22 @@
 #include <tool.h>
+#include <QString>
 
 cl_object getChosenMap()
 {
   cl_object chosenMap = makefn("qmapper.root:root-chosenMap"),
-    nth = makefn("nth"),
     maps = makefn("qmapper.root:root-maps"),
-    cdr = makefn("cdr");
-  return cl_funcall(2, cdr, cl_funcall(3, nth,
-				      cl_funcall(2, chosenMap, editorController::instance->document.getValue()),
-				      cl_funcall(2, maps, editorController::instance->document.getValue())));
+    format = makefn("format");
+  cl_object root = editorController::instance->document.getValue();
+  std::string chosenMapid = ecl_string_to_string(cl_funcall(2, chosenMap,root));
+  QString qchosenMapid = chosenMapid.c_str();
+  // QString::replace is thousand times easier to use than std::string::replace
+  // IMO worth the data-type-juggling at this point of development
+  // this looks like nice low hanging optimization fruit for someone under influence of enough booze to use stl's classes
+  qchosenMapid.replace("\"", "");
+  printf("chosenMap is %s\n", qchosenMapid.toStdString().c_str());
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"maps are ~a~%\""), cl_funcall(2, maps, root));
+  
+  return get(cl_funcall(2, maps, root), qchosenMapid.toStdString().c_str());
 }
 
 bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
@@ -30,15 +38,17 @@ void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
   cl_object map_w = makefn("qmapper.map:Map-width");
   cl_object map_h = makefn("qmapper.map:Map-height"),
     nth = makefn("nth");
+  cl_object root = ec->document.getValue(),
+    map = get(root, ecl_string_to_string(cl_funcall(2, chosenMap, root)).c_str()),
+    format = makefn("format");
   
-  cl_object map = cl_funcall(3, nth, cl_funcall(2, chosenMap, editorController::instance->document.getValue()),
-			     cl_funcall(2, drop_keys,
-					cl_funcall(2, maps, ec->document.getValue())));
-  // cl_object format = makefn("format");
-  if(map == ECL_NIL) return;
+  if(map == ECL_NIL) {
+    puts("selected map is nil");
+    return;
+  }
 
   puts("Getting dimensions");
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"map is ~a~%\""), map);
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"map is ~a~%\""), map);
   int map_width = fixint(cl_funcall(2, map_w, map));
   puts("We have map_w");
   int map_height = fixint(cl_funcall(2, map_h, map));

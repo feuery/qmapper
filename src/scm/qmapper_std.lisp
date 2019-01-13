@@ -212,8 +212,7 @@
     (format t "obj-alist is cons ~a~%" obj-alist)
     (funcall qmapper.export:explode))
   (assert (not (consp obj-alist)))
-  (let* ((key (clean-key key)))
-    ;; (format t "setting prop in ~a (~a) - string? ~a~%" (prin1-to-string key) (type-of key) (if (stringp key) "it is" "it isn't"))
+  (let* ((key (clean-key key)))    
     (with (or obj-alist (empty-map)) key val)))
 
 (defun-export! set-prop-in (obj ks value)
