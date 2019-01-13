@@ -222,6 +222,22 @@ cl_object set_x_dst(cl_object dst_key, cl_object cl_img, cl_object cl_x) {
   return ECL_NIL;
 }
 
+cl_object set_img_rotation(cl_object dst_key, cl_object cl_img, cl_object angle) {
+  std::string img = toKey(cl_img);
+  auto format = makeSilentFn("format"),
+    angle_str = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), angle);
+  std::string angle_std_str = ecl_string_to_string(angle_str);
+  
+  double rotation = atof(angle_std_str.c_str());
+;
+  auto ec = editorController::instance;
+  
+  Renderer *r = editorController::instance->getRenderer(dst_key);    
+  obj *o = toObj(r, qimages.at(img));
+  o->rotate = rotation;
+  return ECL_NIL;
+}
+
 cl_object scheduleOnce(cl_object dst_key, cl_object key_lambda) {
   cl_object format = makeSilentFn("fOrmat");
   dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
@@ -312,6 +328,7 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
   DEFUN("set-img-x", set_x_dst, 3);
   DEFUN("set-img-y", set_y_dst, 3);
+  DEFUN("set-img-rotation", set_img_rotation, 3);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
 
   DEFUN("render", render, 2);
@@ -398,21 +415,30 @@ void editorController::setTileRotation(int x, int y, int deg_angl) {
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
-  cl_object get_chosen_tile = makefn("qmapper.root:root-chosenTile");
+  cl_object get_chosen_tile = makefn("qmapper.map:get-tile-at2"),
+    root_layer = makefn("qmapper.root:root-chosenLayerInd");
   cl_object set_chosen_tile = makefn("qmapper.map:set-tile-at-chosen-map");
   cl_object set_tile_rotation = makefn("qmapper.map:set-tile-rotation-at");
   cl_object get_rot = makefn("qmapper.tile:Tile-rotation");
 
-
-  cl_object tile = cl_funcall(2,
+  puts("fetching tile");
+  cl_object tile = cl_funcall(4,
 			      get_chosen_tile,
-			document.getValue());
+			      cl_funcall(2, root_layer, document.getValue()),
+			      ecl_make_fixnum(x),
+			      ecl_make_fixnum(y));
+  puts("got tile");
+
+  assert(tile != ECL_NIL);
+  
   cl_object rotation = cl_funcall(2, get_rot, tile);
+  puts("got rotation");
   document.setValue( cl_funcall(5, set_tile_rotation,
 			document.getValue(),
 			ecl_make_fixnum(x),
 			ecl_make_fixnum(y),
 				ecl_make_fixnum((fixint(rotation) + 90) % 360)));
+  puts("set rotation");
   
 }
 

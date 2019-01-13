@@ -7,7 +7,7 @@
   (:import-from :fset :lookup :with :empty-map)
   (:shadowing-import-from :fset :convert)
   (:import-from :qmapper.export
-		:explode
+		:explode :set-img-rotation
 		:load-image :image-w :image-h :copy-image
 		:add-to-drawingqueue  :clear-drawingqueue
 		:set-img-x :set-img-y
@@ -21,6 +21,9 @@
 
 (defun-export! set-image-y (dst img y)
   (funcall set-img-y (symbol-name dst) (get-prop img "GL-KEY") y))
+
+(defun-export! set-image-rotation (dst img rotation)
+  (funcall set-img-rotation (symbol-name dst) (get-prop img "GL-KEY") rotation))
 
 (defun-export! load-img (path)
   (funcall load-image path))

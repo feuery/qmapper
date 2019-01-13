@@ -37,3 +37,4 @@
 (defvar-export! render nil)
 (defvar-export! add-lambda-to-drawingqueue nil)
 (defvar-export! clear-lisp-drawingqueue nil)
+(defvar-export! set-img-rotation nil)

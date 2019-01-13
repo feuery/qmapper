@@ -88,12 +88,15 @@
 	(nth ind lst)
 	(get-in (nth ind lst) path))))
 
+(defun-export! get-tile-at2 (layer x y)
+  (get-prop-in (root-layers *document*) (list layer 'tiles x y)))
+
 (defun-export! get-tile-at (map layer x y)
   (let ((l (get-prop (root-layers *document*) (nth layer (map-layers map)))))
     (->> l
-	 layer-tiles
-	 (nth x)
-	 (nth y))))
+  	 layer-tiles
+  	 (nth x)
+  	 (nth y))))
 
 
 (defun filter (l s)
@@ -201,13 +204,13 @@
 	  ))))
 
 (defun-export! set-tile-rotation-at (root x y rotation)
-  (format t "todo @set-tile-rotation-at~%")
-  (assert nil)
-  (let ((map (-> (root-chosenMap root)
-		 (get-tile-at (root-chosenLayerInd root) x y)
-		 (set-Tile-rotation! rotation))))
-    ;; (push-selected-map root map)
-    ))
+  (let* ((layer (get-prop (root-layers root) (root-chosenLayerInd root)))
+	 (tile (-> layer
+		   (get-prop-in (list 'tiles x y))
+		   (set-prop 'rotation rotation)))
+	 (layer (set-prop-in layer (list 'tiles x y) tile)))
+    (set-root-layers! root
+		      (set-prop (root-layers root) (root-chosenLayerInd root) layer))))
 
 (defun-export! add-layer (root map-index)
   (let ((maps (-> (root-maps root)
@@ -239,6 +242,9 @@
 (defun-export! render-img (dst img)
   (funcall render dst img))
 
+(defun deg->rad (deg)
+  (/ (* pi deg) 180))
+
 (defun-export! select-map-layer (root map-id layer-id)
   (clear-lisp-dq :MAP)
   (add-to-lisp-qd :MAP (lambda ()
@@ -267,10 +273,12 @@
 			 									   (tile-tileset tile)
 			 									   (tile-x tile)
 			 									   (tile-y tile))))
+								(rotation (tile-rotation tile))
     			     					(gl-key (tile-gl-key tile)))
 			 				   (when gl-key
 			 				     (set-image-x :MAP tile (* 50 x))
 			 				     (set-image-y :MAP tile (* 50 y))
+							     (set-image-rotation :MAP tile (deg->rad rotation))
 							     
     			     				     (render-img :MAP gl-key))
 			 				   ;; (unless gl-key

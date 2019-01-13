@@ -32,14 +32,13 @@ bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 }
 
 void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
-  cl_object chosenMap = makefn("qmapper.root:root-chosenMap"),
-    drop_keys = makefn("qmapper.std:drop-alist-keys"),
+  cl_object drop_keys = makefn("qmapper.std:drop-alist-keys"),
     maps = makefn("qmapper.root:root-maps");
   cl_object map_w = makefn("qmapper.map:Map-width");
   cl_object map_h = makefn("qmapper.map:Map-height"),
     nth = makefn("nth");
   cl_object root = ec->document.getValue(),
-    map = get(root, ecl_string_to_string(cl_funcall(2, chosenMap, root)).c_str()),
+    map = getChosenMap(),
     format = makefn("format");
   
   if(map == ECL_NIL) {
@@ -53,6 +52,8 @@ void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
   puts("We have map_w");
   int map_height = fixint(cl_funcall(2, map_h, map));
   puts("We have map_h");
+
+  printf("generating mouse_map sized %d, %d\n", map_width, map_height);
     
   mouse_map = std::vector<std::vector<bool>>(map_width,
 					     std::vector<bool> (map_height, false));
@@ -61,6 +62,8 @@ void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
 void Tool::mouseUp(QMouseEvent *e) { }
 
 bool Tool::toolAppliedTo(int tilex, int tiley) {
+  printf("trying to find coordinate (%d,%d) from mouse_map with width %d\n", tilex, tiley, mouse_map.size());
+  printf("and height of %d\n", mouse_map.at(0).size());
   return mouse_map.at(tilex).at(tiley);
 }
 

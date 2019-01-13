@@ -414,7 +414,9 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
     });
 
   map_view->mouseDownEvents.push_back([=](QMouseEvent *e) {
+      puts("mouseDowning()");
       ec->t->mouseDown(e, ec);
+      puts("mouseDowned");
     });
 
   map_view->mouseMoveEvents.push_back([=](QMouseEvent *e) {
