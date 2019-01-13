@@ -16,8 +16,6 @@
      (fields
       ;; defcppclass macro should ignore the type specifier
       ;; and these are supposed to be (gensym) -> 'a plists 
-      ;; (std__map<std__string___animatedsprite*>* animatedSprites  '())
-      ;; (std__map<std__string___Sprite*>* sprites  '())
       (layers  '())
       (maps  '())
       (scripts  '())
@@ -29,7 +27,9 @@
       (chosenTile '())
       (StdVertexShader "defaultVertex")
       (StdFragmentShader "defaultFragment")
-      (StdTileviewFragShader "default.tileView"))
+      (StdTileviewFragShader "default.tileView")
+      (animatedSprites '())
+      (sprites  '()))
      (functions
       (contents-StdFragment ()
 			    (let* ((ns (root-stdfragmentshader *this*))
@@ -138,7 +138,7 @@
     (cdr (nth selected-ind (convert 'list (root-tilesets root))))))
 
 (defun-export! init-root! ()
-  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView"))
+  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" '() '()))
       
 (defun-export! push-map (root m)
   (let* ((maps (set-prop (root-maps root)

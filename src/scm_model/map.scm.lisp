@@ -18,7 +18,8 @@
      (properties
       (name "Map 1")
       (layers '())
-      (spritesAndAnimatedsprites '())
+      (sprites '())
+      (animatedSprites '())
       ;; (parent nil)
       )
      (functions
@@ -51,7 +52,7 @@
 				 ;(format t "making layer ~a ~%" l)
 				 l)) layer-count))
 	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
-	 (map (make-map name ids '())))
+	 (map (make-map name ids '() '())))
     (-> (set-root-layers! doc
 			  (reduce (lambda (all-layers layer)
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))

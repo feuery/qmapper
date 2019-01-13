@@ -444,7 +444,12 @@ void editorController::rotateTile90Deg(int x, int y) {
 
 void editorController::loadSprite(const char* path) {
   // Spritecontainer::make(w->map_view, path);
-  puts("TODO implement sprites");
+  cl_object load_sprite = makefn("qmapper.sprite:load-sprite");
+  QString qpath = path;
+  qpath = "\"" + qpath + "\"";
+  cl_object cl_path = c_string_to_object(qpath.toStdString().c_str());
+  document.setValue(cl_funcall(3, load_sprite, document.getValue(), cl_path));
+  puts("We're back in c++ land!");
 }
 
 void editorController::loadAnimation(const char *path, int frameCount, int frameLifeTime) {
