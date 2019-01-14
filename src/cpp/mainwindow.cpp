@@ -55,6 +55,7 @@ void prepareModel()
   cl_object root = rootThing.getValue(),
     regToList = makefn("qmapper.root:root-registrytolIst"),
     rootLayers = makefn("qmapper.root:root-layers"),
+    rootSprites = makefn("qmapper.root:root-sprites"),
     typeOf = makefn("qmapper.std:q-type-of"),
     get_prop = makefn("qmapper.std:get-prop"),
     nth = makefn("common-lisp:nth"),
@@ -62,6 +63,7 @@ void prepareModel()
     len = makefn("length"),
     format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
+    mapSprites = makefn("qmapper.map:map-sprites"),
     rootAsList = cl_funcall(2, regToList, root),
     map_keys = makefn("qmapper.std:fset-map-keys"),
     keys = cl_funcall(2, map_keys, rootAsList);
@@ -82,19 +84,23 @@ void prepareModel()
 
     cl_funcall(4, format, ECL_T, c_string_to_object("\"key is ~a~%\""), key);
     cl_object obj = cl_funcall(3, get_prop, rootAsList, key);
+    assert(obj != ECL_NIL);
 
     std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
 
     if(type == "LAYER") continue;
+    if(type == "SPRITE") continue;
 
-    assert(obj != ECL_NIL);
     QTreeWidgetItem *item = new QTreeWidgetItem;
     QString id (ecl_string_to_string(get(obj, "id")).c_str());
     item->setText(0, QString(ecl_string_to_string(get(obj, "name")).c_str()) + " | " + id);
 
     if(type == "MAP") {
       cl_object layers = cl_funcall(2, mapLayers, obj);
-      int layer_len = fixint(cl_funcall(2, len, layers));
+      cl_object sprites = cl_funcall(2, mapSprites, obj);
+      int layer_len = fixint(cl_funcall(2, len, layers)),
+	sprite_len = fixint(cl_funcall(2, len, sprites));
+      
       for(int l = 0; l < layer_len; l++) {
 	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, nth, ecl_make_int32_t(l), layers)).c_str());
 	cl_layer_id = cl_layer_id.replace("\"", "");
@@ -108,6 +114,24 @@ void prepareModel()
 	QString layer_id (ecl_string_to_string(get(layer, "id")).c_str());
 	layer_item->setText(0, QString(ecl_string_to_string(get(layer, "name")).c_str()) + " | " + layer_id);
 	item->addChild(layer_item);
+      }
+
+      for(int sp = 0; sp < sprite_len; sp++) {
+	QString cl_sprite_id(ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""),
+							     cl_funcall(3, nth, ecl_make_int32_t(sp), sprites))).c_str());
+	cl_sprite_id = cl_sprite_id.replace("\"", "");
+	std::string std_id = cl_sprite_id.toStdString();
+
+	cl_object sprite = get(cl_funcall(2, rootSprites, root), std_id.c_str());
+	printf("spriteID is %s\n", std_id.c_str());
+	cl_funcall(4, format, ECL_T, c_string_to_object("\"sprites are ~a~%\""), sprites);
+	cl_funcall(5, format, ECL_T, c_string_to_object("\"sprite is ~a, spriteList is ~a~%\""), sprite, cl_funcall(2, rootSprites, root));
+	QTreeWidgetItem *sprite_item = new QTreeWidgetItem;
+	assert(sprite != ECL_NIL);
+
+	QString sprite_id (ecl_string_to_string(get(sprite, "id")).c_str());
+	sprite_item->setText(0, QString(ecl_string_to_string(get(sprite, "name")).c_str()) + " | " + sprite_id);
+	item->addChild(sprite_item);
       }
     }
     tree.addTopLevelItem(item);

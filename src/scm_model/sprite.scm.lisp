@@ -29,7 +29,7 @@
 	(update-prop 'sprites (lambda (sprites)
 				(-> sprites
 				    (set-prop id 
-					      (set-prop (make-sprite 0 0 0 mapInd (car (last (split path "/"))) t img) 'id id)))))
+					      (set-prop (make-sprite 0 0 0.0 mapInd (car (last (split path "/"))) t img) 'id id)))))
 	(update-prop-in (list 'maps mapInd 'sprites) (lambda (sprites)
 						       (cons id sprites))))))
 (defun-export! is-sprite? (spr)
