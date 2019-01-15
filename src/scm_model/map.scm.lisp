@@ -4,6 +4,7 @@
 	:qmapper.std
 	:qmapper.tileset
 	:qmapper.script
+	:qmapper.sprite
 	:qmapper.layer
 	:qmapper.root
 	:qmapper.export
@@ -249,7 +250,6 @@
 (defun-export! select-map-layer (root map-id layer-id)
   (clear-lisp-dq :MAP)
   (add-to-lisp-qd :MAP (lambda ()
-
 			 (setf map-id (root-chosenmap *document*))
 			 (setf root-maps (root-maps *document*))
 
@@ -263,7 +263,9 @@
     			 	(h (map-width map))
     			 	(y-coords (mapcar #'dec (range h)))
     			 	(layers (length (map-layers map)))
-    			 	(l-coords (reverse (mapcar #'dec (range layers)))))
+    			 	(l-coords (reverse (mapcar #'dec (range layers))))
+				(sprites (map-sprites map))
+				(root-sprites (root-sprites *document*)))
     			   (mapcar (lambda (l)
     			     	     (mapcar (lambda (x)
     			     		       (mapcar (lambda (y)
@@ -288,9 +290,17 @@
     			     			       y-coords))
     			     		     x-coords))
     			     	   l-coords)
-			   ;; (format t "done rendering map ~%")
-			   )
-			 ))
+			   
+			   (dolist (sprite-id sprites)
+			     (let* ((sprite (get-prop root-sprites sprite-id))
+				    (angle (sprite-angle sprite))
+				    (gl-key (sprite-gl-key sprite))
+				    (x (sprite-x sprite))
+				    (y (sprite-y sprite)))
+			       (set-image-x :MAP sprite x)
+			       (set-image-y :MAP sprite y)
+			       (set-image-rotation :MAP sprite (deg->rad angle))
+			       (render-img :MAP gl-key))))))
   
   (-> root
       (set-root-chosenlayerind! layer-id)
