@@ -225,10 +225,24 @@
   (let ((scr (find-ns root ns)))
     (Script-is-glsl? (car scr))))
 
-(defun-export! push-sprite-to-chosen-map (root sprite)
-  (let ((chosen-map (-> (root-chosenMap root)
-			(push-sprite sprite))))
-    (push-selected-map root chosen-map)))
+(defun-export! push-sprite2 (root mapInd sprite-id sprite)
+  (-> root
+      (update-prop 'sprites (lambda (sprites)
+			      (format t "updating sprites~%")
+			      (let ((res
+				      (-> sprites
+					  (set-prop sprite-id 
+						    (set-prop sprite 'id sprite-id)))))
+				(format t "updated sprites~%")
+				res)))
+      (update-prop-in (list 'maps mapInd 'sprites) (lambda (sprites)
+						     (format t "Lolz~%")
+						     (cons sprite-id sprites)))))
+
+;; (defun-export! push-sprite-to-chosen-map (root sprite)
+;;   (let ((chosen-map (-> (root-chosenMap root)
+;; 			(push-sprite sprite))))
+;;     (push-selected-map root chosen-map)))
 
 (defvar *document* (init-root!))
 (export '*document*)

@@ -25,13 +25,8 @@
 	 (id   (gensym))
 	 (mapInd (root-chosenmap root)))
     (format t "Updating root ~%")
-    (-> root		      
-	(update-prop 'sprites (lambda (sprites)
-				(-> sprites
-				    (set-prop id 
-					      (set-prop (make-sprite 0 0 0.0 mapInd (car (last (split path "/"))) t img) 'id id)))))
-	(update-prop-in (list 'maps mapInd 'sprites) (lambda (sprites)
-						       (cons id sprites))))))
+    (push-sprite2 root mapInd id (make-sprite 0 0 0.0 mapInd (car (last (split path "/"))) t img))))
+
 (defun-export! is-sprite? (spr)
   (equalp (q-type-of spr)
 	  "Sprite"))

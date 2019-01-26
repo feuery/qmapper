@@ -481,18 +481,6 @@ and
 
 ;; (sort-by #'car (list (list 3 1 2 22) (list 1 2 3) (list 5 4 22)))
 
-
-(defun-export! find-nearest  (x y lst)
-  (->> lst
-       (mapcar (lambda (sprite)
-		 (list (distance (sprite-x sprite)
-				 (sprite-y sprite)
-				 x y)
-		       sprite)))
-       (sort-by #'first)
-       (first)
-       (last)))
-
 ;; (find-nearest 1 1 '((3 3) (50 2) (0 1)))  => (0 1)
 
 (defun-export! sublist  (list max-ind)

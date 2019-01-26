@@ -14,6 +14,17 @@
 
 (in-package :qmapper.map)
 
+(defun-export! find-nearest  (x y lst)
+  (->> lst
+       (mapcar (lambda (sprite)
+		 (list (distance (sprite-x sprite)
+				 (sprite-y sprite)
+				 x y)
+		       sprite)))
+       (sort-by #'first)
+       (first)
+       (last)))
+
 (defcppclass Map
     (public 
      (properties
@@ -26,7 +37,13 @@
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
-		   (find-nearest x y (Map-spritesAndAnimatedsprites *this*)))
+		   (let* ((lst  (->> (map-sprites *this*)
+				     (convert 'list)
+				     (concatenate 'list 
+						  (convert 'list (map-animatedSprites *this*)))
+				     (mapcar (lambda (sprite-id)
+					       (get-prop (root-sprites *document*) sprite-id))))))
+		     (car (find-nearest x y lst))))
       (width ()
 	     (let* ((layer-id (first (Map-layers *this*)))
 		    (layers (get-prop (root-layers *document*) layer-id)))
@@ -124,17 +141,6 @@
 ;;   (equalp (find-layer-parent layer root) map))
 
 ;; => T
-
-
-
-
-
-
-(defun-export! push-sprite (map sprite)
-  (let ((k (get-prop sprite "ID")))
-    (alist-update map 'spritesAndAnimatedsprites
-		  (partial alist-cons k sprite))))
-					   
 
 
 (defun-export! index-of-chosen-map (root)

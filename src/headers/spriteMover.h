@@ -11,8 +11,6 @@ public:
   virtual bool canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) override;
 private:
 
-  cl_object currentSprite;
-
 };
 
 #endif //SPRITEMOVER_H

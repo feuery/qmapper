@@ -1,38 +1,49 @@
-#include <spriteMover.h>
+g#include <spriteMover.h>
 
 void Spritemover::mouseDown(QMouseEvent *e, editorController *ec) {
-  cl_object findNearest = ecl_make_symbol("Map-findNearest", "CL-USER");
-  cl_object m = getChosenMap();;
-  currentSprite = cl_funcall(4, findNearest,
-			     m,
-			     ecl_make_int32_t(e->x()),
-			     ecl_make_int32_t(e->y()));
-  qDebug() << "Found the nearest sprite";
 }
 
 void Spritemover::mouseUp(QMouseEvent *e) {
-  currentSprite = ECL_NIL;
-  qDebug() << "Reset nearest sprite";
 }
 
 bool Spritemover::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  return Null(currentSprite);
+  return true;
 }
 
 void Spritemover::use(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  static cl_object is_sprite_fn = ecl_make_symbol("is-sprite?", "CL-USER"),
-    push_sprite_to_chosen_map = ecl_make_symbol("push-sprite-to-chosen-map", "CL-USER");
-  bool is_sprite = Null(cl_funcall(2, is_sprite_fn, currentSprite));
+  puts("using spritemover");
+  cl_object is_sprite_fn = makefn("qmapper.sprite:is-sprite?"),
+    push_sprite = makefn("qmapper.root:push-sprite2"),
+    m = getChosenMap(),
+    findNearest = makefn("qmapper.map:map-findnearest"),    
+    currentSprite = cl_funcall(4, findNearest,
+			     m,
+			     ecl_make_int32_t(event->x()),
+			     ecl_make_int32_t(event->y()));
+  
+  bool is_sprite = cl_funcall(2, is_sprite_fn, currentSprite) == ECL_T;
 
-  cl_object setX = ecl_make_symbol(is_sprite? "set-Sprite-x!":
-				   "set-animatedsprite-x!", "CL-USER"),
-    setY = ecl_make_symbol(is_sprite? "set-Sprite-y!":
-			"set-animatedsprite-y!", "CL-USER");
+  cl_object setX = makefn(// is_sprite?
+			  "qmapper.sprite:set-Sprite-x!"// :
+			  // "qmapper.sprite:set-animatedsprite-x!"
+			  ),
+    setY = makefn(// is_sprite?
+		  "qmapper.sprite:set-Sprite-y!"// :
+		  // "qmapper.sprite:set-animatedsprite-y!"
+		  ),
+    format = makefn("format");
+
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"currentSprite is ~a~%\""), currentSprite);
+  
 
   currentSprite = cl_funcall(3, setX, currentSprite, ecl_make_int32_t(event->x()));
   currentSprite = cl_funcall(3, setY, currentSprite, ecl_make_int32_t(event->y()));
   
-  editorController::instance->document.setValue(cl_funcall(3, push_sprite_to_chosen_map,
-							   editorController::instance->document,
+  editorController::instance->document.setValue(cl_funcall(5, push_sprite,
+							   editorController::instance->document.getValue(),
+							   get(m, "id"),
+							   get(currentSprite, "id"),
 							   currentSprite));
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"currentSprite is ~a~%\""), currentSprite);
+  puts("used spritemover");
 }
