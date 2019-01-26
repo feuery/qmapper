@@ -305,7 +305,8 @@
 				    (y (sprite-y sprite)))
 			       (set-image-x :MAP sprite x)
 			       (set-image-y :MAP sprite y)
-			       (set-image-rotation :MAP sprite (deg->rad angle))
+			       ;; spriteRotater already sets sprite's rotation in radians, so no deg->rad transformation needed
+			       (set-image-rotation :MAP sprite angle)
 			       (render-img :MAP gl-key))))))
   
   (-> root

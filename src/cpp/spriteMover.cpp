@@ -1,4 +1,4 @@
-g#include <spriteMover.h>
+#include <spriteMover.h>
 
 void Spritemover::mouseDown(QMouseEvent *e, editorController *ec) {
 }
@@ -23,14 +23,8 @@ void Spritemover::use(QMouseEvent *event, int tilex, int tiley, editorController
   
   bool is_sprite = cl_funcall(2, is_sprite_fn, currentSprite) == ECL_T;
 
-  cl_object setX = makefn(// is_sprite?
-			  "qmapper.sprite:set-Sprite-x!"// :
-			  // "qmapper.sprite:set-animatedsprite-x!"
-			  ),
-    setY = makefn(// is_sprite?
-		  "qmapper.sprite:set-Sprite-y!"// :
-		  // "qmapper.sprite:set-animatedsprite-y!"
-		  ),
+  cl_object setX = makefn("qmapper.sprite:set-Sprite-x!"),
+    setY = makefn("qmapper.sprite:set-Sprite-y!"),
     format = makefn("format");
 
   cl_funcall(4, format, ECL_T, c_string_to_object("\"currentSprite is ~a~%\""), currentSprite);
