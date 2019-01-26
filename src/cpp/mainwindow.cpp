@@ -1,6 +1,9 @@
 // ECL reference
 // http://vwood.github.io/embedded-ecl.html
 
+// pitäiskö toi asdf-kakka korvata tällä?
+// https://web.archive.org/web/20141018030226/https://cwndr.ws/posts/Calling-Lisp-from-C-using-ECL.html
+
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -320,7 +323,8 @@ void MainWindow::setupTreeCtxMenu()
   connect(tileset, &QAction::triggered, this, &MainWindow::newTileset) ;
   connect(sprite, &QAction::triggered, [=]() {
         QString texture_path = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-	editorController::instance->loadSprite(texture_path.toStdString().c_str());
+	if(!texture_path.isNull())
+	  editorController::instance->loadSprite(texture_path.toStdString().c_str());
     });
 
   connect(animation, &QAction::triggered, [=]() {
@@ -342,8 +346,10 @@ void MainWindow::setupTreeCtxMenu()
 
 void MainWindow::newTileset() {
   QString texture_file = QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
-  cl_object make_tset = makefn("qmapper.tileset:load-tileset"),
-    tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
+  if(!texture_file.isNull()) {
+    cl_object make_tset = makefn("qmapper.tileset:load-tileset"),
+      tileset = cl_funcall(2, make_tset, c_string_to_object(("\""+texture_file.toStdString()+"\"").c_str()));
+  }
 }
 
 void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
