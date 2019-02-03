@@ -19,6 +19,13 @@
     (name "")
     (loadingDone nil)
     (gl-key nil))))
+
+(defun-export! load-sprite-rootless (path)
+  (cond ((stringp path) (let ((img (load-img path)))
+			  (make-sprite 0 0 0.0 nil (car (last (split path "/"))) t img)))
+	((keywordp path) (let ((img path))
+			   (make-sprite 0 0 0.0 nil "new sprite" t img)))
+	(t (error "called load-sprite-rootless with invalid data"))))
  
 (defun-export! load-sprite (root path)
   (let* ((img  (load-img path))

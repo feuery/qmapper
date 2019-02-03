@@ -18,8 +18,12 @@
 		      ;; :depends-on (:cl-arrows)
 		      :depends-on ("export"))
 	       (:file "animatedsprite.scm"
-		      :depends-on ("qmapper_std"
-				   "root.scm"))
+		:depends-on ("qmapper_std"
+			     "sprite.scm"
+			     "tileset.scm"
+			     "map.scm"
+			     "export"
+			     "root.scm"))
   	       
   	       (:file "script.scm"
 		      :depends-on ("qmapper_std"))
@@ -32,14 +36,15 @@
 				   "sprite.scm"
 				   "script.scm"
 				   "layer.scm"
-				   "animatedsprite.scm"
 				   "tile.scm"))
 	       (:file "root.scm"
 		      :depends-on ("script.scm" ;; "map.scm"
 				   "export"
 						))
-  	       (:file "sprite.scm")
-  	       (:file "tile.scm")
+  	       (:file "sprite.scm"
+		      :depends-on ("tileset.scm"))
+  	       (:file "tile.scm"
+		      :depends-on ("root.scm"))
   	       (:file "layer.scm"
 		      :depends-on ("tile.scm"))
   	       (:file "tileset.scm"

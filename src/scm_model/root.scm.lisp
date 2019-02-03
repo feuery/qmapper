@@ -239,10 +239,20 @@
 						     (format t "Lolz~%")
 						     (cons sprite-id sprites)))))
 
-;; (defun-export! push-sprite-to-chosen-map (root sprite)
-;;   (let ((chosen-map (-> (root-chosenMap root)
-;; 			(push-sprite sprite))))
-;;     (push-selected-map root chosen-map)))
+(defun-export! push-animation (root mapInd animation)
+  (let ((animation-id (get-prop animation "ID")))
+    (-> root
+	(update-prop 'animatedSprites (lambda (animatedSprites)
+					(format t "updating animatedSprites~%")
+					(let ((res
+						(-> animatedSprites
+						    (set-prop animation-id 
+							      (set-prop animation 'id animation-id)))))
+					  (format t "updated animatedSprites~%")
+					  res)))
+	(update-prop-in (list 'maps mapInd 'animatedSprites) (lambda (animatedSprites)
+							       (format t "Lolz~%")
+							       (cons animation-id animatedSprites))))))
 
 (defvar *document* (init-root!))
 (export '*document*)

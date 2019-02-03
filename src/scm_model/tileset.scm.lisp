@@ -104,7 +104,24 @@
       ;; Tää assertio feilaa?
       (assert (root-chosenTileset *document*)))))
 				 
-	      
+(defun-export! load-tilesetless-texture-splitted (path &key (tile-width 50) (tile-height 50))
+  (let* ((root-img (load-img path))
+	 (_ (format t "img loaded~%"))
+  	 (w (floor (/ (img-width root-img) tile-width)))
+  	 (h (floor (/ (img-height root-img) tile-height)))
+	 (_ (format t "dimensions ~a found~%" (list w h)))
+	 (textures (mapcar (lambda (x)
+  			     (mapcar (lambda (y)  
+  				       (copy-img root-img
+  						 (* x tile-width) (* y tile-height)
+  						 tile-width tile-height))
+  				     (mapcar #'dec (range h))))
+  			   (mapcar #'dec (range w)))))
+    (format t "textures loaded!")
+    (values
+     textures
+     w
+     h)))	      
 
 (defun-export! load-texture-splitted (path)
   (let* ((root-img (load-img path))

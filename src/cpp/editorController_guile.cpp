@@ -351,9 +351,7 @@ extern "C" {
   //   real_obj_ptr->render();
   // }
 
-  cl_object MsTime() {
-    return ecl_make_long(time(nullptr) * 1000);
-  }
+  
 
   static std::unordered_map<std::string, cl_object> fn_cache;
 

@@ -38,3 +38,5 @@
 (defvar-export! add-lambda-to-drawingqueue nil)
 (defvar-export! clear-lisp-drawingqueue nil)
 (defvar-export! set-img-rotation nil)
+(defvar-export! MsTime nil)
+(defvar-export! image-file-dimensions nil)

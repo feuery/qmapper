@@ -1,10 +1,17 @@
 (defpackage :qmapper.animatedsprite
   (:use :common-lisp
-	:cl-arrows
-	:qmapper.std
+        :cl-arrows
+	:qmapper.sprite
+        :qmapper.map
+	:qmapper.tileset
+        :qmapper.std
+	:qmapper.export
 	:qmapper.root))
 
 (in-package :qmapper.animatedsprite)
+
+(defun get-ms-time ()
+  (funcall MsTime))
 
 (defcppclass animatedsprite
   (public
@@ -27,18 +34,33 @@
     (advanceFrame! ()
 		   (let* ((tt (animatedsprite-advanceFrameIfNeeded! *this*))
 			  (frameid (animatedsprite-currentFrameId tt))
-			 (frameid (modulo frameid (animatedsprite-maxFrames tt))))
+			  (frameid (mod frameid (animatedsprite-maxFrames tt))))
 		    (set-animatedsprite-currentFrameId! tt frameid)))
     (render ()
     	    (let* ((sprites (animatedsprite-sprites *this*))
-    		   (current-sprite (list-ref sprites (animatedsprite-currentFrameId *this*))))
-	      (render-object! current-sprite)))
+    		   (current-sprite (nth (animatedsprite-currentFrameId *this*) sprites)))
+	      (set-image-x :MAP current-sprite (animatedsprite-x *this*))
+	      (set-image-y :MAP current-sprite (animatedsprite-y *this*))
+	      (set-image-rotation :MAP current-sprite (animatedsprite-angle *this*))
+	      (render-img :MAP current-sprite)))
     (advanceFrameIfNeeded! ()
     			   (if (and (animatedsprite-animationPlaying *this*)
-    				    (> (MsTime) (+ (animatedsprite-lastUpdated *this*)
+    				    (> (get-ms-time) (+ (animatedsprite-lastUpdated *this*)
 						   (animatedsprite-msPerFrame *this*))))
 			       (-> (animatedsprite-advanceFrame! *this*)
-				   (set-animatedsprite-lastUpdated! (MsTime)))
+				   (set-animatedsprite-lastUpdated! (get-ms-time)))
 			       *this*)))))
 
-;; (export-all :qmapper.animatedsprite)
+(defun img-file-dimensions (path)
+  (funcall image-file-dimensions path))
+
+(defun-export! load-animation (path framecount framelifetime)
+  (let* ((dimensions (img-file-dimensions path))
+	 (width (first dimensions))
+	 (height (second dimensions))
+	 (root-imgs (load-tilesetless-texture-splitted path :tile-width (floor (/ width framecount)) :tile-height height))	 
+	 (sprites (->> (range framecount)
+		       (mapcar (lambda (i)
+				 (load-sprite-rootless (get-prop-in root-imgs (list (dec i) 0))))))))
+    (make-animatedsprite nil "New animatedsprite" 0 25 t (get-ms-time) 0 0 0 sprites)))
+

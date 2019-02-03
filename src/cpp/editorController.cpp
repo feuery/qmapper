@@ -108,6 +108,13 @@ cl_object qimg_h(cl_object kk) {
   return ecl_make_fixnum(h);
 }
 
+cl_object qimg_file_dimensions(cl_object cpath) {
+  std::string path = ecl_string_to_string(cpath);
+  QImage img;
+  img.load(QString(path.c_str()));
+  return cl_list(2, ecl_make_fixnum(img.width()), ecl_make_fixnum(img.height()));
+}
+
 cl_object copy_qimg(cl_object cl_src_k,
 		    cl_object cl_x,
 		    cl_object cl_y,
@@ -267,6 +274,10 @@ cl_object render(cl_object dst_key,
   // puts("out render");
 }
 
+cl_object MsTime() {
+    return ecl_make_long(time(nullptr) * 1000);
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -332,6 +343,8 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
 
   DEFUN("render", render, 2);
+  DEFUN("MsTime", MsTime, 0);
+  DEFUN("image-file-dimensions", qimg_file_dimensions, 1);
 
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
@@ -454,7 +467,14 @@ void editorController::loadSprite(const char* path) {
 
 void editorController::loadAnimation(const char *path, int frameCount, int frameLifeTime) {
   // Animatedspritecontainer::make(w->map_view, path, frameCount, frameLifeTime);
-  puts("TODO implement animations");
+
+  cl_object load_animation = makefn("qmapper.animatedsprite:load-animation"),
+    push_animation = makefn("qmapper.root:push-animation"),
+    animation = cl_funcall(4, load_animation, c_string_to_object((std::string("\"")+path+"\"").c_str()),
+			   ecl_make_fixnum(frameCount), ecl_make_fixnum(frameLifeTime));
+  
+
+  document.setValue(cl_funcall(4, push_animation, document.getValue(), get(getChosenMap(), "ID"), animation));
 }
 
 static std::vector<QTemporaryFile*> tempFiles;
