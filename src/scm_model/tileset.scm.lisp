@@ -2,6 +2,7 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
+	:qmapper.export
 	:qmapper.root
 	:qmapper.tile)
   (:import-from :fset :lookup :with :empty-map)
@@ -15,39 +16,6 @@
 
 (in-package :qmapper.tileset)
 
-(defun-export! set-image-x (dst img x)
-  (let ((i (get-prop img "GL-KEY")))
-    (funcall set-img-x (symbol-name dst) i x)))
-
-(defun-export! set-image-y (dst img y)
-  (funcall set-img-y (symbol-name dst) (get-prop img "GL-KEY") y))
-
-(defun-export! set-image-rotation (dst img rotation)
-  (funcall set-img-rotation (symbol-name dst) (get-prop img "GL-KEY") rotation))
-
-(defun-export! load-img (path)
-  (funcall load-image path))
-
-(defun-export! img-width (img)
-  (funcall image-w img))
-
-(defun-export! img-height (img)
-  (funcall image-h img))
-
-(defun-export! copy-img (img x y w h)
-  (funcall copy-image img x y w h))
-
-(defun-export! add-to-drawqueue (img dst-key)
-  (let ((i (get-prop img "GL-KEY")))
-    (assert i)
-    (funcall add-to-drawingqueue i (symbol-name dst-key))))
-
-(defun clear-draw-queue (dst-key)
-  (funcall clear-drawingqueue (symbol-name dst-key)))
-
-(defun schedule-once (dst l)
-  (format t "scheduling once to dst ~a~%" (symbol-name dst))
-  (funcall do-schedule-lambda (symbol-name dst) l))
 
 (defcppclass Tileset
     (public
@@ -117,7 +85,7 @@
   						 tile-width tile-height))
   				     (mapcar #'dec (range h))))
   			   (mapcar #'dec (range w)))))
-    (format t "textures loaded!")
+    (format t "textures ~a loaded!~%" textures)
     (values
      textures
      w

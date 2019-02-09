@@ -228,6 +228,8 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
   auto ec = editorController::instance;
   text_w = img.width();
   text_h = img.height();
+
+  assert(img.width() > 0);
   int r_w = r->width(), r_h = r->height();
   prepare(f, r_w, r_h, ec);
 
@@ -244,6 +246,9 @@ obj::obj(Renderer *r, QOpenGLFunctions_4_3_Core *f, QImage img): parent(r)
   f->glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, qi_copy.width(), qi_copy.height(), 0, GL_BGRA, GL_UNSIGNED_BYTE, qi_copy.bits());
   f->glGenerateMipmap(GL_TEXTURE_2D);
   f->glBindTexture(GL_TEXTURE_2D, 0);
+
+  assert(size.x > 0.0f);
+  assert(size.y > 0.0f);
 }
 
 obj::obj(Renderer *r, const char *texture_path,  bool skipTexture): parent(r)

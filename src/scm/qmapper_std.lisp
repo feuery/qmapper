@@ -1,16 +1,11 @@
 (defpackage :qmapper.std
   (:use :common-lisp
 	:cl-arrows)
-  (:import-from :qmapper.export :defmacro-export! :defvar-export!)
+  (:import-from :qmapper.export :defmacro-export! :defun-export! :defvar-export!)
   (:import-from :fset :empty-map :convert :with :lookup :wb-map-from-list)
   (:shadowing-import-from :cl-strings :replace-all))
 
 (in-package :qmapper.std)
-
-(defmacro-export! defun-export! (name &rest rst)
-  `(progn
-     (defun ,name ,@rst)
-     (export (quote ,name))))
 
 (defun-export! dec (n)
   (- n 1))

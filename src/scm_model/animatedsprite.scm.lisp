@@ -2,7 +2,6 @@
   (:use :common-lisp
         :cl-arrows
 	:qmapper.sprite
-        :qmapper.map
 	:qmapper.tileset
         :qmapper.std
 	:qmapper.export
@@ -32,35 +31,46 @@
     (maxFrames ()
 	       (length (animatedsprite-sprites *this*)))
     (advanceFrame! ()
-		   (let* ((tt (animatedsprite-advanceFrameIfNeeded! *this*))
-			  (frameid (animatedsprite-currentFrameId tt))
+		   (let* ((tt *this*)
+			  (frameid (inc (animatedsprite-currentFrameId tt)))
 			  (frameid (mod frameid (animatedsprite-maxFrames tt))))
 		    (set-animatedsprite-currentFrameId! tt frameid)))
     (render ()
     	    (let* ((sprites (animatedsprite-sprites *this*))
-    		   (current-sprite (nth (animatedsprite-currentFrameId *this*) sprites)))
-	      (set-image-x :MAP current-sprite (animatedsprite-x *this*))
-	      (set-image-y :MAP current-sprite (animatedsprite-y *this*))
-	      (set-image-rotation :MAP current-sprite (animatedsprite-angle *this*))
-	      (render-img :MAP current-sprite)))
+    		   (current-sprite (-> (nth (animatedsprite-currentFrameId *this*) sprites)
+				       (set-sprite-x! (animatedsprite-x *this*))
+				       (set-sprite-y! (animatedsprite-y *this*))
+				       (set-sprite-angle! (animatedsprite-angle *this*)))))
+	      (sprite-render current-sprite)))
     (advanceFrameIfNeeded! ()
+			   ;; (format t "advancing frame if needed!~%")
     			   (if (and (animatedsprite-animationPlaying *this*)
     				    (> (get-ms-time) (+ (animatedsprite-lastUpdated *this*)
-						   (animatedsprite-msPerFrame *this*))))
+							(animatedsprite-msPerFrame *this*))))
 			       (-> (animatedsprite-advanceFrame! *this*)
 				   (set-animatedsprite-lastUpdated! (get-ms-time)))
-			       *this*)))))
+			       (progn
+				 ;; (format t "not advancing frame~%")
+				 ;; (format t "(animatedsprite-animationPlaying *this*)? ~a~%" (animatedsprite-animationPlaying *this*))
+				 ;; (format t "(> ~a ~a)? ~a" (get-ms-time) (+ (animatedsprite-lastUpdated *this*)
+				 ;; 					    (animatedsprite-msPerFrame *this*))
+				 ;; 	 (> (get-ms-time) (+ (animatedsprite-lastUpdated *this*)
+				 ;; 			(animatedsprite-msPerFrame *this*))))
+				 *this*))))))
 
 (defun img-file-dimensions (path)
   (funcall image-file-dimensions path))
 
 (defun-export! load-animation (path framecount framelifetime)
   (let* ((dimensions (img-file-dimensions path))
+	 (_ (format t "dimensions are ~a~%" dimensions))
 	 (width (first dimensions))
 	 (height (second dimensions))
-	 (root-imgs (load-tilesetless-texture-splitted path :tile-width (floor (/ width framecount)) :tile-height height))	 
+	 (root-imgs (load-tilesetless-texture-splitted path :tile-width (floor (/ width framecount)) :tile-height height))
+	 (_ (format t "root-imgs: ~a~%" root-imgs))
 	 (sprites (->> (range framecount)
 		       (mapcar (lambda (i)
 				 (load-sprite-rootless (get-prop-in root-imgs (list (dec i) 0))))))))
+    (format t "sprites:~a~%" sprites)
     (make-animatedsprite nil "New animatedsprite" 0 25 t (get-ms-time) 0 0 0 sprites)))
 

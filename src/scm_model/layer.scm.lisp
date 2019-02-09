@@ -1,6 +1,7 @@
 (defpackage :qmapper.layer
   (:use :common-lisp
-	:cl-arrows
+        :cl-arrows
+	:qmapper.export
 	:qmapper.std
 	:qmapper.tile
 	:qmapper.root))

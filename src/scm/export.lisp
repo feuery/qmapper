@@ -11,6 +11,11 @@
      (defmacro ,name ,@rst)
      (export (quote ,name))))
 
+(defmacro-export! defun-export! (name &rest rst)
+  `(progn
+     (defun ,name ,@rst)
+     (export (quote ,name))))
+
 (defmacro-export! defvar-export!
     (name value)
   `(progn
@@ -40,3 +45,6 @@
 (defvar-export! set-img-rotation nil)
 (defvar-export! MsTime nil)
 (defvar-export! image-file-dimensions nil)
+
+(defun-export! render-img (dst img)
+  (funcall render dst img))

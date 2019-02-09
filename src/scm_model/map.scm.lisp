@@ -2,7 +2,8 @@
   (:use :common-lisp
 	:cl-arrows
 	:qmapper.std
-	:qmapper.tileset
+        :qmapper.tileset
+	:qmapper.animatedsprite
 	:qmapper.script
 	:qmapper.sprite
 	:qmapper.layer
@@ -247,9 +248,6 @@
 (defun-export! add-to-lisp-qd (dst fn)
   (funcall add-lambda-to-drawingqueue dst fn))
 
-(defun-export! render-img (dst img)
-  (funcall render dst img))
-
 (defun deg->rad (deg)
   (/ (* pi deg) 180))
 
@@ -271,43 +269,43 @@
     			 	(layers (length (map-layers map)))
     			 	(l-coords (reverse (mapcar #'dec (range layers))))
 				(sprites (map-sprites map))
-				(root-sprites (root-sprites *document*)))
+				(root-sprites (root-sprites *document*))
+				(animations (map-animatedsprites map))
+				(root-animations (root-animatedsprites *document*)))
     			   (mapcar (lambda (l)
     			     	     (mapcar (lambda (x)
     			     		       (mapcar (lambda (y)
     			     				 (let* ((tile (get-tile-at map l x y))
-			 					(tile (if (tile-gl-key tile)
-			 						  tile
-			 						  (fetch-tile-from-tileset root
-			 									   (tile-tileset tile)
-			 									   (tile-x tile)
-			 									   (tile-y tile))))
-								(rotation (tile-rotation tile))
+			   					(tile (if (tile-gl-key tile)
+			   						  tile
+			   						  (fetch-tile-from-tileset root
+			   									   (tile-tileset tile)
+			   									   (tile-x tile)
+			   									   (tile-y tile))))
+			   					(rotation (tile-rotation tile))
     			     					(gl-key (tile-gl-key tile)))
-			 				   (when gl-key
-			 				     (set-image-x :MAP tile (* 50 x))
-			 				     (set-image-y :MAP tile (* 50 y))
-							     (set-image-rotation :MAP tile (deg->rad rotation))
+			   				   (when gl-key
+			   				     (set-image-x :MAP tile (* 50 x))
+			   				     (set-image-y :MAP tile (* 50 y))
+			   				     (set-image-rotation :MAP tile (deg->rad rotation))
 							     
     			     				     (render-img :MAP gl-key))
-			 				   ;; (unless gl-key
-			 				   ;;   (format t "gl-key is nil~%"))
-			 				   ))
+			   				   ;; (unless gl-key
+			   				   ;;   (format t "gl-key is nil~%"))
+			   				   ))
     			     			       y-coords))
     			     		     x-coords))
     			     	   l-coords)
 			   
 			   (dolist (sprite-id sprites)
-			     (let* ((sprite (get-prop root-sprites sprite-id))
-				    (angle (sprite-angle sprite))
-				    (gl-key (sprite-gl-key sprite))
-				    (x (sprite-x sprite))
-				    (y (sprite-y sprite)))
-			       (set-image-x :MAP sprite x)
-			       (set-image-y :MAP sprite y)
-			       ;; spriteRotater already sets sprite's rotation in radians, so no deg->rad transformation needed
-			       (set-image-rotation :MAP sprite angle)
-			       (render-img :MAP gl-key))))))
+			     (let ((sprite (get-prop root-sprites sprite-id)))
+			       (sprite-render sprite)))
+			   
+			   (dolist (animation-id animations)
+			     (let ((anim (-> (get-prop root-animations animation-id)
+					     animatedsprite-advanceframeifneeded!)))
+			       (set-doc (set-prop-in *document* (list 'animatedSprites (get-prop anim "ID")) anim))
+			       (animatedsprite-render anim))))))
   
   (-> root
       (set-root-chosenlayerind! layer-id)

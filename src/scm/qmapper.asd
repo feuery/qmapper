@@ -21,34 +21,35 @@
 		:depends-on ("qmapper_std"
 			     "sprite.scm"
 			     "tileset.scm"
-			     "map.scm"
+			     ;; "map.scm"
 			     "export"
 			     "root.scm"))
   	       
   	       (:file "script.scm"
-		      :depends-on ("qmapper_std"))
+		:depends-on ("qmapper_std"))
 	       (:file "export")
   	       (:file "map.scm"
-		      :depends-on ("qmapper_std"
-				   "export"
-				   "root.scm"
-				   "tileset.scm"
-				   "sprite.scm"
-				   "script.scm"
-				   "layer.scm"
-				   "tile.scm"))
+		:depends-on ("qmapper_std"
+			     "animatedsprite.scm"
+			     "export"
+			     "root.scm"
+			     "tileset.scm"
+			     "sprite.scm"
+			     "script.scm"
+			     "layer.scm"
+			     "tile.scm"))
 	       (:file "root.scm"
-		      :depends-on ("script.scm" ;; "map.scm"
-				   "export"
-						))
+		:depends-on ("script.scm" ;; "map.scm"
+			     "export"
+			     ))
   	       (:file "sprite.scm"
-		      :depends-on ("tileset.scm"))
+		:depends-on ("tileset.scm"))
   	       (:file "tile.scm"
-		      :depends-on ("root.scm"))
+		:depends-on ("root.scm"))
   	       (:file "layer.scm"
-		      :depends-on ("tile.scm"))
+		:depends-on ("tile.scm"))
   	       (:file "tileset.scm"
-		      :depends-on ("qmapper_std"
-				   "tile.scm"
-				   "root.scm"
-				   "export"))))
+		:depends-on ("qmapper_std"
+			     "tile.scm"
+			     "root.scm"
+			     "export"))))
