@@ -304,7 +304,8 @@
 			   (dolist (animation-id animations)
 			     (let ((anim (-> (get-prop root-animations animation-id)
 					     animatedsprite-advanceframeifneeded!)))
-			       (set-doc (set-prop-in *document* (list 'animatedSprites (get-prop anim "ID")) anim))
+			       ;; a surprising skip of the set-doc, to prevent DoSsing dom tree element
+			       (setf *document* (set-prop-in *document* (list 'animatedSprites (get-prop anim "ID")) anim))
 			       (animatedsprite-render anim))))))
   
   (-> root
