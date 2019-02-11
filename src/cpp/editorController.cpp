@@ -263,15 +263,19 @@ cl_object scheduleOnce(cl_object dst_key, cl_object key_lambda) {
 
 cl_object render(cl_object dst_key,
 		 cl_object img_key) {
+  if(img_key == ECL_NIL) {
+    puts("img_key is ECL_NIL. Why are you trying to render that?");
+    return img_key;
+  }
   // puts("In render()");
   Renderer *dst = editorController::instance->getRenderer(dst_key);
   // puts("got dst");
   std::string img = toKey(img_key);
   // puts("converted img to std::string");
+
   obj *o = toObj(dst, qimages.at(img));
-  // puts("found o");
   o->render();
-  // puts("out render");
+  
 }
 
 cl_object MsTime() {

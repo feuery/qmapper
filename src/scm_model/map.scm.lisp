@@ -43,7 +43,9 @@
 				     (concatenate 'list 
 						  (convert 'list (map-animatedSprites *this*)))
 				     (mapcar (lambda (sprite-id)
-					       (get-prop (root-sprites *document*) sprite-id))))))
+					       (or 
+						(get-prop (root-sprites *document*) sprite-id)
+						(get-prop (root-animatedSprites *document*) sprite-id)))))))
 		     (car (find-nearest x y lst))))
       (width ()
 	     (let* ((layer-id (first (Map-layers *this*)))
