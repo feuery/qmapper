@@ -59,6 +59,7 @@ void prepareModel()
     regToList = makefn("qmapper.root:root-registrytolIst"),
     rootLayers = makefn("qmapper.root:root-layers"),
     rootSprites = makefn("qmapper.root:root-sprites"),
+    rootAnimes = makefn("qmapper.root:root-animatedsprites"),
     typeOf = makefn("qmapper.std:q-type-of"),
     get_prop = makefn("qmapper.std:get-prop"),
     nth = makefn("common-lisp:nth"),
@@ -67,20 +68,15 @@ void prepareModel()
     format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
     mapSprites = makefn("qmapper.map:map-sprites"),
+    mapAnims = makefn("qmapper.map:map-animatedsprites"),
     rootAsList = cl_funcall(2, regToList, root),
     map_keys = makefn("qmapper.std:fset-map-keys"),
     keys = cl_funcall(2, map_keys, rootAsList);
 
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"keys are ~a~%\""), keys);
-
+  puts("preparing model");
   tree.clear();
-
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"rootAsList is ~a~%\""), rootAsList);
-
-  puts("Trying length");
-
+  
   int length = fixint(cl_funcall(2, len, keys));
-  printf("Got length: %d\n", length);
   for(int i = 0; i < length; i++) {
     cl_object key = cl_funcall(3, nth, ecl_make_int32_t(i), keys);
     // cl_funcall(5, format, ECL_T, c_string_to_object("\"searching for ~a in ~a~%\""), key, rootAsList);
@@ -101,8 +97,10 @@ void prepareModel()
     if(type == "MAP") {
       cl_object layers = cl_funcall(2, mapLayers, obj);
       cl_object sprites = cl_funcall(2, mapSprites, obj);
+      cl_object animes = cl_funcall(2, mapAnims, obj);
       int layer_len = fixint(cl_funcall(2, len, layers)),
-	sprite_len = fixint(cl_funcall(2, len, sprites));
+	sprite_len = fixint(cl_funcall(2, len, sprites)),
+	anime_len = fixint(cl_funcall(2, len, animes));
       
       for(int l = 0; l < layer_len; l++) {
 	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, nth, ecl_make_int32_t(l), layers)).c_str());
@@ -136,9 +134,27 @@ void prepareModel()
 	sprite_item->setText(0, QString(ecl_string_to_string(get(sprite, "name")).c_str()) + " | " + sprite_id);
 	item->addChild(sprite_item);
       }
+
+      for(int anim_p = 0; anim_p < anime_len; anim_p++) {
+	QString cl_anim_id(ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""),
+							     cl_funcall(3, nth, ecl_make_int32_t(anim_p), animes))).c_str());
+	cl_anim_id = cl_anim_id.replace("\"", "");
+	std::string std_id = cl_anim_id.toStdString();
+
+	cl_object anim = get(cl_funcall(2, rootAnimes, root), std_id.c_str());
+	printf("animID is %s\n", std_id.c_str());
+	QTreeWidgetItem *anim_item = new QTreeWidgetItem;
+	assert(anim != ECL_NIL);
+
+	QString anim_id (ecl_string_to_string(get(anim, "id")).c_str());
+	anim_item->setText(0, QString(ecl_string_to_string(get(anim, "name")).c_str()) + " | " + anim_id);
+	item->addChild(anim_item);
+      }
     }
     tree.addTopLevelItem(item);
   }
+
+  puts("model prepared");
 }
 
 void MainWindow::setupTree()
