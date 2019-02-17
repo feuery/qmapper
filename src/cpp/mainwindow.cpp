@@ -260,14 +260,14 @@ void MainWindow::editObject()
   holder &rootThing = editorController::instance->document;
   cl_object root = rootThing.getValue(),
     regToList = makefn("qmapper.root:root-registrytolIst"),
-    get_prop = makefn("qmapper.std:get-prop"),
     nth = makefn("common-lisp:nth"),
     len = makefn("length"),
     format = makefn("format"),
     rootAsList = cl_funcall(2, regToList, root);
 
   printf("id is %s\n", id.toStdString().c_str());
-  auto b = cl_funcall(3, get_prop, rootAsList, c_string_to_object((QString("\"")+id+"\"").toStdString().c_str()));
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"rootAsList: ~a~%\""), rootAsList);
+  auto b = get(rootAsList, id.toStdString().c_str());
   assert(b != ECL_NIL);
   
   auto find_path = makefn("qmapper.root:find-path-of"),

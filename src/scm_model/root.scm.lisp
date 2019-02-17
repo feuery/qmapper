@@ -147,11 +147,11 @@
       
       (registryToList ()
 		      (let* ((s (->> (concatenate 'list
-		      				  ;; (root-animatedSprites *this*)
+		      				  (convert 'list (root-animatedSprites *this*))
 		      				  (convert 'list (root-layers *this*))
 		      				  (convert 'list (root-maps *this*))
 		      				  (convert 'list (root-scripts *this*))
-		      				  ;; (root-sprites *this*)
+		      				  (convert 'list (root-sprites *this*))
 		      				  (convert 'list (root-tiles *this*))
 		      				  (convert 'list (root-tilesets *this*)))
 				     (mapcar (lambda (l)
@@ -192,6 +192,7 @@
   (let ((type-sym (condp string= (q-type-of obj)
 			 "LAYER" 'layers
 			 "MAP" 'maps
+			 "ANIMATEDSPRITE" 'animatedsprites
 			 "SCRIPT" 'scripts
 			 "TILE" 'tiles
 			 "TILESET" 'tilesets)))

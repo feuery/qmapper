@@ -20,9 +20,10 @@ bool getBoolProp(cl_object base, std::string internedPropname)
   return get(base, internedPropname.c_str()) == ECL_T;
 }
 
-int getIntProp(cl_object base, std::string internedPropname)
+long getIntProp(cl_object base, std::string internedPropname)
 {
-  return ecl_to_int(get(base, internedPropname.c_str()));
+  cl_object val = get(base, internedPropname.c_str());
+  return ecl_to_long(val);
 }
 
 double getDoubleProp(cl_object base, std::string internedPropname)
@@ -177,6 +178,7 @@ std::vector<std::string> keys(cl_object b)
     printf("found key %s\n", str.c_str());
     result.push_back(str);
   }
+  puts("Returning keys");
   return result;
 }
 
@@ -206,6 +208,8 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 
     if(cl_funcall(3, list, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T)
       continue;
+
+    puts("Looping props");
     
     if(cl_funcall(3, str,
 		  base,
@@ -241,7 +245,8 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
     }
     // This probably could be macrofied for all the numeric types
     else if (cl_funcall(3, prop_number, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
-      int v = getIntProp(base, properties.at(i));
+      
+      long v = getIntProp(base, properties.at(i));
       
       QLineEdit *edit = new QLineEdit(QString::number(v), this);
 
