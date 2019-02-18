@@ -175,14 +175,15 @@
 	       (real-alist (convert 'list obj-alist))
 	       (result (cdr (or
 			     (assoc key real-alist :test #'string=)
-			     (assoc key2 real-alist :test #'string=)))))
-	  ;; (format t "key is ~a, real alist is ~a~%" key real-alist)
-	      (values (if (and result
-			       (symbolp result))
-			  ;; if not for the prin1, this'd return rubbish strings to c...
-			  (prin1-to-string (symbol-name result))
-			  result)
-		      key)))))
+			     (assoc key2 real-alist :test #'string=))))
+	       (result (cond ((equalp result t) result)
+			     ((and result
+				   (symbolp result))
+			      ;; if not for the prin1, this'd return rubbish strings to c...
+			      (prin1-to-string (symbol-name result)))
+			     (t result))))
+	  (values result
+		  key)))))
 
 (defun-export! get-prop-in (obj ks)
   (values 

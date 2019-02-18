@@ -211,9 +211,21 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 
     puts("Looping props");
     
-    if(cl_funcall(3, str,
+    if (cl_funcall(3, prop_bool, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
+      bool b = getBoolProp(base, properties.at(i));
+
+      QCheckBox *cb = new QCheckBox(properties.at(i).c_str(), this);
+      cb->setCheckState(b ? Qt::Checked: Qt::Unchecked);
+
+      connect(cb, &QCheckBox::stateChanged,
+	      [&](int state) { editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
+
+      data->addRow("", cb);
+      
+    }
+    else if(cl_funcall(3, str,
 		  base,
-		  ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
+		       ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       auto any = getStringProp(base, properties.at(i));
       QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
 
@@ -230,18 +242,6 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
       
       data->addRow(QString(properties.at(i).c_str()), edit);
       // data->addRow(QString(""), error_field);
-    }
-    else if (cl_funcall(3, prop_bool, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
-      bool b = getBoolProp(base, properties.at(i));
-
-      QCheckBox *cb = new QCheckBox(properties.at(i).c_str(), this);
-      cb->setCheckState(b ? Qt::Checked: Qt::Unchecked);
-
-      connect(cb, &QCheckBox::stateChanged,
-	      [&](int state) { editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
-
-      data->addRow("", cb);
-      
     }
     // This probably could be macrofied for all the numeric types
     else if (cl_funcall(3, prop_number, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
