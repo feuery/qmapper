@@ -15,18 +15,18 @@
 (defcppclass animatedsprite
     (public
      (properties
-      (parentMapId "")
+      (parentMapId "" (noteditable))
       (name "")
-      (currentFrameId 0)
+      (currentFrameId 0 (noteditable))
       (msPerFrame 25)
       (animationPlaying true)
-      (lastUpdated 0)
+      (lastUpdated 0 (noteditable))
       
       (x 0)
       (y 0)
       (angle 0.0)
-      
-      (sprites '()))
+      ;; noteditable tag should prevent this field appearing in propeditor
+      (sprites '() (noteditable)))
      (functions
       (maxFrames ()
 		 (length (animatedsprite-sprites *this*)))

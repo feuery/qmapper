@@ -311,11 +311,23 @@
 		   (reduce (lambda (hashmap k-v)
 			     (let ((k (car k-v))
 				   (v (cadr k-v)))
-			       (with hashmap k v))) fields-and-vals :initial-value hash)))))
+			       (with hashmap k v))) fields-and-vals :initial-value hash))))
+	 (meta-name (sym (str (symbol-name classname) "-meta")))
+	 (meta-fn `(->> (reduce (lambda (map val)
+					     (if (cdr val)
+						 (with map (car val) (cdr val))
+						 map))
+					   (mapcar (lambda (prop)
+						     (cons (car prop) (third prop)))
+						   ',props) :initial-value (empty-map)))))
     `(progn
        ,ctr
        ,fields-with-accessors
        ,@funcs
+
+       (defun-export! ,meta-name ()
+	 ,meta-fn)
+       
        (symbol-name ',classname))))
 
 (defun-export! q-type-of  (obj-alist)
