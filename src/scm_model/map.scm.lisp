@@ -199,20 +199,22 @@
     ;; (format t "(< ~a ~a)~%(< ~a ~a)~%"
     ;; 	    x (tileset-w tileset)
     ;; 	    y (tileset-h tileset))
-    
-    (assert (< x (tileset-w tileset)))
-    (assert (< y (tileset-h tileset)))
-    (let ((tile 
-	   (->> tileset
-		tileset-tiles
-		;; v
-		(nth x)
-		;; v
-		(nth y))))
-      (if tile
-	  tile
-	  ;; (format t "didn't find a tile ~%")
-	  ))))
+
+    (when tileset
+      
+      (assert (< x (tileset-w tileset)))
+      (assert (< y (tileset-h tileset)))
+      (let ((tile 
+	     (->> tileset
+		  tileset-tiles
+		  ;; v
+		  (nth x)
+		  ;; v
+		  (nth y))))
+	(if tile
+	    tile
+	    ;; (format t "didn't find a tile ~%")
+	    )))))
 
 (defun-export! set-tile-rotation-at (root x y rotation)
   (let* ((layer (get-prop (root-layers root) (root-chosenLayerInd root)))
@@ -283,18 +285,19 @@
 			   						  (fetch-tile-from-tileset root
 			   									   (tile-tileset tile)
 			   									   (tile-x tile)
-			   									   (tile-y tile))))
-			   					(rotation (tile-rotation tile))
-    			     					(gl-key (tile-gl-key tile)))
-			   				   (when gl-key
-			   				     (set-image-x :MAP tile (* 50 x))
-			   				     (set-image-y :MAP tile (* 50 y))
-			   				     (set-image-rotation :MAP tile (deg->rad rotation))
-							     
-    			     				     (render-img :MAP gl-key))
-			   				   ;; (unless gl-key
-			   				   ;;   (format t "gl-key is nil~%"))
-			   				   ))
+			   									   (tile-y tile)))))
+							   (when tile
+							     (let ((rotation (tile-rotation tile))
+    			     					   (gl-key (tile-gl-key tile)))
+			   				       (when gl-key
+			   					 (set-image-x :MAP tile (* 50 x))
+			   					 (set-image-y :MAP tile (* 50 y))
+			   					 (set-image-rotation :MAP tile (deg->rad rotation))
+								 
+    			     					 (render-img :MAP gl-key))
+			   				       ;; (unless gl-key
+			   				       ;;   (format t "gl-key is nil~%"))
+			   				       ))))
     			     			       y-coords))
     			     		     x-coords))
     			     	   l-coords)
