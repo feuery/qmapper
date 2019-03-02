@@ -244,12 +244,17 @@
 		      (alist-update map-index (lambda (m)
 						(set-Map-layers! m (drop-list-i (Map-layers m) layer-index)))))))
 
-
+;; I hope putting those lambdas here too will keep them from being collected
+(defvar *lisp-dq-buffer* (list))
 
 (defun-export! clear-lisp-dq (dst)
+  (setf *lisp-dq-buffer* (list))
   (funcall clear-lisp-drawingqueue (symbol-name dst)))
 
 (defun-export! add-to-lisp-qd (dst fn)
+  (ext:set-finalizer fn (lambda (x)
+			  (format t "Finalizing lisp-dq-element ~a~%" x)))
+  (setf *lisp-dq-buffer (cons fn *lisp-dq-buffer*))
   (funcall add-lambda-to-drawingqueue dst fn))
 
 (defun deg->rad (deg)

@@ -1,3 +1,5 @@
+// #define LOG_RENDER_LAMBDAS
+
 #include <QOpenGLFunctions>
 #include <Qt>
 #include <QMouseEvent>
@@ -65,8 +67,17 @@ void Renderer::paintGL()
     Renderable *o = owned_objects[id];
     o->render(this);
   }
-
-  for(cl_object o: getLispyDrawQueue()) { cl_funcall(1, o); }
+#ifdef LOG_RENDER_LAMBDAS
+  cl_object format = makefn("format");
+  for(cl_object o: getLispyDrawQueue()) {
+      cl_funcall(4, format, ECL_T, c_string_to_object("\"o is ~a~%\""), o);
+      cl_funcall(1, o);
+    }
+#else
+    for(cl_object o: getLispyDrawQueue()) {
+      cl_funcall(1, o);
+    }
+#endif
 
   while(!glLambdas.empty()) {
     auto lambda = glLambdas.dequeue();
