@@ -50,7 +50,7 @@ QString MainWindow::getTextureLocation() {
   return QFileDialog::getOpenFileName(this, "Load texture file", ".", "Image Files (*.png)");
 }
 
-void prepareModel()
+void prepareModel(cl_object doc)
 {
   MainWindow *w = editorController::instance->w;
   QTreeWidget &tree = w->tree;
@@ -165,7 +165,7 @@ void MainWindow::setupTree()
     assert(hw_lambda != ECL_NIL);
     cl_funcall(2, reg_hook, hw_lambda);
 
-    prepareModel();
+    prepareModel(nullptr);
    
     connect(&tree, &QTreeView::clicked, [&](QModelIndex index) {
 					  puts("We're at DOMTree::clicked");

@@ -144,7 +144,6 @@ cl_object copy_qimg(cl_object cl_src_k,
 Renderer* editorController::getRenderer(cl_object dst_key) {
   cl_object format = makeSilentFn("FormAT");
   dst_key = cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), dst_key);
-  auto symname = makefn("symbol-name");
   std::string dest_key = ecl_string_to_string(dst_key);
   // printf("Rendering to %s\n", dest_key.c_str());
   Renderer *dst = dest_key == "MAP"? map_view:

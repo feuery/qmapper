@@ -37,24 +37,26 @@ std::string getScriptTypeAsString(cl_object base, std::string internedPropname)
   return  ecl_string_to_string(cl_symbol_name(get(base, internedPropname.c_str())));
 }
 
-void Propertyeditor::editingStdStringFinished(cl_object base, cl_object obj_path,  std::string internedPropname, QLineEdit *edit)
+void Propertyeditor::editingStdStringFinished(cl_object obj_path,  std::string internedPropname, QLineEdit *edit)
 {
-  cl_object format = makefn("format");
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"editing path ~a~%\""), obj_path);
+  cl_object get_prop_in = makefn("qmapper.std:get-prop-in"),
+    prin1 = makeSilentFn("prin1-to-string"),
+    doc = editorController::instance->document.getValue();
+  cl_object base = cl_funcall(3, get_prop_in, doc, obj_path);
+  
   std::string value = "\""+edit->text().toStdString()+"\"";
 
   base = set(base, internedPropname.c_str(), c_string_to_object(value.c_str()));
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"base is now ~a~%\""), base);
-  // cl_funcall(4, format, ECL_T, c_string_to_object("\"obj_path is ~a~%\""), obj_path);
-  
-  cl_object doc = editorController::instance->document.getValue(),
-    set_prop_in = makefn("qmapper.std:set-prop-in"),
-    new_doc = cl_funcall(4, set_prop_in, doc, obj_path, base);
 
+  cl_object set_prop_in = makefn("qmapper.std:set-prop-in");
+  cl_object new_doc = cl_funcall(4, set_prop_in, doc, obj_path, base);
   editorController::instance->document.setValue(new_doc);
 }
 
-void editingIntNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
+void editingIntNmbrStringFinished(cl_object path, std::string propName, QLineEdit *l) {
+  cl_object get_prop_in = makefn("qmapper.std:get-prop-in"),
+    doc = editorController::instance->document.getValue(),
+    base = cl_funcall(3, get_prop_in, doc, path);
   QString t = l->text();
 
   bool canConvert = false;
@@ -68,9 +70,16 @@ void editingIntNmbrStringFinished(cl_object &base, std::string propName, QLineEd
   int val = (int)i;
   qDebug() << "Setting " << propName.c_str() << " to " << val;
   base = set(base, propName.c_str(), ecl_make_int(val));
+  cl_object set_prop_in = makefn("qmapper.std:set-prop-in");
+  cl_object new_doc = cl_funcall(4, set_prop_in, doc, path, base);
+  editorController::instance->document.setValue(new_doc);
+  
 }
 
-void editingNmbrStringFinished(cl_object &base, std::string propName, QLineEdit *l) {
+void editingNmbrStringFinished(cl_object path, std::string propName, QLineEdit *l) {
+  cl_object  get_prop_in = makefn("qmapper.std:get-prop-in"),
+    doc = editorController::instance->document.getValue(),
+    base = cl_funcall(3, get_prop_in, doc, path);
   QString t = l->text();
 
   bool canConvert = false;
@@ -84,10 +93,19 @@ void editingNmbrStringFinished(cl_object &base, std::string propName, QLineEdit 
   double val = (double)i;
   qDebug() << "Setting " << propName.c_str() << " to " << val;
   base = set(base, propName.c_str(), ecl_make_double_float(val));
+  cl_object set_prop_in = makefn("qmapper.std:set-prop-in");
+  cl_object new_doc = cl_funcall(4, set_prop_in, doc, path, base);
+  editorController::instance->document.setValue(new_doc);
 }
 
-void editingBoolFinished(cl_object &base, std::string propname, bool checked) {
+void editingBoolFinished(cl_object path, std::string propname, bool checked) {
+  cl_object  get_prop_in = makefn("qmapper.std:get-prop-in"),
+    doc = editorController::instance->document.getValue(),
+    base = cl_funcall(3, get_prop_in, doc, path);
   base = set(base, propname.c_str(), ecl_make_bool(checked));
+  cl_object set_prop_in = makefn("qmapper.std:set-prop-in");
+  cl_object new_doc = cl_funcall(4, set_prop_in, doc, path, base);
+  editorController::instance->document.setValue(new_doc);
 }
 
 QStandardItemModel* dump_to_model_vertical()
@@ -189,23 +207,46 @@ static void indexChanged(cl_object &b, std::string internedPropName, cl_object e
   qDebug()<<"Successfully changed " << internedPropName.c_str();
 }
 
-QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
+bool has_meta(cl_object field_meta, const char *meta_value)
+{
+  QString mval = meta_value;
+  mval = "\""+mval.toUpper()+"\"";
+  cl_object member = lisp("(lambda (field-meta) (member " + mval.toStdString() + " field-meta :test #'string=))"),
+    result = cl_funcall(2, member, field_meta);
+  return result != ECL_NIL;
+}
 
+QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
+  
   QFormLayout *data = new QFormLayout;
 
   std::vector<std::string> properties = keys(base);
 
   cl_object str = makefn("qmapper.std:prop-str?"),
     list = makefn("qmapper.std:prop-list?"),
-    format = makefn("format"),
+    format = makeSilentFn("format"),
     prop_number = makefn("qmapper.std:prop-number?"),
     prop_bool = makefn("qmapper.std:prop-bool?"),
     prop_float = makefn("qmapper.std:prop-float?"),
     prop_sym = makefn("qmapper.std:prop-sym?"),
-    type_of = makefn("q-type-of2");
+    type_of = makefn("qmapper.std:q-type-of-2");
+
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"makingLayout for base ~a~%\""), base);
+
+  std::string type = ecl_string_to_string(cl_funcall(2, type_of, base)),
+    std_path = ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), path));
 
   for(int i =0; i<properties.size(); i++) {
 
+    // TODO A nice classname == package - assumption you got there, plz fix
+    cl_object field_meta_fn = makefn(("qmapper."+type+":"+type+"-meta").c_str()),
+      all_meta = cl_funcall(1, field_meta_fn),
+      // prop is SPRITES - field meta is (NOTEDITABLE)
+      field_meta = get(all_meta, properties.at(i).c_str());
+
+    if(properties.at(i) == "ID") continue;
+    if(has_meta(field_meta, "noteditable")) continue;
+    
     if(cl_funcall(3, list, base, ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T)
       continue;
 
@@ -216,10 +257,14 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 
       QCheckBox *cb = new QCheckBox(properties.at(i).c_str(), this);
       cb->setCheckState(b ? Qt::Checked: Qt::Unchecked);
-
+      
       connect(cb, &QCheckBox::stateChanged,
-	      [&](int state) { editingBoolFinished(base, properties.at(i), state == Qt::Checked); });
-
+      	      [=](int state)
+	      {		
+		cl_object local_path = c_string_to_object(std_path.c_str());
+		editingBoolFinished(local_path, properties.at(i), state == Qt::Checked);
+	      });
+      
       data->addRow("", cb);
       
     }
@@ -228,9 +273,13 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
 		       ecl_make_symbol(properties.at(i).c_str(), "CL-USER")) == ECL_T) {
       auto any = getStringProp(base, properties.at(i));
       QLineEdit *edit = new QLineEdit(QString(any.c_str()), this);
-
+      
       connect(edit, &QLineEdit::editingFinished,
-      	      [=]() { editingStdStringFinished(base, path, properties.at(i), edit); });
+      	      [=]()
+	      {		
+		cl_object local_path = c_string_to_object(std_path.c_str());
+		editingStdStringFinished(local_path, properties.at(i), edit);
+	      });
 
       std::string fieldName = properties.at(i);
       // std::string errors = base->getErrorsOf(fieldName);
@@ -253,7 +302,9 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
       // edit->setValidator(new QIntValidator(0, 255, this));
 
       connect(edit, &QLineEdit::editingFinished,
-	      [&]() { editingNmbrStringFinished(base, properties.at(i), edit); });
+	      [=]() {
+		cl_object local_path = c_string_to_object(std_path.c_str());
+		editingNmbrStringFinished(local_path, properties.at(i), edit); });
 
       std::string fieldName = properties.at(i);
       // std::string errors = base->getErrorsOf(fieldName);
@@ -274,9 +325,10 @@ QFormLayout* Propertyeditor::makeLayout(cl_object base, cl_object path) {
       // edit->setValidator(new QDoubleValidator(std::numeric_limits<float>::min(), std::numeric_limits<float>::max(), 15, this));
 
       connect(edit, &QLineEdit::editingFinished,
-      	      [&]() { 
-		  editingNmbrStringFinished(base, properties.at(i), edit);
-		});
+      	      [=]() {
+		cl_object local_path = c_string_to_object(std_path.c_str());
+		editingNmbrStringFinished(local_path, properties.at(i), edit);
+	      });
 
       std::string fieldName = properties.at(i);
       // std::string errors = base->getErrorsOf(fieldName);
