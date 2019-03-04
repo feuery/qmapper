@@ -171,6 +171,11 @@ cl_object add_qimg_to_drawqueue (cl_object cl_img,
   return ECL_NIL;
 }
 
+int real_fixint(cl_object integer) {
+  auto floor = makeSilentFn("floor");
+  fixint(cl_funcall(2, floor, integer));
+}
+
 cl_object add_lambda_to_drawqueue (cl_object dest_key,
 				   cl_object lambda)
 {
@@ -204,7 +209,7 @@ cl_object clear_lispdrawqueue(cl_object dst_key)
 
 cl_object set_y_dst(cl_object dst_key, cl_object cl_img, cl_object cl_y) {
   std::string img = toKey(cl_img);
-  int y = fixint(cl_y);
+  int y = real_fixint(cl_y);
   auto ec = editorController::instance;
   Renderer *r = editorController::instance->getRenderer(dst_key);
   obj *o = toObj(r, qimages.at(img));
@@ -219,12 +224,26 @@ cl_object set_x_dst(cl_object dst_key, cl_object cl_img, cl_object cl_x) {
   assert(cl_img != ECL_NIL);
   std::string img = toKey(cl_img);
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"x is ~a~%\""), cl_x);
-  int x = fixint(cl_x);
+  int x = real_fixint(cl_x);
   auto ec = editorController::instance;
   
   Renderer *r = editorController::instance->getRenderer(dst_key);    
   obj *o = toObj(r, qimages.at(img));
   o->position.x = x;
+  return ECL_NIL;
+}
+
+cl_object set_opacity_dst(cl_object dst_key, cl_object cl_img, cl_object opacity) {
+  assert(cl_img != ECL_NIL);
+  std::string img = toKey(cl_img);
+  // cl_funcall(5, format, ECL_T, c_string_to_object("\"opacity is ~a (~a)~%\""), opacity, cl_funcall(2, type_of, opacity));
+  
+  int op = real_fixint(opacity);
+  auto ec = editorController::instance;
+  
+  Renderer *r = editorController::instance->getRenderer(dst_key);    
+  obj *o = toObj(r, qimages.at(img));
+  o->opacity = op % 256;
   return ECL_NIL;
 }
 
@@ -274,8 +293,27 @@ cl_object render(cl_object dst_key,
 
   obj *o = toObj(dst, qimages.at(img));
   o->render();
-  
+  return ECL_NIL;
 }
+
+#define notnil(x) assert(x != ECL_NIL)
+cl_object set_subobj(cl_object dst_key,
+		     cl_object tile_key,
+		     cl_object subobj_key) {
+  notnil(dst_key);
+  notnil(tile_key);
+  notnil(subobj_key);
+
+  Renderer *dst = editorController::instance->getRenderer(dst_key);
+  std::string stdtile = toKey(tile_key),
+    stdsubobj = toKey(subobj_key);
+
+  obj *tile = toObj(dst, qimages.at(stdtile)),
+    *sub = toObj(dst, qimages.at(stdsubobj));
+
+  tile->subObj = sub;
+}
+  
 
 cl_object MsTime() {
     return ecl_make_long(time(nullptr) * 1000);
@@ -341,8 +379,10 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("clear-drawingqueue", clear_drawqueue, 1);
   DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
   DEFUN("set-img-x", set_x_dst, 3);
+  DEFUN("set-img-opacity", set_opacity_dst, 3)
   DEFUN("set-img-y", set_y_dst, 3);
   DEFUN("set-img-rotation", set_img_rotation, 3);
+  DEFUN("set-img-subobj", set_subobj, 3);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
 
   DEFUN("render", render, 2);
@@ -397,7 +437,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     
   tileRenderer->setSelectedTile(tileObj);
 
-  puts("Pitäis varmaan koodata myös datan pallottelu eikä pelkkiän tekstuurien");
+  // puts("Pitäis varmaan koodata myös datan pallottelu eikä pelkkiän tekstuurien");
 
   // selectedTileData.setX(x);
   // selectedTileData.setY(y);

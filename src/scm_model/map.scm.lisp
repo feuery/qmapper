@@ -252,13 +252,29 @@
   (funcall clear-lisp-drawingqueue (symbol-name dst)))
 
 (defun-export! add-to-lisp-qd (dst fn)
-  (ext:set-finalizer fn (lambda (x)
-			  (format t "Finalizing lisp-dq-element ~a~%" x)))
+  ;; doesn't work on sbcl
+  ;; (ext:set-finalizer fn (lambda (x)
+  ;; 			  (format t "Finalizing lisp-dq-element ~a~%" x)))
   (setf *lisp-dq-buffer (cons fn *lisp-dq-buffer*))
   (funcall add-lambda-to-drawingqueue dst fn))
 
 (defun deg->rad (deg)
   (/ (* pi deg) 180))
+
+(defun get-layer (doc map index)
+  (let ((layer-list (map-layers map)))
+    (get-prop (root-layers doc) (get-prop layer-list index))))
+
+;; epicly copypasted from https://groups.google.com/d/msg/comp.lang.lisp/QWk0uDw2Fd0/UZ1nKv9hd0QJ
+(defun mapcar-with-index (function list &rest more-lists)
+  (let ((index -1))
+    (apply #'mapcar (lambda (&rest args)
+                      (incf index)
+                      (apply function (append args (list index))))
+           (append (list list) more-lists))))
+
+(defun set-image-subobject (dst tile subtile)
+  (funcall set-img-subobj dst (tile-gl-key tile) (tile-gl-key subtile)))
 
 (defun-export! select-map-layer (root map-id layer-id)
   (clear-lisp-dq :MAP)
@@ -275,37 +291,53 @@
     			 	(x-coords (mapcar #'dec (range w)))
     			 	(h (map-width map))
     			 	(y-coords (mapcar #'dec (range h)))
-    			 	(layers (length (map-layers map)))
+				(layer-list (map-layers map))
+    			 	(layers (length layer-list))
     			 	(l-coords (reverse (mapcar #'dec (range layers))))
 				(sprites (map-sprites map))
 				(root-sprites (root-sprites *document*))
 				(animations (map-animatedsprites map))
-				(root-animations (root-animatedsprites *document*)))
-    			   (mapcar (lambda (l)
-    			     	     (mapcar (lambda (x)
-    			     		       (mapcar (lambda (y)
-    			     				 (let* ((tile (get-tile-at map l x y))
-			   					(tile (if (tile-gl-key tile)
-			   						  tile
-			   						  (fetch-tile-from-tileset root
-			   									   (tile-tileset tile)
-			   									   (tile-x tile)
-			   									   (tile-y tile)))))
-							   (when tile
-							     (let ((rotation (tile-rotation tile))
-    			     					   (gl-key (tile-gl-key tile)))
-			   				       (when gl-key
-			   					 (set-image-x :MAP tile (* 50 x))
-			   					 (set-image-y :MAP tile (* 50 y))
-			   					 (set-image-rotation :MAP tile (deg->rad rotation))
-								 
-    			     					 (render-img :MAP gl-key))
-			   				       ;; (unless gl-key
-			   				       ;;   (format t "gl-key is nil~%"))
-			   				       ))))
-    			     			       y-coords))
-    			     		     x-coords))
-    			     	   l-coords)
+				(root-animations (root-animatedsprites *document*))
+				(final-l-coords (->> l-coords
+				       (remove-if-not (lambda (l-index)
+							(let ((layer (get-layer root map l-index)))
+							  (layer-visible layer)))))))
+			   (->> final-l-coords
+    				(mapcar-with-index (lambda (l index)
+					  (let ((layer (get-prop (root-layers root) (get-prop layer-list l))))
+    			     		    (mapcar (lambda (x)
+    			     			      (mapcar (lambda (y)
+    			     					(let* ((tile (get-tile-at map l x y))
+			   					       (tile (if (tile-gl-key tile)
+			   							 tile
+			   							 (fetch-tile-from-tileset root
+			   										  (tile-tileset tile)
+			   										  (tile-x tile)
+			   										  (tile-y tile))))
+								       (subtile (if (not (zerop index))
+										    (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
+										      (if (tile-gl-key subtile)
+											  subtile
+											  (fetch-tile-from-tileset root
+			   										  (tile-tileset subtile)
+			   										  (tile-x subtile)
+			   										  (tile-y subtile)))))))
+											
+								  (when tile
+								    (let ((rotation (tile-rotation tile))
+    			     						  (gl-key (tile-gl-key tile)))
+			   					      (when gl-key
+			   						(set-image-x :MAP tile (* 50 x))
+			   						(set-image-y :MAP tile (* 50 y))
+									(set-image-opacity :MAP tile (get-prop layer "opacity"))
+			   						(set-image-rotation :MAP tile (deg->rad rotation))
+
+									(when subtile
+									  (set-image-subobject :MAP tile subtile))
+									
+    			     						(render-img :MAP gl-key))))))
+    			     				      y-coords))
+    			     			    x-coords)))))
 			   
 			   (dolist (sprite-id sprites)
 			     (let ((sprite (get-prop root-sprites sprite-id)))

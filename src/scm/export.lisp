@@ -36,6 +36,7 @@
 (defvar-export! clear-drawingqueue nil)
 (defvar-export! set-img-x nil)
 (defvar-export! set-img-y nil)
+(defvar-export! set-img-opacity nil)
 
 (defvar-export! do-schedule-lambda nil)
 
@@ -45,6 +46,7 @@
 (defvar-export! set-img-rotation nil)
 (defvar-export! MsTime nil)
 (defvar-export! image-file-dimensions nil)
+(defvar-export! set-img-subobj nil)
 
 (defun-export! render-img (dst img)
   (funcall render dst img))

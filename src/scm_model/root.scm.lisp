@@ -21,6 +21,9 @@
 (defun-export! set-image-rotation (dst img rotation)
   (funcall set-img-rotation (symbol-name dst) (get-prop img "GL-KEY") rotation))
 
+(defun-export! set-image-opacity (dst img op)
+  (funcall set-img-opacity (symbol-name dst) (get-prop img "GL-KEY") op))
+
 (defun-export! load-img (path)
   (funcall load-image path))
 
