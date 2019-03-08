@@ -259,10 +259,10 @@
     result))
 
     
-(defun-export! is-ns-scheme? (root ns)
+(defun-export! is-ns-lisp? (root ns)
   (let ((scr (root-findNs root ns)))
     (format t "found script ~a~%" scr)
-    (Script-is-scheme? scr)))
+    (Script-is-lisp? scr)))
 
 (defun-export! is-ns-glsl? (root ns)
   (let ((scr (root-findNs root ns)))

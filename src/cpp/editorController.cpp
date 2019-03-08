@@ -322,7 +322,7 @@ cl_object MsTime() {
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
-  puts("Looking up scheme definitions in editorController::editorController");
+  puts("Looking up lisp definitions in editorController::editorController");
   lisp("(use-package :qmapper.map)");
   cl_object pushScript = makefn("qmapper.root:push-script");
   cl_object makeScript = makefn("qmapper.script:make-script");

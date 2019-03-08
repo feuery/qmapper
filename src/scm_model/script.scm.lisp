@@ -12,15 +12,14 @@
    (properties
     (contents "")
     (name "")
-    ;; TODO redo validators in pure scheme
     (ns "user" ;; (doesntContainNs)
 		 )
-    (script_type 'scheme))
+    (script_type 'lisp))
    (functions
-    (is-scheme? ()
+    (is-lisp? ()
 		(let ((script-type (Script-script_type *this*)))
-		  ;; (format t "script type: ~a, is it scheme? ~a~%" script-type (equalp script-type 'scheme))
-		  (string= (format nil "~a" script-type) "scheme")))
+		  ;; (format t "script type: ~a, is it lisp? ~a~%" script-type (equalp script-type 'lisp))
+		  (string= (format nil "~a" script-type) "lisp")))
     (is-glsl? ()
     	      (let ((script-type (Script-script_type *this*)))
     		(equalp script-type 'glsl))))))

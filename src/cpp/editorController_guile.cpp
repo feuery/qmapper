@@ -86,9 +86,9 @@ extern "C" {
 
     cl_object scrpt = cl_funcall(5, makeScript,
 				 c_string_to_object("\"\""),
-				 c_string_to_object("\"A new Scheme script\""),
+				 c_string_to_object("\"A new Lisp script\""),
 				 c_string_to_object(genNs().c_str()),
-				 c_string_to_object("\"scheme\""));
+				 c_string_to_object("\"lisp\""));
     editorController::instance->document.setValue( cl_funcall(3, pushScript,
 						      editorController::instance->document.getValue(),
 							      scrpt));
@@ -243,7 +243,7 @@ extern "C" {
   //   else if(proptype == "scriptTypes") {
   //     scriptTypes t;
   //     t = obj->get(c_prop, &lol, t);
-  //     return scm_string_to_symbol(c_string_to_object(t == glsl? "glsl" : "scheme"));
+  //     return scm_string_to_symbol(c_string_to_object(t == glsl? "glsl" : "lisp"));
   //   }
   //   else if(proptype == "float") {
   //     float val = obj->get(c_prop, &lol, 2.2f);
@@ -302,7 +302,7 @@ extern "C" {
   //   else if(proptype == "scriptTypes") {
   //     const char *result = ecl_make_symbol(value));
   //     std::string r = result;
-  //     scriptTypes val = r == "glsl"? glsl: scheme;
+  //     scriptTypes val = r == "glsl"? glsl: lisp;
   //     setVal;      
   //   }
   //   else if(proptype == "float") {
@@ -318,7 +318,7 @@ extern "C" {
 
   cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda)
   {
-    puts("TODO implement events in pure scheme");
+    puts("TODO implement events in pure lisp");
     // auto ec = editorController::instance;
 
     // const char *c_type = scm_to_utf8_string(type),

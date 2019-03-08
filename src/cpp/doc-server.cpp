@@ -52,7 +52,7 @@ void document_server::helloWorld()
   cl_object findNs = makefn("qmapper.root:root-findNs");
   cl_object saveNs = makefn("qmapper.root:root-saveNs");
   cl_object is_glsl = makefn("qmapper.root:is-ns-glsl?");
-  cl_object is_scheme = makefn("qmapper.root:is-ns-scheme?");
+  cl_object is_lisp = makefn("qmapper.root:is-ns-lisp?");
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
 					      QByteArray block;
@@ -77,14 +77,12 @@ void document_server::helloWorld()
 						  QString c(contents.c_str());
 
 						  QString firstLine = c.split(QString("\n")).at(0);
-						  puts("is this scheme or lisp?");
-						  bool this_scheme = cl_funcall(3, is_scheme,
+						  bool this_lisp = cl_funcall(3, is_lisp,
 										editorController::instance->document.getValue(),
 										c_string_to_object(ns.c_str())) == ECL_T;
 						  
-						  puts(this_scheme? "tää on skemee": "tää ei oo skemee");
-						  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
-						    (this_scheme? QString("; -*- mode: scheme; -*-\n"):
+						  QString result = firstLine.contains(QRegExp("mode: (lisp|glsl)")) ? c:
+						    (this_lisp? QString("; -*- mode: lisp; -*-\n"):
 						     QString("// -*- mode: glsl; -*-\n")) + c;
 	    
 

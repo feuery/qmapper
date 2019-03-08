@@ -29,9 +29,7 @@
 
 				     (cond
 				      ((save-excursion
-					 (search-forward "-*- mode: scheme" nil t))
-				       ;; (scheme-mode)
-				       ;; (geiser-mode)
+					 (search-forward "-*- mode: lisp; -*-" nil t))
 				       (lisp-mode))
 				      ((save-excursion
 					 (search-forward "-*- mode: glsl" nil t))
