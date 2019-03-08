@@ -158,7 +158,7 @@
       :equal
       :unequal))
 
-(defun clean-key (key)
+(defun-export! clean-key (key)
   (intern (string-upcase (replace-all (if (symbolp key)
 					  (symbol-name key)
 					  key) "\"" ""))))
@@ -509,6 +509,8 @@ and
 (defun-export! drop-alist-keys (alist)
   (mapcar #'cdr alist))
 
+(defun-export! filter (l s)
+  (remove-if-not l s))
 
 ;; (drop-list-i (range 10) 1) => (1 3 4 5 6 7 8 9 10)
 

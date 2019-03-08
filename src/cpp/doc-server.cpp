@@ -41,6 +41,7 @@ bool document_server::start_server() {
     .arg(ipAddress).arg(server_socket->serverPort());
   QMessageBox::information(nullptr, "QMapper", msg);
   qDebug () << msg;
+  puts(msg.toStdString().c_str());
 
   return true;
 }
@@ -48,10 +49,10 @@ bool document_server::start_server() {
 void document_server::helloWorld()
 {
   QTcpSocket *clientCon = server_socket->nextPendingConnection();
-  static cl_object findNs = ecl_make_symbol("root-findNs", "CL-USER");
-  static cl_object saveNs = ecl_make_symbol("root-saveNs", "CL-USER");
-  static cl_object is_glsl = ecl_make_symbol("is-ns-glsl?", "CL-USER");
-  static cl_object is_scheme = ecl_make_symbol("is-ns-scheme?", "CL-USER");
+  cl_object findNs = makefn("qmapper.root:root-findNs");
+  cl_object saveNs = makefn("qmapper.root:root-saveNs");
+  cl_object is_glsl = makefn("qmapper.root:is-ns-glsl?");
+  cl_object is_scheme = makefn("qmapper.root:is-ns-scheme?");
 
   connect(clientCon, &QIODevice::readyRead, [=]() {
 					      QByteArray block;
@@ -67,19 +68,21 @@ void document_server::helloWorld()
 
 						if(protocol == QString("NS")) {
 						  QString qns = l.at(1);
-						  std::string ns = qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString();
-
-						  std::string contents(ecl_string_to_string(cl_funcall(3, findNs,
-												       editorController::instance->document,
-												       c_string_to_object(ns.c_str()))));
+						  std::string ns = "\""+qns.replace(QString("\n"), QString("")).replace(QString("\r"), QString("")).toStdString()+"\"";
+						  printf("finding ns %s\n", ns.c_str());
+						  std::string contents(ecl_string_to_string(get(cl_funcall(3, findNs,
+												       editorController::instance->document.getValue(),
+													   c_string_to_object(ns.c_str())), "contents")));
+						  printf("contents: %s\n", contents.c_str());
 						  QString c(contents.c_str());
 
 						  QString firstLine = c.split(QString("\n")).at(0);
+						  puts("is this scheme or lisp?");
 						  bool this_scheme = cl_funcall(3, is_scheme,
-										editorController::instance->document,
+										editorController::instance->document.getValue(),
 										c_string_to_object(ns.c_str())) == ECL_T;
 						  
-						  // either<scriptTypes, std::string> script_data = editorController::instance->document.findNs(ns);
+						  puts(this_scheme? "tää on skemee": "tää ei oo skemee");
 						  QString result = firstLine.contains(QRegExp("mode: (scheme|glsl)")) ? c:
 						    (this_scheme? QString("; -*- mode: scheme; -*-\n"):
 						     QString("// -*- mode: glsl; -*-\n")) + c;
@@ -87,6 +90,7 @@ void document_server::helloWorld()
 
 
 						  qDebug() << "Found script " << c;
+						  printf("script result is %s\n", result.toStdString().c_str());
 
 						  clientCon->write(result.toUtf8());
 						}
@@ -96,9 +100,9 @@ void document_server::helloWorld()
 						  qDebug() << "Saving to NS " << ns.c_str() << " contents: " << contents.c_str();
 	  
 						  editorController::instance->document.setValue(cl_funcall(4, saveNs,
-													   editorController::instance->document,
-													   c_string_to_object(ns.c_str()),
-													   c_string_to_object(contents.c_str())));
+													   editorController::instance->document.getValue(),
+													   c_string_to_object(("\""+ns+"\"").c_str()),
+													   c_string_to_object(("\""+contents+"\"").c_str())));
 						}
 						else qDebug() << "Didn't recognize protocol " << protocol;
 					      }

@@ -5,7 +5,8 @@
 	:qmapper.std
 	:qmapper.export
 	:qmapper.script)
-  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup :filter :reduce :size :concat :convert :wb-map-from-list)
+  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup ;; :filter
+   :reduce :size :concat :convert :wb-map-from-list)
   (:shadowing-import-from :cl-strings :replace-all)
   (:import-from :qmapper.export :clear-lisp-drawingqueue :add-lambda-to-drawingqueue))
 
@@ -47,6 +48,18 @@
 (defun-export! schedule-once (dst l)
   (format t "scheduling once to dst ~a~%" (symbol-name dst))
   (funcall do-schedule-lambda (symbol-name dst) l))
+
+(defun script-ns->id (root ns)
+  (clean-key 
+   (get-prop (->> root
+		  root-scripts 
+		  (convert 'list)
+		  (mapcar #'cdr)
+		  (filter (lambda (s)
+			    (format t "s is ~s" s)
+			    (string= (script-ns s)
+				     ns)))
+		  car) "ID")))
 
 (defcppclass root
     (public   
@@ -115,17 +128,18 @@
 			     "Tilesets" (root-tilesets *this*))
 		      id))
       (findNs (ns)
-	      (let ((scripts (root-scripts *this*)))
-		(first (filter (lambda (script)
-				 (equalp (Script-ns script) ns)) scripts))))
+	      (let* ((list-scripts (convert 'list (root-scripts *this*)))
+		     (scripts (mapcar #'cdr list-scripts)))
+		(let ((result (car (filter (lambda (script)
+					     (equalp (Script-ns script) ns)) scripts))))
+		  result)))
       (saveNs (ns content)
 	      (let* ((scripts (root-scripts *this*))
-		     (index (get-list-index (root-scripts *this*) (lambda (sc)
-								    (equalp (Script-ns sc) ns))))
-		     (new-script (-> (nth index scripts)
+		     (id (script-ns->id *this* ns))
+		     (new-script (-> (get-prop scripts id)
 				     (set-Script-Contents! content)))
-		     (scripts (assoc-to-ind scripts index new-script)))
-		(set-root-scripts *this* scripts)))
+		     (scripts (set-prop scripts id new-script)))
+		(set-root-scripts! *this* scripts)))
       (containsNs (ns)
 		  (not (filter (lambda (script)
 				 (equalp (script-ns script) ns)) scripts)))
@@ -244,24 +258,15 @@
 			      result))))
     result))
 
-;; (push-script *document* (make-script "Lollo" "name" "ns" "glsl"))
-
-(defun-export! find-ns (root ns)
-  (let ((scr (filter
-	      (lambda (scr)
-		(equalp (Script-ns scr) ns))
-	      (root-scripts root))))
-    (if (not scr)
-	'()
-	(car scr))))
     
 (defun-export! is-ns-scheme? (root ns)
-  (let ((scr (find-ns root ns)))
-    (Script-is-scheme? (car scr))))
+  (let ((scr (root-findNs root ns)))
+    (format t "found script ~a~%" scr)
+    (Script-is-scheme? scr)))
 
 (defun-export! is-ns-glsl? (root ns)
-  (let ((scr (find-ns root ns)))
-    (Script-is-glsl? (car scr))))
+  (let ((scr (root-findNs root ns)))
+    (Script-is-glsl? scr)))
 
 (defun-export! push-sprite2 (root mapInd sprite-id sprite)
   (-> root

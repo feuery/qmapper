@@ -18,14 +18,9 @@
     (script_type 'scheme))
    (functions
     (is-scheme? ()
-		(let ((script-type (Script-script_type (this))))
-		  (equal? script-type 'scheme)))
+		(let ((script-type (Script-script_type *this*)))
+		  ;; (format t "script type: ~a, is it scheme? ~a~%" script-type (equalp script-type 'scheme))
+		  (string= (format nil "~a" script-type) "scheme")))
     (is-glsl? ()
-	      (let ((script-type (Script-script_type (this))))
-		(equal? script-type 'glsl))))))
-
-;; (get-prop (make-script "contents" "name123" "ns" 'scheme) "nAmE")
-
-;; (export-all :qmapper.script)
-
-;; (scm-puts "Loaded script")
+    	      (let ((script-type (Script-script_type *this*)))
+    		(equalp script-type 'glsl))))))

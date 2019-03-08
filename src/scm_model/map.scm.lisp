@@ -120,10 +120,6 @@
   	 (nth x)
   	 (nth y))))
 
-
-(defun filter (l s)
-  (remove-if-not l s))
-
 (defun-export! find-layer-parent (layer root)
   (let* ((maps (mapcar #'cdr (convert 'list (root-maps root)))))
     (car (remove-if-not (lambda (map)

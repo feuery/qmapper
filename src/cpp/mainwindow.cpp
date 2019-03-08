@@ -306,7 +306,7 @@ void MainWindow::setupTreeCtxMenu()
   // TODO
   // Add a menu:
   //       new -> glsl script	
-  //           -> scheme script
+  //           -> lisp script
   //           -> ------------
   //           -> texture
   //           -> ------------			
@@ -318,13 +318,13 @@ void MainWindow::setupTreeCtxMenu()
   QMenu *newMenu = new QMenu(this);
 
   QAction *glsl = new QAction("&GLSL", this),
-    *scheme = new QAction("&Scheme", this),
+    *lisp = new QAction("&Lisp", this),
     *tileset = new QAction("T&ileset", this),
     *sprite = new QAction("S&prite", this),
     *animation = new QAction("&Animation", this);
   
   glsl->setStatusTip("New GLSL-script asset");
-  scheme->setStatusTip("New Scheme asset");
+  lisp->setStatusTip("New Lisp asset");
   tileset->setStatusTip("New tileset");
   sprite->setStatusTip("Load a new sprite");
   animation->setStatusTip("Load a new animation");
@@ -332,8 +332,8 @@ void MainWindow::setupTreeCtxMenu()
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
     });
-  connect(scheme, &QAction::triggered, []() {
-      add_scheme_script();
+  connect(lisp, &QAction::triggered, []() {
+      add_lisp_script();
     });;
 
   connect(tileset, &QAction::triggered, this, &MainWindow::newTileset) ;
@@ -349,7 +349,7 @@ void MainWindow::setupTreeCtxMenu()
     });
 
   newMenu->addAction(glsl);
-  newMenu->addAction(scheme);
+  newMenu->addAction(lisp);
   newMenu->addSeparator();
   newMenu->addAction(tileset);
   newMenu->addAction(sprite);

@@ -30,8 +30,9 @@
 				     (cond
 				      ((save-excursion
 					 (search-forward "-*- mode: scheme" nil t))
-				       (scheme-mode)
-				       (geiser-mode))
+				       ;; (scheme-mode)
+				       ;; (geiser-mode)
+				       (lisp-mode))
 				      ((save-excursion
 					 (search-forward "-*- mode: glsl" nil t))
 				       (glsl-mode)))
@@ -58,7 +59,7 @@
 					    :nowait nil)))
 	    (process-send-string proc (concat "SAVE-NS:" ns ":" buf-content))
 	    (set-process-sentinel proc (lambda (p e)
-					 (clear-modified)
+					 (set-buffer-modified-p nil)
 					 (message (concat "Saved " ns " to " server ":" (int-to-string port)))))))
       (save-buffer))))
 
@@ -68,7 +69,7 @@
       (cond
        ((string-match "^QM:\\(\\w+\\):\\([0-9]+\\):\\(.+\\)" path)
 	(let ((server (match-string 1 path))
-	      (port (string-to-int (match-string 2 path)))
+	      (port (string-to-number (match-string 2 path)))
 	      (ns (match-string 3 path)))
 	  (qmapper-fetch-ns server port ns)))
        (t (apply find-file args)))))

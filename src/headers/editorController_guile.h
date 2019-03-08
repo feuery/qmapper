@@ -9,7 +9,7 @@ extern "C" {
   cl_object add_layer(cl_object map_index);
   cl_object delete_layer(cl_object map_index, cl_object layer_index);
   cl_object add_glsl_script();
-  cl_object add_scheme_script();
+  cl_object add_lisp_script();
   cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor);
   cl_object toggle_rendering();
 

@@ -77,7 +77,7 @@ extern "C" {
     return ECL_T;
   }
 
-  cl_object add_scheme_script()
+  cl_object add_lisp_script()
   {
     cl_object makeScript = makefn("qmapper.script:make-Script");
     cl_object pushScript = makefn("qmapper.root:push-script");
