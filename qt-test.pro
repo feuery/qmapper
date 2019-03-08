@@ -11,7 +11,6 @@ INCLUDEPATH += ./src/headers
 INCLUDEPATH += ./src/ui
 INCLUDEPATH += /opt/local/include
 INCLUDEPATH += ./libzippp/src
-INCLUDEPATH += ./src/scm_model
 QT += widgets
 QT += opengl
 QT += network
@@ -28,7 +27,7 @@ QMAKE_LFLAGS += `ecl-config --ldflags`
 
 DESTDIR = ./bin
 
-QMAKE_POST_LINK += $$quote(cp ./src/scm/* $${DESTDIR} && cp ./src/scm/*.asd $${DESTDIR} && cp ./src/scm_model/*.lisp $${DESTDIR})
+QMAKE_POST_LINK += $$quote(cp ./src/lisp/*.lisp $${DESTDIR} && cp ./src/lisp/*.asd $${DESTDIR})
 
 # Input
 HEADERS += src/headers/files.h \
@@ -58,7 +57,6 @@ HEADERS += src/headers/files.h \
            src/headers/engine_renderer.h \
            src/headers/guile_qt_keymapping.h \
            src/headers/guile_fn.h \
-           src/scm_model/loader.h \
            src/headers/holder.h
            
 FORMS += \
@@ -89,5 +87,4 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/engine_renderer.cpp \
            src/cpp/guile_qt_keymapping.cpp \
            src/cpp/guile_fn.cpp \
-           src/scm_model/loader.cpp \
            src/cpp/holder.cpp
