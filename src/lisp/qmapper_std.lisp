@@ -512,7 +512,15 @@ and
 (defun-export! filter (l s)
   (remove-if-not l s))
 
-;; (drop-list-i (range 10) 1) => (1 3 4 5 6 7 8 9 10)
+(defun-export! to-list (o)
+  (convert 'list o))
+
+(defun mapcat (fn coll)
+  (apply #'concatenate (list 'list (apply #'mapcar fn coll))))
+
+(defun-export! flatten-get (2dlist prop)
+  (mapcat (lambda (e)
+	    (get-prop e prop)) 2dlist))
 
 
 ;; (defun-export! set-timeout  (seconds fn)
@@ -547,6 +555,5 @@ and
 ;; 	   (let ((x (get-prop "2001100545" "Sprite" "x")))
 ;; 	     (set-prop "2001100545" "Sprite" "x" (+ x 10))))))
 
-(format t "~%qmapper-std loaded")
 
 ;; (export-all :qmapper.std)

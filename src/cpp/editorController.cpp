@@ -519,10 +519,44 @@ void saveImg(ZipArchive &arch, QImage &img, std::string name) {
 }
 
 void editorController::dumpTextures(ZipArchive &arch) {
-  puts("TODO implement saving when sprites are implemented!");
-//   auto tilesets = document.typeRegistry<Tileset>("Tileset");
-//   auto sprites = document.typeRegistry<Sprite>("Sprite");
-//   auto animations = document.typeRegistry<animatedsprite>("AnimatedSprite");
+  cl_object get_tilesets = makefn("qmapper.root:root-tilesets"),
+    get_sprites = makefn("qmapper.root:root-sprites"),
+    get_animations = makefn("qmapper.root:root-animatedSprites"),
+    concat = lisp("(lambda (l) (format t \"we're in concat!~%\") (let ((result (apply (qmapper.std:partial #'concatenate 'list) l))) (format t \"we're returning from concat~%\") result))"),
+    get_keys = lisp("(lambda (l) (mapcar (lambda (e) (qmapper.std:get-prop e \"gl-key\")) l))"),
+    toList = makefn("qmapper.std:to-list"),
+    len = makefn("length"),
+    nth = makefn("nth"),
+    format = makefn("format"),
+    car = makefn("car"),
+    cdr = makefn("cdr"),
+    tilesets = cl_funcall(2, toList, cl_funcall(2, get_tilesets, document.getValue())),
+    get_tiles = makefn("qmapper.tileset:tileset-tiles");
+
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"tilesets are ~a~%\""), tilesets);
+  int tileset_len = fixint(cl_funcall(2, len, tilesets));
+  
+
+  for(int i = 0; i < tileset_len; i++) {
+    cl_object tileset_pair = cl_funcall(3, nth, ecl_make_int32_t(i), tilesets),
+      tileset_id = cl_funcall(2, car, tileset_pair),
+      tileset = cl_funcall(2, cdr, tileset_pair),
+      tiles = cl_funcall(2, concat, cl_funcall(2, get_tiles, tileset)),
+      gl_keys = cl_funcall(2, get_keys, tiles),
+      gl_keys_len = cl_funcall(2, len, gl_keys);
+
+    for(int gl_key_i = 0; gl_key_i < fixint(gl_keys_len); gl_key_i++) {
+      cl_object gl_key = cl_funcall(3, nth, ecl_make_int32_t(gl_key_i), gl_keys);
+      std::string key = toKey(gl_key);
+      obj *o = toObj(tilesetView, qimages.at(key));
+      
+      QImage &img = o->qi_copy;
+      saveImg(arch, img, key+".png");
+    }
+  }
+
+  puts("textures dumped!");
+    
 
 //   for(auto sprite: sprites) {
 //     obj* spr = sprite->getObject();
@@ -554,26 +588,25 @@ void editorController::dumpTextures(ZipArchive &arch) {
 }
 
 void editorController::saveTo(QString filename) {
-  
-  puts("TODO implement saving when sprites are implemented!");
-//   QFile f(filename);
-//   f.remove();
-//   ZipArchive arch(filename.toStdString());
-//   arch.open(ZipArchive::WRITE);
-//   qDebug() << "Trying root.toJSON();";
-//   std::string rootJson = document.toJSON();
+    QFile f(filename);
+  f.remove();
+  ZipArchive arch(filename.toStdString());
+  arch.open(ZipArchive::WRITE);
+  puts("Trying root.toLISP();");
+  cl_object prin1 = makefn("prin1-to-string");
+  std::string rootLisp = ecl_string_to_string(cl_funcall(2, prin1, document.getValue()));
 
-//   qDebug() << "Got root json";
+  qDebug() << "Got root lisp";
   
-//   arch.addData("root.json", rootJson.c_str(), rootJson.size());
-//   dumpTextures(arch);
-//   arch.close();
-//   for(auto tmp: tempFiles) {
-//     tmp->close();
-//     delete tmp;
-//   }
-//   tempFiles.clear();
-//   qDebug() << "Saved root to " << filename;
+  arch.addData("root.lisp", rootLisp.c_str(), rootLisp.size());
+  dumpTextures(arch);
+  arch.close();
+  for(auto tmp: tempFiles) {
+    tmp->close();
+    delete tmp;
+  }
+  tempFiles.clear();
+  qDebug() << "Saved root to " << filename;
 }
 
 void editorController::loadFrom(QString fname) {
