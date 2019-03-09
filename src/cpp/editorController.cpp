@@ -334,7 +334,6 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   instance = this;
 
-  puts("Yritetään luoda eka skribula");
   cl_object scr = cl_funcall(5,
 			     makeScript,
 			     c_string_to_object("\"#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n\""),
@@ -342,17 +341,12 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 			     c_string_to_object("\"defaultVertex\""),
 			     c_string_to_object("\"glsl\""));
 
-  puts("Luotiin eka skribula");
-
   auto doc = document.getValue();
   assert(doc != ECL_NIL);
 
   auto newDoc = cl_funcall(3, pushScript, doc, scr);
   document.setValue(newDoc);
 
-  puts("Tallennettiin eka skribula!");
-
-  puts("Yritetään toista skribulaa");
   scr = cl_funcall(5, makeScript,
 		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
 		   c_string_to_object("\"Standard fragment shader\""),
@@ -437,15 +431,6 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
     
   tileRenderer->setSelectedTile(tileObj);
 
-  // puts("Pitäis varmaan koodata myös datan pallottelu eikä pelkkiän tekstuurien");
-
-  // selectedTileData.setX(x);
-  // selectedTileData.setY(y);
-  // selectedTileData.setRotation(0);
-  // selectedTileData.setTileset(indexOfChosenTileset);
-
-  // qDebug() << "Selected tile is: {" << selectedTileData.getX() << ", " << selectedTileData.getY() << ", " << selectedTileData.getRotation() << ", " << selectedTileData.getTileset().c_str() << "}";
-
 }
 
 void editorController::setTileAt(int x, int y)
@@ -463,11 +448,11 @@ void editorController::setTileAt(int x, int y)
 void editorController::setTileRotation(int x, int y, int deg_angl) {
   cl_object set_tile_rotation = makefn("qmapper.map:set-tile-rotation-at");
 
-  document.setValue( cl_funcall(5, set_tile_rotation,
-			document.getValue(),
-			ecl_make_fixnum(x),
-			ecl_make_fixnum(y),
-				ecl_make_fixnum(deg_angl % 360)));
+  document.setValue(cl_funcall(5, set_tile_rotation,
+			       document.getValue(),
+			       ecl_make_fixnum(x),
+			       ecl_make_fixnum(y),
+			       ecl_make_fixnum(deg_angl % 360)));
 }
 
 void editorController::rotateTile90Deg(int x, int y) {
