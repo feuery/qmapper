@@ -521,6 +521,7 @@ void saveImg(ZipArchive &arch, QImage &img, std::string name) {
 void editorController::dumpTextures(ZipArchive &arch) {
   cl_object get_tilesets = makefn("qmapper.root:root-tilesets"),
     get_sprites = makefn("qmapper.root:root-sprites"),
+    clean_key = makefn("qmapper.std:clean-key"),
     get_animations = makefn("qmapper.root:root-animatedSprites"),
     concat = lisp("(lambda (l) (format t \"we're in concat!~%\") (let ((result (apply (qmapper.std:partial #'concatenate 'list) l))) (format t \"we're returning from concat~%\") result))"),
     get_keys = lisp("(lambda (l) (mapcar (lambda (e) (qmapper.std:get-prop e \"gl-key\")) l))"),
@@ -559,25 +560,35 @@ void editorController::dumpTextures(ZipArchive &arch) {
     sprites_len = cl_funcall(2, len, sprites);
   for(int i = 0; i < fixint(sprites_len); i++) {
     cl_object sprite_pair = cl_funcall(3, nth, ecl_make_int32_t(i), sprites),
-      sprite_id = cl_funcall(2, car, sprite_pair),
+      sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), cl_funcall(2, car, sprite_pair))),
       sprite = cl_funcall(2, cdr, sprite_pair),
       gl_key = get(sprite, "gl-key");
     std::string key = toKey(gl_key);
     obj *o = toObj(map_view, qimages.at(key));
     QImage &img = o->qi_copy;
-    saveImg(arch, img, ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), sprite_id))+".png");
+    saveImg(arch, img, ecl_string_to_string(sprite_id)+".png");
   }
 
-//   for(auto animation: animations) {
-//     int i = 0;
-//     for(auto it = animation->sprites->begin(); it != animation->sprites->end(); it++) {
-//       auto sprite = *it;
-//       obj* spr = sprite->getObject();
-//       QImage &img = spr->qi_copy;
-//       saveImg(arch, img, animation->getId() + " - " + std::to_string(i) + ".png");
-//       i++;
-//     }
-//   }
+  cl_object animations = cl_funcall(2, toList, cl_funcall(2, get_animations, document.getValue())),
+    anim_len = cl_funcall(2, len, animations);
+  
+  for (int i = 0; i < fixint(anim_len); i++) {
+    cl_object animation_pair = cl_funcall(3, nth, ecl_make_int32_t(i), animations),
+      animation_id = cl_funcall(2, car, animation_pair),
+      animation = cl_funcall(2, cdr, animation_pair),
+      sprites = get(animation, "sprites"),
+      sprites_len = cl_funcall(2, len, sprites);
+    for(int sprite_i = 0; sprite_i < fixint(sprites_len); sprite_i++) {
+      cl_object sprite = cl_funcall(3, nth, ecl_make_int32_t(sprite_i), sprites),
+	sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), get(sprite, "id"))),
+	gl_key = get(sprite, "gl-key");
+      cl_funcall(4, format, ECL_T, c_string_to_object("\"saving animated subsprite ~a~%\""), sprite_id);
+      std::string key = toKey(gl_key);
+      obj *o = toObj(map_view, qimages.at(key));
+      QImage &img = o->qi_copy;
+      saveImg(arch, img, ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), sprite_id))+".png");
+    }
+  }
 
 }
 
