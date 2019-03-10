@@ -554,15 +554,19 @@ void editorController::dumpTextures(ZipArchive &arch) {
       saveImg(arch, img, key+".png");
     }
   }
-
-  puts("textures dumped!");
     
-
-//   for(auto sprite: sprites) {
-//     obj* spr = sprite->getObject();
-//     QImage &img = spr->qi_copy;
-//     saveImg(arch, img, sprite->getId() + ".png");
-//   }
+  cl_object sprites = cl_funcall(2, toList, cl_funcall(2, get_sprites, document.getValue())),
+    sprites_len = cl_funcall(2, len, sprites);
+  for(int i = 0; i < fixint(sprites_len); i++) {
+    cl_object sprite_pair = cl_funcall(3, nth, ecl_make_int32_t(i), sprites),
+      sprite_id = cl_funcall(2, car, sprite_pair),
+      sprite = cl_funcall(2, cdr, sprite_pair),
+      gl_key = get(sprite, "gl-key");
+    std::string key = toKey(gl_key);
+    obj *o = toObj(map_view, qimages.at(key));
+    QImage &img = o->qi_copy;
+    saveImg(arch, img, ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), sprite_id))+".png");
+  }
 
 //   for(auto animation: animations) {
 //     int i = 0;
@@ -575,16 +579,6 @@ void editorController::dumpTextures(ZipArchive &arch) {
 //     }
 //   }
 
-//   for(auto tileset: tilesets) {
-//     Tilesetcontainer *c_tileset = static_cast<Tilesetcontainer*>(tileset);
-//     for(int x = 0; x < c_tileset->tiles.size(); x++) {
-//       for(int y = 0; y < c_tileset->tiles.at(x).size(); y++) {
-// 	obj *tile_obj = static_cast<obj*>(tilesetView->getOwnObject(c_tileset->tiles.at(x).at(y)));
-// 	Tile *tile = c_tileset->getTiles()->at(x).at(y);
-// 	saveImg(arch, tile_obj->qi_copy, c_tileset->getId() + " - " + tile->getId() + ".png");	
-//       }
-//     }
-//   }
 }
 
 void editorController::saveTo(QString filename) {
