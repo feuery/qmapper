@@ -551,11 +551,11 @@ void editorController::dumpTextures(ZipArchive &arch) {
     get_sprites = makefn("qmapper.root:root-sprites"),
     clean_key = makefn("qmapper.std:clean-key"),
     get_animations = makefn("qmapper.root:root-animatedSprites"),
-    concat = lisp("(lambda (l) (format t \"we're in concat!~%\") (let ((result (apply (qmapper.std:partial #'concatenate 'list) l))) (format t \"we're returning from concat~%\") result))"),
-    get_keys = lisp("(lambda (l) (mapcar (lambda (e) (qmapper.std:get-prop e \"gl-key\")) l))"),
+    concat = lisp("(lambda (l) (let* ((l (fset:convert 'list l))) (apply (qmapper.std:partial #'concatenate 'list) l)))"),
+    get_keys = lisp("(lambda (l) (mapcar (lambda (e) (qmapper.std:get-prop e \"gl-key\")) (fset:convert 'list l)))"),
     toList = makefn("qmapper.std:to-list"),
-    len = makefn("length"),
-    nth = makefn("nth"),
+    len = makefn("fset:size"),
+    get_prop = makefn("qmapper.std:get-prop"),
     format = makefn("format"),
     car = makefn("car"),
     cdr = makefn("cdr"),
@@ -567,15 +567,16 @@ void editorController::dumpTextures(ZipArchive &arch) {
   
 
   for(int i = 0; i < tileset_len; i++) {
-    cl_object tileset_pair = cl_funcall(3, nth, ecl_make_int32_t(i), tilesets),
+    cl_object tileset_pair = cl_funcall(3, get_prop, tilesets, ecl_make_int32_t(i)),
       tileset_id = cl_funcall(2, car, tileset_pair),
       tileset = cl_funcall(2, cdr, tileset_pair),
-      tiles = cl_funcall(2, concat, cl_funcall(2, get_tiles, tileset)),
+      tiles1 =  cl_funcall(2, get_tiles, tileset),
+      tiles = cl_funcall(2, concat, tiles1),
       gl_keys = cl_funcall(2, get_keys, tiles),
       gl_keys_len = cl_funcall(2, len, gl_keys);
 
     for(int gl_key_i = 0; gl_key_i < fixint(gl_keys_len); gl_key_i++) {
-      cl_object gl_key = cl_funcall(3, nth, ecl_make_int32_t(gl_key_i), gl_keys);
+      cl_object gl_key = cl_funcall(3, get_prop, gl_keys, ecl_make_int32_t(gl_key_i));
       std::string key = toKey(gl_key);
       obj *o = toObj(tilesetView, qimages.at(key));
       
@@ -587,7 +588,7 @@ void editorController::dumpTextures(ZipArchive &arch) {
   cl_object sprites = cl_funcall(2, toList, cl_funcall(2, get_sprites, document.getValue())),
     sprites_len = cl_funcall(2, len, sprites);
   for(int i = 0; i < fixint(sprites_len); i++) {
-    cl_object sprite_pair = cl_funcall(3, nth, ecl_make_int32_t(i), sprites),
+    cl_object sprite_pair = cl_funcall(3, get_prop, sprites, ecl_make_int32_t(i)),
       sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), cl_funcall(2, car, sprite_pair))),
       sprite = cl_funcall(2, cdr, sprite_pair),
       gl_key = get(sprite, "gl-key");
@@ -601,13 +602,13 @@ void editorController::dumpTextures(ZipArchive &arch) {
     anim_len = cl_funcall(2, len, animations);
   
   for (int i = 0; i < fixint(anim_len); i++) {
-    cl_object animation_pair = cl_funcall(3, nth, ecl_make_int32_t(i), animations),
+    cl_object animation_pair = cl_funcall(3, get_prop, animations, ecl_make_int32_t(i)),
       animation_id = cl_funcall(2, car, animation_pair),
       animation = cl_funcall(2, cdr, animation_pair),
       sprites = get(animation, "sprites"),
       sprites_len = cl_funcall(2, len, sprites);
     for(int sprite_i = 0; sprite_i < fixint(sprites_len); sprite_i++) {
-      cl_object sprite = cl_funcall(3, nth, ecl_make_int32_t(sprite_i), sprites),
+      cl_object sprite = cl_funcall(3, get_prop, sprites, ecl_make_int32_t(sprite_i)),
 	sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), get(sprite, "id"))),
 	gl_key = get(sprite, "gl-key");
       cl_funcall(4, format, ECL_T, c_string_to_object("\"saving animated subsprite ~a~%\""), sprite_id);
