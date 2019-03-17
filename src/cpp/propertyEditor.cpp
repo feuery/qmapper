@@ -152,30 +152,6 @@ QStandardItemModel* dump_to_model_horizontal()
   return model;
 }
 
-// QStandardItemModel* dump_to_model(std::vector<cl_object>* prop_objs)
-// {
-//   if(!prop_objs) {
-//     qDebug() << "prop_objs is null at " << __FILE__ << ": " << __LINE__;
-//     throw "";
-//   }
-//   QStandardItemModel *model = new QStandardItemModel;
-
-//   QStandardItem *empty = new QStandardItem("Empty");
-//   model->appendRow(empty);
-
-//   for(auto m = prop_objs->begin(); m < prop_objs->end(); m++) {
-//     either<bool, std::string> result = getStringProp(*m, std::string(std::string("name")));
-    
-//     QStandardItem *map_item = new QStandardItem(result.b.c_str());
-//     QVariant var;
-//     var.setValue(*m);
-//     map_item->setData(var);
-//     model->appendRow(map_item);
-//   }
-
-//   return model;
-// }
-
 std::vector<std::string> keys(cl_object b)
 {
   assert(b != ECL_NIL);
@@ -211,7 +187,7 @@ bool has_meta(cl_object field_meta, const char *meta_value)
 {
   QString mval = meta_value;
   mval = "\""+mval.toUpper()+"\"";
-  cl_object member = lisp("(lambda (field-meta) (member " + mval.toStdString() + " field-meta :test #'string=))"),
+  cl_object member = lisp("(lambda (field-meta) (let ((field-meta (fset:convert 'list field-meta)))  (member " + mval.toStdString() + " field-meta :test #'string=)))"),
     result = cl_funcall(2, member, field_meta);
   return result != ECL_NIL;
 }

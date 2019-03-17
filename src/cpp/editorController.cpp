@@ -13,6 +13,8 @@
 
 #include <editorController_guile.h>
 #include <QImage>
+#include <sstream>
+#include <iterator>
 
 using namespace libzippp;
 
@@ -218,6 +220,22 @@ cl_object set_y_dst(cl_object dst_key, cl_object cl_img, cl_object cl_y) {
   return ECL_NIL;
 }
 
+std::vector<std::string> map_keys(std::unordered_map<std::string, std::string>& map) {
+  std::vector<std::string> res;
+  for(auto it: map)
+    res.push_back(it.first);
+  return res;
+}
+
+std::string join(std::vector<std::string>& strings) {
+  const char* const delim = ", ";
+
+  std::ostringstream imploded;
+  std::copy(strings.begin(), strings.end(),
+	    std::ostream_iterator<std::string>(imploded, delim));
+  return imploded.str();
+}
+
 cl_object set_x_dst(cl_object dst_key, cl_object cl_img, cl_object cl_x) {
   auto format = makefn("forMat");
   // cl_funcall(4, format, ECL_T, c_string_to_object("\"cl_img is ~a~%\""), cl_img);
@@ -227,10 +245,20 @@ cl_object set_x_dst(cl_object dst_key, cl_object cl_img, cl_object cl_x) {
   int x = real_fixint(cl_x);
   auto ec = editorController::instance;
   
-  Renderer *r = editorController::instance->getRenderer(dst_key);    
-  obj *o = toObj(r, qimages.at(img));
-  o->position.x = x;
-  return ECL_NIL;
+  Renderer *r = editorController::instance->getRenderer(dst_key);
+  auto keys = map_keys(qimages);
+  std::string keys_str = join(keys);
+
+  try {
+    std::string final_key = qimages.at(img);
+    obj *o = toObj(r, final_key);
+    o->position.x = x;
+    return ECL_NIL;
+  }
+  catch(std::out_of_range ex) {
+    printf("out_of_range, key: %s, keys %s\n", img.c_str(), keys_str.c_str());
+    throw ex;
+  }
 }
 
 cl_object set_opacity_dst(cl_object dst_key, cl_object cl_img, cl_object opacity) {

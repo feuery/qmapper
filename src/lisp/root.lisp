@@ -5,7 +5,7 @@
 	:qmapper.std
 	:qmapper.export
 	:qmapper.script)
-  (:shadowing-import-from :fset :empty-map :with :seq :image :lookup ;; :filter
+  (:shadowing-import-from :fset :empty-map :with-first :with :seq :image :lookup ;; :filter
    :reduce :size :concat :convert :wb-map-from-list)
   (:shadowing-import-from :cl-strings :replace-all)
   (:import-from :qmapper.export :clear-lisp-drawingqueue :add-lambda-to-drawingqueue))
@@ -189,7 +189,7 @@
     (cdr (nth selected-ind (convert 'list (root-tilesets root))))))
 
 (defun-export! init-root! ()
-  (make-root '() '() '() '() '() 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" '() '()))
+  (make-root (empty-map) (empty-map) (empty-map) (empty-map) (empty-map) 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" (empty-map) (empty-map)))
       
 (defun-export! push-map (root m)
   (let* ((maps (set-prop (root-maps root)
@@ -279,8 +279,7 @@
 				(format t "updated sprites~%")
 				res)))
       (update-prop-in (list 'maps mapInd 'sprites) (lambda (sprites)
-						     (format t "Lolz~%")
-						     (cons sprite-id sprites)))))
+						     (with-first sprites sprite-id)))))
 
 (defun-export! push-animation (root mapInd animation)
   (let ((animation-id (get-prop animation "ID")))
@@ -294,8 +293,7 @@
 					  (format t "updated animatedSprites~%")
 					  res)))
 	(update-prop-in (list 'maps mapInd 'animatedSprites) (lambda (animatedSprites)
-							       (format t "Lolz~%")
-							       (cons animation-id animatedSprites))))))
+							       (with-first animatedSprites animation-id))))))
 
 (defvar *document* (init-root!))
 (export '*document*)
@@ -319,4 +317,4 @@
       (format t "hook ~a can't be registered~%" l)))
 
 (defun-export! tileset-count! ()
-  (length (root-tilesets *document*)))
+  (size (root-tilesets *document*)))

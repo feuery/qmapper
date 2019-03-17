@@ -4,7 +4,8 @@
 	:qmapper.export
 	:qmapper.std
 	:qmapper.tile
-	:qmapper.root))
+   :qmapper.root)
+  (:import-from :fset :size))
 
 (in-package :qmapper.layer)
 
@@ -19,9 +20,9 @@
     )
    (functions
     (width ()
-	   (length (Layer-tiles *this*)))
+	   (size (Layer-tiles *this*)))
     (height ()
-	    (length (car (Layer-tiles *this*)))))))
+	    (size (fset-first (Layer-tiles *this*)))))))
 
 (defun-export! make-tiles (w h)
   (let ((all-tiles

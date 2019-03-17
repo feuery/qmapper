@@ -5,7 +5,8 @@
 	:qmapper.tileset
         :qmapper.std
 	:qmapper.export
-	:qmapper.root))
+	:qmapper.root)
+  (:import-from :fset :size))
 
 (in-package :qmapper.animatedsprite)
 
@@ -29,15 +30,16 @@
       (sprites '() (noteditable)))
      (functions
       (maxFrames ()
-		 (length (animatedsprite-sprites *this*)))
+		 (size (animatedsprite-sprites *this*)))
       (advanceFrame! ()
 		     (let* ((tt *this*)
 			    (frameid (inc (animatedsprite-currentFrameId tt)))
 			    (frameid (mod frameid (animatedsprite-maxFrames tt))))
 		       (set-animatedsprite-currentFrameId! tt frameid)))
+      
       (render ()
     	      (let* ((sprites (animatedsprite-sprites *this*))
-    		     (current-sprite (-> (nth (animatedsprite-currentFrameId *this*) sprites)
+    		     (current-sprite (-> (get-prop sprites (animatedsprite-currentFrameId *this*))
 					 (set-sprite-x! (animatedsprite-x *this*))
 					 (set-sprite-y! (animatedsprite-y *this*))
 					 (set-sprite-angle! (animatedsprite-angle *this*)))))

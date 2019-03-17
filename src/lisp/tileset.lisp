@@ -28,9 +28,7 @@
       (h 0))))				; in tiles
 
 (defun-export! get-tile (tileset x y)
-  (->> (tileset-tiles tileset)
-       (nth x)
-       (nth y)))
+  (get-prop-in (tileset-tiles tileset) (list x y)))
 
 (defun-export! select-tileset-to-draw (*this*)
   (clear-draw-queue :TILESET)
@@ -43,9 +41,7 @@
     (dolist (c-pair coords)
       (let* ((x (car c-pair))
       	     (y (cadr c-pair))
-      	     (img (->> tiles
-      		       (nth x)
-      		       (nth y))))
+      	     (img (get-prop-in tiles (list x y))))
 	(if img
 	    (progn
               (set-image-x :TILESET img (truncate (* x 50.0)))
@@ -60,18 +56,8 @@
 (defun-export! select-tileset (tileset)
   (format t "Selecting tileset~%")
   (select-tileset-to-draw tileset)
-  (assert (not (consp tileset)))
-  
-  (let* ((tilesets (mapcar #'cdr (convert 'list (root-tilesets qmapper.root:*document*))))
-	 (tile-index (position tileset tilesets)))
-    ;; (format t "haetaan indeksiä (position ~a ~a)~%" tileset tilesets)
-    ;; (format t "selected tile-index is ~a~%" tile-index)
-    (assert tile-index)
-    (let ((new-root (set-root-chosenTileset! qmapper.root:*document* tile-index)))
-      ;; (format t "new root: ~a~%" new-root)
-      ;; Tää assertio feilaa?
-      (assert (root-chosenTileset *document*)))))
-				 
+  (assert (not (consp tileset))))
+  				 
 (defun-export! load-tilesetless-texture-splitted (path &key (tile-width 50) (tile-height 50))
   (let* ((root-img (load-img path))
 	 (_ (format t "img loaded~%"))

@@ -11,7 +11,7 @@
 	:qmapper.export
 	:qmapper.tile)
   (:import-from :qmapper.export :clear-lisp-drawingqueue :add-lambda-to-drawingqueue)
-  (:import-from :fset :convert))
+  (:import-from :fset :size :convert))
 
 (in-package :qmapper.map)
 
@@ -48,13 +48,13 @@
 						(get-prop (root-animatedSprites *document*) sprite-id)))))))
 		     (car (find-nearest x y lst))))
       (width ()
-	     (let* ((layer-id (first (Map-layers *this*)))
+	     (let* ((layer-id (fset-first (Map-layers *this*)))
 		    (layers (get-prop (root-layers *document*) layer-id)))
 	       (Layer-width layers)))
       (height ()
-	      (let* ((layer-id (first (Map-layers *this*)))
-		    (layers (get-prop (root-layers *document*) layer-id)))
-		(Layer-height layers)))
+	      (let* ((layer-id (fset-first (Map-layers *this*)))
+		     (layer (get-prop (root-layers *document*) layer-id)))
+		(Layer-height layer)))
       ;; this'll be fun
       (resize (w
 	       h
@@ -79,69 +79,28 @@
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))
 	(set-root-maps! (set-prop (root-maps doc) (get-prop map "ID") map)))))
 
-;; (defun-export! alist-update (alist k fn)
-;;   (alist-cons k (funcall fn (cdr (assoc k alist))) alist))
-
-;; (alist-update `((a . ,(* 3 3))
-;; 		(b . ,(+ 3 2))) 'a (partial * 3))
-
-;; (defun-export! alist-get (a k)		
-;;   (cdr (assoc k a)))
-
-;; (defun-export! alist-update-in (alist path fn)
-;;   (let ((key (car path))
-;; 	(path (cdr path)))
-;;     (if (not path)
-;; 	(alist-update alist key fn)
-;; 	(alist-update-in (alist-get alist key) path fn))))
-
-(defun-export! assoc-in (lst path val)
-  (let ((ind (car path))
-	(path (cdr path)))
-    (if (not path)
-	(assoc-to-ind lst ind val)
-	(assoc-to-ind lst ind
-		      (assoc-in (nth ind lst) path val)))))
-
-(defun-export! get-in (lst path)
-  (let ((ind (car path))
-	(path (cdr path)))
-    (if (not path)
-	(nth ind lst)
-	(get-in (nth ind lst) path))))
-
 (defun-export! get-tile-at2 (layer x y)
   (get-prop-in (root-layers *document*) (list layer 'tiles x y)))
 
 (defun-export! get-tile-at (map layer x y)
-  (let ((l (get-prop (root-layers *document*) (nth layer (map-layers map)))))
-    (->> l
-  	 layer-tiles
-  	 (nth x)
-  	 (nth y))))
+  (let ((l (get-prop (root-layers *document*) (get-prop (map-layers map) layer))))
+    (get-prop-in l (list "tiles" x y))))
+
+
+;; (mapcar (lambda (a) (format t "lol ~a~%")) (fset:seq 1 2 3 4 5))
+
+;; The value
+;;   #[ 1 2 3 4 5 ]
+;; is not of type
+;;   LIST
 
 (defun-export! find-layer-parent (layer root)
   (let* ((maps (mapcar #'cdr (convert 'list (root-maps root)))))
     (car (remove-if-not (lambda (map)
-			  (format t "Löytyykö ~a (~a) layereistä ~a (listof<~a>)?~%" layer (type-of layer)
-				  (map-layers map)
-				  (type-of (car (map-layers map))))
-			  (format t ": ~a~%" (position layer (map-layers map) :test #'string=))
-			  (position layer (map-layers map) :test #'string=))
+			  (let ((layers (convert 'list (map-layers map))))
+			    (position layer layers :test #'string=)))
 			maps))))
 	 
-
-;; (let* ((root (-> (init-root!)
-;; 		 (make-map-with-layers "Lolmap" 2 3 3)
-;; 		 (make-map-with-layers "Lolmap" 2 2 3)))
-;;        (map (cdar (convert 'list (root-maps root))))
-;;        (layer (car (convert 'list (map-layers map)))))
-;; ;;   (find-layer-parent layer root)  )
-;;   (equalp (find-layer-parent layer root) map))
-
-;; => T
-
-
 (defun-export! index-of-chosen-map (root)
   (root-chosenMap root))
 
@@ -151,7 +110,7 @@
     (get-tile-at m l x y)))
 
 (defun set-tile-innest (tiles x y tile)
-  (assoc-in tiles (list x y) tile))
+  (set-prop-in tiles (list x y) tile))
     
 (defun-export! set-tile-inner (root map layer x y tile)
   (let* ((layer-id layer)
@@ -173,7 +132,7 @@
 
 (defun-export! set-chosen-tile-at (root x y)
   (assert (root-chosenTile root))
-  (format t "chosenTile is ~a~%" (root-chosenTile root))
+  ;; (format t "chosenTile is ~a~%" (root-chosenTile root))
   (set-tile-at root x y (root-chosenTile root)))
 
 (defun-export! set-tile-at-chosen-map (root x y tile)
@@ -200,17 +159,7 @@
       
       (assert (< x (tileset-w tileset)))
       (assert (< y (tileset-h tileset)))
-      (let ((tile 
-	     (->> tileset
-		  tileset-tiles
-		  ;; v
-		  (nth x)
-		  ;; v
-		  (nth y))))
-	(if tile
-	    tile
-	    ;; (format t "didn't find a tile ~%")
-	    )))))
+      (get-prop-in tileset (list "tiles" x y)))))
 
 (defun-export! set-tile-rotation-at (root x y rotation)
   (let* ((layer (get-prop (root-layers root) (root-chosenLayerInd root)))
@@ -224,14 +173,17 @@
 (defun-export! add-layer (root map-index)
   (let ((maps (-> (root-maps root)
 		  (alist-update map-index (lambda (m)
-					    (let ((layers (Map-layers m))
+					    (let* ((layers (Map-layers m))
 						  (w (Map-width m))
-						  (h (Map-height m)))
-					      (set-Map-layers! m (cons (make-Layer (str (prin1-to-string (length layers)) "th layer")
+						   (h (Map-height m))
+						   (_ (format t "adding layer~%"))
+						   (result (set-Map-layers! m (cons (make-Layer (str (prin1-to-string (length layers)) "th layer")
 										   255
 										   t
 										   (make-tiles w h)
-										   nil) layers))))))))
+										   nil) layers))))
+					      (format t "added layer~%")
+					      result))))))
     (set-root-maps! root maps)))
 
 (defun-export! delete-layer (root map-index layer-index)
@@ -277,8 +229,8 @@
   (add-to-lisp-qd :MAP (lambda ()
 			 (setf map-id (root-chosenmap *document*))
 			 (setf root-maps (root-maps *document*))
-
-    			 (let* ((root *document*)
+			 
+			 (let* ((root *document*)
 			 	(map (get-prop (root-maps root) (root-chosenmap root)))
 			 	(_ (assert map))
 
@@ -288,58 +240,61 @@
     			 	(h (map-width map))
     			 	(y-coords (mapcar #'dec (range h)))
 				(layer-list (map-layers map))
-    			 	(layers (length layer-list))
+    			 	(layers (size layer-list))
     			 	(l-coords (reverse (mapcar #'dec (range layers))))
 				(sprites (map-sprites map))
 				(root-sprites (root-sprites *document*))
 				(animations (map-animatedsprites map))
 				(root-animations (root-animatedsprites *document*))
 				(final-l-coords (->> l-coords
-				       (remove-if-not (lambda (l-index)
-							(let ((layer (get-layer root map l-index)))
-							  (layer-visible layer)))))))
+						     (remove-if-not (lambda (l-index)
+								      (let ((layer (get-layer root map l-index)))
+									(layer-visible layer)))))))
 			   (->> final-l-coords
     				(mapcar-with-index (lambda (l index)
-					  (let ((layer (get-prop (root-layers root) (get-prop layer-list l))))
-    			     		    (mapcar (lambda (x)
-    			     			      (mapcar (lambda (y)
-    			     					(let* ((tile (get-tile-at map l x y))
-			   					       (tile (if (tile-gl-key tile)
-			   							 tile
-			   							 (fetch-tile-from-tileset root
-			   										  (tile-tileset tile)
-			   										  (tile-x tile)
-			   										  (tile-y tile))))
-								       (subtile (if (not (zerop index))
-										    (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
-										      (if (tile-gl-key subtile)
-											  subtile
-											  (fetch-tile-from-tileset root
-			   										  (tile-tileset subtile)
-			   										  (tile-x subtile)
-			   										  (tile-y subtile)))))))
-											
-								  (when tile
-								    (let ((rotation (tile-rotation tile))
-    			     						  (gl-key (tile-gl-key tile)))
-			   					      (when gl-key
-			   						(set-image-x :MAP tile (* 50 x))
-			   						(set-image-y :MAP tile (* 50 y))
-									(set-image-opacity :MAP tile (get-prop layer "opacity"))
-			   						(set-image-rotation :MAP tile (deg->rad rotation))
+						     (let ((layer (get-prop (root-layers root) (get-prop layer-list l))))
+    			     			       (mapcar (lambda (x)
+    			     					 (mapcar (lambda (y)
+									   (let* ((tile (get-tile-at map l x y)))
+									     (if tile 
+			   							 (let ((tile (if (valid-gl-key? (tile-gl-key tile))
+			   									 tile
+			   									 (fetch-tile-from-tileset root
+			   												  (tile-tileset tile)
+			   												  (tile-x tile)
+			   												  (tile-y tile))))
+										       (subtile (if (not (zerop index))
+												    (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
+												      (if (valid-gl-key? (tile-gl-key subtile))
+													  subtile
+													  (fetch-tile-from-tileset root
+			   													   (tile-tileset subtile)
+			   													   (tile-x subtile)
+			   													   (tile-y subtile)))))))
+										   
+										   (when tile
+										     (let ((rotation (tile-rotation tile))
+    			     								   (gl-key (tile-gl-key tile)))
+			   							       (if (valid-gl-key? gl-key)
+											   (progn
+			   								     (set-image-x :MAP tile (* 50 x))
+			   								     (set-image-y :MAP tile (* 50 y))
+											     (set-image-opacity :MAP tile (get-prop layer "opacity"))
+			   								     (set-image-rotation :MAP tile (deg->rad rotation))
 
-									(when subtile
-									  (set-image-subobject :MAP tile subtile))
-									
-    			     						(render-img :MAP gl-key))))))
-    			     				      y-coords))
-    			     			    x-coords)))))
-			   
-			   (dolist (sprite-id sprites)
+
+											     (when subtile
+											       (set-image-subobject :MAP tile subtile))
+											     
+    			     								     (render-img :MAP gl-key)))))))))
+    			     						 y-coords))
+    			     				       x-coords)))))
+
+			   (dolist (sprite-id (convert 'list sprites))
 			     (let ((sprite (get-prop root-sprites sprite-id)))
 			       (sprite-render sprite)))
-			   
-			   (dolist (animation-id animations)
+
+			   (dolist (animation-id (convert 'list animations))
 			     (let ((anim (-> (get-prop root-animations animation-id)
 					     animatedsprite-advanceframeifneeded!)))
 			       ;; a surprising skip of the set-doc, to prevent DoSsing dom tree element

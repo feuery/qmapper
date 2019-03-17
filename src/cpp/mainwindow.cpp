@@ -62,9 +62,8 @@ void prepareModel(cl_object doc)
     rootAnimes = makefn("qmapper.root:root-animatedsprites"),
     typeOf = makefn("qmapper.std:q-type-of"),
     get_prop = makefn("qmapper.std:get-prop"),
-    nth = makefn("common-lisp:nth"),
     prin = makefn("prin1"),
-    len = makefn("length"),
+    len = makefn("fset:size"),
     format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
     mapSprites = makefn("qmapper.map:map-sprites"),
@@ -78,7 +77,8 @@ void prepareModel(cl_object doc)
   
   int length = fixint(cl_funcall(2, len, keys));
   for(int i = 0; i < length; i++) {
-    cl_object key = cl_funcall(3, nth, ecl_make_int32_t(i), keys);
+    // cl_funcall(5, format, ECL_T, c_string_to_object("\"keys: ~a~%,iiii: ~a~%\""), keys, ecl_make_int32_t(i));
+    cl_object key = cl_funcall(3, get_prop, keys, ecl_make_int32_t(i));
     // cl_funcall(5, format, ECL_T, c_string_to_object("\"searching for ~a in ~a~%\""), key, rootAsList);
 
     cl_funcall(4, format, ECL_T, c_string_to_object("\"key is ~a~%\""), key);
@@ -103,7 +103,7 @@ void prepareModel(cl_object doc)
 	anime_len = fixint(cl_funcall(2, len, animes));
       
       for(int l = 0; l < layer_len; l++) {
-	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, nth, ecl_make_int32_t(l), layers)).c_str());
+	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, get_prop, layers, ecl_make_int32_t(l))).c_str());
 	cl_layer_id = cl_layer_id.replace("\"", "");
 	
 	
@@ -119,7 +119,7 @@ void prepareModel(cl_object doc)
 
       for(int sp = 0; sp < sprite_len; sp++) {
 	QString cl_sprite_id(ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""),
-							     cl_funcall(3, nth, ecl_make_int32_t(sp), sprites))).c_str());
+							     cl_funcall(3, get_prop, sprites, ecl_make_int32_t(sp)))).c_str());
 	cl_sprite_id = cl_sprite_id.replace("\"", "");
 	std::string std_id = cl_sprite_id.toStdString();
 
@@ -137,7 +137,7 @@ void prepareModel(cl_object doc)
 
       for(int anim_p = 0; anim_p < anime_len; anim_p++) {
 	QString cl_anim_id(ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""),
-							     cl_funcall(3, nth, ecl_make_int32_t(anim_p), animes))).c_str());
+							   cl_funcall(3, get_prop, animes, ecl_make_int32_t(anim_p)))).c_str());
 	cl_anim_id = cl_anim_id.replace("\"", "");
 	std::string std_id = cl_anim_id.toStdString();
 
@@ -191,12 +191,12 @@ void MainWindow::setupTree()
 					  }
 					  else if(type == "MAP") {
 					    cl_object m = selected_object,
-					      first = makefn("first"),
+					      first = lisp("(lambda (l) (fset:lookup l 0))"),
 					      map_layers = makefn("qmapper.map:map-layers"),
 					      layer_id = cl_funcall(2, first, cl_funcall(2, map_layers, m)),
 					      map_id = get(m, "id"),
 					      select_map_layer = makefn("qmapper.map:select-map-layer");
-					    
+
 					    ec->document.setValue(cl_funcall(4, select_map_layer, ec->document.getValue(), map_id, layer_id));
 					  }
 					  else if(type == "LAYER") {

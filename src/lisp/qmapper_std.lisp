@@ -2,10 +2,16 @@
   (:use :common-lisp
 	:cl-arrows)
   (:import-from :qmapper.export :defmacro-export! :defun-export! :defvar-export!)
-  (:import-from :fset :empty-map :convert :with :lookup :wb-map-from-list)
-  (:shadowing-import-from :cl-strings :replace-all))
+  (:import-from :fset :empty-map :empty-seq :seq :insert :convert :with :lookup :wb-map-from-list :fset-setup-readtable)
+  (:import-from :cl-ppcre :regex-replace-all :create-scanner :scan :parse-string)
+  (:shadowing-import-from :cl-strings :replace-all)
+  (:shadowing-import-from :fset :map))  
 
 (in-package :qmapper.std)
+
+(setf *readtable* (fset-setup-readtable *readtable*))
+#+ecl
+(setf compiler::*delete-files* nil) 
 
 (defun-export! dec (n)
   (- n 1))
@@ -13,17 +19,49 @@
   (+ n 1))
 
 (defun-export! range (max)
-  (defun -range (max acc)
-    (if (= 0 max)
-	acc
-	(-range (dec max) (cons max acc))))
+  (labels ((-range (max acc)
+	     (if (= 0 max)
+		 acc
+		 (-range (dec max) (cons max acc)))))
+    (-range max '())))
 
-  (-range max '()))
+(defun-export! slurp (filename)
+  (with-open-file (stream filename)
+    (let ((contents (make-string (file-length stream))))
+      (read-sequence contents stream)
+      contents)))
 
+(defun-export! good-gensym ()
+  (format nil "~a" (gensym)))
+
+(defun-export! fset-first (l)
+  (lookup l 0))
+      
 (defun-export! pairs (r1 r2)
   (loop for x in r1
 	      append (loop for y in r2
-			collect (list x y))))
+			   collect (list x y))))
+
+(defun-export! plist-get (lst key)
+  ;; (declare (optimize (debug 3)))
+  ;; (break)
+  (if (not lst)
+      '()
+      (let ((list (drop-while (lambda (e)
+				(if (not (symbolp e))
+				    (let ((result 
+					    (not (equalp e key))))
+				      result)
+				    (let* ((e (symbol-name  e))
+					   (key (symbol-name key))
+					   (result 
+					     (not (equalp e key))))
+				      result))) lst)))
+	(if (not list)
+	    '()
+	    (car
+	     (drop list
+		   1))))))
 
 (defun-export! partial (f &rest args)
   (lambda (&rest rst-args)
@@ -159,34 +197,46 @@
       :unequal))
 
 (defun-export! clean-key (key)
-  (intern (string-upcase (replace-all (if (symbolp key)
-					  (symbol-name key)
-					  key) "\"" ""))))
+  (if (stringp key)
+      (string-upcase (replace-all (if (symbolp key)
+				      (symbol-name key)
+				      key) "\"" ""))
+      key))
+
+(defun-export! clean-val (val)
+  (if (listp val)
+      (convert 'fset:seq val)
+      val))
+
+(defun-export! valid-gl-key? (val)
+  (let ((res (and (not (equalp val (empty-map)))
+		  (not (equalp val (empty-seq))))))
+    res))
 
 (defun-export! get-prop  (obj-alist key)
-  (assert (or (and (numberp key)
-		   (consp obj-alist))
-	      (not (consp obj-alist))))
-  (if (numberp key)
-      (nth key obj-alist)
-      (progn
-	(let* ((key (clean-key key))
-	       (key2 (symbol-name key))
-	       (real-alist (convert 'list obj-alist))
-	       (result (cdr (or
-			     (assoc key real-alist :test #'string=)
-			     (assoc key2 real-alist :test #'string=))))
-	       (result (cond ((equalp result t) result)
-			     ((and result
-				   (symbolp result))
-			      ;; if not for the prin1, this'd return rubbish strings to c...
-			      (prin1-to-string (symbol-name result)))
-			     (t result))))
-	  (values result
-		  key)))))
+  (let ((obj-alist (if (or (listp obj-alist)
+			   (consp obj-alist))
+		       (convert 'seq obj-alist)
+		       obj-alist)))
+    (if (numberp key)
+	(lookup obj-alist key)
+	(progn
+	  (let* ((key (clean-key key))
+		 (real-alist (convert 'list obj-alist))
+		 (result (cdr (assoc key real-alist :test #'string=)))
+		 (result (cond ((equalp result t) result)
+			       ((and result
+				     (symbolp result))
+				;; if not for the prin1, this'd return rubbish strings to c...
+				(prin1-to-string (symbol-name result)))
+			       (t result))))
+	    ;; (when (equalp result (empty-seq))
+	    ;;   (format t "WARN: returning empty seq for ~a~%" key))
+	    (values result
+		    key))))))
 
 (defun-export! get-prop-in (obj ks)
-  (values 
+  (values
    (let* ((key (car ks))
 	  (cdr? (equal 'cdr key))
 	  (ks (cdr ks)))
@@ -196,20 +246,20 @@
 	     (cdr obj))
 	 (if ks
 	     (get-prop-in (get-prop obj key) ks)
-	     (if (numberp key)
-		 (nth key obj)
-		 (get-prop obj key))))) ks))
-
-(defun substitute-nth (list n val)
-  (loop for i from 0 for j in list collect (if (= i n) val j)))
+	     (get-prop obj key)))) ks))
 
 (defun-export! set-prop  (obj-alist key val)
-  (when (consp obj-alist)
-    (format t "obj-alist is cons ~a~%" obj-alist)
-    (funcall qmapper.export:explode))
-  (assert (not (consp obj-alist)))
-  (let* ((key (clean-key key)))    
-    (with (or obj-alist (empty-map)) key val)))
+    ;; (when (consp obj-alist)
+    ;;   (format t "obj-alist is cons ~a~%" obj-alist)
+    ;;   (funcall qmapper.export:explode))
+  ;; (assert (not (consp obj-alist)))
+  (let* ((obj-alist (if (or (listp obj-alist)
+			    (consp obj-alist))
+			(convert 'seq obj-alist)
+			obj-alist))
+	   (key (clean-key key))
+	   (val (clean-val val)))
+      (with (or obj-alist (empty-map)) key val)))
 
 (defun-export! set-prop-in (obj ks value)
   (let* ((key (car ks))
@@ -220,12 +270,8 @@
 	    (cons (car obj) (set-prop-in (cdr obj) ks value))
 	    (cons (car obj) value))
 	(if ks
-	    (if (numberp key)
-		(substitute-nth obj key (set-prop-in (nth key obj) ks value))
-		(set-prop obj key (set-prop-in (get-prop obj key) ks value)))
-	    (if (numberp key)
-		(substitute-nth obj key value)
-		(set-prop obj key value))))))
+	    (set-prop obj key (set-prop-in (get-prop obj key) ks value))
+	    (set-prop obj key value)))))
 
 (defun-export! update-prop (obj key fn)
   (set-prop obj key (funcall fn (get-prop obj key))))
@@ -239,18 +285,12 @@
 	    (cons (car obj) (update-prop-in (cdr obj) ks fn))
 	    (cons (car obj) (funcall fn (cdr obj))))
 	(if ks
-	    (if (numberp key)
-		(substitute-nth obj key (update-prop-in (nth key obj) ks fn))
-		(set-prop obj key (update-prop-in (get-prop obj key) ks fn)))
-	    (if (numberp key)
-		(substitute-nth obj key (funcall fn (nth key obj)))
-		(update-prop obj key fn))))))
+	    (set-prop obj key (update-prop-in (get-prop obj key) ks fn))
+	    (update-prop obj key fn)))))
 
 ;; (update-prop-in (qmapper.map:make-map-with-layers "Lollo" 3 2 2)
 ;; 		'(layers 0 opacity)
 ;; 		#'inc)
-
-
 
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
@@ -302,24 +342,24 @@
 	 (ctr `(defun-export! ,ctr-name (,@(reverse fields))
 		 (let* ((hash (empty-map))
 			(fields (list 'id ,@(mapcar (lambda (f)
-		 				  (list 'quote f))
+						      (format nil "~a" f))
 		 				fields)))
-			(values (list (gensym) ,@fields))
+			(values (list (good-gensym) ,@fields))
 			(fields-and-vals (cons (cons 'type-name (list ,(symbol-name classname)))
 					       (zipmap fields values))))
 
 		   (reduce (lambda (hashmap k-v)
 			     (let ((k (car k-v))
 				   (v (cadr k-v)))
-			       (with hashmap k v))) fields-and-vals :initial-value hash))))
+			       (set-prop hashmap k v))) fields-and-vals :initial-value hash))))
 	 (meta-name (sym (str (symbol-name classname) "-meta")))
 	 (meta-fn `(->> (reduce (lambda (map val)
-					     (if (cdr val)
-						 (with map (car val) (cdr val))
-						 map))
-					   (mapcar (lambda (prop)
-						     (cons (car prop) (third prop)))
-						   ',props) :initial-value (empty-map)))))
+				  (if (cdr val)
+				      (set-prop map (car val) (cdr val))
+				      map))
+				(mapcar (lambda (prop)
+					  (cons (car prop) (third prop)))
+					',props) :initial-value (empty-map)))))
     `(progn
        ,ctr
        ,fields-with-accessors
@@ -333,7 +373,7 @@
 (defun-export! q-type-of  (obj-alist)
   ;; (format t "obj-alist on ~a~%" obj-alist)
   (handler-case
-      (lookup obj-alist 'type-name)
+      (get-prop obj-alist "type-name")
     (SIMPLE-TYPE-ERROR (ste)
       (format t "ste bongattu, obj-alist on ~a~%" obj-alist))
     (SIMPLE-ERROR (lol)
@@ -359,12 +399,10 @@
   (remove-if-not (lambda (l) (equalp l key)) list))
 
 (defun-export! fset-map-keys (m)
-  (let ((result (remove-if #'not (keys (convert 'list m)))))
-    
-    result))
+  (convert 'fset:seq (remove-if #'not (keys (convert 'list m)))))
 
 (defun-export! keys-str  (a)
-  (let ((result (mapcar #'symbol-name (keys (convert 'list a)))))
+  (let ((result (mapcar #'clean-key (keys (convert 'list a)))))
     result))
 
 (defun-export! prop-list?  (alist k)
