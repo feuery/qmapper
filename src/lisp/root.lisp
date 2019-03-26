@@ -4,7 +4,7 @@
 	:rutils.abbr
 	:qmapper.std
 	:qmapper.export
-	:qmapper.script)
+   :qmapper.script)
   (:shadowing-import-from :fset :empty-map :with-first :with :seq :image :lookup ;; :filter
    :reduce :size :concat :convert :wb-map-from-list)
   (:shadowing-import-from :cl-strings :replace-all)
@@ -206,20 +206,12 @@
 ;; (assoc 'G1468 '((G1468 . 2323)))
 
 (defun-export! find-path-of (root obj)
-  (let ((type-sym (condp string= (q-type-of obj)
-			 "LAYER" 'layers
-			 "MAP" 'maps
-			 "ANIMATEDSPRITE" 'animatedsprites
-			 "SCRIPT" 'scripts
-			 "TILE" 'tiles
-			 "TILESET" 'tilesets)))
+  (let ((type-sym (q-type-of obj)))
     (unless type-sym
       (format t "didn't recognize type ~a~%" (q-type-of obj))
       (format t "obj is ~a~%" obj))
     (let ((key (get-prop obj "ID")))
-      (list type-sym (intern (replace-all (if (symbolp key)
-					      (symbol-name key)
-					      key) "\"" ""))))))
+      (list type-sym (clean-key key)))))
 		    
 
 (defun-export! find-by-id (root id)
@@ -275,11 +267,11 @@
 			      (let ((res
 				      (-> sprites
 					  (set-prop sprite-id 
-						    (set-prop sprite 'id sprite-id)))))
+						    (set-prop sprite 'id (clean-key sprite-id))))))
 				(format t "updated sprites~%")
 				res)))
-      (update-prop-in (list 'maps mapInd 'sprites) (lambda (sprites)
-						     (with-first sprites sprite-id)))))
+      (update-prop-in (list "maps" mapInd "sprites") (lambda (sprites)
+						       (with-first sprites (clean-key sprite-id))))))
 
 (defun-export! push-animation (root mapInd animation)
   (let ((animation-id (get-prop animation "ID")))
@@ -292,7 +284,7 @@
 							      (set-prop animation 'id animation-id)))))
 					  (format t "updated animatedSprites~%")
 					  res)))
-	(update-prop-in (list 'maps mapInd 'animatedSprites) (lambda (animatedSprites)
+	(update-prop-in (list "maps" mapInd "animatedSprites") (lambda (animatedSprites)
 							       (with-first animatedSprites animation-id))))))
 
 (defvar *document* (init-root!))
@@ -303,6 +295,10 @@
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
   (assert doc)
+
+  ;; (dolist (c (convert 'list doc))
+  ;;   (assert (not (symbolp (car c)))))
+  
   ;; TODO tee tästä joku c++:aan eventtikokoelmaan dispatchaava kikkare
   (setf *document* doc)
   (dolist (l *document-hooks*)
@@ -318,3 +314,8 @@
 
 (defun-export! tileset-count! ()
   (size (root-tilesets *document*)))
+
+(defun-export! load-root (data)
+  (-> data
+      read-from-string
+      eval))

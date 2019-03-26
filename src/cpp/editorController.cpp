@@ -354,6 +354,28 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   lisp("(use-package :qmapper.map)");
   cl_object pushScript = makefn("qmapper.root:push-script");
   cl_object makeScript = makefn("qmapper.script:make-script");
+  
+  DEFUN("get-current-doc", get_current_doc, 0);
+  DEFUN("explode", explode, 0);
+  DEFUN("load-image", load_qimage, 1);
+  DEFUN("image-w", qimg_w, 1);
+  DEFUN("image-h", qimg_h, 1);
+  DEFUN("copy-image", copy_qimg, 5);
+  
+  DEFUN("add-to-drawingqueue", add_qimg_to_drawqueue, 2);
+  DEFUN("add-lambda-to-drawingqueue", add_lambda_to_drawqueue, 2);
+  DEFUN("clear-drawingqueue", clear_drawqueue, 1);
+  DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
+  DEFUN("set-img-x", set_x_dst, 3);
+  DEFUN("set-img-opacity", set_opacity_dst, 3)
+  DEFUN("set-img-y", set_y_dst, 3);
+  DEFUN("set-img-rotation", set_img_rotation, 3);
+  DEFUN("set-img-subobj", set_subobj, 3);
+  DEFUN("do-schedule-lambda", scheduleOnce, 2);
+
+  DEFUN("render", render, 2);
+  DEFUN("MsTime", MsTime, 0);
+  DEFUN("image-file-dimensions", qimg_file_dimensions, 1);
     
   if(instance) {
     puts("There already exists an editorController");
@@ -388,29 +410,7 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 		   c_string_to_object("\"default.tileView\""),
 		   c_string_to_object("\"glsl\""));
   document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
-
-  DEFUN("get-current-doc", get_current_doc, 0);
-  DEFUN("explode", explode, 0);
-  DEFUN("load-image", load_qimage, 1);
-  DEFUN("image-w", qimg_w, 1);
-  DEFUN("image-h", qimg_h, 1);
-  DEFUN("copy-image", copy_qimg, 5);
   
-  DEFUN("add-to-drawingqueue", add_qimg_to_drawqueue, 2);
-  DEFUN("add-lambda-to-drawingqueue", add_lambda_to_drawqueue, 2);
-  DEFUN("clear-drawingqueue", clear_drawqueue, 1);
-  DEFUN("clear-lisp-drawingqueue", clear_lispdrawqueue, 1)
-  DEFUN("set-img-x", set_x_dst, 3);
-  DEFUN("set-img-opacity", set_opacity_dst, 3)
-  DEFUN("set-img-y", set_y_dst, 3);
-  DEFUN("set-img-rotation", set_img_rotation, 3);
-  DEFUN("set-img-subobj", set_subobj, 3);
-  DEFUN("do-schedule-lambda", scheduleOnce, 2);
-
-  DEFUN("render", render, 2);
-  DEFUN("MsTime", MsTime, 0);
-  DEFUN("image-file-dimensions", qimg_file_dimensions, 1);
-
   e = new Engine(this);
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
   e->show();
@@ -551,21 +551,20 @@ void editorController::dumpTextures(ZipArchive &arch) {
     get_sprites = makefn("qmapper.root:root-sprites"),
     clean_key = makefn("qmapper.std:clean-key"),
     get_animations = makefn("qmapper.root:root-animatedSprites"),
-    concat = lisp("(lambda (l) (let* ((l (fset:convert 'list l))) (apply (qmapper.std:partial #'concatenate 'list) l)))"),
+    concat = lisp("(lambda (l) (let* ((l (fset:convert 'list l))) (apply #'fset:concat l)))"),
     get_keys = lisp("(lambda (l) (mapcar (lambda (e) (qmapper.std:get-prop e \"gl-key\")) (fset:convert 'list l)))"),
     toList = makefn("qmapper.std:to-list"),
     len = makefn("fset:size"),
     get_prop = makefn("qmapper.std:get-prop"),
     format = makefn("format"),
-    car = makefn("car"),
     cdr = makefn("cdr"),
+    car = makefn("car"),
     tilesets = cl_funcall(2, toList, cl_funcall(2, get_tilesets, document.getValue())),
     get_tiles = makefn("qmapper.tileset:tileset-tiles");
 
   cl_funcall(4, format, ECL_T, c_string_to_object("\"tilesets are ~a~%\""), tilesets);
   int tileset_len = fixint(cl_funcall(2, len, tilesets));
   
-
   for(int i = 0; i < tileset_len; i++) {
     cl_object tileset_pair = cl_funcall(3, get_prop, tilesets, ecl_make_int32_t(i)),
       tileset_id = cl_funcall(2, car, tileset_pair),
@@ -609,8 +608,8 @@ void editorController::dumpTextures(ZipArchive &arch) {
       sprites_len = cl_funcall(2, len, sprites);
     for(int sprite_i = 0; sprite_i < fixint(sprites_len); sprite_i++) {
       cl_object sprite = cl_funcall(3, get_prop, sprites, ecl_make_int32_t(sprite_i)),
-	sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), get(sprite, "id"))),
-	gl_key = get(sprite, "gl-key");
+  	sprite_id = cl_funcall(2, clean_key, cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), get(sprite, "id"))),
+  	gl_key = get(sprite, "gl-key");
       cl_funcall(4, format, ECL_T, c_string_to_object("\"saving animated subsprite ~a~%\""), sprite_id);
       std::string key = toKey(gl_key);
       obj *o = toObj(map_view, qimages.at(key));
@@ -630,7 +629,7 @@ void editorController::saveTo(QString filename) {
   cl_object prin1 = makefn("prin1-to-string");
   std::string rootLisp = ecl_string_to_string(cl_funcall(2, prin1, document.getValue()));
 
-  qDebug() << "Got root lisp";
+  puts("got root lisp");
   
   arch.addData("root.lisp", rootLisp.c_str(), rootLisp.size());
   dumpTextures(arch);
@@ -640,25 +639,26 @@ void editorController::saveTo(QString filename) {
     delete tmp;
   }
   tempFiles.clear();
-  qDebug() << "Saved root to " << filename;
+  printf("Saved root to %s\n", filename.toStdString().c_str());
 }
 
 void editorController::loadFrom(QString fname) {
   clearDrawQueues();
   
-  puts("TODO implement loading when sprites are implemented!");
-  // ZipArchive arch(fname.toStdString());
-  // arch.open(ZipArchive::READ_ONLY);
-  // auto entries = arch.getEntries();
-  // int i = 0;
-  // for(ZipEntry entry: entries) {
-  //   std::string name = entry.getName();
-  //   if(name == "root.json") {
-  //     assert( i == 0);
-  //     std::string data = entry.readAsText();
-  //     qDebug() << "Read root json";
-  //     document.fromJSON(data.c_str());
-  //   }
+  ZipArchive arch(fname.toStdString());
+  arch.open(ZipArchive::READ_ONLY);
+  auto entries = arch.getEntries();
+  int i = 0;
+  for(ZipEntry entry: entries) {
+    std::string name = entry.getName();
+    if(name == "root.lisp") {
+      cl_object load_root = makefn("qmapper.root:load-root");
+      assert( i == 0);
+      std::string data = entry.readAsText();
+      data = ("\""+QString(data.c_str()).replace("\"", "\\\"")+"\"").toStdString();
+      document.setValue(cl_funcall(2, load_root, c_string_to_object(data.c_str())));
+    }
+  
   //   else {
   //     assert( i != 0);
   //     QString fname = name.c_str();
@@ -752,7 +752,7 @@ void editorController::loadFrom(QString fname) {
   //     }
   //   }
   //   i++;
-  // }
+  }
 
   // for(auto it = document.getSprites()->begin(); it != document.getSprites()->end(); it++) {
   //   auto sprite = it->second;
