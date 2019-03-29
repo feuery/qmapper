@@ -366,7 +366,7 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
   for(Renderer *r: editorController::instance->renderers) {
     auto f = r->getGlFns();
 
-    qDebug()<<"Preparing obj " << id.c_str() << " for parent" << r->name.c_str();
+    printf("Preparing obj %s for parent %s\n", id.c_str(), r->name.c_str());
     
     obj *o = new obj(r, f, img);
     puts("Prepared");

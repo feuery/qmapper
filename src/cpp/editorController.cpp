@@ -594,7 +594,7 @@ void editorController::dumpTextures(ZipArchive &arch) {
     std::string key = toKey(gl_key);
     obj *o = toObj(map_view, qimages.at(key));
     QImage &img = o->qi_copy;
-    saveImg(arch, img, ecl_string_to_string(sprite_id)+".png");
+    saveImg(arch, img, key+".png");
   }
 
   cl_object animations = cl_funcall(2, toList, cl_funcall(2, get_animations, document.getValue())),
@@ -614,7 +614,7 @@ void editorController::dumpTextures(ZipArchive &arch) {
       std::string key = toKey(gl_key);
       obj *o = toObj(map_view, qimages.at(key));
       QImage &img = o->qi_copy;
-      saveImg(arch, img, ecl_string_to_string(cl_funcall(4, format, ECL_NIL, c_string_to_object("\"~a\""), sprite_id))+".png");
+      saveImg(arch, img, key+".png");
     }
   }
 
@@ -657,117 +657,22 @@ void editorController::loadFrom(QString fname) {
       std::string data = entry.readAsText();
       data = ("\""+QString(data.c_str()).replace("\"", "\\\"")+"\"").toStdString();
       document.setValue(cl_funcall(2, load_root, c_string_to_object(data.c_str())));
+      continue;
     }
-  
-  //   else {
-  //     assert( i != 0);
-  //     QString fname = name.c_str();
-  //     qDebug() << "Loading file " << fname;
-  //     QRegExp sprite_regex("\\d+\\.png"),
-  //   	animation_or_tileset_regex("(\\d+) - (\\d+)\\.png");
 
-  //     if(sprite_regex.exactMatch(fname)) {
-  //   	qDebug() << "Loading sprite";
-  //   	QString id_str = fname.remove(".png", Qt::CaseInsensitive);
-  //   	Sprite *spr = toSprite(document.fetchRegister("Sprite", id_str.toStdString()));
-	
-  //   	int size = entry.getSize();
-  //   	void *v_data = entry.readAsBinary();
-  //   	uchar *data = static_cast<uchar*>(v_data);
-  //   	QImage img;
-  //   	img.loadFromData(data, size);
-  //   	obj::make(img, spr->getId());
-  //     }
-  //     else if (animation_or_tileset_regex.exactMatch(fname)) {
-  //   	int pos = animation_or_tileset_regex.indexIn(fname);
-
-  //   	if(pos < 0 ) {
-  //   	  qDebug() << " pos < 0 ";
-  //   	  throw "";
-  //   	}
-	
-  //   	std::string id = animation_or_tileset_regex.cap(1).toStdString();
-
-  //   	bool isAnimation = document.typeHasId("AnimatedSprite", id);
-
-  //   	if(isAnimation) {
-  // 	  bool isInt = false;
-  // 	  int sprite_id = animation_or_tileset_regex.cap(2).toInt(&isInt);
-
-  // 	  if(!isInt) {
-  // 	    qDebug() << "Animation's frame number (" << animation_or_tileset_regex.cap(2) << ") is not a number";
-  // 	    throw "";
-  // 	  }
-
-  // 	  int size = entry.getSize();
-  //   	  void *v_data = entry.readAsBinary();
-  //   	  uchar *data = static_cast<uchar*>(v_data);
-  //   	  QImage img;
-  //   	  img.loadFromData(data, size);
-
-  // 	  Propertierbase *r = document.fetchRegister("AnimatedSprite", id);
-  // 	  animatedsprite *a = r? toAnimatedsprite(r): new Animatedspritecontainer();
-  // 	  Sprite *spr = new Spritecontainer;
-  // 	  obj::make(img, spr->getId());
-	  
-  // 	  a->sprites->push_back(spr);
-  //   	}
-  //   	else {
-  //   	  puts("Ladataan tilesettiä");
-  //   	  std::string tile_id = animation_or_tileset_regex.cap(2).toStdString();	
-  //   	  int size = entry.getSize();
-  //   	  void *v_data = entry.readAsBinary();
-  //   	  uchar *data = static_cast<uchar*>(v_data);
-  //   	  QImage img;
-  //   	  img.loadFromData(data, size);
-
-  //   	  obj::make(img, tile_id);
-
-  //   	  Tilesetcontainer *tileset = static_cast<Tilesetcontainer*>(document.fetchRegister("Tileset", id));
-  //   	  auto coord = tileset->getTileCoordById(tile_id);
-  //   	  int x, y;
-  //   	  std::tie(x, y) = coord;
-
-  //   	  if(x < 0 || y < 0) {
-  //   	    qDebug()<< "Didn't find coords for tile " << tile_id.c_str() << " from tileset " << id.c_str();
-  //   	    qDebug() << "x, y: " << x << ", " << y;
-  //   	    throw "";
-  //   	  }
-
-  //   	  obj *o = static_cast<obj*>(tilesetView->getOwnObject(tile_id));
-  //   	  o->position = glm::vec2(x * 50.0f, y * 50.0f);
-
-  //   	  tileset->setTileSize(tileset->getTiles()->size(), tileset->getTiles()->at(0).size());
-
-  //   	  printf("Loading tile to (%d, %d) with id %s\n", x, y, tile_id.c_str());
-
-  //   	  tileset->tiles.at(x).at(y) = tile_id;
-  //   	  tileset->tiles_w = MAX(tileset->tiles_w, x);
-  //   	  tileset->tiles_h = MAX(tileset->tiles_h, y);
-  //   	}
-  //     }
-  //     else {
-  //   	qDebug() << "Didn't recognize fname " << fname;
-  //   	throw "";
-  //     }
-  //   }
-  //   i++;
+    QString qname(name.c_str());
+    if(qname.endsWith(".png")) {
+      printf("Reading in surface %s\n", qname.toStdString().c_str());
+      auto dada = static_cast<const uchar*>(entry.readAsBinary());
+      int len = entry.getSize();
+      QImage img;
+      img.loadFromData(dada, len);
+      
+      auto id = obj::make(img, qname.replace(".png", "").toStdString());
+      qimages[id] = id;
+      puts("READ IT");
+    }
   }
-
-  // for(auto it = document.getSprites()->begin(); it != document.getSprites()->end(); it++) {
-  //   auto sprite = it->second;
-  //   qDebug() << "sprite loading done";
-  //   sprite->loadingDone();
-  // }
-
-  // for(auto it = document.getAnimatedsprites()->begin(); it != document.getAnimatedsprites()->end(); it++) {
-  //   auto a = it->second;
-  //   a->loadingDone();
-  // }
-  
-
-  // w->setupTree();
-  // loaded = true;
 }
 
 void editorController::clearDrawQueues() {
