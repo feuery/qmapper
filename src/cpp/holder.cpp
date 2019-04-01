@@ -1,13 +1,12 @@
 #include <holder.h>
 
 cl_object holder::getValue() const {
-  return lisp("qmapper.root:*document*");
+  return engine_doc? lisp("qmapper.root:*engine-document*"): lisp("qmapper.root:*document*");
 }
 
 void holder::setValue(cl_object v) {
-  // if(setter == ECL_NIL)
-    setter = makefn("qmapper.root:set-doc");
+  auto setter = engine_doc? lisp("(lambda (l) (setf qmapper.root:*engine-document* l))"): makefn("qmapper.root:set-doc");
   cl_funcall(2, setter, v);
 }
 
-holder::holder() { }
+holder::holder(bool engine_doc): engine_doc(engine_doc) { }

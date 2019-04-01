@@ -4,15 +4,14 @@
 #include <editorController.h>
 #include <ui_engine.h>
 #include <engine_renderer.h>
+#include <holder.h>
 
 class Engine: public QMainWindow {
   Q_OBJECT
 public:
-
-  Engine(editorController *ec);
-
-  editorController *ec;
-
+  holder doc;
+  
+  Engine();
   Ui::Engine ui;
 
   Engine_Renderer *er;

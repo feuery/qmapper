@@ -52,7 +52,7 @@ public:
   void loadAnimation(const char *path, int frameCount, int frameLifetime = 25);
 
   // Goddammit
-  Renderer *map_view, *tilesetView, *tileRenderer;
+  Renderer *map_view, *tilesetView, *tileRenderer, *engine;
   Tool *t;
 
   bool renderingEnabled = true;

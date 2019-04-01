@@ -150,6 +150,7 @@ Renderer* editorController::getRenderer(cl_object dst_key) {
   // printf("Rendering to %s\n", dest_key.c_str());
   Renderer *dst = dest_key == "MAP"? map_view:
     dest_key == "TILESET"? tilesetView:
+    dest_key == "ENGINE"? engine:
     nullptr;
   assert(dst);
   return dst;
@@ -182,6 +183,8 @@ cl_object add_lambda_to_drawqueue (cl_object dest_key,
 				   cl_object lambda)
 {
   Renderer *dst = editorController::instance->getRenderer(dest_key);
+  // printf("dst %s engine\n", (dst == editorController::instance->engine? "is": "isn't"));
+  auto format = makefn("format");
   dst->addToDrawQueue(lambda);
   
   return ECL_NIL;
@@ -411,7 +414,7 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 		   c_string_to_object("\"glsl\""));
   document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
   
-  e = new Engine(this);
+  e = new Engine;
   // Fucking embarrassing hack that makes opengl not die in a fire when using Engine_Renderer's ctx
   e->show();
 }

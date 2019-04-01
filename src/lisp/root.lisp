@@ -288,6 +288,8 @@
 							       (with-first animatedSprites animation-id))))))
 
 (defvar *document* (init-root!))
+(defvar *engine-document* nil)
+(export '*engine-document*)
 (export '*document*)
 
 (defvar *document-hooks* '())
@@ -311,6 +313,10 @@
 	   (functionp l))
       (push l *document-hooks*)
       (format t "hook ~a can't be registered~%" l)))
+
+(defun-export! clear-engine-document! ()
+  (setf *engine-document* *document*)
+  *engine-document*)
 
 (defun-export! tileset-count! ()
   (size (root-tilesets *document*)))

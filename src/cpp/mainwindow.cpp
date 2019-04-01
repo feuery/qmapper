@@ -378,19 +378,17 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 
   connect(start, &QPushButton::clicked,
 	  [&]() {
-	    qDebug() << "Starting engine...";
+	    puts("Starting engine...");
+
+	    cl_object reset_state = makefn("qmapper.root:clear-engine-document!");
+	    cl_funcall(1, reset_state);
 
 	    auto e = ec->e;
-	    
-	    e->er->getDrawQueue().clear();
-	    int w = e->er->width(),
-	      h = e->er->height();
-	    
-	    for(Renderable *dq: map_view->getDrawQueue()) {
-	      Renderable *to_render = dq->copyRenderable();
-	      // to_render->redoMatrices(e->er, f, w, h);
-	      e->er->getDrawQueue().push_back(to_render);
-	    }
+	    cl_object setRenderer = lisp("(lambda (map-id) (qmapper.map:set-map-renderer-fn :ENGINE map-id))"),
+	      format = makefn("format"),
+	      root_chosenmap = makefn("qmapper.root:root-chosenMap"),
+	      selectedMap = cl_funcall(2, root_chosenmap, ec->document.getValue());
+	    cl_funcall(2, setRenderer, selectedMap);
 	    
 	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
 	    e->show();

@@ -7,9 +7,9 @@ class holder {
 public:
   cl_object getValue() const;
   void setValue(cl_object v);
-  holder();
+  holder(bool engine_doc = false);
 private:
-  cl_object setter = ECL_NIL;
+  bool engine_doc;
 };
 
 #endif

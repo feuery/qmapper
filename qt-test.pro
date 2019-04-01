@@ -49,7 +49,6 @@ HEADERS += src/headers/files.h \
            src/headers/tool_list.h \
            src/headers/scroll.h \
            src/headers/resize-enums.h \
-           src/headers/json.hpp \
            src/headers/animationLoaderUi.h \
            src/headers/spriteMover.h \
            src/headers/spriteRotater.h \

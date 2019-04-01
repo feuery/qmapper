@@ -1,5 +1,5 @@
 (defpackage #:qmapper
-  (:use :cl :asdf))
+  (:use :cl :asdf :ql))
 
 (in-package #:qmapper)
 

@@ -13,9 +13,10 @@ Engine_Renderer::Engine_Renderer(QWidget *parent): Renderer(parent)
   setMouseTracking(true);
 
   mouseMoveEvents.push_back([](QMouseEvent* e) {
-      editorController::instance->mouseX = e->x();
-      editorController::instance->mouseY = e->y();
-    });
+			      editorController::instance->mouseX = e->x();
+			      editorController::instance->mouseY = e->y();
+			    });
+  editorController::instance->engine = this;
 }
 
 void Engine_Renderer::initializeGL() {

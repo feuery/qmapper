@@ -1,7 +1,9 @@
 #include <engine.h>
 #include <scroll.h>
 
-Engine::Engine(editorController *ec):ec(ec) {
+Engine::Engine(// editorController *ec
+	       ): doc(true)
+{
     ui.setupUi(this);
     er = new Engine_Renderer(this);
     er->setFocusPolicy(Qt::StrongFocus);
