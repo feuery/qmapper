@@ -622,21 +622,25 @@ and
 	    (get-prop e prop)) 2dlist))
 
 
-;; (defun-export! set-timeout  (seconds fn)
-;;   (let ((fut (future
-;; 	      (begin
-;; 		(thread-sleep! (seconds->time
-;; 				(+ (time->seconds (current-time))
-;; 				   seconds)))
-;; 		(fn)))))
-;;     (touch fut)))
+(defun-export! set-timeout  (seconds fn)
+  (let ((proc (mp:make-process :name (str "timeout fn" (random 2222))))
+	(f (lambda (lol)
+	     (sleep seconds)
+	     (funcall fn))))
+    (mp:process-preset proc f nil)
+    (mp:process-enable proc)))
 
-;; (defun-export! qloop  (l)
-;;   (future
-;;    (begin
-;;      (while #t
-;;        (l)
-;;        (thread-sleep! (seconds->time (+ (time->seconds (current-time)) 0.1)))))))
+(defvar *loops-running* t
+  "ECL's process api doesn't provide a working way to stop a process. Thus you have to kill a process 
+by setting this var to nil and killing every process on the way. TODO make a better api with qthreads")
+
+(defun-export! qloop (fn)
+  (set-timeout 1 (lambda ()
+		   (funcall fn)
+		   (qloop fn))))
+
+;; (defvar proc (qloop (lambda ()
+;; 		      (format t "AAAAA~%"))))
 
 ;; Testikoodi enginelle:
 
