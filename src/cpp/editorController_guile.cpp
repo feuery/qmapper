@@ -176,14 +176,7 @@ extern "C" {
     puts("TODO implement animations");
     return ECL_NIL;
   }
-
-  cl_object keyDown(cl_object key) {
-    puts("TODO FIX");
-    return ECL_T;
-    // Qt::Key k = scm_qt_key_pairs[key];
-    // return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
-  }
-
+  
   cl_object getMouse() {
     auto ec = editorController::instance;
     cl_object list = cl_list(2, ecl_make_fixnum(ec->mouseX), ecl_make_fixnum(ec->mouseY));

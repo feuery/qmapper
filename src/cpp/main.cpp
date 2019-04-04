@@ -3,13 +3,14 @@
 #include <ecl/ecl.h>
 #include <guile_thread.h>
 #include <editorController.h>
+#include <guile_qt_keymapping.h>
 
 #include "mainwindow.h"
 
 int main(int argc, char** argv)
 {
   cl_boot(argc, argv);
-  puts("Päästiin cl_bootista pois");
+  init_keypairs();
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
   QApplication app(argc, argv);
 

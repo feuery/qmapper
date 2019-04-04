@@ -12,6 +12,7 @@
 #include <sys/param.h>
 
 #include <editorController_guile.h>
+#include <guile_qt_keymapping.h>
 #include <QImage>
 #include <sstream>
 #include <iterator>
@@ -350,6 +351,11 @@ cl_object MsTime() {
     return ecl_make_long(time(nullptr) * 1000);
 }
 
+cl_object keyDown(cl_object key) {
+    Qt::Key k = cl_qt_key_pairs[key];
+    return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -357,6 +363,8 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   lisp("(use-package :qmapper.map)");
   cl_object pushScript = makefn("qmapper.root:push-script");
   cl_object makeScript = makefn("qmapper.script:make-script");
+
+  DEFUN("keyDown", keyDown, 1)
   
   DEFUN("get-current-doc", get_current_doc, 0);
   DEFUN("explode", explode, 0);

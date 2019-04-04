@@ -64,5 +64,7 @@
 (defvar-export! image-file-dimensions nil)
 (defvar-export! set-img-subobj nil)
 
+(defvar-export! keyDown nil)
+
 (defun-export! render-img (dst img)
   (funcall render dst img))
