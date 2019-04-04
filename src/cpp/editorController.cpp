@@ -352,8 +352,8 @@ cl_object MsTime() {
 }
 
 cl_object keyDown(cl_object key) {
-    Qt::Key k = cl_qt_key_pairs[key];
-    return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
+  Qt::Key k = cl_qt_key_pairs.at(ecl_string_to_string(key));
+  return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
 }
 
 editorController::editorController(): // indexOfChosenTileset(std::string("")),

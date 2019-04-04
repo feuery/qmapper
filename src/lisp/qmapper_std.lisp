@@ -622,10 +622,10 @@ and
 	    (get-prop e prop)) 2dlist))
 
 
-(defun-export! set-timeout  (seconds fn)
+(defun-export! set-timeout  (msecs fn)
   (let ((proc (mp:make-process :name (str "timeout fn" (random 2222))))
 	(f (lambda (lol)
-	     (sleep seconds)
+	     (sleep (/ msecs 1000))
 	     (funcall fn))))
     (mp:process-preset proc f nil)
     (mp:process-enable proc)))
@@ -635,9 +635,17 @@ and
 by setting this var to nil and killing every process on the way. TODO make a better api with qthreads")
 
 (defun-export! qloop (fn)
-  (set-timeout 1 (lambda ()
-		   (funcall fn)
-		   (qloop fn))))
+  (set-timeout 400 (lambda ()
+		     (funcall fn)
+		     (when *loops-running*
+		       (qloop fn)))))
+
+(defun-export! key-down? (key)
+  (funcall qmapper.export:keydown key))
+
+;; (qloop (lambda ()
+;; 	 (when (key-down? "KEY-DOWN")
+;; 	   (format t "Painoit alanappia!~%"))))
 
 ;; (defvar proc (qloop (lambda ()
 ;; 		      (format t "AAAAA~%"))))
