@@ -190,7 +190,18 @@
 
 (defun-export! init-root! ()
   (make-root (empty-map) (empty-map) (empty-map) (empty-map) (empty-map) 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" (empty-map) (empty-map)))
-      
+
+;; test code for events
+;; (-> (init-root!)
+;;     (set-prop "maps" 22)
+;;     (add-event!  "maps" (lambda (this x)
+;; 			  (format t "Sijoitettiin x-propsuun ~a~%" x)
+;; 			  this))
+;;     (add-event! "maps" (lambda (this m)
+;; 			 (set-prop this "lolz" (* m m))))
+;;     (update-prop "maps" #'inc)
+;;     (update-prop "maps" #'inc)
+;;     (get-prop "lolz"))
 (defun-export! push-map (root m)
   (let* ((maps (set-prop (root-maps root)
 			 (get-prop m "ID")

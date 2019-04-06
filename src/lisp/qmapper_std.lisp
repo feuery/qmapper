@@ -286,7 +286,6 @@
 
 (defun really-empty? (seq)
   (let ((s (fset:size seq)))
-    ;; (format t "size ~a ~%" s)
     (zerop s )))
 
 (defun-export! any? (fn coll)
@@ -315,21 +314,27 @@
 			obj-alist))
 	 (key (clean-key key))
 	 (val (clean-val val)))
-
     (assert (not (listp val)))
     (assert (not (consp val)))
+
     
-    (with (or obj-alist (empty-map)) key val)))
+											  
+    (let* ((new-obj (with (or obj-alist (empty-map)) key val))
+	   (event-list (get-prop-in new-obj (list "EVENTS" key)))
+	   (result (reduce (lambda (obj fn)
+			     (funcall fn obj val)) (convert 'list event-list) :initial-value new-obj)))
+      (unless result
+	(format t "one of the event functions returned nil. You probably don't want that~%"))
+      result)))
 
 (defun-export! set-prop-in (obj ks value)
   (let* ((key (car ks))
 	 (cdr? (equal 'cdr key))
 	 (ks (cdr ks)))
     (if cdr?
-	(progn (format t "lol cdr key:llä ~a~%" key)
-	       (if ks
-		   (cons (car obj) (set-prop-in (cdr obj) ks value))
-		   (cons (car obj) value)))
+	(if ks
+	    (cons (car obj) (set-prop-in (cdr obj) ks value))
+	    (cons (car obj) value))
 	(if ks
 	    (set-prop obj key (set-prop-in (get-prop obj key) ks value))
 	    (set-prop obj key value)))))
@@ -352,6 +357,13 @@
 ;; (update-prop-in (qmapper.map:make-map-with-layers "Lollo" 3 2 2)
 ;; 		'(layers 0 opacity)
 ;; 		#'inc)
+
+
+(defun-export! add-event! (obj prop fn)
+  (assert (functionp fn))
+  (update-prop-in obj (list "EVENTS" (clean-key prop)) (lambda (l)
+							 (let* ((l (or l (empty-seq))))
+							   (insert l 0 fn)))))
 
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
@@ -402,10 +414,10 @@
 	 (ctr-name (sym (str "make-" (symbol-name classname))))
 	 (ctr `(defun-export! ,ctr-name (,@(reverse fields))
 		 (let* ((hash (empty-map))
-			(fields (list "id" ,@(mapcar (lambda (f)
+			(fields (list "id" "events" ,@(mapcar (lambda (f)
 						      (format nil "~a" f))
 		 				fields)))
-			(values (list (good-gensym) ,@fields))
+			(values (list (good-gensym) (empty-map) ,@fields))
 			(fields-and-vals (cons (cons "TYPE-NAME" (list ,(symbol-name classname)))
 					       (zipmap fields values))))
 
