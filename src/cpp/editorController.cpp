@@ -666,8 +666,10 @@ void editorController::loadFrom(QString fname) {
       cl_object load_root = makefn("qmapper.root:load-root");
       assert( i == 0);
       std::string data = entry.readAsText();
-      data = ("\""+QString(data.c_str()).replace("\"", "\\\"")+"\"").toStdString();
-      document.setValue(cl_funcall(2, load_root, c_string_to_object(data.c_str())));
+      data = ("\""+QString(data.c_str()).replace("\\\"", "\\\\\"").replace("\"", "\\\"")+"\"").toStdString();
+
+      cl_object dada = c_string_to_object(data.c_str());
+      document.setValue(cl_funcall(2, load_root, dada));
       continue;
     }
 

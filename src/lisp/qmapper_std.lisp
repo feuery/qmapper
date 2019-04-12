@@ -322,7 +322,8 @@
     (let* ((new-obj (with (or obj-alist (empty-map)) key val))
 	   (event-list (get-prop-in new-obj (list "EVENTS" key)))
 	   (result (reduce (lambda (obj fn)
-			     (funcall fn obj val)) (convert 'list event-list) :initial-value new-obj)))
+			     (let ((fun (eval (read-from-string fn))))
+			       (funcall fun obj val))) (convert 'list event-list) :initial-value new-obj)))
       (unless result
 	(format t "one of the event functions returned nil. You probably don't want that~%"))
       result)))
@@ -363,7 +364,7 @@
   (assert (functionp fn))
   (update-prop-in obj (list "EVENTS" (clean-key prop)) (lambda (l)
 							 (let* ((l (or l (empty-seq))))
-							   (insert l 0 fn)))))
+							   (insert l 0 (prin1-to-string (function-lambda-expression fn)))))))
 
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
