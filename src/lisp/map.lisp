@@ -132,7 +132,6 @@
 
 (defun-export! set-chosen-tile-at (root x y)
   (assert (root-chosenTile root))
-  ;; (format t "chosenTile is ~a~%" (root-chosenTile root))
   (set-tile-at root x y (root-chosenTile root)))
 
 (defun-export! set-tile-at-chosen-map (root x y tile)

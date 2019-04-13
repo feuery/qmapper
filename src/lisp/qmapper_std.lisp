@@ -222,9 +222,10 @@
       :unequal))
 
 (defun-export! clean-key (key)
-  (string-upcase (replace-all (if (symbolp key)
-				  (symbol-name key)
-				  key) "\"" "")))
+  (if (numberp key)
+      key
+      (string-upcase (replace-all (cond ((symbolp key) (symbol-name key))
+					(t key)) "\"" ""))))
 
 (defun-export! clean-val (val)
   (let* ((val (if (or (listp val)
@@ -316,14 +317,16 @@
 	 (val (clean-val val)))
     (assert (not (listp val)))
     (assert (not (consp val)))
-
     
 											  
     (let* ((new-obj (with (or obj-alist (empty-map)) key val))
-	   (event-list (get-prop-in new-obj (list "EVENTS" key)))
-	   (result (reduce (lambda (obj fn)
+	   (event-list (if (map? new-obj)
+			   (get-prop-in new-obj (list "EVENTS" key))))
+	   (result (if event-list
+		       (reduce (lambda (obj fn)
 			     (let ((fun (eval (read-from-string fn))))
-			       (funcall fun obj val))) (convert 'list event-list) :initial-value new-obj)))
+			       (funcall fun obj val))) (convert 'list event-list) :initial-value new-obj)
+		       new-obj)))
       (unless result
 	(format t "one of the event functions returned nil. You probably don't want that~%"))
       result)))
