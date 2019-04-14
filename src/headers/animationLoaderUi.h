@@ -9,6 +9,6 @@ class animationLoader: public QDialog {
   animationLoader();
 
   Ui::Dialog ui;
-};;
+};
 
 #endif //ANIMATIONLOADERUI_H

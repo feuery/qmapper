@@ -29,6 +29,7 @@
 #include <guile_fn.h>
 
 #include <QAbstractItemModelTester>
+#include <new_map_ui.h>
 
 #define btnW 200
 #define btnH 25
@@ -317,21 +318,36 @@ void MainWindow::setupTreeCtxMenu()
   tree.addAction(edit);
   QMenu *newMenu = new QMenu(this);
 
-  QAction *glsl = new QAction("&GLSL", this),
+  QAction *map = new QAction("&Map", this),
+    *glsl = new QAction("&GLSL", this),
     *lisp = new QAction("&Lisp", this),
     *tileset = new QAction("T&ileset", this),
     *sprite = new QAction("S&prite", this),
     *animation = new QAction("&Animation", this);
-  
+
+  map->setStatusTip("New map");
   glsl->setStatusTip("New GLSL-script asset");
   lisp->setStatusTip("New Lisp asset");
   tileset->setStatusTip("New tileset");
   sprite->setStatusTip("Load a new sprite");
   animation->setStatusTip("Load a new animation");
 
+  connect(map, &QAction::triggered, []() {
+				      auto mapui = new newMapUI;
+				      mapui->accept_lambda = [](int mapw, int maph, int layers) {
+							       add_map(ecl_make_int32_t(mapw),
+								       ecl_make_int32_t(maph),
+								       ecl_make_int32_t(layers));
+							     };
+				      mapui->reject_lambda = []() {
+							       puts("Rejected!");
+							     };
+				      mapui->show();
+				      
+  });
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
-    });
+  });
   connect(lisp, &QAction::triggered, []() {
       add_lisp_script();
     });;
@@ -348,6 +364,8 @@ void MainWindow::setupTreeCtxMenu()
       l->show();
     });
 
+  newMenu->addAction(map);
+  newMenu->addSeparator();
   newMenu->addAction(glsl);
   newMenu->addAction(lisp);
   newMenu->addSeparator();

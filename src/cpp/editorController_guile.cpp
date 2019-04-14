@@ -5,24 +5,19 @@
 extern "C" { 
 
   cl_object add_map(cl_object w, cl_object h, cl_object layerCount) {
-    puts("EI");
-    throw "";
-    static cl_object makeMap   = ecl_make_symbol("make-map-with-layers", "CL-USER");
-    static cl_object pushMap   = ecl_make_symbol("push-selected-map", "CL-USER");
-    static cl_object registrySize = ecl_make_symbol("root-registrySize", "CL-USER");
+    cl_object makeMap   = makefn("qmapper.map:make-map-with-layers");
+    cl_object pushMap   = makefn("qmapper.root:push-map");
+    cl_object registrySize = makefn("qmapper.root:root-registrySize");
    
     cl_object count = cl_funcall(2, registrySize,
 			   editorController::instance->document.getValue());
 
-    cl_object m = cl_funcall(5, makeMap,
-			     c_string_to_object((std::to_string(fixint(count)+1)+"th map").c_str()),
-		       w,
-		       h,
-		       layerCount);
-
-    editorController::instance->document.setValue( cl_funcall(3, pushMap,
-						      editorController::instance->document.getValue(),
-							      m));
+    editorController::instance->document.setValue(cl_funcall(6, makeMap,
+							     editorController::instance->document.getValue(),
+							     c_string_to_object(("\""+std::to_string(fixint(count)+1)+"th map\"").c_str()),
+							     w,
+							     h,
+							     layerCount));;
     return ECL_T;
   }
 
