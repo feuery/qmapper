@@ -639,12 +639,12 @@ and
 
 
 (defun-export! set-timeout  (msecs fn)
-  (let ((proc (mp:make-process :name (str "timeout fn" (random 2222))))
-	(f (lambda (lol)
-	     (sleep (/ msecs 1000))
-	     (funcall fn))))
-    (mp:process-preset proc f nil)
-    (mp:process-enable proc)))
+  #+ecl(let ((proc (mp:make-process :name (str "timeout fn" (random 2222))))
+	     (f (lambda (lol)
+		  (sleep (/ msecs 1000))
+		  (funcall fn))))
+	 (mp:process-preset proc f nil)
+	 (mp:process-enable proc)))
 
 (defvar *loops-running* t
   "ECL's process api doesn't provide a working way to stop a process. Thus you have to kill a process 

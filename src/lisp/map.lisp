@@ -170,20 +170,25 @@
 		      (set-prop (root-layers root) (root-chosenLayerInd root) layer))))
 
 (defun-export! add-layer (root map-index)
-  (let ((maps (-> (root-maps root)
-		  (alist-update map-index (lambda (m)
-					    (let* ((layers (Map-layers m))
-						  (w (Map-width m))
-						   (h (Map-height m))
-						   (_ (format t "adding layer~%"))
-						   (result (set-Map-layers! m (cons (make-Layer (str (prin1-to-string (length layers)) "th layer")
-										   255
-										   t
-										   (make-tiles w h)
-										   nil) layers))))
-					      (format t "added layer~%")
-					      result))))))
-    (set-root-maps! root maps)))
+  (let ((l nil))
+    (-> root
+	(update-prop-in (list "MAPS" map-index) (lambda (m)
+						 (let* ((layers (Map-layers m))
+							(w (Map-width m))
+							(h (Map-height m))
+							(ll (make-Layer (str (prin1-to-string (size layers)) "th layer")
+												      255
+												      t
+												      (make-tiles w h))))
+						   ;; ei
+						   (setf l ll)
+						   (update-prop m "LAYERS" (lambda (layers)
+									     (fset:insert layers 0 (get-prop l "ID")))))))
+	(update-prop "LAYERS" (lambda (layers)
+				(set-prop layers (get-prop l "ID") l))))))
+
+(defun-export! add-layer-to-selected-map (root)
+  (add-layer root (root-chosenMap root)))
 
 (defun-export! delete-layer (root map-index layer-index)
   (set-root-maps! root

@@ -319,6 +319,7 @@ void MainWindow::setupTreeCtxMenu()
   QMenu *newMenu = new QMenu(this);
 
   QAction *map = new QAction("&Map", this),
+    *layer = new QAction("La&yer", this),
     *glsl = new QAction("&GLSL", this),
     *lisp = new QAction("&Lisp", this),
     *tileset = new QAction("T&ileset", this),
@@ -326,6 +327,7 @@ void MainWindow::setupTreeCtxMenu()
     *animation = new QAction("&Animation", this);
 
   map->setStatusTip("New map");
+  layer->setStatusTip("New layer");
   glsl->setStatusTip("New GLSL-script asset");
   lisp->setStatusTip("New Lisp asset");
   tileset->setStatusTip("New tileset");
@@ -345,6 +347,9 @@ void MainWindow::setupTreeCtxMenu()
 				      mapui->show();
 				      
   });
+  connect(layer, &QAction::triggered, []() {
+					add_layer();
+				      });
   connect(glsl, &QAction::triggered, []() {
       add_glsl_script();
   });
@@ -365,6 +370,7 @@ void MainWindow::setupTreeCtxMenu()
     });
 
   newMenu->addAction(map);
+  newMenu->addAction(layer);
   newMenu->addSeparator();
   newMenu->addAction(glsl);
   newMenu->addAction(lisp);

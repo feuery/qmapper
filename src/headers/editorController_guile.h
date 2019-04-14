@@ -6,7 +6,7 @@
 
 extern "C" {
   cl_object add_map(cl_object s_w, cl_object s_h, cl_object s_layerCount);
-  cl_object add_layer(cl_object map_index);
+  cl_object add_layer();
   cl_object delete_layer(cl_object map_index, cl_object layer_index);
   cl_object add_glsl_script();
   cl_object add_lisp_script();

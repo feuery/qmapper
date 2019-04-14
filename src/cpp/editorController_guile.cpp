@@ -21,14 +21,13 @@ extern "C" {
     return ECL_T;
   }
 
-  cl_object add_layer(cl_object map_index)
+  cl_object add_layer()
   {
-    cl_object addLayer = ecl_make_symbol("add-layer", "CL-USER");
+    cl_object addLayer = makefn("qmapper.map:add-layer-to-selected-map");
     
     // editorController::instance->documentTreeModel->begin();
-    editorController::instance->document.setValue( cl_funcall(3, addLayer,
-						      editorController::instance->document.getValue(),
-							      map_index));
+    editorController::instance->document.setValue( cl_funcall(2, addLayer,
+							      editorController::instance->document.getValue()));
     
     // editorController::instance->documentTreeModel->end();
 
