@@ -48,9 +48,7 @@
               (set-image-y :TILESET img (truncate (* y 50.0)))
               (add-to-drawqueue img :TILESET))
 	    (progn
-	      ;; (format t "img is nil~%tiles are ~a~%" tiles)
-	      (format t "x and y are [~a ~a]~%" x y)
-	      (funcall explode)))))
+	      (format t "x and y are [~a ~a]~%" x y)))))
     (format t "dolist is done~%")))
 
 (defun-export! select-tileset (tileset)

@@ -66,18 +66,19 @@
 (defun-export! make-map-with-layers (doc name w h layer-count)
   (let* ((layers (repeatedly (lambda (i)
 			       (let ((l 
-				      (make-Layer (str (prin1-to-string i) "th layer")
-						  255
-						  t
-						  (make-tiles w h))))
-				 ;(format t "making layer ~a ~%" l)
+				       (make-Layer (str (prin1-to-string i) "th layer")
+						   255
+						   t
+						   (make-tiles w h))))
+					;(format t "making layer ~a ~%" l)
 				 l)) layer-count))
 	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
 	 (map (make-map name ids '() '())))
     (-> (set-root-layers! doc
 			  (reduce (lambda (all-layers layer)
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))
-	(set-root-maps! (set-prop (root-maps doc) (get-prop map "ID") map)))))
+	(set-root-maps! (set-prop (root-maps doc) (get-prop map "ID") map))
+	(set-root-chosenmap! (get-prop map "ID")))))
 
 (defun-export! get-tile-at2 (layer x y)
   (get-prop-in (root-layers *document*) (list layer 'tiles x y)))
@@ -317,3 +318,12 @@
   (-> root
       (set-root-chosenlayerind! layer-id)
       (set-root-chosenmap! map-id)))
+
+(defun-export! resize-selected-map (root new-w new-h)
+  (let* ((selected-map-id (root-chosenmap root))
+	 (selected-map (get-prop-in root (list "MAPS" selected-map-id))) 
+	 (layer-ids (map-layers selected-map)))
+    (fset:reduce (lambda (root layer-id)
+		   (update-prop-in root (list "LAYERS" layer-id) (lambda (layer)
+								   (resize-layer layer new-w new-h))))
+		 layer-ids :initial-value root)))

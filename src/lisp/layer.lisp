@@ -31,3 +31,34 @@
   				     (make-Tile 0 0 0 0 nil)) h)) w)))
     all-tiles))
 
+(defun-export! shrink-layer-vertically (layer)
+  (let ((width (layer-width layer)))
+    (reduce (lambda (layer i)
+	      (update-prop-in layer (list "TILES" i) #'fset:less-first))
+	    (mapcar #'dec (range width)) :initial-value layer)))
+
+(defun-export! grow-layer-vertically (layer)
+  (let ((width (layer-width layer)))
+    (reduce (lambda (layer i)
+	      (update-prop-in layer (list "TILES" i) (lambda (tiles)
+						       (fset:with-first tiles (make-tile 0 0 0 0 nil)))))
+	    (mapcar #'dec (range width)) :initial-value layer)))
+
+;;      ;; horizontal-growth: cons to end a list of tiles with the length of (map-height map)
+;;      ;; vertical-growth: cons a tile to end of all the lists-of-tiles 
+(defun-export! grow-layer-horizontally (layer)
+  (update-prop layer "TILES" (lambda (tiles)
+			       (let ((list-len (fset:size (fset:first tiles))))
+				 (fset:with-last tiles (list-of (make-tile 666 666 666 666 nil) list-len))))))
+
+(defun-export! shrink-layer-horizontally (layer)
+  (update-prop layer "TILES" #'fset:less-first))
+
+(defun-export! resize-layer (layer new-w new-h)
+  (let ((w-diff (- new-w (layer-width layer)))
+	(h-diff (- new-h (layer-height layer))))
+    (cond ((pos? w-diff) (resize-layer (grow-layer-horizontally layer) new-w new-h))
+	  ((pos? h-diff) (resize-layer (grow-layer-vertically layer) new-w new-h))
+	  ((neg? w-diff) (resize-layer (shrink-layer-horizontally layer) new-w new-h))
+	  ((neg? h-diff) (resize-layer (shrink-layer-vertically layer) new-w new-h))
+	  (t layer))))
