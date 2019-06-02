@@ -29,7 +29,7 @@
   :depends-on ("cl-arrows" "fset")
   :components ((:file "qmapper_std"
 		      ;; :depends-on (:cl-arrows)
-		      :depends-on ("export"))
+		:depends-on ("export"))
 	       (:file "animatedsprite"
 		:depends-on ("qmapper_std"
 			     "sprite"
@@ -53,8 +53,8 @@
 			     "tile"))
 	       (:file "root"
 		:depends-on ("script" ;; "map"
-			     "export"
-			     ))
+				      "export"
+				      ))
   	       (:file "sprite"
 		:depends-on ("tileset"))
   	       (:file "tile"
@@ -65,4 +65,13 @@
 		:depends-on ("qmapper_std"
 			     "tile"
 			     "root"
-			     "export"))))
+			     "export"))
+	       (:file "test-framework"
+		:depends-on ("export"
+			     "qmapper_std"
+			     "root"))
+	       (:file "resize-test"
+		:depends-on ("qmapper_std"
+			     "test-framework"
+			     "root"
+			     "map"))))
