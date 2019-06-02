@@ -17,6 +17,12 @@
 (defun-export! inc (n)
   (+ n 1))
 
+(defun-export! pos? (n)
+  (> n 0))
+
+(defun-export! neg? (n)
+  (< n 0))
+
 (defun-export! range (max)
   (labels ((-range (max acc)
 	     (if (= 0 max)
@@ -96,6 +102,10 @@
   (if (equalp n 0)
       '()
       (cons (funcall fn n) (repeatedly fn (dec n)))))
+
+(defun-export! list-of (val n)
+  (if (not (zerop n))
+      (cons val (list-of val (dec n)))))
 
 (defun-export! str (&rest strs)
   (apply (partial #'concatenate 'string)
@@ -399,7 +409,7 @@
 											  (when (or (consp this)
 												    (integerp this))
 											    (format t "*this* is funny: ~a~%" this)
-											    (funcall qmapper.export:explode))
+											    )
 											  (get-prop this ',field))
 										       `(defun-export! ,setter (this val)
 											  (assert this)
@@ -471,6 +481,12 @@
 (defun-export! keys  (a)
   (delete-duplicates
    (mapcar #'car a) :test #'equalp))
+
+(defun-export! fset-keys-str (seq-or-map)
+  (cond ((map? seq-or-map) (fset-map-keys seq-or-map))
+	((seq? seq-or-map) (range (fset:size seq-or-map)))
+	(t (error "Unrecognized argument in fset-keys-str ~a" seq-or-map))))
+  
 
 (defun contains? (key list)
   (remove-if-not (lambda (l) (equalp l key)) list))

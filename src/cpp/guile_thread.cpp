@@ -10,19 +10,13 @@
 void lisp_loader::load_lisp() {
 
   QString path = QFileInfo(QCoreApplication::applicationFilePath()).absolutePath() + "/";
-  lisp("(require :asdf)");
-  std::string command = ("(progn (format t \"Starting qlisp initialization~%\") (let ((quicklisp-init (merge-pathnames \"quicklisp/setup.lisp\"                                        (user-homedir-pathname)))) (format t \"does ~a exist?~%\" quicklisp-init) (if (probe-file quicklisp-init) (load quicklisp-init) (format t \"loading quicklisp failed. Does file ~a exist?~%\" quicklisp-init))) (require :ql) (require :asdf) (format t \"Quicklisp initialized!~%\") (push \"" + path + "\" asdf:*central-registry*))").toStdString();
-  
-  // let's load quicklisp from ~/quicklisp/setup.lisp - TODO make configurable
-  lisp(command);
-  lisp(("(format t \"Pushed " + path + " to central registry~%\")").toStdString());
-  lisp("(ql:quickload :qmapper)");
-  lisp("(require :qmapper)");
-  lisp("(format t \"Quickloaded :qmapper?\")");
+
+  cl_object load = makefn("load");
+  cl_funcall(2, load, lisp(("(pathname \""+path+"loadable_qmapper.lisp\")").toStdString().c_str()));
 
   run_swank();
     
-  const char *works = "Everything's loaded";
+  const char *works = "\nEverything's loaded";
   puts(works);
   
   running = true;

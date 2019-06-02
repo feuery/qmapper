@@ -64,6 +64,7 @@ void prepareModel(cl_object doc)
     typeOf = makefn("qmapper.std:q-type-of"),
     get_prop = makefn("qmapper.std:get-prop"),
     prin = makefn("prin1"),
+    prin_str = makefn("prin1-to-string"),
     len = makefn("fset:size"),
     format = makefn("format"),
     mapLayers = makefn("qmapper.map:map-layers"),
@@ -83,11 +84,13 @@ void prepareModel(cl_object doc)
     // cl_funcall(5, format, ECL_T, c_string_to_object("\"searching for ~a in ~a~%\""), key, rootAsList);
 
     cl_funcall(4, format, ECL_T, c_string_to_object("\"key is ~a~%\""), key);
-    cl_object obj = cl_funcall(3, get_prop, rootAsList, key);
+    cl_object obj = cl_funcall(3, get_prop, rootAsList, key),
+      cl_type = get(obj, "type-name");
     assert(obj != ECL_NIL);
+    assert(cl_type != ECL_NIL);
 
-    std::string type = ecl_string_to_string(cl_funcall(2, typeOf, obj));
-
+    std::string type = ecl_string_to_string(cl_type);
+    
     if(type == "LAYER") continue;
     if(type == "SPRITE") continue;
 
@@ -106,7 +109,6 @@ void prepareModel(cl_object doc)
       for(int l = 0; l < layer_len; l++) {
 	QString cl_layer_id(ecl_string_to_string(cl_funcall(3, get_prop, layers, ecl_make_int32_t(l))).c_str());
 	cl_layer_id = cl_layer_id.replace("\"", "");
-	
 	
 	auto layer = get(cl_funcall(2, rootLayers, root), cl_layer_id.toStdString().c_str());
 	

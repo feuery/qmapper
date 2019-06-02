@@ -1,3 +1,13 @@
+(require :asdf)
+
+#-quicklisp
+(let ((quicklisp-init (merge-pathnames "quicklisp/setup.lisp"
+                                       (user-homedir-pathname))))
+  (when (probe-file quicklisp-init)
+    (load quicklisp-init)))
+
+(ql:register-local-projects)
+
 (defpackage #:qmapper
   (:use :cl :asdf :ql))
 

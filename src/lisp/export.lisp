@@ -38,8 +38,9 @@
   	   result))
       `(progn ,@body)))
 
-(defvar-export! explode nil)
 (defvar-export! get-current-doc nil)
+(defvar-export! explode nil)
+(export 'explode)
 
 (defvar-export! lambdas (empty-map))
 

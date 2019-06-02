@@ -44,16 +44,63 @@ cl_object lisp(const std::string & call) {
 }
 
 std::string ecl_string_to_string(cl_object echar) {
-    std::string res("");
-    int j = echar->string.dim; //get dimension   
-    ecl_character* selv = echar->string.self; //get pointer   
-
-    //do simple pointer addition
-    for(int i=0;i<j;i++){
-        res += (*(selv+i));
+  switch (ecl_t_of(echar)) {
+#ifdef ECL_UNICODE
+  case t_string:
+    if (!ecl_fits_in_base_string(echar)) {
+      echar = cl_copy_seq(echar);
+    } else {
+      echar = si_copy_to_simple_base_string(echar);
     }
-    return res;
-}
+    break;
+#endif
+  case t_base_string:
+    // OK
+    break;
+  default:
+    // PRINT SOME ERROR
+    return std::string(); // or raise an exception
+  }
+
+  std::string res("");
+  int j = echar->base_string.dim; //get dimension   
+  ecl_base_char* selv = echar->base_string.self; //get pointer   
+
+  //do simple pointer addition
+  for(int i=0;i<j;i++){
+    res += (*(selv+i));
+  }
+  return res;
+};
+
+// std::string ecl_string_to_string(cl_object clechar) {
+//   cl_object echar = clechar // cl_funcall(2, lisp("(lambda (txt) ;; (format t \"str's type is ~a~%\" (type-of txt))\n (coerce txt 'base-string))"), clechar)
+//     ;
+
+//   // printf("string is %s\n", clechar->string.self);
+
+//   auto print_type = lisp("(lambda (a) (format t \"type of object to convert is ~a~%\" (type-of a)))");
+//   cl_funcall(2, print_type, clechar);
+
+//   int j = echar->string.dim;
+//   char lol[j] = "";
+//   sprintf(lol, "%s", clechar->string.self);
+//   std::string res(lol);
+
+//   // printf("Result: %s\n", res.c_str());
+  
+//   return res;
+  
+//   // std::string res("");
+//   // int j = echar->string.dim; //get dimension   
+//   // ecl_character* selv = echar->string.self; //get pointer   
+
+//   // //do simple pointer addition
+//   // for(int i=0;i<j;i++){
+//   //   res += (*(selv+i));
+//   // }
+//   // return res;
+// }
 
 cl_object makeSilentFn(const char *fn) {
   return lisp(std::string("(lambda (&rest rst) (apply #'") + fn +" rst))");
