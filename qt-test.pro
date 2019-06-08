@@ -57,13 +57,16 @@ HEADERS += src/headers/files.h \
            src/headers/guile_qt_keymapping.h \
            src/headers/guile_fn.h \
            src/headers/holder.h \
-           src/headers/new_map_ui.h
+           src/headers/new_map_ui.h \
+           src/headers/resize-form.h
            
 FORMS += \
-    src/forms/main.ui \ 
+    src/forms/main.ui \
+    src/forms/resize_ui.ui \
     src/forms/animationloader.ui \
     src/forms/engine.ui \
     src/forms/new_map_ui.ui
+    
 SOURCES += src/cpp/files.cpp \
            src/cpp/main.cpp \
            src/cpp/mainwindow.cpp \
@@ -89,4 +92,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/guile_qt_keymapping.cpp \
            src/cpp/guile_fn.cpp \
            src/cpp/holder.cpp \
-           src/cpp/new_map_ui.cpp
+           src/cpp/new_map_ui.cpp \
+           src/cpp/resize-form.cpp

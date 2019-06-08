@@ -319,11 +319,20 @@
       (set-root-chosenlayerind! layer-id)
       (set-root-chosenmap! map-id)))
 
+(defun selected-map (root)
+  (let ((selected-map-id (root-chosenmap root)))
+    (get-prop-in root (list "MAPS" selected-map-id))))
+
 (defun-export! resize-selected-map (root new-w new-h)
-  (let* ((selected-map-id (root-chosenmap root))
-	 (selected-map (get-prop-in root (list "MAPS" selected-map-id))) 
+  (let* ((selected-map (selected-map root))
 	 (layer-ids (map-layers selected-map)))
     (fset:reduce (lambda (root layer-id)
 		   (update-prop-in root (list "LAYERS" layer-id) (lambda (layer)
 								   (resize-layer layer new-w new-h))))
 		 layer-ids :initial-value root)))
+
+(defun-export! selected-map-width (root)
+  (map-width (selected-map root)))
+
+(defun-export! selected-map-height (root)
+  (map-height (selected-map root)))

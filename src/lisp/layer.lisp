@@ -49,10 +49,10 @@
 (defun-export! grow-layer-horizontally (layer)
   (update-prop layer "TILES" (lambda (tiles)
 			       (let ((list-len (fset:size (fset:first tiles))))
-				 (fset:with-last tiles (list-of (make-tile 666 666 666 666 nil) list-len))))))
+				 (fset:with-last tiles (list-of (make-tile 0 0 0 0 nil) list-len))))))
 
 (defun-export! shrink-layer-horizontally (layer)
-  (update-prop layer "TILES" #'fset:less-first))
+  (update-prop layer "TILES" #'fset:less-last))
 
 (defun-export! resize-layer (layer new-w new-h)
   (let ((w-diff (- new-w (layer-width layer)))

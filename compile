@@ -3,6 +3,6 @@ loadable_artifact=$(./runme.sh|grep /home|grep -v ';')
 popd
 
 touch ./src/cpp/guile_fn.cpp
-make -j$(nproc --all) -O
+make -j$(nproc --all) -O || exit 1
 echo Loadable artifact is $loadable_artifact
 mv $loadable_artifact ./bin/

@@ -30,6 +30,7 @@
 
 #include <QAbstractItemModelTester>
 #include <new_map_ui.h>
+#include <resize-form.h>
 
 #define btnW 200
 #define btnH 25
@@ -429,22 +430,28 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
   toolbox_layout->addWidget(btn);
 
   connect(btn, &QPushButton::clicked,
-	  [&]() {
-	    // static cl_object fetchRegister = scm_c_lookup("root-fetchRegister");
-	    // ec->chosenMap = scm_call_3(fetchRegister, ec->document, scm_from_locale_string("Map"), scm_from_locale_symbol(ec->indexOfChosenMap.c_str()));
-	    // resize_data *o = new resize_data;
-	    // o->setNew_width(currentMap->width());
-	    // o->setNew_height(currentMap->height());
-	    // Propertyeditor *p = new Propertyeditor(o, this);
-	    // p->onClose = [=]() {
-	    //   qDebug() << "Resizing to " << o->getNew_width() << ", " << o->getNew_height() << ", " << (o->getVertical_anchor() == TOP? "TOP": "BOTTOM") << ", " << (o->getHorizontal_anchor() == LEFT? "LEFT": "RIGHT");
-	    //   currentMap->resize(o->getNew_width(), o->getNew_height(), o->getVertical_anchor(), o->getHorizontal_anchor());
-	    //   delete o;
-	    //   p->accept();
-	    // };
-	    // p->show();
-	    puts("TODO implement");
-	  });
+  	  [&]() {
+  	    cl_object make_resize_data = makefn("qmapper.resize-data:make-resize-data"),
+  	      w_fn = makefn("qmapper.map:selected-map-width"),
+	      h_fn = makefn("qmapper.map:selected-map-height"),
+	      doc = ec->document.getValue(),
+	      w = cl_funcall(2, w_fn, doc),
+	      h = cl_funcall(2, h_fn, doc),
+  	      o = cl_funcall(3, make_resize_data, w, h);
+
+
+	    resize_form *f = new resize_form(ecl_to_int(w), ecl_to_int(h));
+	    f->deliverResult = [&](xy_thing thing) {
+				 auto [w, h] = thing;
+				 cl_object cl_w = ecl_make_int32_t(w),
+				   cl_h = ecl_make_int32_t(h),
+				   resize = makefn("qmapper.map:resize-selected-map"),
+				   doc = ec->document.getValue(),
+				   new_doc = cl_funcall(4, resize, doc, cl_w, cl_h);
+				 ec->document.setValue(new_doc);				 
+			       };
+	    f->show();
+  	  });
 }
 
 MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
