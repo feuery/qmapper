@@ -304,6 +304,7 @@
 (export '*document*)
 
 (defvar *document-hooks* '())
+(defvar *undo-stack* '())
 
 (defun-export! set-doc (doc)
   (assert (not (functionp doc)))
@@ -312,12 +313,17 @@
   ;; (dolist (c (convert 'list doc))
   ;;   (assert (not (symbolp (car c)))))
   
-  ;; TODO tee tästä joku c++:aan eventtikokoelmaan dispatchaava kikkare
+  (push *document* *undo-stack*)
+  (setf *undo-stack* (take *undo-stack* 20))
   (setf *document* doc)
   (dolist (l *document-hooks*)
     (if (and l
 	     (functionp l))
 	(funcall l doc))))
+
+(defun-export! undo! ()
+  (setf *document* (car *undo-stack*))
+  (setf *undo-stack* (cdr *undo-stack*)))
 
 (defun-export! register-doc-hook (l)
   (if (and l

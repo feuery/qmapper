@@ -135,11 +135,12 @@
 
 (defun-export! take (list n)
   (labels ((-take (list n acc)
-    (if (> n 0)
-	(-take (cdr list)
-	       (dec n)
-	       (cons (car list) acc))
-	acc)))
+	     (if (and (car list)
+		      (> n 0))
+		 (-take (cdr list)
+			(dec n)
+			(cons (car list) acc))
+		 acc)))
     (reverse (-take list n '()))))
 
 (defun-export! take-while (pred coll)

@@ -300,6 +300,18 @@ void MainWindow::prepare_server_button(QVBoxLayout *toolbox_layout)
 	  });
 }
 
+void MainWindow::prepare_undo_btn(QVBoxLayout *toolbox) {
+  undo_btn = new QPushButton("Undo!", this);
+  setSize(undo_btn);
+  toolbox->addWidget(undo_btn);
+  connect(undo_btn, &QPushButton::clicked,
+	  [&]() {
+	    cl_object undo = makefn("qmapper.root:undo!");
+	    cl_funcall(1, undo);
+	    puts("Undone!");
+	  });
+}
+
 void MainWindow::setupTreeCtxMenu()
 {
   QAction *edit = new QAction("&Edit", this);
@@ -431,14 +443,11 @@ void MainWindow::prepareResizeBtn(QVBoxLayout *toolbox_layout)
 
   connect(btn, &QPushButton::clicked,
   	  [&]() {
-  	    cl_object make_resize_data = makefn("qmapper.resize-data:make-resize-data"),
-  	      w_fn = makefn("qmapper.map:selected-map-width"),
+  	    cl_object w_fn = makefn("qmapper.map:selected-map-width"),
 	      h_fn = makefn("qmapper.map:selected-map-height"),
 	      doc = ec->document.getValue(),
 	      w = cl_funcall(2, w_fn, doc),
-	      h = cl_funcall(2, h_fn, doc),
-  	      o = cl_funcall(3, make_resize_data, w, h);
-
+	      h = cl_funcall(2, h_fn, doc);
 
 	    resize_form *f = new resize_form(ecl_to_int(w), ecl_to_int(h));
 	    f->deliverResult = [&](xy_thing thing) {
@@ -521,6 +530,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
   prepare_server_button(toolbox_layout);
   prepareResizeBtn(toolbox_layout);
   prepareStartEngine(toolbox_layout);
+  prepare_undo_btn(toolbox_layout);
 
   setupTree();
   setupTreeCtxMenu();

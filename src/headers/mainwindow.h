@@ -42,11 +42,12 @@ public:
 
   QString getTextureLocation();
 
-  QPushButton *server_connection;
+  QPushButton *server_connection, *undo_btn;
 
   void prepare_server_button(QVBoxLayout *toolbox_layout);
   void prepareResizeBtn(QVBoxLayout *toolbox_layout);
   void prepareStartEngine(QVBoxLayout *toolbox_layout);
+  void prepare_undo_btn(QVBoxLayout *toolbox);
 
  private:
     void registerController(editorController *ec);
