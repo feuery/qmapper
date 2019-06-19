@@ -48,10 +48,13 @@ Renderer::~Renderer()
 
 void Renderer::initializeGL()
 {
-  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>(); 
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
   
-  if(f)
+  if(f) {
+    f->glEnable(GL_BLEND);
+    f->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     f->glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+  }
 }
 
 void Renderer::paintGL()
