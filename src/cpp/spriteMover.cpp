@@ -6,10 +6,6 @@ void Spritemover::mouseDown(QMouseEvent *e, editorController *ec) {
 void Spritemover::mouseUp(QMouseEvent *e) {
 }
 
-bool Spritemover::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  return true;
-}
-
 void Spritemover::use(QMouseEvent *event, int tilex, int tiley, editorController *e) {
   puts("using spritemover");
   cl_object is_sprite_fn = makefn("qmapper.sprite:is-sprite?"),

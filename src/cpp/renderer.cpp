@@ -9,6 +9,8 @@
 #include <renderer.h>
 #include <editorController.h>
 
+#include <colored_rect.h>
+
 void Renderer::doRepaint() {
   repaint();
 }  
@@ -57,6 +59,10 @@ void Renderer::initializeGL()
   }
 }
 
+int getComponent(cl_object nth, cl_object selection, int ind) {
+  return ecl_to_int(cl_funcall(3, nth, selection, ecl_make_int32_t(ind))) * 50;
+}
+
 void Renderer::paintGL()
 {
   editorController *ec = editorController::instance;
@@ -85,6 +91,31 @@ void Renderer::paintGL()
   while(!glLambdas.empty()) {
     auto lambda = glLambdas.dequeue();
     lambda();
+  }
+  if(this == editorController::instance->map_view) {
+    auto ec = editorController::instance;
+    cl_object doc = ec->document.getValue(),
+      selection = get(doc, "SELECTED-COORDINATES"),
+      nth = makeSilentFn("fset:lookup"),
+      format = makeSilentFn("format");
+    int left = getComponent(nth, selection, 0),
+      top = getComponent(nth, selection, 1),
+      right = getComponent(nth, selection, 2),
+      bottom = getComponent(nth, selection, 3),
+      w = right - left,
+      h = bottom - top;
+
+    if(w > 0 && h > 0) {
+      // printf("left %d, top %d, right %d, bottom %d, w %d, h %d\n", left, top, right, bottom, w, h);
+      // printf("Piirretään kohtaan %d, %d\n", left, top);
+      // cl_funcall(5, format, ECL_T, c_string_to_object("\"Piirretään kohtaan ~a, ~a\""), ecl_make_int32_t(left * 50), ecl_make_int32_t(top * 50));
+      QColor c(0, 0, 255, 127);
+      colored_rect rect(this, w, h, c);
+      rect.position.x = left ;
+      rect.position.y = top;
+      rect.opacity = 127;
+      rect.render();
+    }
   }
 }
 

@@ -8,12 +8,13 @@
 #include <renderer.h>
 #include <renderable.h>
 
-GLuint CreateShaderProgram(QOpenGLFunctions_4_3_Core *f, GLuint vertex_shader, GLuint fragment_shader);
-void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
-GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLuint shader);
-
 class Renderer;
 class editorController;
+
+GLuint CreateShaderProgram(QOpenGLFunctions_4_3_Core *f, GLuint vertex_shader, GLuint fragment_shader);
+GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec);
+void doProjection(QOpenGLFunctions_4_3_Core *f, GLfloat window_w, GLfloat window_h, GLuint shader);
+GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLuint shader);
 
 class obj: public Renderable
 {
@@ -38,6 +39,8 @@ public:
   static obj* make(Renderer *r, const char *texture_path, bool skipTexture = false, std::string id = std::to_string(rand()));
   static obj* make(Renderer *parent, QImage img, std::string id = std::to_string(rand()));
   static std::string make(QImage img, std::string id = std::to_string(rand()));
+
+  static std::string make(int x, int y, int w, int h, QColor& c);
 
   // Cached for copying purposes:
   const char *text_path;

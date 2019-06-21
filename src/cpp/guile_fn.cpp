@@ -21,9 +21,9 @@ std::string type_name(cl_object record) {
 
 cl_object get(cl_object record, const char *prop)
 {
-  cl_object get = makefn("qmapper.std:get-prop"),
-    prin = makefn("prin1"),
-    format = makefn("format");
+  cl_object get = makeSilentFn("qmapper.std:get-prop"),
+    prin = makeSilentFn("prin1"),
+    format = makeSilentFn("format");
   std::string literal = std::string("\"") + prop + "\"";
   
   cl_object key = c_string_to_object(literal.c_str());

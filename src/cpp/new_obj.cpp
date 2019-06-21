@@ -1,3 +1,33 @@
+// https://learnopengl.com/Advanced-OpenGL/Blending
+
+// // -*- mode: glsl; -*-
+// #version 430 core
+// in vec2 TexCoord;
+// out vec4 color;
+
+// uniform sampler2D image;
+// uniform sampler2D subTile;
+// uniform int subTileBound;
+// uniform vec3 spriteColor;
+// uniform vec4 opacity;
+
+// void main() {
+//   vec4 texel = texture2D(image, TexCoord);
+
+//   if(texel.a < 0.1) discard;
+  
+//   if(subTileBound == 1) {
+//     vec4 subCoord = texture2D(subTile, TexCoord);
+//     color = mix(subCoord, texel, opacity.a);
+//   }
+//   else if (opacity.a < 1.0) {
+//     color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);
+//   }
+//   else {
+//     color = texel;
+//   }
+// }
+
 #include <new_obj.h>
 
 #include <QImage>
@@ -361,6 +391,21 @@ bool obj::load_new_texture(const char *path, Renderer *r)
   return true;
 }
 
+std::string obj::make(int x, int y, int w, int h, QColor& c) {
+  QImage img(w, h, QImage::Format_ARGB32);
+  img.fill(c.rgba());
+
+  std::string id = make(img);
+
+  for(Renderer *r: editorController::instance->renderers) {
+    obj *o = static_cast<obj*>(r->getOwnObject(id));
+    o->position.x = x;
+    o->position.y = y;
+  }
+  
+  return id;
+}
+
 obj* obj::make(Renderer *parent, QImage img, std::string id) {
   assert(editorController::instance->renderers.size() > 3);
   for(Renderer *r: editorController::instance->renderers) {
@@ -368,7 +413,7 @@ obj* obj::make(Renderer *parent, QImage img, std::string id) {
 
     printf("Preparing obj %s for parent %s\n", id.c_str(), r->name.c_str());
     
-    obj *o = new obj(r, f, img);
+    obj *o = new obj(r, f, img); 
     puts("Prepared");
     o->id = id;
     o->qi_copied = true;

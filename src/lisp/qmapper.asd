@@ -52,7 +52,7 @@
 			     "layer"
 			     "tile"))
 	       (:file "root"
-		:depends-on ("script" ;; "map"
+		      :depends-on ("script" ;; "map"
 				      "export"
 				      ))
   	       (:file "sprite"

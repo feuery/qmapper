@@ -79,7 +79,8 @@
       (StdFragmentShader "defaultFragment")
       (StdTileviewFragShader "default.tileView")
       (animatedSprites '())
-      (sprites  '()))
+      (sprites  '())
+      (selected-coordinates '(0 0 0 0)))
      (functions
       (contents-StdFragment ()
 			    (let* ((ns (root-stdfragmentshader *this*))
@@ -189,7 +190,39 @@
     (cdr (nth selected-ind (convert 'list (root-tilesets root))))))
 
 (defun-export! init-root! ()
-  (make-root (empty-map) (empty-map) (empty-map) (empty-map) (empty-map) 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" (empty-map) (empty-map)))
+  (make-root (empty-map) (empty-map) (empty-map) (empty-map) (empty-map) 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" (empty-map) (empty-map) (seq 0 0 0 0)))
+
+(defun-export! select-tile (root tilex tiley)
+  (assert root)
+  (let* ((selected-coords (root-selected-coordinates root))
+	 (_ (format t "selected-coords: ~a~%" selected-coords))
+	 (left (fset:lookup selected-coords 0))
+	 (top (fset:lookup selected-coords 1))
+	 (right (fset:lookup selected-coords 2))
+	 (bottom  (fset:lookup selected-coords 3)))
+    (format t "tilex tiley: ~a~%" (list tilex tiley))
+    ;; (assert (pos? tilex))
+    ;; (assert (pos? tiley))
+    (cond ((equalp selected-coords
+		   #[ 0 0 0 0 ])
+	   (format t "SELECTED COORDS nollattu listaan ~a~%" (list tilex tiley tilex tiley))
+	   (set-prop root "SELECTED-COORDINATES" (seq tilex tiley tilex tiley)))
+	  ((and tilex (< tilex left))
+	   (set-prop-in root (list "SELECTED-COORDINATES" 0) tilex))
+	  ((and tiley (< tiley top))
+	   (set-prop-in root (list "SELECTED-COORDINATES" 1) tiley))
+	  ((and tilex (> tilex right))
+	   (set-prop-in root (list "SELECTED-COORDINATES" 2) tilex))
+	  ((and tiley (> tiley bottom ))
+	   (set-prop-in root (list "SELECTED-COORDINATES" 3) tiley))
+	  (t root))))
+
+
+(defun-export! reset-selection (root)
+  (assert root)
+  (set-root-selected-coordinates! root (seq 0 0 0 0)))
+	  
+  
 
 ;; test code for events
 ;; (-> (init-root!)
