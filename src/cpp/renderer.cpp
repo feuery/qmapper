@@ -10,6 +10,7 @@
 #include <editorController.h>
 
 #include <colored_rect.h>
+#include <guile_qt_keymapping.h>
 
 void Renderer::doRepaint() {
   repaint();
@@ -46,6 +47,31 @@ float distance(float x1, float y1, float x2, float y2)
 Renderer::~Renderer()
 {
   releaseKeyboard();
+}
+
+std::string qtkey_to_keystr(QKeyEvent *e) {
+  Qt::Key key = static_cast<Qt::Key>(e->key());
+  return std::string(e->modifiers() & Qt::ControlModifier? "C-": "") +
+    std::string(e->modifiers() & Qt::ShiftModifier? "S-":"") + 
+    qt_cl_key_pairs.at(key);
+}
+
+void Renderer::keyPressEvent(QKeyEvent *e) {
+  std::string key_str = qtkey_to_keystr(e);
+
+  cl_object key_lisp_str = c_string_to_object(('"'+key_str+'"').c_str()),
+    format = makefn("format"),
+    get_key_lambda = makefn("qmapper.editor_events:get-key-lambda");
+  
+  printf("Pressed dynamically found %s\n", key_str.c_str());
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"Pressed ~a in the lisp world~%\""), key_lisp_str);
+
+  cl_object final_event = cl_funcall(2, get_key_lambda, key_lisp_str);
+  if(final_event != ECL_NIL) {
+    puts("Found a lisp event");
+    cl_funcall(1, final_event);
+  }
+  else puts("Didn't find a lisp event");
 }
 
 void Renderer::initializeGL()

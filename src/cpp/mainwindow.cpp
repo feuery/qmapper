@@ -555,6 +555,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
 
   ui.splitter->addWidget(tb);
   ui.splitter->addWidget(splitter);
+  map_view->setFocusPolicy(Qt::StrongFocus);
 }
 
 MainWindow::~MainWindow()

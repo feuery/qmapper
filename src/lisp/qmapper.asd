@@ -55,6 +55,9 @@
 		      :depends-on ("script" ;; "map"
 				      "export"
 				      ))
+	       (:file "editor_events"
+		      :depends-on ("qmapper_std"
+				   "export"))
   	       (:file "sprite"
 		:depends-on ("tileset"))
   	       (:file "tile"

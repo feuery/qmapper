@@ -46,6 +46,8 @@ public:
     owned_objects.clear();
   }
 protected:
+  
+  virtual void keyPressEvent(QKeyEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *e) override;
   virtual void mousePressEvent(QMouseEvent *e) override;
   virtual void mouseReleaseEvent(QMouseEvent *e) override;

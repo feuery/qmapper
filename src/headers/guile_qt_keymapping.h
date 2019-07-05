@@ -6,6 +6,7 @@
 #include <Qt>
 
 extern std::unordered_map<std::string, Qt::Key> cl_qt_key_pairs;
+extern std::unordered_map<Qt::Key, std::string> qt_cl_key_pairs;
 void init_keypairs() ;
 
 
