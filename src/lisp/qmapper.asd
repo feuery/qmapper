@@ -58,6 +58,13 @@
 	       (:file "editor_events"
 		      :depends-on ("qmapper_std"
 				   "export"))
+	       (:file "selection-tool"
+		      :depends-on ("qmapper_std"
+				   "export"
+				   "root"
+				   "map"
+				   "tile"
+				   "editor_events"))
   	       (:file "sprite"
 		:depends-on ("tileset"))
   	       (:file "tile"

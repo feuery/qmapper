@@ -23,6 +23,14 @@
 (defun-export! neg? (n)
   (< n 0))
 
+(defun-export! minmax-range (min max)
+  (labels ((-range (min acc)
+		 (if (equalp min max)
+		     (cons min acc)
+		     (-range (inc min) (cons min acc)))))
+    (reverse (-range min '()))))
+
+
 (defun-export! range (max)
   (labels ((-range (max acc)
 	     (if (= 0 max)
@@ -168,6 +176,9 @@
 						 (length run)
 						 1)))))))
 
+(defun-export! drop-last (seq)
+  (reverse (cdr (reverse seq))))
+
 (defun-export! drop-while (fn lst)
   ;; (declare (optimize (debug 3)))
   ;; (break)
@@ -262,26 +273,30 @@
     res))
 
 (defun-export! get-prop  (obj-alist key)
-  (let ((obj-alist (if (or (listp obj-alist)
-			   (consp obj-alist))
-		       (convert 'seq obj-alist)
-		       obj-alist)))
-    (if (numberp key)
-	(lookup obj-alist key)
-	(progn
-	  (let* ((key (clean-key key))
-		 (real-alist (convert 'list obj-alist))
-		 (result (cdr (assoc key real-alist :test #'string=)))
-		 (result (cond ((equalp result t) result)
-			       ((and result
-				     (symbolp result))
-				;; if not for the prin1, this'd return rubbish strings to c...
-				(prin1-to-string (symbol-name result)))
-			       (t result))))
-	    ;; (when (equalp result (empty-seq))
-	    ;;   (format t "WARN: returning empty seq for ~a~%" key))
-	    (values result
-		    key))))))
+  (handler-case 
+      (let ((obj-alist (if (or (listp obj-alist)
+			       (consp obj-alist))
+			   (convert 'seq obj-alist)
+			   obj-alist)))
+	(if (numberp key)
+	    (lookup obj-alist key)
+	    (progn
+	      (let* ((key (clean-key key))
+		     (real-alist (convert 'list obj-alist))
+		     (result (cdr (assoc key real-alist :test #'string=)))
+		     (result (cond ((equalp result t) result)
+				   ((and result
+					 (symbolp result))
+				    ;; if not for the prin1, this'd return rubbish strings to c...
+				    (prin1-to-string (symbol-name result)))
+				   (t result))))
+		;; (when (equalp result (empty-seq))
+		;;   (format t "WARN: returning empty seq for ~a~%" key))
+		(values result
+			key)))))
+    (SIMPLE-ERROR (e)
+      (format t "Kutsutaan ~a~%" (list 'get-prop obj-alist key))
+      (error e))))
 
 (defun-export! get-prop-in (obj ks)
   (values

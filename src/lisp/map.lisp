@@ -136,14 +136,7 @@
   (set-tile-at root x y (root-chosenTile root)))
 
 (defun-export! set-tile-at-chosen-map (root x y tile)
-  (assert nil)
-  ;; (let* ((l (root-chosenLayerInd root))
-  ;; 	 (m (set-tile-at root x y tile))	 
-  ;; 	 (maps-index (find-index-of (root-maps root) m)))
-  ;;   (-> root
-  ;; 	(set-root-chosenMap! m)
-  ;; 	(set-root-maps! (alist-cons maps-index m (root-maps root)))))
-  )
+  (set-tile-at root x y tile))
 
 (defun fetch-tile-from-tileset (root tileset x y)
   (let ((tileset (->> root

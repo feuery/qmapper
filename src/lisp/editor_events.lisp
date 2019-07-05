@@ -15,6 +15,3 @@
 
 (defun-export! get-key-lambda (key)
   (lookup *key-event-map* key))
-
-(add-key-lambda "C-X" (lambda ()
-			(format t "Loool~%")))
