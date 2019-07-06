@@ -7,6 +7,7 @@
 
 #include <new_obj.h>
 #include <pen.h>
+#include <colored_rect.h>
 
 #include <QTemporaryFile>
 #include <sys/param.h>
@@ -356,6 +357,22 @@ cl_object keyDown(cl_object key) {
   return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
 }
 
+cl_object draw_rect(cl_object x, cl_object y, cl_object r, cl_object g, cl_object b, cl_object a) {
+  int c_x = ecl_to_int(x),
+    c_y = ecl_to_int(y),
+    c_r = ecl_to_int(r),
+    c_g = ecl_to_int(g),
+    c_b = ecl_to_int(b),
+    c_a = ecl_to_int(a);
+  QColor c(c_r,c_g,c_b,c_a);
+  colored_rect rect(editorController::instance->map_view, 50, 50, c);
+  rect.position.x = c_x;
+  rect.position.y = c_y;
+  rect.opacity = c_a;
+  rect.render();
+  return ECL_T;
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -383,6 +400,7 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("set-img-rotation", set_img_rotation, 3);
   DEFUN("set-img-subobj", set_subobj, 3);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
+  DEFUN("draw-rect", draw_rect, 6);
 
   DEFUN("render", render, 2);
   DEFUN("MsTime", MsTime, 0);

@@ -213,6 +213,9 @@
 (defun set-image-subobject (dst tile subtile)
   (funcall set-img-subobj dst (tile-gl-key tile) (tile-gl-key subtile)))
 
+(defun draw-colored-rect (x y r g b a)
+  (funcall draw-rect x y r g b a))
+
 (defun-export! set-map-renderer-fn (dst map-id)
   (add-to-lisp-qd dst (lambda ()
 			(setf map-id (root-chosenmap *document*))
@@ -276,7 +279,15 @@
 											      
     			     								      (render-img :MAP gl-key)))))))
 									      (let ((hit-tile (get-prop-in hitdata (list x y))))
-										(format t "hit-tile at ~a is ~a~%" (list x y) hit-tile)))
+									        (draw-colored-rect (* x 50)
+												   (* y 50)
+												   (if hit-tile
+												       0
+												       255)
+												   (if hit-tile
+												       255 0)
+												   0
+												   127)))
     			     						    y-coords))
     			     					  x-coords)))))
 

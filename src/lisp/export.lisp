@@ -67,5 +67,7 @@
 
 (defvar-export! keyDown nil)
 
+(defvar-export! draw-rect nil)
+
 (defun-export! render-img (dst img)
   (funcall render dst img))
