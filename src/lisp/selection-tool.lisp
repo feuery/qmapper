@@ -46,12 +46,6 @@
 					 (set-tile-at-chosen-map doc x y (make-tile 0 0 0 0 nil))))
 				     selected-tile-coord-pairs :initial-value *document*)))))
 
-(defmacro if-let (bindings then else)
-  `(let (,bindings)
-     (if ,(car bindings)
-	 ,then
-	 ,else)))
-
 (add-key-lambda "C-V"
 		(lambda ()
 		  (if-let (selection (root-selected-coordinates *document*))

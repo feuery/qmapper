@@ -24,12 +24,18 @@
     (height ()
 	    (size (fset-first (Layer-tiles *this*)))))))
 
-(defun-export! make-tiles (w h)
+(defun-export! make-2d (w h tile-value)
   (let ((all-tiles
 	 (repeatedly (lambda (x)
   		       (repeatedly (lambda (y)
-  				     (make-Tile 0 0 0 0 nil)) h)) w)))
+  				     tile-value) h)) w)))
     all-tiles))
+
+(defun-export! make-tiles (w h)
+  (make-2d w h (make-Tile 0 0 0 0 nil)))
+
+(defun-export! make-hitlayer (w h)
+  (make-2d w h t))
 
 (defun-export! shrink-layer-vertically (layer)
   (let ((width (layer-width layer)))

@@ -33,8 +33,7 @@
       (layers '())
       (sprites '())
       (animatedSprites '())
-      ;; (parent nil)
-      )
+      (hit-layer '()))
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
@@ -73,7 +72,7 @@
 					;(format t "making layer ~a ~%" l)
 				 l)) layer-count))
 	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
-	 (map (make-map name ids '() '())))
+	 (map (make-map name ids '() '() (make-hitlayer w h))))
     (-> (set-root-layers! doc
 			  (reduce (lambda (all-layers layer)
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))
@@ -86,14 +85,6 @@
 (defun-export! get-tile-at (map layer x y)
   (let ((l (get-prop (root-layers *document*) (get-prop (map-layers map) layer))))
     (get-prop-in l (list "tiles" x y))))
-
-
-;; (mapcar (lambda (a) (format t "lol ~a~%")) (fset:seq 1 2 3 4 5))
-
-;; The value
-;;   #[ 1 2 3 4 5 ]
-;; is not of type
-;;   LIST
 
 (defun-export! find-layer-parent (layer root)
   (let* ((maps (mapcar #'cdr (convert 'list (root-maps root)))))
@@ -226,15 +217,12 @@
   (add-to-lisp-qd dst (lambda ()
 			(setf map-id (root-chosenmap *document*))
 			;; (setf root-maps (root-maps *document*))
-		        (let ((*local-document* (if (equalp dst :ENGINE)
-						    *engine-document*
-						    qmapper.root:*document*)))
-			  (when *local-document*
-			    (let* (
-				   (root *local-document*)
+		        (if-let (*local-document* (if (equalp dst :ENGINE)
+						      *engine-document*
+						      qmapper.root:*document*))
+			    (let* ((root *local-document*)
 				   (map (get-prop (root-maps root) (root-chosenmap root)))
-				   (_ (assert map))
-
+				   (hitdata (map-hit-layer map))
 				   (w (map-width map))
 				   
     				   (x-coords (mapcar #'dec (range w)))
@@ -256,38 +244,39 @@
 							(let ((layer (get-prop (root-layers root) (get-prop layer-list l))))
     			     				  (mapcar (lambda (x)
     			     					    (mapcar (lambda (y)
-									      (let* ((tile (get-tile-at map l x y)))
-										(if tile 
-			   							    (let ((tile (if (valid-gl-key? (tile-gl-key tile))
-			   									    tile
-			   									    (fetch-tile-from-tileset root
-			   												     (tile-tileset tile)
-			   												     (tile-x tile)
-			   												     (tile-y tile))))
-											  (subtile (if (not (zerop index))
-												       (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
-													 (if (valid-gl-key? (tile-gl-key subtile))
-													     subtile
-													     (fetch-tile-from-tileset root
-			   													      (tile-tileset subtile)
-			   													      (tile-x subtile)
-			   													      (tile-y subtile)))))))
-										      
-										      (when tile
-											(let ((rotation (tile-rotation tile))
-    			     								      (gl-key (tile-gl-key tile)))
-			   								  (if (valid-gl-key? gl-key)
-											      (progn
-			   									(set-image-x :MAP tile (* 50 x))
-			   									(set-image-y :MAP tile (* 50 y))
-												(set-image-opacity :MAP tile (get-prop layer "opacity"))
-			   									(set-image-rotation :MAP tile (deg->rad rotation))
+									      (if-let (tile (get-tile-at map l x y))
+			   							  (let ((tile (if (valid-gl-key? (tile-gl-key tile))
+			   									  tile
+			   									  (fetch-tile-from-tileset root
+			   												   (tile-tileset tile)
+			   												   (tile-x tile)
+			   												   (tile-y tile))))
+											(subtile (if (not (zerop index))
+												     (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
+												       (if (valid-gl-key? (tile-gl-key subtile))
+													   subtile
+													   (fetch-tile-from-tileset root
+			   													    (tile-tileset subtile)
+			   													    (tile-x subtile)
+			   													    (tile-y subtile)))))))
+										    
+										    (when tile
+										      (let ((rotation (tile-rotation tile))
+    			     								    (gl-key (tile-gl-key tile)))
+			   								(if (valid-gl-key? gl-key)
+											    (progn
+			   								      (set-image-x :MAP tile (* 50 x))
+			   								      (set-image-y :MAP tile (* 50 y))
+											      (set-image-opacity :MAP tile (get-prop layer "opacity"))
+			   								      (set-image-rotation :MAP tile (deg->rad rotation))
 
 
-												(when subtile
-												  (set-image-subobject :MAP tile subtile))
-												
-    			     									(render-img :MAP gl-key)))))))))
+											      (when subtile
+												(set-image-subobject :MAP tile subtile))
+											      
+    			     								      (render-img :MAP gl-key)))))))
+									      (let ((hit-tile (get-prop-in hitdata (list x y))))
+										(format t "hit-tile at ~a is ~a~%" (list x y) hit-tile)))
     			     						    y-coords))
     			     					  x-coords)))))
 
@@ -302,7 +291,7 @@
 				  (if (equalp dst :ENGINE)
 				      (setf *engine-document* (set-prop-in *local-document* (list 'animatedSprites (get-prop anim "ID")) anim))
 				      (setf qmapper.root:*document* (set-prop-in *local-document* (list 'animatedSprites (get-prop anim "ID")) anim)))
-				  (animatedsprite-render anim)))))))))
+				  (animatedsprite-render anim))))))))
 
 (defun-export! select-map-layer (root map-id layer-id)
   (clear-lisp-dq :MAP)

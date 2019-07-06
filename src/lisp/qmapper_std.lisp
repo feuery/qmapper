@@ -578,6 +578,12 @@ and
       `(let ((,p1 ,param1))
 	 ,(emit rst)))))
 
+(defmacro-export! if-let (bindings then &optional else)
+  `(let (,bindings)
+     (if ,(car bindings)
+	 ,then
+	 ,else)))
+
 ;; (condp equalp "Lollero"
        
 ;;        "Lol" 3
