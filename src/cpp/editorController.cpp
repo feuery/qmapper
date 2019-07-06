@@ -373,6 +373,10 @@ cl_object draw_rect(cl_object x, cl_object y, cl_object r, cl_object g, cl_objec
   return ECL_T;
 }
 
+cl_object hit_tool_is_chosen() {
+  return editorController::instance->t->isHitTool()? ECL_T: ECL_NIL;
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -401,6 +405,7 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("set-img-subobj", set_subobj, 3);
   DEFUN("do-schedule-lambda", scheduleOnce, 2);
   DEFUN("draw-rect", draw_rect, 6);
+  DEFUN("cpp-hittool-chosen", hit_tool_is_chosen, 0);
 
   DEFUN("render", render, 2);
   DEFUN("MsTime", MsTime, 0);

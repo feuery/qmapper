@@ -60,7 +60,8 @@ HEADERS += src/headers/files.h \
            src/headers/new_map_ui.h \
            src/headers/resize-form.h \
            src/headers/selection.h \
-           src/headers/colored_rect.h
+           src/headers/colored_rect.h \
+           src/headers/hit_tool.h
            
 FORMS += \
     src/forms/main.ui \
@@ -97,4 +98,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/new_map_ui.cpp \
            src/cpp/resize-form.cpp \
            src/cpp/selection.cpp \
-           src/cpp/colored_rect.cpp
+           src/cpp/colored_rect.cpp \
+           src/cpp/hit_tool.cpp

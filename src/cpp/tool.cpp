@@ -19,6 +19,10 @@ cl_object getChosenMap()
   return get(cl_funcall(2, maps, root), qchosenMapid.toStdString().c_str());
 }
 
+bool Tool::isHitTool() {
+  return false;
+}
+
 bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 {
   cl_object map_w = makefn("qmapper.map:Map-Width");

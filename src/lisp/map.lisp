@@ -26,6 +26,18 @@
        (first)
        (last)))
 
+(defun-export! invert-hit-tile (map x y)
+  ;; get-prop-in is a bit stupid and coerces nils to #[ ], of which #'not doesn't understand anything
+  (update-prop-in map (list "HIT-LAYER" x y) (lambda (hit-obj)
+					       (if (equalp hit-obj (fset:seq))
+						   t
+						   (not hit-obj)))))
+
+(defun-export! invert-hit-tile-in-chosen-map (root x y)
+  (update-prop-in root (list "MAPS" (root-chosenmap root))
+		  (lambda (map)
+		    (invert-hit-tile map x y))))
+
 (defcppclass Map
     (public 
      (properties
@@ -248,46 +260,51 @@
     			     				  (mapcar (lambda (x)
     			     					    (mapcar (lambda (y)
 									      (if-let (tile (get-tile-at map l x y))
-			   							  (let ((tile (if (valid-gl-key? (tile-gl-key tile))
-			   									  tile
-			   									  (fetch-tile-from-tileset root
-			   												   (tile-tileset tile)
-			   												   (tile-x tile)
-			   												   (tile-y tile))))
-											(subtile (if (not (zerop index))
-												     (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
-												       (if (valid-gl-key? (tile-gl-key subtile))
-													   subtile
-													   (fetch-tile-from-tileset root
-			   													    (tile-tileset subtile)
-			   													    (tile-x subtile)
-			   													    (tile-y subtile)))))))
-										    
-										    (when tile
-										      (let ((rotation (tile-rotation tile))
-    			     								    (gl-key (tile-gl-key tile)))
-			   								(if (valid-gl-key? gl-key)
-											    (progn
-			   								      (set-image-x :MAP tile (* 50 x))
-			   								      (set-image-y :MAP tile (* 50 y))
-											      (set-image-opacity :MAP tile (get-prop layer "opacity"))
-			   								      (set-image-rotation :MAP tile (deg->rad rotation))
+			   							  (progn (let ((tile (if (valid-gl-key? (tile-gl-key tile))
+			   										 tile
+			   										 (fetch-tile-from-tileset root
+			   													  (tile-tileset tile)
+			   													  (tile-x tile)
+			   													  (tile-y tile))))
+											       (subtile (if (not (zerop index))
+													    (let ((subtile (get-tile-at map (nth (dec index) final-l-coords) x y)))
+													      (if (valid-gl-key? (tile-gl-key subtile))
+														  subtile
+														  (fetch-tile-from-tileset root
+			   														   (tile-tileset subtile)
+			   														   (tile-x subtile)
+			   														   (tile-y subtile)))))))
+											   
+											   (when tile
+											     (let ((rotation (tile-rotation tile))
+    			     									   (gl-key (tile-gl-key tile)))
+			   								       (if (valid-gl-key? gl-key)
+												   (progn
+			   									     (set-image-x :MAP tile (* 50 x))
+			   									     (set-image-y :MAP tile (* 50 y))
+												     (set-image-opacity :MAP tile (get-prop layer "opacity"))
+			   									     (set-image-rotation :MAP tile (deg->rad rotation))
 
 
-											      (when subtile
-												(set-image-subobject :MAP tile subtile))
-											      
-    			     								      (render-img :MAP gl-key)))))))
-									      (let ((hit-tile (get-prop-in hitdata (list x y))))
-									        (draw-colored-rect (* x 50)
-												   (* y 50)
-												   (if hit-tile
-												       0
-												       255)
-												   (if hit-tile
-												       255 0)
-												   0
-												   127)))
+												     (when subtile
+												       (set-image-subobject :MAP tile subtile))
+												     
+    			     									     (render-img :MAP gl-key))))))
+											 (if (hit-tool-chosen?)
+											     (let* ((hit-tile (get-prop-in hitdata (list x y)))
+												    (hit-tile (if (equalp hit-tile (fset:seq))
+														  nil
+														  hit-tile)))
+											       
+											       (draw-colored-rect (* x 50)
+														  (* y 50)
+														  (if hit-tile
+														      0
+														      255)
+														  (if hit-tile
+														      255 0)
+														  0
+														  127))))))
     			     						    y-coords))
     			     					  x-coords)))))
 

@@ -1,7 +1,7 @@
 (defpackage :qmapper.export
   (:use :common-lisp
    :cl-arrows)
-  (:import-from :fset :empty-map :convert :with :lookup))
+  (:import-from :fset :seq :empty-map :convert :with :lookup))
 
 (in-package :qmapper.export)
 
@@ -68,6 +68,10 @@
 (defvar-export! keyDown nil)
 
 (defvar-export! draw-rect nil)
+(defvar-export! cpp-hittool-chosen nil)
+
+(defun-export! hit-tool-chosen? ()
+  (funcall cpp-hittool-chosen))
 
 (defun-export! render-img (dst img)
   (funcall render dst img))

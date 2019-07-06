@@ -9,6 +9,7 @@ class Tool{
 public:
   virtual void use(QMouseEvent *event, int tilex, int tiley, editorController *e) = 0;
   virtual bool canUse(QMouseEvent *event, int tilex, int tiley, editorController *e);
+  virtual bool isHitTool();
 
   virtual void mouseDown(QMouseEvent *e, editorController *ec);
   virtual void mouseUp(QMouseEvent *e);
