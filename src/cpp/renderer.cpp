@@ -145,6 +145,10 @@ void Renderer::paintGL()
   }
 }
 
+void Renderer::deleteOwnObject(std::string &id) {
+  owned_objects.erase(id);
+}
+
 QOpenGLFunctions_4_3_Core* Renderer::getGlFns() {
   makeCurrent();
   return QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();

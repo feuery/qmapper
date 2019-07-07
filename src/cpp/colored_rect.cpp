@@ -43,7 +43,13 @@ void colored_rect::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfl
 }
 
 colored_rect::~colored_rect() {
-  
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+  f->glDeleteVertexArrays(1, &VAO);
+  f->glDeleteProgram(shader);
+  f->glDeleteTextures(1, &texture);
+  for(auto renderer: editorController::instance->renderers) {
+    renderer->deleteOwnObject(id);
+  }
 }
 
 void colored_rect::render(QOpenGLFunctions_4_3_Core *f) {

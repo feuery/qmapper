@@ -84,6 +84,8 @@ GLuint getVAO(QOpenGLFunctions_4_3_Core *f, GLuint shader)
   f->glBindBuffer(GL_ARRAY_BUFFER, 0);
   f->glBindVertexArray(0);
 
+  f->glDeleteBuffers(1, &VBO);
+
   return VAO;
 }
 
@@ -142,28 +144,17 @@ GLuint createShader(QOpenGLFunctions_4_3_Core *f, const char *v_c_smells, const 
   return p;
 }
 
-std::string getScript(std::string id) {
-  auto fetchRegister = makefn("qmapper.root:root-fetchRegister"),
-    fetchContents = makefn("qmapper.script:Script-contents");
-  cl_object script = cl_funcall(3,
-				fetchRegister,
-				c_string_to_object("Script"),
-				c_string_to_object(id.c_str()));
-  
-  cl_object res = cl_funcall(2, fetchContents, script);
-  std::string res_1 = ecl_string_to_string(res);
-  return res_1;
-}
 
 GLuint createShader(QOpenGLFunctions_4_3_Core *f, editorController *ec)
 {
-  cl_object stdFrag = makefn("qmapper.root:root-contents-StdFragment");
-  cl_object stdVertex = makefn("qmapper.root:root-contents-StdVertex");
-  cl_object tileViewFrag = makefn("qmapper.root:root-contents-StdTileviewFragShader");
+  cl_object stdFrag = makeSilentFn("qmapper.root:root-contents-StdFragment");
+  cl_object stdVertex = makeSilentFn("qmapper.root:root-contents-StdVertex");
+  cl_object tileViewFrag = makeSilentFn("qmapper.root:root-contents-StdTileviewFragShader");
 
   // fml and c's string handling
-  std::string v_c_smells("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
-    fr_c_smells("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}");
+  std::string v_c_smells = ecl_string_to_string(cl_funcall(2, stdVertex, ec->document.getValue())),
+  // ("#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n"),
+    fr_c_smells = ecl_string_to_string(cl_funcall(2, stdFrag, ec->document.getValue())); // ("#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}");
 
 
   const char *v_lol = v_c_smells.c_str();
@@ -294,7 +285,13 @@ obj::obj(Renderer *r, const char *texture_path,  bool skipTexture): parent(r)
 
 obj::~obj()
 {
-
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+  f->glDeleteVertexArrays(1, &VAO);
+  f->glDeleteProgram(shader);
+  f->glDeleteTextures(1, &texture);
+  for(auto renderer: editorController::instance->renderers) {
+    renderer->deleteOwnObject(id);
+  }
 }
 
 void obj::render(Renderer *parent) {

@@ -42,6 +42,7 @@ public:
   void addToDrawQueue(cl_object lambda);
   void setOwnObject(std::string id, Renderable *obj);
   Renderable* getOwnObject(std::string id);
+  void deleteOwnObject(std::string &id);
   void clearOwnObjects() {
     owned_objects.clear();
   }

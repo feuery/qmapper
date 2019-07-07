@@ -23,6 +23,7 @@ OBJECTS = ./libzippp/obj/libzippp.o
 LIBS += `ecl-config --ldflags`
 
 QMAKE_CXXFLAGS += `ecl-config --cflags`
+# QMAKE_CXXFLAGS += -O0
 QMAKE_LFLAGS += `ecl-config --ldflags`
 
 DESTDIR = ./bin

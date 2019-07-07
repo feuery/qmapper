@@ -24,7 +24,7 @@ public:
   GLfloat rotate;
   glm::vec3 color;
   GLuint shader, texture;
-  GLuint VAO;
+  GLuint VAO, VBO;
 
   Renderer *parent;
 
