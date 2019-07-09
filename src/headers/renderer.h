@@ -47,6 +47,8 @@ public:
     owned_objects.clear();
   }
 protected:
+
+  virtual void renderEditorSpecific();
   
   virtual void keyPressEvent(QKeyEvent *event) override;
   virtual void mouseMoveEvent(QMouseEvent *e) override;

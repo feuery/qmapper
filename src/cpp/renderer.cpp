@@ -89,35 +89,7 @@ int getComponent(cl_object nth, cl_object selection, int ind) {
   return ecl_to_int(cl_funcall(3, nth, selection, ecl_make_int32_t(ind))) * 50;
 }
 
-void Renderer::paintGL()
-{
-  editorController *ec = editorController::instance;
-  if(!ec->renderingEnabled) return;
-  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
-  if(!f) return;
-  f->glClear(GL_COLOR_BUFFER_BIT);
-    
-  for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
-    auto id = (*i)->getRenderId();
-    Renderable *o = owned_objects[id];
-    o->render(this);
-  }
-#ifdef LOG_RENDER_LAMBDAS
-  cl_object format = makefn("format");
-  for(cl_object o: getLispyDrawQueue()) {
-      cl_funcall(4, format, ECL_T, c_string_to_object("\"o is ~a~%\""), o);
-      cl_funcall(1, o);
-    }
-#else
-    for(cl_object o: getLispyDrawQueue()) {
-      cl_funcall(1, o);
-    }
-#endif
-
-  while(!glLambdas.empty()) {
-    auto lambda = glLambdas.dequeue();
-    lambda();
-  }
+void Renderer::renderEditorSpecific() {
   if(this == editorController::instance->map_view) {
     auto ec = editorController::instance;
     cl_object doc = ec->document.getValue(),
@@ -143,6 +115,42 @@ void Renderer::paintGL()
       rect.render();
     }
   }
+}
+
+void Renderer::paintGL()
+{
+  editorController *ec = editorController::instance;
+  if(!ec->renderingEnabled) return;
+  auto f = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctions_4_3_Core>();
+  if(!f) return;
+  f->glClear(GL_COLOR_BUFFER_BIT);
+    
+  for(auto i = drawQueue.begin(); i !=  drawQueue.end(); ++i) {
+    auto id = (*i)->getRenderId();
+    Renderable *o = owned_objects[id];
+    o->render(this);
+  }
+
+  cl_object renderer_name = c_string_to_object((std::string("\"")+name+"\"").c_str());
+  
+#ifdef LOG_RENDER_LAMBDAS
+  cl_object format = makefn("format");
+  for(cl_object o: getLispyDrawQueue()) {
+      cl_funcall(4, format, ECL_T, c_string_to_object("\"o is ~a~%\""), o);
+      cl_funcall(2, o, renderer_name );
+    }
+#else
+    for(cl_object o: getLispyDrawQueue()) {
+      cl_funcall(2, o, renderer_name);
+    }
+#endif
+
+  while(!glLambdas.empty()) {
+    auto lambda = glLambdas.dequeue();
+    lambda();
+  }
+
+  renderEditorSpecific();
 }
 
 void Renderer::deleteOwnObject(std::string &id) {

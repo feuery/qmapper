@@ -19,6 +19,7 @@ public:
   virtual void initializeGL();
 
 protected:
+  virtual void renderEditorSpecific() override;
   virtual void keyPressEvent(QKeyEvent *event) override;
   virtual void keyReleaseEvent(QKeyEvent *event) override;
 

@@ -14,6 +14,10 @@ Engine_Renderer::Engine_Renderer(QWidget *parent): Renderer(parent)
   editorController::instance->engine = this;
 }
 
+void Engine_Renderer::renderEditorSpecific() {
+  // no
+}
+
 void Engine_Renderer::initializeGL() {
   glClearColor(1.0f, 0.5f, 0.0f, 0.0f);
 }

@@ -288,7 +288,8 @@
   (funcall draw-rect x y r g b a))
 
 (defun-export! set-map-renderer-fn (dst map-id)
-  (add-to-lisp-qd dst (lambda ()
+  (add-to-lisp-qd dst (lambda (renderer-name)
+			;; (format t "renderer name is ~a~%" renderer-name)
 			(setf map-id (root-chosenmap *document*))
 			;; (setf root-maps (root-maps *document*))
 		        (if-let (*local-document* (if (equalp dst :ENGINE)
@@ -349,7 +350,8 @@
 												       (set-image-subobject :MAP tile subtile))
 												     
     			     									     (render-img :MAP gl-key))))))
-											 (if (hit-tool-chosen?)
+											 (if (and (hit-tool-chosen?)
+												  (string= "MAP VIEW" renderer-name))
 											     (let* ((hit-tile (get-prop-in hitdata (list x y)))
 												    (hit-tile (if (equalp hit-tile (fset:seq))
 														  nil
