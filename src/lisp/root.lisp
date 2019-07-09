@@ -312,13 +312,16 @@
       (update-prop 'sprites (lambda (sprites)
 			      (format t "updating sprites~%")
 			      (let ((res
-				      (-> sprites
-					  (set-prop sprite-id 
-						    (set-prop sprite 'id (clean-key sprite-id))))))
+				     (-> sprites
+					 (set-prop sprite-id 
+						   (set-prop sprite 'id (clean-key sprite-id))))))
 				(format t "updated sprites~%")
 				res)))
       (update-prop-in (list "maps" mapInd "sprites") (lambda (sprites)
-						       (with-first sprites (clean-key sprite-id))))))
+						       (let ((sprites (fset:filter (lambda (spr-id)
+										     (not (equalp spr-id sprite-id)))
+										   sprites)))
+							 (with-first sprites (clean-key sprite-id)))))))
 
 (defun-export! push-animation (root mapInd animation)
   (let ((animation-id (get-prop animation "ID")))
@@ -326,13 +329,16 @@
 	(update-prop 'animatedSprites (lambda (animatedSprites)
 					(format t "updating animatedSprites~%")
 					(let ((res
-						(-> animatedSprites
-						    (set-prop animation-id 
-							      (set-prop animation 'id animation-id)))))
+					       (-> animatedSprites
+						   (set-prop animation-id 
+							     (set-prop animation 'id animation-id)))))
 					  (format t "updated animatedSprites~%")
 					  res)))
 	(update-prop-in (list "maps" mapInd "animatedSprites") (lambda (animatedSprites)
-							       (with-first animatedSprites animation-id))))))
+								 (let ((animatedSprites (fset:filter (lambda (spr-id)
+												       (not (equalp spr-id animation-id)))
+												     animatedSprites)))
+								   (with-first animatedSprites animation-id)))))))
 
 (defvar *document* (init-root!))
 (defvar *engine-document* nil)
