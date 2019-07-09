@@ -298,6 +298,23 @@
       (format t "Kutsutaan ~a~%" (list 'get-prop obj-alist key))
       (error e))))
 
+(defun-export! dissoc-prop (obj-alist key)
+  (assert obj-alist)
+  (fset:less obj-alist key))
+
+(defun-export! dissoc-prop-in (obj-alist ks)
+  (let* ((key (car ks))
+	 (cdr? (equal 'cdr key))
+	 (ks (cdr ks)))
+    (if cdr?
+	(if ks
+	    (dissoc-prop-in (cdr obj-alist) ks)
+	    (list (car obj-alist)))
+	(if ks
+	    (set-prop obj-alist key (dissoc-prop-in (get-prop obj-alist key) ks))
+	    (dissoc-prop obj-alist key)))))
+  
+
 (defun-export! get-prop-in (obj ks)
   (values
    (let* ((key (car ks))

@@ -39,6 +39,7 @@ public:
 
   void setupTreeCtxMenu();
   void editObject();
+  void deleteObject();
 
   QString getTextureLocation();
 
@@ -53,6 +54,8 @@ public:
     void registerController(editorController *ec);
   void setupMainMenu();
   editorController *ec;
+  cl_object findSelectedObject();
+  cl_object find_path();
 };
 
 #endif //MAIN_H

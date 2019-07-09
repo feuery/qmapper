@@ -104,6 +104,65 @@
 			  (let ((layers (convert 'list (map-layers map))))
 			    (position layer layers :test #'string=)))
 			maps))))
+
+(defun-export! find-sprite-parent (sprite root)
+  (let* ((maps (mapcar #'cdr (convert 'list (root-maps root)))))
+    (car (remove-if-not (lambda (map)
+			  (let ((sprites (convert 'list (map-sprites map))))
+			    (position sprite sprites :test #'string=)))
+			maps))))
+
+(defun-export! find-animatedsprite-parent (animatedsprite root)
+  (let* ((maps (mapcar #'cdr (convert 'list (root-maps root)))))
+    (car (remove-if-not (lambda (map)
+			  (let ((animatedsprites (convert 'list (map-animatedsprites map))))
+			    (position animatedsprite animatedsprites :test #'string=)))
+			maps))))
+
+(defun-export! drop-layer (map layer-id)
+  (update-prop map "LAYERS" (lambda (layer-list)
+			      (fset:filter (lambda (l-id)
+					     (not (equalp l-id layer-id)))
+					   layer-list))))
+
+(defun-export! drop-map-layer (root map-id layer-id)
+  (let ((root (update-prop-in root (list "MAPS" map-id) (lambda (map)
+							  (drop-layer map layer-id)))))
+    (if (equalp (root-chosenLayerInd root) layer-id)
+	(let ((layer-id (-> root
+			    root-maps
+			    (get-prop (root-chosenmap root))
+			    map-layers
+			    (get-prop 0))))
+	  (format t "fixin the chosenlayer to ~a~%" layer-id)
+	  (set-root-chosenlayerind! root layer-id))
+	root)))
+
+
+
+
+
+
+
+(defun-export! drop-animatedsprite (map animatedsprite-id)
+  (update-prop map "ANIMATEDSPRITES" (lambda (animatedsprite-list)
+			      (fset:filter (lambda (l-id)
+					     (not (equalp l-id animatedsprite-id)))
+					   animatedsprite-list))))
+
+(defun-export! drop-map-animatedsprite (root map-id animatedsprite-id)
+  (update-prop-in root (list "MAPS" map-id) (lambda (map)
+					      (drop-animatedsprite map animatedsprite-id))))
+
+(defun-export! drop-sprite (map sprite-id)
+  (update-prop map "SPRITES" (lambda (sprite-list)
+			      (fset:filter (lambda (s-id)
+					     (not (equalp s-id sprite-id)))
+					   sprite-list))))
+
+(defun-export! drop-map-sprite (root map-id sprite-id)
+  (update-prop-in root (list "MAPS" map-id) (lambda (map)
+					      (drop-sprite map sprite-id))))
 	 
 (defun-export! index-of-chosen-map (root)
   (root-chosenMap root))

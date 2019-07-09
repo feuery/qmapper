@@ -249,13 +249,20 @@ QGroupBox* MainWindow::toolbox()
   return grp;
 }
 
-void MainWindow::editObject()
-{
+cl_object MainWindow::findSelectedObject() {
+  auto path = find_path(),
+    format = makefn("format"),
+    get_in = makefn("qmapper.std:get-prop-in");
+  cl_funcall(4, format, ECL_T, c_string_to_object("\"path is ~a~%\""), path);
+  return cl_funcall(3, get_in, ec->document.getValue(), path);
+}
+
+cl_object MainWindow::find_path() {
   QString itemtext = tree.currentItem()->text(0);
   auto splitted = itemtext.split("|");
   if(splitted.count() < 1) {
     printf("item %s doesn't have id\n", itemtext.toStdString().c_str());
-    return;
+    return ECL_NIL;
   }
   
   QString id = splitted[1].replace("\"", "").replace(" ", "");
@@ -279,6 +286,14 @@ void MainWindow::editObject()
   assert(path != ECL_NIL);
 
   cl_funcall(4, format, ECL_T, c_string_to_object("\"path to b is ~a~%\""), path);
+
+  
+  return path;
+}
+
+void MainWindow::editObject()
+{
+  auto path = find_path();
   
   Propertyeditor *p = new Propertyeditor(path, this, true);
   p->show();
@@ -312,12 +327,57 @@ void MainWindow::prepare_undo_btn(QVBoxLayout *toolbox) {
 	  });
 }
 
+void MainWindow::deleteObject() {
+  cl_object do_delete = makefn("qmapper.root:delete-object"),
+    path = find_path(),
+    object = findSelectedObject(),
+    doc = ec->document.getValue();
+
+  std::string type = type_name(object);
+  printf("Deleting object of type %s\n", type.c_str());
+
+  if(type == "LAYER") {
+    cl_object find_parent = makefn("qmapper.map:find-layer-parent"),
+      layer = object,
+      parentMap = cl_funcall(3, find_parent, get(layer, "ID"), doc),
+      dropLayer = makefn("qmapper.map:drop-map-layer");
+    doc = cl_funcall(4, dropLayer, doc, get(parentMap, "ID"), get(layer, "ID"));
+  }
+  else if (type == "SPRITE") {
+    cl_object find_parent = makefn("qmapper.map:find-sprite-parent"),
+      sprite = object,
+      parentMap = cl_funcall(3, find_parent, get(sprite, "ID"), doc),
+      dropSprite = makefn("qmapper.map:drop-map-sprite");
+    doc = cl_funcall(4, dropSprite, doc, get(parentMap, "ID"), get(sprite, "ID"));
+  }
+  else if (type == "ANIMATEDSPRITE") {
+    cl_object find_parent = makefn("qmapper.map:find-animatedsprite-parent"),
+      animatedsprite = object,
+      parentMap = cl_funcall(3, find_parent, get(animatedsprite, "ID"), doc),
+      dropAnimatedsprite = makefn("qmapper.map:drop-map-animatedsprite");
+    doc = cl_funcall(4, dropAnimatedsprite, doc, get(parentMap, "ID"), get(animatedsprite, "ID"));
+  }
+  else printf("Type %s doesn't require extra deletion work\n", type.c_str());
+
+  cl_object new_doc = cl_funcall(3, do_delete, doc, path),
+    format = makefn("format");
+  // cl_funcall(4, format, ECL_T, c_string_to_object("\"deleted, newdoc is ~a~%\""), new_doc);
+
+  ec->document.setValue(new_doc);
+  puts("Deleted!");  
+}
+
 void MainWindow::setupTreeCtxMenu()
 {
   QAction *edit = new QAction("&Edit", this);
   edit->setShortcuts(QKeySequence::New);
-  edit->setStatusTip("Edit object");
+  edit->setStatusTip("Edit object");  
   connect(edit, &QAction::triggered, this, &MainWindow::editObject);
+
+  QAction *do_delete = new QAction("&Delete", this);
+  do_delete->setShortcuts(QKeySequence::Delete);
+  do_delete->setStatusTip("Delete object");
+  connect(do_delete, &QAction::triggered, this, &MainWindow::deleteObject);
 
   // TODO
   // Add a menu:
@@ -331,6 +391,7 @@ void MainWindow::setupTreeCtxMenu()
 
   tree.setContextMenuPolicy(Qt::ActionsContextMenu);
   tree.addAction(edit);
+  tree.addAction(do_delete);
   QMenu *newMenu = new QMenu(this);
 
   QAction *map = new QAction("&Map", this),

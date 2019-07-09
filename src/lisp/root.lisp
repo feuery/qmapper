@@ -250,12 +250,15 @@
 ;; (assoc 'G1468 '((G1468 . 2323)))
 
 (defun-export! find-path-of (root obj)
-  (let ((type-sym (q-type-of obj)))
+  (let ((type-sym (format nil "~as" (q-type-of obj))))
     (unless type-sym
       (format t "didn't recognize type ~a~%" (q-type-of obj))
       (format t "obj is ~a~%" obj))
     (let ((key (get-prop obj "ID")))
       (list type-sym (clean-key key)))))
+
+(defun-export! delete-object (root path)
+  (dissoc-prop-in root path))
 		    
 
 (defun-export! find-by-id (root id)
