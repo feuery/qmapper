@@ -52,10 +52,11 @@
     (if (not (equal ns ""))
 	(with-current-buffer buffer-name
 	  (let* ((buf-content (buffer-string))
+		 (n-of-rows (length (split-string (buffer-substring-no-properties (point-min) (point-max)) "\n")))
 		 (proc (open-network-stream "*qmapper-tmp*" (get-buffer-create "*qmapper-tmp*")
 					    server port
 					    :nowait nil)))
-	    (process-send-string proc (concat "SAVE-NS:" ns ":" buf-content))
+	    (process-send-string proc (concat "SAVE-NS:" ns ":" (int-to-string n-of-rows) "\n" buf-content "\n"))
 	    (set-process-sentinel proc (lambda (p e)
 					 (set-buffer-modified-p nil)
 					 (message (concat "Saved " ns " to " server ":" (int-to-string port)))))))

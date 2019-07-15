@@ -309,9 +309,10 @@ void MainWindow::prepare_server_button(QVBoxLayout *toolbox_layout)
 
   connect(server_connection, &QPushButton::clicked,
 	  [&]() {
-	    if(!s.initialized && s.start_server()) {
-	      server_connection->setText("Server running");
-	    }
+	    puts("Starting a thread!");
+	    s.start();
+	    puts("Started a thread successfully!");
+	    server_connection->setText("Server running");
 	  });
 }
 

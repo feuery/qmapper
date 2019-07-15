@@ -2,7 +2,7 @@
 #include <files.h>
 #include <guile_fn.h>
 
-extern "C" { 
+// extern "C" { 
 
   cl_object add_map(cl_object w, cl_object h, cl_object layerCount) {
     cl_object makeMap   = makefn("qmapper.map:make-map-with-layers");
@@ -35,17 +35,17 @@ extern "C" {
     
   }
 
-  cl_object delete_layer(cl_object map_index_scm, cl_object layer_index_scm)
-  {
-    static cl_object deleteLayer = ecl_make_symbol("delete-layer", "CL-USER");
-    // editorController::instance->documentTreeModel->begin();
-    editorController::instance->document.setValue( cl_funcall(4, deleteLayer,
-						      editorController::instance->document.getValue(),
-						      map_index_scm,
-							      layer_index_scm));
-    // editorController::instance->documentTreeModel->end();
-    return ECL_T;
-  }
+//   cl_object delete_layer(cl_object map_index_scm, cl_object layer_index_scm)
+//   {
+//     static cl_object deleteLayer = ecl_make_symbol("delete-layer", "CL-USER");
+//     // editorController::instance->documentTreeModel->begin();
+//     editorController::instance->document.setValue( cl_funcall(4, deleteLayer,
+// 						      editorController::instance->document.getValue(),
+// 						      map_index_scm,
+// 							      layer_index_scm));
+//     // editorController::instance->documentTreeModel->end();
+//     return ECL_T;
+//   }
 
   std::string genNs() {
     return std::string("user") + std::to_string(rand() % 1000000);
@@ -91,265 +91,265 @@ extern "C" {
     return ECL_T;
   }
 
-  cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor)
-  {
-    puts("EI2");
-    throw "";
-    editorController *ec = editorController::instance;
+//   cl_object resize_current_map(cl_object w, cl_object h, cl_object horizontal_anchor, cl_object vertical_anchor)
+//   {
+//     puts("EI2");
+//     throw "";
+//     editorController *ec = editorController::instance;
 
-    // It might cause problems if we screw with data structures while renderer is deep within the same datastructures
-    bool oldRenderingState = ec->renderingEnabled;
-    ec->renderingEnabled = false;
+//     // It might cause problems if we screw with data structures while renderer is deep within the same datastructures
+//     bool oldRenderingState = ec->renderingEnabled;
+//     ec->renderingEnabled = false;
 
-    static cl_object selectedMap = ecl_make_symbol("root-chosenMap", "CL-USER");
-    static cl_object push_selectedMap = ecl_make_symbol("push-selected-map", "CL-USER");
-    static cl_object map_resize = ecl_make_symbol("Map-resize", "CL-USER");
+//     static cl_object selectedMap = ecl_make_symbol("root-chosenMap", "CL-USER");
+//     static cl_object push_selectedMap = ecl_make_symbol("push-selected-map", "CL-USER");
+//     static cl_object map_resize = ecl_make_symbol("Map-resize", "CL-USER");
     
-    // Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
-    cl_object m = cl_funcall(2, selectedMap, editorController::instance->document.getValue());
+//     // Map *m = toMap(ec->document.fetchRegister("Map", ec->indexOfChosenMap));
+//     cl_object m = cl_funcall(2, selectedMap, editorController::instance->document.getValue());
 
-    std::string horizontal_a(ecl_string_to_string(ecl_symbol_name(horizontal_anchor)));
-    std::string vertical_a(ecl_string_to_string(ecl_symbol_name(vertical_anchor)));
+//     std::string horizontal_a(ecl_string_to_string(ecl_symbol_name(horizontal_anchor)));
+//     std::string vertical_a(ecl_string_to_string(ecl_symbol_name(vertical_anchor)));
 
-    m = cl_funcall(6, map_resize,
-		   m,
-		   w,
-		   h,
-		   vertical_anchor,
-		   horizontal_anchor);
+//     m = cl_funcall(6, map_resize,
+// 		   m,
+// 		   w,
+// 		   h,
+// 		   vertical_anchor,
+// 		   horizontal_anchor);
 		   
-    editorController::instance->document.setValue( cl_funcall(3, push_selectedMap,
-						      editorController::instance->document.getValue(),
-							      m));
+//     editorController::instance->document.setValue( cl_funcall(3, push_selectedMap,
+// 						      editorController::instance->document.getValue(),
+// 							      m));
 						      
 
-    ec->renderingEnabled = oldRenderingState;;
+//     ec->renderingEnabled = oldRenderingState;;
 
-    return ECL_T;
-  }
+//     return ECL_T;
+//   }
 
-  cl_object toggle_rendering() {
-    editorController *ec = editorController::instance;
-    qDebug() << (ec->renderingEnabled? "Stopping renderer": "Starting renderer");
-    ec->renderingEnabled = !ec->renderingEnabled;
-    return ECL_T;
-  }
+//   cl_object toggle_rendering() {
+//     editorController *ec = editorController::instance;
+//     qDebug() << (ec->renderingEnabled? "Stopping renderer": "Starting renderer");
+//     ec->renderingEnabled = !ec->renderingEnabled;
+//     return ECL_T;
+//   }
 
-  // cl_object print_json(cl_object type, cl_object id)
-  // {
-  //   const char *c_id = scm_to_utf8_string(id),
-  //     *c_type = scm_to_utf8_string(type);
-  //   std::string cc_id = c_id,
-  //     cc_type = c_type;
-  //   editorController *ec = editorController::instance;
+//   // cl_object print_json(cl_object type, cl_object id)
+//   // {
+//   //   const char *c_id = scm_to_utf8_string(id),
+//   //     *c_type = scm_to_utf8_string(type);
+//   //   std::string cc_id = c_id,
+//   //     cc_type = c_type;
+//   //   editorController *ec = editorController::instance;
 
-  //   Propertierbase *b = ec->document.fetchRegister(cc_type, cc_id);
-  //   qDebug() << "Id " << c_id << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
-  //   return ECL_T;
-  // }
+//   //   Propertierbase *b = ec->document.fetchRegister(cc_type, cc_id);
+//   //   qDebug() << "Id " << c_id << "'s (" << b->type_identifier().c_str() << ") json: " << b->toJSON().c_str();
+//   //   return ECL_T;
+//   // }
 
-  cl_object load_sprite(cl_object s_path) {
-    puts("TODO implement sprites");
-    // const char *path = scm_to_utf8_string(s_path);
-    // editorController::instance->map_view->glLambdas.enqueue([=]() {
-    // 	editorController::instance->loadSprite(path);
-    //   });
-    return ECL_NIL;
-  }
+//   cl_object load_sprite(cl_object s_path) {
+//     puts("TODO implement sprites");
+//     // const char *path = scm_to_utf8_string(s_path);
+//     // editorController::instance->map_view->glLambdas.enqueue([=]() {
+//     // 	editorController::instance->loadSprite(path);
+//     //   });
+//     return ECL_NIL;
+//   }
 
-  cl_object load_animation(cl_object s_path, cl_object s_framecount, cl_object s_frameLifeTime)
-  {
-    // const char *path = scm_to_utf8_string(s_path);
-    // int framecount = fixint(s_framecount),
-    //   frameLifeTime = fixint(s_frameLifeTime);
+//   cl_object load_animation(cl_object s_path, cl_object s_framecount, cl_object s_frameLifeTime)
+//   {
+//     // const char *path = scm_to_utf8_string(s_path);
+//     // int framecount = fixint(s_framecount),
+//     //   frameLifeTime = fixint(s_frameLifeTime);
 
-    // editorController::instance->map_view->glLambdas.enqueue([=]() {
-    // 	editorController::instance->loadAnimation(path, framecount, frameLifeTime);
-    //   });
+//     // editorController::instance->map_view->glLambdas.enqueue([=]() {
+//     // 	editorController::instance->loadAnimation(path, framecount, frameLifeTime);
+//     //   });
 
-    puts("TODO implement animations");
-    return ECL_NIL;
-  }
+//     puts("TODO implement animations");
+//     return ECL_NIL;
+//   }
   
-  cl_object getMouse() {
-    auto ec = editorController::instance;
-    cl_object list = cl_list(2, ecl_make_fixnum(ec->mouseX), ecl_make_fixnum(ec->mouseY));
-    return list;
-  }
+//   cl_object getMouse() {
+//     auto ec = editorController::instance;
+//     cl_object list = cl_list(2, ecl_make_fixnum(ec->mouseX), ecl_make_fixnum(ec->mouseY));
+//     return list;
+//   }
 
-  cl_object getMouseButtonState() {
-    auto ec = editorController::instance;
+//   cl_object getMouseButtonState() {
+//     auto ec = editorController::instance;
 
-    auto btns = QGuiApplication::mouseButtons();
-    bool left = btns & Qt::LeftButton,
-      right = btns & Qt::RightButton;
+//     auto btns = QGuiApplication::mouseButtons();
+//     bool left = btns & Qt::LeftButton,
+//       right = btns & Qt::RightButton;
 
-    return cl_list(2, ecl_make_bool(left), ecl_make_bool(right));
-  }
+//     return cl_list(2, ecl_make_bool(left), ecl_make_bool(right));
+//   }
 
-  #define returnResult const char *res = result.c_str();\
-    return c_string_to_object(res);
+//   #define returnResult const char *res = result.c_str();\
+//     return c_string_to_object(res);
 
-  // cl_object getProp(cl_object id, cl_object type, cl_object propname) {
-  //   auto ec = editorController::instance;
+//   // cl_object getProp(cl_object id, cl_object type, cl_object propname) {
+//   //   auto ec = editorController::instance;
 
-  //   const char *c_type = scm_to_utf8_string(type),
-  //     *c_prop = scm_to_utf8_string(propname),
-  //     *c_id = scm_to_utf8_string(id);
+//   //   const char *c_type = scm_to_utf8_string(type),
+//   //     *c_prop = scm_to_utf8_string(propname),
+//   //     *c_id = scm_to_utf8_string(id);
     
-  //   std::string cc_type = c_type;
-  //   bool lol = false;
+//   //   std::string cc_type = c_type;
+//   //   bool lol = false;
 
-  //   Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
-  //   std::string proptype = obj->type_name(c_prop);
+//   //   Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+//   //   std::string proptype = obj->type_name(c_prop);
 
-  //   std::string result = "";
-  //   if(proptype == "std::string") {
-  //     result = obj->get(c_prop, &lol, result);
-  //     returnResult;
-  //   }
-  //   else if (proptype == "int") {
-  //     int i = 42;
+//   //   std::string result = "";
+//   //   if(proptype == "std::string") {
+//   //     result = obj->get(c_prop, &lol, result);
+//   //     returnResult;
+//   //   }
+//   //   else if (proptype == "int") {
+//   //     int i = 42;
 
-  //     return ecl_make_fixnum(obj->get(c_prop, &lol, i));
-  //   }
-  //   else if (proptype == "bool") {
-  //     return scm_from_bool(obj->get(c_prop, &lol, lol));
-  //   }
-  //   else if (proptype == "unsigned char") {
-  //     unsigned char trol = -1;
-  //     int result = obj->get(c_prop, &lol, trol);
-  //     return ecl_make_fixnum(result);
-  //   }
-  //   else if (proptype == "Script*") {
-  //     Script* scr;
-  //     scr = obj->get(c_prop, &lol, scr);
-  //     result = scr->getContents();
-  //     returnResult;
-  //   }
-  //   else if(proptype == "scriptTypes") {
-  //     scriptTypes t;
-  //     t = obj->get(c_prop, &lol, t);
-  //     return scm_string_to_symbol(c_string_to_object(t == glsl? "glsl" : "lisp"));
-  //   }
-  //   else if(proptype == "float") {
-  //     float val = obj->get(c_prop, &lol, 2.2f);
-  //     return scm_from_double(val);
-  //   }
+//   //     return ecl_make_fixnum(obj->get(c_prop, &lol, i));
+//   //   }
+//   //   else if (proptype == "bool") {
+//   //     return scm_from_bool(obj->get(c_prop, &lol, lol));
+//   //   }
+//   //   else if (proptype == "unsigned char") {
+//   //     unsigned char trol = -1;
+//   //     int result = obj->get(c_prop, &lol, trol);
+//   //     return ecl_make_fixnum(result);
+//   //   }
+//   //   else if (proptype == "Script*") {
+//   //     Script* scr;
+//   //     scr = obj->get(c_prop, &lol, scr);
+//   //     result = scr->getContents();
+//   //     returnResult;
+//   //   }
+//   //   else if(proptype == "scriptTypes") {
+//   //     scriptTypes t;
+//   //     t = obj->get(c_prop, &lol, t);
+//   //     return scm_string_to_symbol(c_string_to_object(t == glsl? "glsl" : "lisp"));
+//   //   }
+//   //   else if(proptype == "float") {
+//   //     float val = obj->get(c_prop, &lol, 2.2f);
+//   //     return scm_from_double(val);
+//   //   }
 
-  //   qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
+//   //   qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
 
-  //   return ECL_NIL;
-  // }
+//   //   return ECL_NIL;
+//   // }
 
-  // #define setVal obj->set(c_prop, val)
+//   // #define setVal obj->set(c_prop, val)
 
-  // cl_object setProp(cl_object id, cl_object type, cl_object propname, cl_object value)
-  // {
-  //   auto ec = editorController::instance;
+//   // cl_object setProp(cl_object id, cl_object type, cl_object propname, cl_object value)
+//   // {
+//   //   auto ec = editorController::instance;
 
-  //   const char *c_type = scm_to_utf8_string(type),
-  //     *c_prop = scm_to_utf8_string(propname),
-  //     *c_id = scm_to_utf8_string(id);
+//   //   const char *c_type = scm_to_utf8_string(type),
+//   //     *c_prop = scm_to_utf8_string(propname),
+//   //     *c_id = scm_to_utf8_string(id);
     
-  //   std::string cc_type = c_type;
-  //   bool lol = false;
+//   //   std::string cc_type = c_type;
+//   //   bool lol = false;
 
-  //   Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
-  //   std::string proptype = obj->type_name(c_prop);
+//   //   Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+//   //   std::string proptype = obj->type_name(c_prop);
 
-  //   std::string result = "";
+//   //   std::string result = "";
 
-  //   ec->documentTreeModel->begin();
+//   //   ec->documentTreeModel->begin();
     
-  //   if(proptype == "std::string") {
-  //     std::string val = scm_to_utf8_string(value);
-  //     setVal;
-  //   }
-  //   else if (proptype == "int") {
-  //     int val = fixint(value);
-  //     setVal;
-  //   }
-  //   else if (proptype == "bool") {
-  //     bool val = scm_to_bool(value);
-  //     setVal;
-  //   }
-  //   else if (proptype == "unsigned char") {
-  //     int lol = fixint(value);
-  //     unsigned char val = static_cast<unsigned char>(lol);
-  //     setVal;
-  //   }
-  //   else if (proptype == "Script*") {
-  //     Script* scr;
-  //     scr = obj->get(c_prop, &lol, scr);
+//   //   if(proptype == "std::string") {
+//   //     std::string val = scm_to_utf8_string(value);
+//   //     setVal;
+//   //   }
+//   //   else if (proptype == "int") {
+//   //     int val = fixint(value);
+//   //     setVal;
+//   //   }
+//   //   else if (proptype == "bool") {
+//   //     bool val = scm_to_bool(value);
+//   //     setVal;
+//   //   }
+//   //   else if (proptype == "unsigned char") {
+//   //     int lol = fixint(value);
+//   //     unsigned char val = static_cast<unsigned char>(lol);
+//   //     setVal;
+//   //   }
+//   //   else if (proptype == "Script*") {
+//   //     Script* scr;
+//   //     scr = obj->get(c_prop, &lol, scr);
 
-  //     const char *content = scm_to_utf8_string(value);
-  //     scr->setContents(content);
-  //   }
-  //   else if(proptype == "scriptTypes") {
-  //     const char *result = ecl_make_symbol(value));
-  //     std::string r = result;
-  //     scriptTypes val = r == "glsl"? glsl: lisp;
-  //     setVal;      
-  //   }
-  //   else if(proptype == "float") {
-  //     float val = scm_to_double(value);
-  //     setVal;
-  //   }
-  //   else
-  //     qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
-  //   ec->documentTreeModel->end();
+//   //     const char *content = scm_to_utf8_string(value);
+//   //     scr->setContents(content);
+//   //   }
+//   //   else if(proptype == "scriptTypes") {
+//   //     const char *result = ecl_make_symbol(value));
+//   //     std::string r = result;
+//   //     scriptTypes val = r == "glsl"? glsl: lisp;
+//   //     setVal;      
+//   //   }
+//   //   else if(proptype == "float") {
+//   //     float val = scm_to_double(value);
+//   //     setVal;
+//   //   }
+//   //   else
+//   //     qDebug() << "Couldn't find a valid value with params" << c_id << ", " << c_type << ", " << c_prop << " - and with type " << proptype.c_str();
+//   //   ec->documentTreeModel->end();
 
-  //   return ECL_T;
-  // }
+//   //   return ECL_T;
+//   // }
 
-  cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda)
-  {
-    puts("TODO implement events in pure lisp");
-    // auto ec = editorController::instance;
+//   cl_object addEvent(cl_object id, cl_object type, cl_object propname, cl_object lambda)
+//   {
+//     puts("TODO implement events in pure lisp");
+//     // auto ec = editorController::instance;
 
-    // const char *c_type = scm_to_utf8_string(type),
-    //   *c_prop = scm_to_utf8_string(propname),
-    //   *c_id = scm_to_utf8_string(id);
+//     // const char *c_type = scm_to_utf8_string(type),
+//     //   *c_prop = scm_to_utf8_string(propname),
+//     //   *c_id = scm_to_utf8_string(id);
 
-    // std::string _prop = c_prop;
+//     // std::string _prop = c_prop;
     
-    // std::string cc_type = c_type;
-    // bool lol = false;
+//     // std::string cc_type = c_type;
+//     // bool lol = false;
 
-    // Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
-    // FUN f;
-    // f.call_guile = true;
-    // f.guile = lambda;
+//     // Propertierbase *obj = ec->document.fetchRegister(c_type, c_id);
+//     // FUN f;
+//     // f.call_guile = true;
+//     // f.guile = lambda;
 
-    // obj->addEvent(_prop, f);
-    return ECL_NIL;
-  }
+//     // obj->addEvent(_prop, f);
+//     return ECL_NIL;
+//   }
 
-  cl_object qscm_puts(cl_object str)
-  {
-    puts(ecl_string_to_string(str).c_str());
-    return ECL_T;
-  }
+//   cl_object qscm_puts(cl_object str)
+//   {
+//     puts(ecl_string_to_string(str).c_str());
+//     return ECL_T;
+//   }
 
-  // cl_object render_obj(cl_object obj_ptr) {
-  //   void *ptr = scm_to_pointer(obj_ptr);
-  //   obj* real_obj_ptr = static_cast<obj*>(ptr);
-  //   real_obj_ptr->render();
-  // }
+//   // cl_object render_obj(cl_object obj_ptr) {
+//   //   void *ptr = scm_to_pointer(obj_ptr);
+//   //   obj* real_obj_ptr = static_cast<obj*>(ptr);
+//   //   real_obj_ptr->render();
+//   // }
 
   
 
-  static std::unordered_map<std::string, cl_object> fn_cache;
+//   static std::unordered_map<std::string, cl_object> fn_cache;
 
-  cl_object register_fn(cl_object name, cl_object fn) {
-    std::string n = ecl_string_to_string(name);
-    fn_cache[n] = fn;
-    printf("Registered fn %s\n", n.c_str());
-    return ECL_T;
-  }
+//   cl_object register_fn(cl_object name, cl_object fn) {
+//     std::string n = ecl_string_to_string(name);
+//     fn_cache[n] = fn;
+//     printf("Registered fn %s\n", n.c_str());
+//     return ECL_T;
+//   }
 
-  // cl_object get_fn(const char *name) {
-  //   return fn_cache.at(std::string(name));
-  // }
-}
+//   // cl_object get_fn(const char *name) {
+//   //   return fn_cache.at(std::string(name));
+//   // }
+// }

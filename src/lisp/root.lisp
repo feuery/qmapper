@@ -217,7 +217,6 @@
 	   (set-prop-in root (list "SELECTED-COORDINATES" 3) tiley))
 	  (t root))))
 
-
 (defun-export! reset-selection (root)
   (assert root)
   (set-root-selected-coordinates! root (seq 0 0 0 0)))

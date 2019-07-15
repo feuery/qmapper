@@ -45,45 +45,41 @@
   This is single-threaded version. Do NOT call this in REPL, in qmapper this'll
   be wrapped inside a QThread"
   (format t "port in run-tcp-server: ~a~%" port)
-  (let* ((host "127.0.0.1")
-	 (master-socket (usocket:socket-listen host port :backlog 256))
-         (all-sockets `(,master-socket)))
-    (format t "let's wait-for-input~%")
-    (loop 
-       (loop for sock in (usocket:wait-for-input all-sockets :ready-only t)
-          do (progn
-	       (format t "jej :D ~%")
-	       (if (eq sock master-socket)
-                   (let ((client-socket
-                          (usocket:socket-accept master-socket :element-type 'character)))
-                     (push client-socket all-sockets)
-                     (logger "new socket initiated: ~a" client-socket)
-		     (process-client-socket client-socket))
-					; client socket activity
-                   ;; (handler-case
-		   ;;     (progn
-		   (logger "processing client socket~%")
-                   (process-client-socket sock);; )
-                   ;; (t (e)
-                   ;;   (logger "error during processing ~a" e)
-                   ;;   (setf all-sockets (delete sock all-sockets))
-		   ;;   (close-socket sock))
-		   ))))));)
+  (let ((host "127.0.0.1"))
+    (with-server-socket (master-socket (usocket:socket-listen host port :backlog 256))
+      (format t "let's wait-for-input~%")
+      (while *server-running?*
+	(if-let (socket (socket-accept master-socket :element-type 'character))
+          (progn
+	    (format t "client accepted~%")
+	    (process-client-socket socket)
+	    (socket-close socket)))))))
 
 (defun-export! run-tcp-server-threaded (port)
   (make-thread (lambda ()
 		 (run-tcp-server port)) :name "doc-server-thread"))
-
 ;; protocol parser
 
-(defun eval-protocol-row (row)
+(defun read-stream-times (stream n)
+  (labels ((do-read (n)
+	     (if (pos? n)
+		 (progn (format t "~a times to read ~%" n)
+			(cons (read-line stream) (do-read (dec n))))
+		 nil)))
+    (cl-strings:join (remove-if-not (lambda (x)
+				      x)
+				    (do-read n)) :separator (format nil "~%"))))
+
+(defun eval-protocol-row (socket-stream row)
   (format t "evalling row ~a~%" row)
   (let ((split-row (cl-strings:split row ":")))
     (when (pos? (length split-row))
       (let ((protocol (car split-row)))
 	(values protocol
 		(condp string= protocol
-		       "NS" (let* ((ns (nth 1 split-row))
+		       "NS" (let* ((ns (-> (cadr split-row)
+					   cl-strings:clean
+					   (cl-strings:replace-all "" "")))
 				   (_ (format t "finding ns ~a~%" ns))
 				   (script (root-findns *document* ns)))
 			      (if script
@@ -98,19 +94,28 @@
 					(if is-lisp?
 					    (format nil "; -*- mode: lisp; -*-~%~a" contents)
 					    (format nil "; -*- mode: glsl; -*-~%~a" contents))))
-				  nil))
-		       "SAVE-NS" (let ((ns (nth 1 split-row))
-				       (contents (cl-strings:replace-all row (format nil "~a:~a:"
-										     (car split-row)
-										     (cadr split-row)) "")))
+				  (format t "didn't find a script~%")))
+		       "SAVE-NS" (let* ((ns (nth 1 split-row))
+					(rows-to-read (parse-integer (nth 2 split-row)))
+					(contents (read-stream-times socket-stream rows-to-read)))
+				   ;; (format t "saving contents ~a~%" contents)
+				   ;; (format t "row is ~a~%" row)
+				   ;; (format t "and start to remove is ~a:~a:~%"
+				   ;; 	   (car split-row)
+				   ;; 	   (cadr split-row))
+				   (assert contents)
 				   (root-savens *document* ns contents))))))))
 
 (defun process-client-socket (client-socket)
   "Process client socket that got some activity"
-  (let ((message (read-line (usocket:socket-stream client-socket))))
+  (format t "processing client-socket ~%")
+  (let* ((socket-stream (usocket:socket-stream client-socket))
+	 (message (read-line socket-stream)))
     (logger "got a message: ~a" message)
-    (multiple-value-bind (protocol result) (eval-protocol-row message)
+    (multiple-value-bind (protocol result) (eval-protocol-row socket-stream message)
+      (format t "procol is ~a~%" protocol)
       (if (string= protocol "NS")
 	  (format (socket-stream client-socket) "~a" result)
-	  (if (string protocol "SAVE-NS")
-	      (set-doc result))))))
+	  (when (string= protocol "SAVE-NS")
+	    (set-doc result)
+	    (format t "doc set!"))))))

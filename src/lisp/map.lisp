@@ -352,6 +352,7 @@
     			     									     (render-img :MAP gl-key))))))
 											 (if (and (hit-tool-chosen?)
 												  (string= "MAP VIEW" renderer-name))
+											     
 											     (let* ((hit-tile (get-prop-in hitdata (list x y)))
 												    (hit-tile (if (equalp hit-tile (fset:seq))
 														  nil

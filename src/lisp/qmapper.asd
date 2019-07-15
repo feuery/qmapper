@@ -18,7 +18,9 @@
   (ql:quickload :fset)
   (ql:quickload :rutils)
   (ql:quickload :cl-strings)
-  (ql:quickload :cl-ppcre))
+  (ql:quickload :cl-ppcre)
+  (ql:quickload :usocket)
+  (ql:quickload :bordeaux-threads))
 
 
 
@@ -80,6 +82,12 @@
 		:depends-on ("export"
 			     "qmapper_std"
 			     "root"))
+	       (:file "doc-server"
+		      :depends-on ("qmapper_std"
+				   "root"
+				   "script"
+				   "export"
+				   "root"))
 	       (:file "resize-test"
 		:depends-on ("qmapper_std"
 			     "test-framework"

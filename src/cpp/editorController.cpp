@@ -489,7 +489,7 @@ void editorController::setSelectedTile(int x, int y, Renderer *tilesetView, tile
   obj* tileObj = toObj(tileRenderer, qimages.at(tile_img_key));
   puts("Found tile_surface");
 
-  if(!tileRenderer) qDebug() << "tileRenderer is nil";
+  if(!tileRenderer) puts("tileRenderer is nil");
     
   tileRenderer->setSelectedTile(tileObj);
 
@@ -576,7 +576,7 @@ void saveImg(ZipArchive &arch, QImage &img, std::string name) {
   f->open();
   if(img.save(f, "PNG")) {
     arch.addFile(name, f->fileName().toStdString());
-    qDebug() << "Saved " << name.c_str() << " to the zip";
+    printf("Saved %s to the zip\n", name.c_str());
   }
 }
 

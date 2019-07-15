@@ -9,6 +9,7 @@
 
 int main(int argc, char** argv)
 {
+  srand (time(NULL));
   cl_boot(argc, argv);
   init_keypairs();
   QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);

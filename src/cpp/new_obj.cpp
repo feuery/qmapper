@@ -31,6 +31,7 @@
 #include <new_obj.h>
 
 #include <QImage>
+#include <QDebug>
 
 #include <editorController.h>
 #include <guile_fn.h>

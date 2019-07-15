@@ -1,5 +1,6 @@
 #include <colored_rect.h>
 #include <editorController.h>
+#include <iostream>
 
 colored_rect::colored_rect(Renderer *r, int w, int h, QColor c):qi_copy(w, h, QImage::Format_ARGB32) {
   auto ec = editorController::instance;
@@ -33,9 +34,9 @@ void colored_rect::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfl
   shader = createShader(fns, ec);  
   VAO = getVAO(fns, shader);
   doProjection(fns, parentw, parenth, shader);
-  qDebug() << "Created VAO " << VAO;
+  std::cout << "Created VAO " << VAO;
   position = glm::vec2(0.0f, 0.0f);
-  qDebug()<<"Text size: " << text_w << " * " << text_h;
+  printf("Text size: %d * %d\n", text_w, text_h);
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);
@@ -86,7 +87,7 @@ void colored_rect::render()
   auto op_loc = f->glGetUniformLocation(shader, "opacity");
 
   if(op_loc < 0) {
-    qDebug() << "No opacity location found";
+    puts("No opacity location found");
     throw "";
   }
   // qDebug() << "Opacity" << opacity;
@@ -114,7 +115,7 @@ void colored_rect::render()
     case GL_INVALID_FRAMEBUFFER_OPERATION:  error="INVALID_FRAMEBUFFER_OPERATION";  break;
     }
  
-    qDebug() << "GL_" << error.c_str();
+    printf("GL_%s\n", error.c_str());
     err=f->glGetError();
   }
 }
