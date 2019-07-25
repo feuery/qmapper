@@ -362,6 +362,19 @@
 	     (functionp l))
 	(funcall l doc))))
 
+(defun-export! set-engine-doc (doc)
+  (assert (not (functionp doc)))
+  (assert doc)
+
+  (setf *engine-document* doc)
+  ;; (dolist (l *document-hooks*)
+  ;;   (if (and l
+  ;; 	     (functionp l))
+  ;; 	(funcall l doc)))
+  )
+
+
+
 (defun-export! undo! ()
   (setf *document* (car *undo-stack*))
   (setf *undo-stack* (cdr *undo-stack*)))
@@ -375,6 +388,9 @@
 (defun-export! clear-engine-document! ()
   (setf *engine-document* *document*)
   *engine-document*)
+
+(defun-export! copy-doc-to-engine! ()
+  (setf *engine-document* *document*))
 
 (defun-export! tileset-count! ()
   (size (root-tilesets *document*)))

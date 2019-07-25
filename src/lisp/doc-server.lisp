@@ -13,10 +13,6 @@
 
 (defparameter *server-running?* t)
 
-(defmacro while (condition &body body)
-  `(loop while ,condition
-      do (progn ,@body)))
-
 ;; pohja lainattu https://gist.github.com/traut/6bf71d0da54493e6f22eb3d00671f2a9
 
 (defun send-text-to-socket (text socket)

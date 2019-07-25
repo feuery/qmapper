@@ -75,3 +75,7 @@
 
 (defun-export! render-img (dst img)
   (funcall render dst img))
+
+(defvar-export! c_sleep nil);
+(defun-export! ms-sleep (ms)
+  (funcall c_sleep ms))

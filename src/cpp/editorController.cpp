@@ -352,6 +352,12 @@ cl_object MsTime() {
     return ecl_make_long(time(nullptr) * 1000);
 }
 
+cl_object do_sleep(cl_object ms) {
+  int c_ms = ecl_to_int(ms);
+  sleep(c_ms);
+  return ECL_T;
+}
+
 cl_object keyDown(cl_object key) {
   Qt::Key k = cl_qt_key_pairs.at(ecl_string_to_string(key));
   return editorController::instance->keyMap[k]? ECL_T: ECL_NIL;
@@ -385,7 +391,8 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   cl_object pushScript = makefn("qmapper.root:push-script");
   cl_object makeScript = makefn("qmapper.script:make-script");
 
-  DEFUN("keyDown", keyDown, 1)
+  DEFUN("keyDown", keyDown, 1);    
+  DEFUN("c_sleep", do_sleep, 1);
   
   DEFUN("get-current-doc", get_current_doc, 0);
   DEFUN("explode", explode, 0);

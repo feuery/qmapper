@@ -714,6 +714,10 @@ by setting this var to nil and killing every process on the way. TODO make a bet
 (defun-export! key-down? (key)
   (funcall qmapper.export:keydown key))
 
+(defmacro-export! while (condition &body body)
+  `(loop while ,condition
+	 do (progn ,@body)))
+
 ;; (qloop (lambda ()
 ;; 	 (when (key-down? "KEY-DOWN")
 ;; 	   (format t "Painoit alanappia!~%"))))

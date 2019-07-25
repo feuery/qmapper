@@ -13,6 +13,7 @@
 #include <libzippp.h>
 #include <guile_fn.h>
 #include <holder.h>
+#include <unistd.h>
 
 class MainWindow;
 class Renderer;

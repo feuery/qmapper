@@ -311,7 +311,7 @@ void obj::render()
   glm::mat4 model;
   model = glm::translate(model, glm::vec3(position, 0.0f));
   //Move pivot point to center
-  // qDebug() << "Size: " << size.x << " * " << size.y;
+  // printf("Size: %f x %f\n", size.x, size.y);
   model = glm::translate(model, glm::vec3(0.5f * size.x, 0.5f * size.y, 0.0f));
 
   //Rotate if needed
