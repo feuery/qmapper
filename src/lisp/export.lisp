@@ -13,6 +13,8 @@
      (defmacro ,name ,@rst)
      (export (quote ,name))))
 
+(export 'defmacro-export!)
+
 (defmacro-export! defun-export! (name &rest rst)
   `(progn
      (defun ,name ,(car rst)
