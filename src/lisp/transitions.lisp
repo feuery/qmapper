@@ -40,9 +40,9 @@
 	 (obj (if doc-path
 		  (get-prop-in doc doc-path)
 		  doc))
-	 (_ (format t "funcalling fn , rest params ~a~%" rest-params))
+	 ;; (_ (format t "funcalling fn , rest params ~a~%" rest-params))
 	 (new-obj (apply fn obj rest-params nil))
-	 (_ (format t "funcalled fn ~%"))
+	 ;; (_ (format t "funcalled fn ~%"))
 	 ;; new value is found under "DOC", rest is metadada
 	 (updated-doc-value (get-prop new-obj "DOC"))
 	 (new-doc (if doc-path
@@ -76,7 +76,7 @@
 (start-dispatcher!)
 ;; this adds the values in the REST-PARAMETERS field to x of the first sprite
 ;; (push (make-event (lambda (x &rest rest-params)
-;; 		    (fset:map ("DOC" (apply #'- x (car lol)))
+;; 		    (fset:map ("DOC" (apply #'- x (car rest-params)))
 ;; 			      ("EFFECTS" (list "PRINT-HELLOWORLD"))
 ;; 			      ("DADA" (list 1 2 3))))
 ;; 		  (list "SPRITES" (caar (fset:convert 'list (root-sprites *engine-document*))) "X")
