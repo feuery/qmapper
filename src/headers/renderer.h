@@ -17,6 +17,8 @@
 
 class Renderable;
 
+std::string qtkey_to_keystr(QKeyEvent *e);
+
 class Renderer : public QOpenGLWidget {
   Q_OBJECT
 public:

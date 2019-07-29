@@ -14,7 +14,7 @@
 	    ("DOC-PATH" doc-path)
 	    ("REST-PARAMS" rest-params)))
 
-(defvar *message-queue* nil)
+(defvar-export! *message-queue* nil)
 
 (defvar *dispatcher-running* t)
 (defparameter *effects* (fset:empty-map))

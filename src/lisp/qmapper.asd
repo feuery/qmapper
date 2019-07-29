@@ -60,6 +60,9 @@
 	       (:file "editor_events"
 		      :depends-on ("qmapper_std"
 				   "export"))
+	       (:file "engine_events"
+		      :depends-on ("qmapper_std"
+				   "export"))
 	       (:file "selection-tool"
 		      :depends-on ("qmapper_std"
 				   "export"
