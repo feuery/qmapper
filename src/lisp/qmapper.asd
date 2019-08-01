@@ -85,6 +85,11 @@
 		:depends-on ("qmapper_std"
 			     "root"
 			     "export"))
+	       (:file "keyboard_loop"
+		      :depends-on ("qmapper_std"
+				   "engine_events"
+				   "root"
+				   "export"))
 	       (:file "test-framework"
 		:depends-on ("export"
 			     "qmapper_std"

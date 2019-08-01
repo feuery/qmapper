@@ -481,7 +481,9 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	  [&]() {
 	    puts("Starting engine...");
 
-	    cl_object reset_state = makefn("qmapper.root:clear-engine-document!");
+	    cl_object reset_state = makefn("qmapper.root:clear-engine-document!"),
+	      start_dispatcher = makefn("qmapper.transitions:start-dispatcher!"),
+	      start_keyboard_loop = makefn("qmapper.keyboard_loop:start-kbd-loop!");
 	    cl_funcall(1, reset_state);
 
 	    auto e = ec->e;
@@ -493,6 +495,9 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	    
 	    e->setWindowState(e->windowState()|Qt::WindowMaximized);
 	    e->show();
+
+	    cl_funcall(1, start_dispatcher);
+	    cl_funcall(1, start_keyboard_loop);
 	  });
 }
 

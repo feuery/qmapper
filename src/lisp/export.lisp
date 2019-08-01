@@ -81,3 +81,7 @@
 (defvar-export! c_sleep nil);
 (defun-export! ms-sleep (ms)
   (funcall c_sleep ms))
+
+(defvar-export! pop_kbd nil)
+(defun-export! pop-kbd ()
+  (funcall pop_kbd))

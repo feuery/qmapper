@@ -17,6 +17,7 @@
 #include <QImage>
 #include <sstream>
 #include <iterator>
+#include <regex>
 
 using namespace libzippp;
 
@@ -383,6 +384,32 @@ cl_object hit_tool_is_chosen() {
   return editorController::instance->t->isHitTool()? ECL_T: ECL_NIL;
 }
 
+std::string to_string(std::set<std::string> &aSet) {
+  std::ostringstream stream;
+  std::copy(aSet.begin(), aSet.end(), std::ostream_iterator<std::string>(stream, "\" \""));
+  std::string result = stream.str();
+  return result;
+}
+
+cl_object pop_kbd() {
+  
+  std::set<std::string> keys_down = static_cast<Engine_Renderer*>(editorController::instance->engine)->keys_down;
+  // keys_down.insert("UP");
+  // keys_down.insert("LEFT");
+  std::string keys_str = to_string(keys_down);
+  std::regex does_not_start_with_quote("^([^\"])"),
+    ends_with_extra_quote("\"$");
+  keys_str = std::regex_replace(std::regex_replace(keys_str, does_not_start_with_quote, "\"$1"),
+				ends_with_extra_quote, "");
+  std::string key_list = ("(list " + keys_str + ")");
+  
+  // printf("key_list lisp is %s\n", key_list.c_str());
+  // throw "";
+  cl_object list = lisp(key_list.c_str());
+
+  return list;    
+}
+
 editorController::editorController(): // indexOfChosenTileset(std::string("")),
    t(new Pen)
 {
@@ -417,6 +444,8 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   DEFUN("render", render, 2);
   DEFUN("MsTime", MsTime, 0);
   DEFUN("image-file-dimensions", qimg_file_dimensions, 1);
+
+  DEFUN("pop_kbd", pop_kbd, 0);
     
   if(instance) {
     puts("There already exists an editorController");

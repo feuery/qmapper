@@ -1,5 +1,8 @@
 #include <engine_renderer.h>
 #include <editorController.h>
+#include <sstream>
+
+
 
 Engine_Renderer::Engine_Renderer(QWidget *parent): Renderer(parent)
 {  
@@ -27,19 +30,14 @@ void Engine_Renderer::keyPressEvent(QKeyEvent *e) {
   editorController::instance->keyMap[static_cast<Qt::Key>(e->key())] = true;
 
   std::string key_str = qtkey_to_keystr(e);
-
-  cl_object get_lambda = makefn("qmapper.engine_events:get-engine-lambda"),
-    key_lisp_str = c_string_to_object(('"'+key_str+'"').c_str()),
-    lambda = cl_funcall(2, get_lambda, key_lisp_str);
-
-  if(lambda != ECL_NIL) {
-    cl_funcall(1, lambda);
-  }
-  
+  keys_down.insert(key_str);
 }
 
 void Engine_Renderer::keyReleaseEvent(QKeyEvent *e) {
   editorController::instance->keyMap[static_cast<Qt::Key>(e->key())] = false;
+
+  std::string key_str = qtkey_to_keystr(e);
+  keys_down.erase(keys_down.find(key_str));
 
   lisp("(setf qmapper.transitions:*message-queue* nil)");
 }

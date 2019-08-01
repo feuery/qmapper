@@ -67,7 +67,7 @@ public:
 
   MainWindow *w;
 
-    Renderer* getRenderer(cl_object dst_key);
+  Renderer* getRenderer(cl_object dst_key);
 
 private:
   void dumpTextures(libzippp::ZipArchive &arch);
