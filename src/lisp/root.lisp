@@ -49,7 +49,7 @@
   (format t "scheduling once to dst ~a~%" (symbol-name dst))
   (funcall do-schedule-lambda (symbol-name dst) l))
 
-(defun script-ns->id (root ns)
+(defun-export! script-ns->id (root ns)
   (clean-key 
    (get-prop (->> root
 		  root-scripts 
@@ -60,6 +60,18 @@
 			    (string= (script-ns s)
 				     ns)))
 		  car) "ID")))
+
+(defun-export! script-id->ns (root id)
+  ;; (clean-key 
+   (script-ns (get-prop (->> root
+		  root-scripts )
+	     id)))
+
+(defun-export! get-all-scripts (root)
+  (->> root
+       root-scripts
+       (convert 'list)
+       (mapcar #'cdr)))
 
 (defcppclass root
     (public   
@@ -399,3 +411,17 @@
   (-> data
       read-from-string
       eval))
+
+(defun-export! add-script-to-map (root map-id script-ns)
+  ;; (format t "Adding script ~a to map ~a~%" script-ns map-id)
+  ;; (format t "Doc: ~a~%" root)
+  (update-prop-in root (list "MAPS" map-id "SCRIPTS-TO-RUN") (lambda (scripts)
+							       ;; (assert scripts)
+							       
+							       (let ((id (script-ns->id root script-ns)))
+								 (assert id)
+								 (fset:with-first (or scripts (fset:empty-seq)) id)))))
+
+(defun-export! drop-script-from-map (root map-id script-ns)
+  (update-prop-in root (list "MAPS" map-id "SCRIPTS-TO-RUN") (partial #'fset:filter (lambda (script-id)
+										      (not (string= (script-id->ns root script-id) script-ns))))))

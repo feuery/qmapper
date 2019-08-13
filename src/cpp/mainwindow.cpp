@@ -1,9 +1,6 @@
 // ECL reference
 // http://vwood.github.io/embedded-ecl.html
 
-// pitäiskö toi asdf-kakka korvata tällä?
-// https://web.archive.org/web/20141018030226/https://cwndr.ws/posts/Calling-Lisp-from-C-using-ECL.html
-
 #include <QDebug>
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -31,6 +28,8 @@
 #include <QAbstractItemModelTester>
 #include <new_map_ui.h>
 #include <resize-form.h>
+
+#include <map_script_form.h>
 
 #define btnW 200
 #define btnH 25
@@ -375,7 +374,8 @@ void MainWindow::setupTreeCtxMenu()
   edit->setStatusTip("Edit object");  
   connect(edit, &QAction::triggered, this, &MainWindow::editObject);
 
-  QAction *do_delete = new QAction("&Delete", this);
+  QAction *do_delete = new QAction("&Delete", this),
+    *show_scripts = new QAction("Show map's scripts", this);
   do_delete->setShortcuts(QKeySequence::Delete);
   do_delete->setStatusTip("Delete object");
   connect(do_delete, &QAction::triggered, this, &MainWindow::deleteObject);
@@ -393,6 +393,7 @@ void MainWindow::setupTreeCtxMenu()
   tree.setContextMenuPolicy(Qt::ActionsContextMenu);
   tree.addAction(edit);
   tree.addAction(do_delete);
+  tree.addAction(show_scripts);
   QMenu *newMenu = new QMenu(this);
 
   QAction *map = new QAction("&Map", this),
@@ -411,6 +412,15 @@ void MainWindow::setupTreeCtxMenu()
   sprite->setStatusTip("Load a new sprite");
   animation->setStatusTip("Load a new animation");
 
+  show_scripts->setStatusTip("Set up scripts that are run when loading the map");
+  connect(show_scripts, &QAction::triggered, [=](){
+						    cl_object root_chosenmapid = makefn("qmapper.root:root-chosenmap"),
+						      mapId = cl_funcall(2, root_chosenmapid, editorController::instance->document.getValue());
+						    std::string map_id = ecl_string_to_string(mapId);
+						    map_script_form *f = new map_script_form(map_id.c_str());
+						    f->show();
+					     });
+	  
   connect(map, &QAction::triggered, []() {
 				      auto mapui = new newMapUI;
 				      mapui->accept_lambda = [](int mapw, int maph, int layers) {
@@ -603,6 +613,7 @@ MainWindow::MainWindow(int argc, char** argv) :  QMainWindow()
   setupTreeCtxMenu();
   setupMainMenu();
   toolbox_layout->addWidget(&tree);
+	 
 
   QPushButton *close = new QPushButton("Close", this);
   connect(close, &QPushButton::clicked, this, &QMainWindow::close);

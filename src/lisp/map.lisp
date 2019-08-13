@@ -45,7 +45,8 @@
       (layers '())
       (sprites '())
       (animatedSprites '())
-      (hit-layer '()))
+      (hit-layer '())
+      (scripts-to-run '()))
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
@@ -84,7 +85,7 @@
 					;(format t "making layer ~a ~%" l)
 				 l)) layer-count))
 	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
-	 (map (make-map name ids '() '() (make-hitlayer w h))))
+	 (map (make-map name ids '() '() (make-hitlayer w h) '())))
     (-> (set-root-layers! doc
 			  (reduce (lambda (all-layers layer)
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))

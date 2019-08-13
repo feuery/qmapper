@@ -62,14 +62,16 @@ HEADERS += src/headers/files.h \
            src/headers/resize-form.h \
            src/headers/selection.h \
            src/headers/colored_rect.h \
-           src/headers/hit_tool.h
+           src/headers/hit_tool.h \
+           src/headers/map_script_form.h
            
 FORMS += \
     src/forms/main.ui \
     src/forms/resize_ui.ui \
     src/forms/animationloader.ui \
     src/forms/engine.ui \
-    src/forms/new_map_ui.ui
+    src/forms/new_map_ui.ui \
+    src/forms/map_scripts_ui.ui
     
 SOURCES += src/cpp/files.cpp \
            src/cpp/main.cpp \
@@ -100,4 +102,5 @@ SOURCES += src/cpp/files.cpp \
            src/cpp/resize-form.cpp \
            src/cpp/selection.cpp \
            src/cpp/colored_rect.cpp \
-           src/cpp/hit_tool.cpp
+           src/cpp/hit_tool.cpp \
+           src/cpp/map_script_form.cpp

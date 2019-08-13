@@ -683,6 +683,7 @@ and
   (remove-if-not l s))
 
 (defun-export! to-list (o)
+  ;; (format t "to-list ~a~%" o)
   (convert 'list o))
 
 (defun mapcat (fn coll)
@@ -716,7 +717,19 @@ by setting this var to nil and killing every process on the way. TODO make a bet
 
 (defmacro-export! while (condition &body body)
   `(loop while ,condition
-	 do (progn ,@body)))
+      do (progn ,@body)))
+
+(defun-export! drop-seq (src seq-to-drop)
+  (format t "Dropping seq, ~a~%" (fset:map ("SRC" src)
+					 ("SEQ-TO-DROP" seq-to-drop)))
+  (let ((src (if (listp src)
+		 (fset:convert 'fset:seq src)
+		 src))
+	(seq-to-drop (if (listp seq-to-drop)
+			 (fset:convert 'fset:seq seq-to-drop)
+			 seq-to-drop)))
+    (fset:remove-if (lambda (n) (fset:contains? (fset:convert 'fset:set seq-to-drop) n))
+		    src)))1
 
 ;; (qloop (lambda ()
 ;; 	 (when (key-down? "KEY-DOWN")
