@@ -288,6 +288,20 @@
 (defun draw-colored-rect (x y r g b a)
   (funcall draw-rect x y r g b a))
 
+(defun-export! set-engine-chosen-map! (map-id)
+  (let* ((engine-doc qmapper.root:*engine-document*)
+	 (map (get-prop-in engine-doc (list "MAPS" map-id)))
+	 (script-ids (map-scripts-to-run map))
+	 (scripts (fset:image (lambda (id)
+				(get-prop-in engine-doc (list "SCRIPTS" id)))
+			      script-ids)))
+    (dolist (script (convert 'list scripts))
+      (let ((contents (script-contents script)))
+	(eval (read-from-string contents))))
+    
+    (set-map-renderer-fn :ENGINE map-id)
+    (set-engine-doc (set-root-chosenmap! engine-doc map-id))))
+
 (defun-export! set-map-renderer-fn (dst map-id)
   (add-to-lisp-qd dst (lambda (renderer-name)
 			;; (format t "renderer name is ~a~%" renderer-name)

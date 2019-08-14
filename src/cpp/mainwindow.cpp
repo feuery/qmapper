@@ -497,7 +497,7 @@ void MainWindow::prepareStartEngine(QVBoxLayout *toolbox_layout)
 	    cl_funcall(1, reset_state);
 
 	    auto e = ec->e;
-	    cl_object setRenderer = lisp("(lambda (map-id) (qmapper.root:copy-doc-to-engine!) (qmapper.map:set-map-renderer-fn :ENGINE map-id))"),
+	    cl_object setRenderer = lisp("(lambda (map-id) (qmapper.root:copy-doc-to-engine!) (qmapper.map:set-engine-chosen-map! map-id))"),
 	      format = makefn("format"),
 	      root_chosenmap = makefn("qmapper.root:root-chosenMap"),
 	      selectedMap = cl_funcall(2, root_chosenmap, ec->document.getValue());
