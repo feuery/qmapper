@@ -1,6 +1,7 @@
 (defpackage :qmapper.map
   (:use :common-lisp
-	:cl-arrows
+   :cl-arrows
+   :cl-fad
 	:qmapper.std
         :qmapper.tileset
 	:qmapper.animatedsprite
@@ -288,6 +289,14 @@
 (defun draw-colored-rect (x y r g b a)
   (funcall draw-rect x y r g b a))
 
+(defun save-and-load-tmp! (contents)
+  "Saves the parameter as a file in /tmp and tries to (load) it. This tries to hack around CL's eval not knowing where just-imported symbols should be imported from"
+  (with-open-temporary-file (s :direction :io :keep t)
+    (format s "~a" contents)
+    (load (pathname s))
+    (format t "Loaded ~a~%" (pathname s))))
+  
+
 (defun-export! set-engine-chosen-map! (map-id)
   (let* ((engine-doc qmapper.root:*engine-document*)
 	 (map (get-prop-in engine-doc (list "MAPS" map-id)))
@@ -297,7 +306,7 @@
 			      script-ids)))
     (dolist (script (convert 'list scripts))
       (let ((contents (script-contents script)))
-	(eval (read-from-string contents))))
+	(save-and-load-tmp! contents)))
     
     (set-map-renderer-fn :ENGINE map-id)
     (set-engine-doc (set-root-chosenmap! engine-doc map-id))))

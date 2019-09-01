@@ -20,7 +20,8 @@
   (ql:quickload :cl-strings)
   (ql:quickload :cl-ppcre)
   (ql:quickload :usocket)
-  (ql:quickload :bordeaux-threads))
+  (ql:quickload :bordeaux-threads)
+  (ql:quickload :cl-fad))
 
 
 
