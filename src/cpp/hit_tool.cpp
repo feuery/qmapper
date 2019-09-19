@@ -1,7 +1,7 @@
 #include <hit_tool.h>
 
 bool Hit_tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e) {
-  return !toolAppliedTo(tilex, tiley);
+  return !toolAppliedTo(tilex, tiley) && tilex < e->chosenMapWidth() && tiley < e->chosenMapHeight();
 }
 
 void Hit_tool::use(QMouseEvent *event, int tilex, int tiley, editorController *e)

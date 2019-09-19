@@ -69,6 +69,9 @@ public:
 
   Renderer* getRenderer(cl_object dst_key);
 
+  int chosenMapWidth();
+  int chosenMapHeight();
+
 private:
   void dumpTextures(libzippp::ZipArchive &arch);
 

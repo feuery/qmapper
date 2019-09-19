@@ -34,9 +34,9 @@ void colored_rect::prepare(QOpenGLFunctions_4_3_Core *fns, GLfloat parentw, GLfl
   shader = createShader(fns, ec);  
   VAO = getVAO(fns, shader);
   doProjection(fns, parentw, parenth, shader);
-  std::cout << "Created VAO " << VAO;
+  // std::cout << "Created VAO " << VAO;
   position = glm::vec2(0.0f, 0.0f);
-  printf("Text size: %d * %d\n", text_w, text_h);
+  // printf("Text size: %d * %d\n", text_w, text_h);
   size = glm::vec2(static_cast<float>(text_w), static_cast<float>(text_h));
   rotate = 0.0f;
   color = glm::vec3(1.0f, 1.0f, 1.0f);

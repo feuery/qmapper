@@ -94,6 +94,12 @@
       (sprites  '())
       (selected-coordinates '(0 0 0 0)))
      (functions
+
+      (get-chosen-map ()
+		      (let ((id (root-chosenmap *this*))
+			    (maps (root-maps *this*)))
+			(get-prop maps id)))
+      
       (contents-StdFragment ()
 			    (let* ((ns (root-stdfragmentshader *this*))
 				   (result (->> (root-scripts *this*)

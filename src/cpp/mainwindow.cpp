@@ -294,7 +294,7 @@ void MainWindow::editObject()
 {
   auto path = find_path();
   
-  Propertyeditor *p = new Propertyeditor(path, this, true);
+  Propertyeditor *p = new Propertyeditor(path, this);
   p->show();
   
 }

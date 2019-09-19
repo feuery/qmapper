@@ -67,11 +67,12 @@ HEADERS += src/headers/files.h \
            
 FORMS += \
     src/forms/main.ui \
+    src/forms/propeditorui.ui \
     src/forms/resize_ui.ui \
     src/forms/animationloader.ui \
     src/forms/engine.ui \
     src/forms/new_map_ui.ui \
-    src/forms/map_scripts_ui.ui
+    src/forms/map_scripts_ui.ui \
     
 SOURCES += src/cpp/files.cpp \
            src/cpp/main.cpp \

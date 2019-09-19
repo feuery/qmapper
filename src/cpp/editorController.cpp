@@ -754,6 +754,24 @@ void editorController::clearDrawQueues() {
   }
 }
 
+int editorController::chosenMapWidth() {
+  cl_object get_chosen_map = makefn("qmapper.root:root-get-chosen-map"),
+    chosen_map = cl_funcall(2, get_chosen_map, document.getValue()),
+    map_w = makefn("qmapper.map:map-width"),
+    w = cl_funcall(2, map_w, chosen_map);
+
+  return ecl_to_int(w);
+}
+
+int editorController::chosenMapHeight() {
+  cl_object get_chosen_map = makefn("qmapper.root:root-get-chosen-map"),
+    chosen_map = cl_funcall(2, get_chosen_map, document.getValue()),
+    map_h = makefn("qmapper.map:map-height"),
+    h = cl_funcall(2, map_h, chosen_map);
+
+  return ecl_to_int(h);
+}
+
 cl_object get_current_doc() {
   return editorController::instance->document.getValue();
 }
