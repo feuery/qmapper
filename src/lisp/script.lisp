@@ -13,9 +13,8 @@
    (properties
     (contents "")
     (name "")
-    (ns "user" ;; (doesntContainNs)
-		 )
-    (script_type 'lisp))
+    (ns "user")
+    (script_type "lisp"))
    (functions
     (is-lisp? ()
 		(let ((script-type (Script-script_type *this*)))

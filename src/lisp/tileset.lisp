@@ -83,7 +83,8 @@
 	 (_ (format t "dimensions found~%"))
 	 (textures (mapcar (lambda (x)
   			     (mapcar (lambda (y)
-				       (make-tile x y (tileset-count!) 0
+				       (make-tile :x x :y y :tileset (tileset-count!) :rotation 0
+						  :gl-key
   						  (copy-img root-img
   							    (* x 50) (* y 50)
   							    50 50)))

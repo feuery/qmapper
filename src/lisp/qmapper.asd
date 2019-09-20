@@ -55,7 +55,7 @@
 			     "layer"
 			     "tile"))
 	       (:file "root"
-		      :depends-on ("script" ;; "map"
+		      :depends-on ("script" 
 				      "export"
 				      ))
 	       (:file "editor_events"

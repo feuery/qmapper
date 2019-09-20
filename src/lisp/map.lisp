@@ -79,14 +79,18 @@
 (defun-export! make-map-with-layers (doc name w h layer-count)
   (let* ((layers (repeatedly (lambda (i)
 			       (let ((l 
-				       (make-Layer (str (prin1-to-string i) "th layer")
-						   255
-						   t
+				       (make-Layer :name (str (prin1-to-string i) "th layer")
+						   :tiles
 						   (make-tiles w h))))
 					;(format t "making layer ~a ~%" l)
 				 l)) layer-count))
 	 (ids (mapcar (lambda (l) (get-prop l "ID")) layers))
-	 (map (make-map name ids '() '() (make-hitlayer w h) '())))
+	 (map (make-map :name name
+			:layers ids
+			:sprites '()
+			:animatedSprites '()
+			:hit-layer (make-hitlayer w h)
+			:scripts-to-run '())))
     (-> (set-root-layers! doc
 			  (reduce (lambda (all-layers layer)
 				    (set-prop all-layers (get-prop layer "ID") layer)) layers :initial-value (root-layers doc)))
@@ -234,9 +238,8 @@
 						 (let* ((layers (Map-layers m))
 							(w (Map-width m))
 							(h (Map-height m))
-							(ll (make-Layer (str (prin1-to-string (size layers)) "th layer")
-												      255
-												      t
+							(ll (make-Layer :name (str (prin1-to-string (size layers)) "th layer")
+									:tiles
 												      (make-tiles w h))))
 						   ;; ei
 						   (setf l ll)

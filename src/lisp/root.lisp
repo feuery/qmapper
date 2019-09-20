@@ -71,28 +71,26 @@
   (->> root
        root-scripts
        (convert 'list)
-       (mapcar #'cdr)))
+       (mapcar #'cdr)))    
 
 (defcppclass root
     (public   
-     (fields
-      ;; defcppclass macro should ignore the type specifier
-      ;; and these are supposed to be (gensym) -> 'a plists 
-      (layers  '())
-      (maps  '())
-      (scripts  '())
-      (tiles  '())
-      (tilesets  '())
-      (chosenMap '())
+     (properties
+      (layers  (empty-map))
+      (maps  (empty-map))
+      (scripts  (empty-map))
+      (tiles  (empty-map))
+      (tilesets  (empty-map))
+      (chosenMap -1)
       (chosenLayerInd -1)
       (chosenTileset '())
-      (chosenTile '())
+      (chosenTile (empty-map))
       (StdVertexShader "defaultVertex")
       (StdFragmentShader "defaultFragment")
       (StdTileviewFragShader "default.tileView")
-      (animatedSprites '())
-      (sprites  '())
-      (selected-coordinates '(0 0 0 0)))
+      (animatedSprites (empty-map))
+      (sprites  (empty-map))
+      (selected-coordinates (seq 0 0 0 0)))
      (functions
 
       (get-chosen-map ()
@@ -208,7 +206,7 @@
     (cdr (nth selected-ind (convert 'list (root-tilesets root))))))
 
 (defun-export! init-root! ()
-  (make-root (empty-map) (empty-map) (empty-map) (empty-map) (empty-map) 0 0 0 nil "defaultVertex" "defaultFragment" "default.tileView" (empty-map) (empty-map) (seq 0 0 0 0)))
+  (make-root))
 
 (defun-export! select-tile (root tilex tiley)
   (assert root)

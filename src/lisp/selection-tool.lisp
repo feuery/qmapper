@@ -43,7 +43,7 @@
 		    (set-doc (reduce (lambda (doc tile-coord-pair)
 				       (let ((x (car tile-coord-pair))
 					     (y (cadr tile-coord-pair)))
-					 (set-tile-at-chosen-map doc x y (make-tile 0 0 0 0 nil))))
+					 (set-tile-at-chosen-map doc x y (make-tile :x 0 :y 0 :tileset  0 :rotation 0 :gl-key nil))))
 				     selected-tile-coord-pairs :initial-value *document*)))))
 
 (add-key-lambda "C-V"

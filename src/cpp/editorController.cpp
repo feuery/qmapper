@@ -454,11 +454,15 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
 
   instance = this;
 
-  cl_object scr = cl_funcall(5,
+  cl_object scr = cl_funcall(9,
 			     makeScript,
+			     ecl_make_keyword("CONTENTS"),
 			     c_string_to_object("\"#version 430 core\nlayout (location = 0) in vec4 inp; // <vec2 pos, vec2 texPos>\n\n//uniform vec4 loc;\n\nout vec2 TexCoord;\n\nuniform mat4 model;\nuniform mat4 projection;\n\nvoid main()\n{\n  gl_Position = projection * model * vec4(inp.xy, 0.0, 1.0);\n  TexCoord = inp.zw;\n}\n\""),
+			     ecl_make_keyword("NAME"),
 			     c_string_to_object("\"Standard vertex shader\""),
+			     ecl_make_keyword("NS"),
 			     c_string_to_object("\"defaultVertex\""),
+			     ecl_make_keyword("SCRIPT_TYPE"),
 			     c_string_to_object("\"glsl\""));
 
   auto doc = document.getValue();
@@ -467,17 +471,25 @@ editorController::editorController(): // indexOfChosenTileset(std::string("")),
   auto newDoc = cl_funcall(3, pushScript, doc, scr);
   document.setValue(newDoc);
 
-  scr = cl_funcall(5, makeScript,
+  scr = cl_funcall(9, makeScript,
+		   ecl_make_keyword("CONTENTS"),
 		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
+		   ecl_make_keyword("NAME"),
 		   c_string_to_object("\"Standard fragment shader\""),
+		   ecl_make_keyword("NS"),
 		   c_string_to_object("\"defaultFragment\""),
+		   ecl_make_keyword("SCRIPT_TYPE"),
 		   c_string_to_object("\"glsl\""));
   document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
 
-  scr = cl_funcall(5, makeScript,
+  scr = cl_funcall(9, makeScript,
+		   ecl_make_keyword("CONTENTS"),
 		   c_string_to_object("\"#version 430 core\nin vec2 TexCoord;\nout vec4 color;\n\nuniform sampler2D image;\nuniform sampler2D subTile;\nuniform int subTileBound;\nuniform vec3 spriteColor;\nuniform vec4 opacity;\n\nvoid main() {\n  vec4 texel = texture2D(image, TexCoord);\n\n  if(texel.a < 0.1) discard;\n  \n  if(subTileBound == 1) {\n    vec4 subCoord = texture2D(subTile, TexCoord);\n    color = mix(subCoord, texel, opacity.a);\n  }\n  else if (opacity.a < 1.0) {\n    color = mix(vec4(1.0, 0.0, 0.0, 1.0), texel, opacity.a);\n  }\n  else {\n    color = texel;\n  }\n}\""),
+		   ecl_make_keyword("NAME"),
 		   c_string_to_object("\"Standard selected tile - view's fragmentshader\""),
+		   ecl_make_keyword("NS"),
 		   c_string_to_object("\"default.tileView\""),
+		   ecl_make_keyword("SCRIPT_TYPE"),
 		   c_string_to_object("\"glsl\""));
   document.setValue( cl_funcall(3, pushScript, document.getValue(), scr));
   

@@ -417,14 +417,22 @@
 				     (mapcan #'cdr rst)))
   	 (partitioned (partition-by #'listp visibility-stripped))
 	 (props (plist-get partitioned 'properties))
-	 (fields (plist-get partitioned 'fields))
-  	 (fields (reverse (->> (concatenate 'list fields
-	 				    props)
-	 		       (mapcar (lambda (field)
-	 				 (car field))))))
-	 (fields-with-accessors (cons 'progn (concatenate 'list (->> fields
-	 							     (mapcan (lambda (field)
-	 								       (let* ((getter (sym (str (symbol-name classname)
+	 (stupid-fields (concatenate 'list (plist-get partitioned 'fields)
+			      props))
+  	 (fields (reverse (mapcar (lambda (field)
+				    (car field))
+				  stupid-fields)))
+	 (values (reverse (mapcar (lambda (field)
+				    (second field))
+				  stupid-fields)))
+	 (validators (reverse (mapcar (lambda (field)
+	 				(third field))
+	 			      stupid-fields)))
+	 (fields-with-accessors (cons 'progn (concatenate 'list (->> stupid-fields
+	 							     (mapcan (lambda (f)
+	 								       (let* ((field (car f))
+										      (validator (third f))
+										      (getter (sym (str (symbol-name classname)
 	 												"-"
 	 												(symbol-name field))))
 	 									      (setter (sym (str "set-"
@@ -459,7 +467,13 @@
 				    (let ((*this* ,this))
 				      ,@body)))))))
 	 (ctr-name (sym (str "make-" (symbol-name classname))))
-	 (ctr `(defun-export! ,ctr-name (,@(reverse fields))
+	 (meta-name (sym (str (symbol-name classname) "-meta")))
+	 (ctr `(defun-export! ,ctr-name (&key ,@(->> stupid-fields
+						     reverse
+						     (mapcar (lambda (f-v-validator)
+							       (let ((f (car f-v-validator))
+								     (value (second f-v-validator)))
+								 (list f value))))))
 		 (let* ((hash (empty-map))
 			(fields (list "id" "events" ,@(mapcar (lambda (f)
 						      (format nil "~a" f))
