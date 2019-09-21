@@ -16,18 +16,18 @@
 (defcppclass animatedsprite
     (public
      (properties
-      (parentMapId "" (noteditable))
+      (parentMapId "" )
       (name "")
-      (currentFrameId 0 (noteditable))
+      (currentFrameId 0 )
       (msPerFrame 25)
-      (animationPlaying true)
-      (lastUpdated 0 (noteditable))
+      (animationPlaying t)
+      (lastUpdated 0 )
       
       (x 0)
       (y 0)
       (angle 0.0)
       ;; noteditable tag should prevent this field appearing in propeditor
-      (sprites '() (noteditable)))
+      (sprites '() ))
      (functions
       (maxFrames ()
 		 (size (animatedsprite-sprites *this*)))
@@ -66,5 +66,5 @@
 		       (mapcar (lambda (i)
 				 (load-sprite-rootless (get-prop-in root-imgs (list (dec i) 0))))))))
     (format t "sprites:~a~%" sprites)
-    (make-animatedsprite nil "New animatedsprite" 0 25 t (get-ms-time) 0 0 0 sprites)))
+    (make-animatedsprite :name "New animatedsprite" :lastUpdated (get-ms-time) :sprites sprites)))
 
