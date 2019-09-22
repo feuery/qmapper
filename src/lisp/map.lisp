@@ -1,8 +1,9 @@
 (defpackage :qmapper.map
   (:use :common-lisp
-   :cl-arrows
-   :cl-fad
+	:cl-arrows
+	:cl-fad
 	:qmapper.std
+	:qmapper.engine
         :qmapper.tileset
 	:qmapper.animatedsprite
 	:qmapper.script
@@ -39,6 +40,9 @@
 		  (lambda (map)
 		    (invert-hit-tile map x y))))
 
+(defun boolp (b)
+  (typep b 'boolean))
+
 (defcppclass Map
     (public 
      (properties
@@ -47,7 +51,8 @@
       (sprites '())
       (animatedSprites '())
       (hit-layer '())
-      (scripts-to-run '()))
+      (scripts-to-run '())
+      (has-gravity? nil #'boolp))
      (functions
       (findNearest (x y)
 		   ;; Let's search the nearest animatedsprite or sprite
@@ -303,10 +308,16 @@
 (defun-export! set-engine-chosen-map! (map-id)
   (let* ((engine-doc qmapper.root:*engine-document*)
 	 (map (get-prop-in engine-doc (list "MAPS" map-id)))
+	 (gravity? (map-has-gravity? map))
 	 (script-ids (map-scripts-to-run map))
 	 (scripts (fset:image (lambda (id)
 				(get-prop-in engine-doc (list "SCRIPTS" id)))
 			      script-ids)))
+    (stop-gravity-loop!)
+    ;; (format t "map: ~a~%" map)
+    (format t "stopped gravity, restarting it? ~a~%" gravity?)
+    (if gravity?
+	(start-gravity-loop!))
     (dolist (script (convert 'list scripts))
       (let ((contents (script-contents script)))
 	(save-and-load-tmp! contents)))

@@ -32,7 +32,12 @@
   :depends-on ("cl-arrows" "fset")
   :components ((:file "qmapper_std"
 		      ;; :depends-on (:cl-arrows)
-		:depends-on ("export"))
+		      :depends-on ("export"))
+	       (:file "engine"
+		      :depends-on ("qmapper_std"
+				   "root"
+				   "sprite"
+				   "export"))
 	       (:file "animatedsprite"
 		:depends-on ("qmapper_std"
 			     "sprite"
@@ -47,6 +52,7 @@
   	       (:file "map"
 		:depends-on ("qmapper_std"
 			     "animatedsprite"
+			     "engine"
 			     "export"
 			     "root"
 			     "tileset"
