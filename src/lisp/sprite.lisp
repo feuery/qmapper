@@ -9,16 +9,21 @@
 
 (in-package :qmapper.sprite)
 
+(defun-export! validate-x (x &rest rr)
+  (< x 100))
+
 (defcppclass Sprite
     (public
      (properties
-      (x 0)
-      (y 0)
+      (x 0 #'validate-x)
+      (y 0 (lambda (y old-obj)
+	     (< y 100)))
       (angle 0.0)
       (parentMapId "")
       (name "")
       (loadingDone nil)
       (gl-key nil))))
+
 
 (defun-export! sprite-render (sprite)
   (let* ((angle (sprite-angle sprite))

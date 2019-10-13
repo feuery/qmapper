@@ -357,11 +357,32 @@
 			(convert 'seq obj-alist)
 			obj-alist))
 	 (key (clean-key key))
-	 (val (clean-val val)))
+	 (val (clean-val val))
+	 (validator (get-prop-in *validators* (list (q-type-of obj-alist) key)))
+	 (validator (if (consp validator)
+			(eval validator)
+			validator)))
     (assert (not (listp val)))
     (assert (not (consp val)))
-    
-											  
+
+    ;; (format t "Validator? ~a (~a)~%" validator (type-of validator))
+    (if validator
+	(if (funcall validator val obj-alist)
+	    (let* ((new-obj (with (or obj-alist (empty-map)) key val))
+		   (event-list (if (map? new-obj)
+				   (get-prop-in new-obj (list "EVENTS" key))))
+		   (result (if event-list
+			       (reduce (lambda (obj fn)
+					 (let ((fun (eval (read-from-string fn))))
+					   (funcall fun obj val))) (convert 'list event-list) :initial-value new-obj)
+			       new-obj)))
+	      (unless result
+		(format t "one of the event functions returned nil. You probably don't want that~%"))
+	      result)
+	    (progn
+	      (format t "validator failed on obj ~a, key ~a and val ~a~%" obj-alist key val)
+	      obj-alist))
+	  
     (let* ((new-obj (with (or obj-alist (empty-map)) key val))
 	   (event-list (if (map? new-obj)
 			   (get-prop-in new-obj (list "EVENTS" key))))
@@ -372,7 +393,7 @@
 		       new-obj)))
       (unless result
 	(format t "one of the event functions returned nil. You probably don't want that~%"))
-      result)))
+      result))))
 
 (defun-export! set-prop-in (obj ks value)
   (let* ((key (car ks))
@@ -412,6 +433,8 @@
 							 (let* ((l (or l (empty-seq))))
 							   (insert l 0 (prin1-to-string (function-lambda-expression fn)))))))
 
+(defvar-export! *validators* (map))
+
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
@@ -426,12 +449,11 @@
 				    (second field))
 				  stupid-fields)))
 	 (validators (reverse (mapcar (lambda (field)
-	 				(third field))
+	 				(cons (car field) (third field)))
 	 			      stupid-fields)))
 	 (fields-with-accessors (cons 'progn (concatenate 'list (->> stupid-fields
 	 							     (mapcan (lambda (f)
 	 								       (let* ((field (car f))
-										      (validator (third f))
 										      (getter (sym (str (symbol-name classname)
 	 												"-"
 	 												(symbol-name field))))
@@ -498,6 +520,8 @@
        ,ctr
        ,fields-with-accessors
        ,@funcs
+
+       (setf *validators* (with *validators* (symbol-name ',classname) ,(convert 'map validators)))
 
        (defun-export! ,meta-name ()
 	 ,meta-fn)
