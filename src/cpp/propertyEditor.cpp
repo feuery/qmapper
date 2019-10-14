@@ -25,15 +25,28 @@ Propertyeditor::Propertyeditor(cl_object list_path_to_object, QWidget *parent): 
   cl_object get_in = makefn("qmapper.std:get-prop-in"),
     root = editorController::instance->document.getValue(),
     base = cl_funcall(3, get_in, root, list_path_to_object),
-    prin = makefn("prin1-to-string"),
+    dissoc = makefn("qmapper.std:dissoc-prop");
+  
+  base = cl_funcall(3, dissoc, base, c_string_to_object("\"META\""));
+  QString qtype(type_name(base).c_str());
+  qtype = qtype.toLower();
+  
+  std::string type = qtype.toStdString();
+  
+  cl_object prin = makefn("prin1-to-string"),
     obj_str = cl_funcall(2, prin, base),
-    // tää on formaatissa ("MAPS" "ID" "LOL") eikä esim #["MAPS" "ID" "LOL"] :)))))
     path_str = cl_funcall(2, prin, list_path_to_object);
 
   std::string c_obj_str = ecl_string_to_string(obj_str),
     path = ecl_string_to_string(path_str);
+  QString qpath(path.c_str());
+  qpath = qpath.replace("(", "(list ");
+  path = qpath.toStdString();
+  
   printf("c_obj_str: %s\n", c_obj_str.c_str());
   printf("Path: %s\n", path.c_str());
+
+  std::string c_type_name = type_name(base);
 
   assert(base != ECL_NIL);
   
@@ -42,12 +55,18 @@ Propertyeditor::Propertyeditor(cl_object list_path_to_object, QWidget *parent): 
   ui.txtLisp->setPlainText(c_obj_str.c_str());
 
   connect(ui.buttonBox, &QDialogButtonBox::accepted, [=]() {
-							 merge_meta = makefn("qmapper.root:merge-meta"),
+						       std::string lisp_code = ui.txtLisp->toPlainText().toStdString();
+						       std::string validator_name = "#'qmapper."+type+":validate-"+type;
+						       printf("Validating with function %s\n", validator_name.c_str());
+						       cl_object format = makefn("format"),
 							 inner_path = lisp(path),
-							 new_obj = cl_funcall(3, merge_meta, lisp(lisp_code), inner_path),
-							 validator_fetcher = lisp("(lambda (type-name) (qmapper.std:get-prop qmapper.std:validators type-name))"),
-							 validator = cl_funcall(2, validator_fetcher, c_string_to_object(("\""+c_type_name+"\"").c_str())),
+							 new_obj = lisp(lisp_code), // cl_funcall(3, merge_meta, lisp(lisp_code), inner_path),
+							 validator = lisp(validator_name); // = cl_funcall(2, validator_fetcher, c_string_to_object(("\""+c_type_name+"\"").c_str()));
+						       cl_funcall(4, format, ECL_T, c_string_to_object("\"validator: ~a~%\""), validator);
+						       puts("Validating");
+						       cl_object
 							 validation_result = cl_funcall(2, validator, new_obj);
+						       puts("Validated");
 						       
 						       if(validation_result == ECL_NIL) {
 							 puts("Validation failed on the lisp side");
@@ -61,8 +80,9 @@ Propertyeditor::Propertyeditor(cl_object list_path_to_object, QWidget *parent): 
 										 doc.getValue(),
 										 inner_path,
 										 new_obj));
-							 
-						       cl_funcall(4, format, ECL_T, c_string_to_object("\"evaluated: ~a~%\""), lisp(lisp_code));
+						       
+							 cl_funcall(4, format, ECL_T, c_string_to_object("\"evaluated: ~a~%\""), lisp(lisp_code));
+						       }
 						       close();
 						     });
     

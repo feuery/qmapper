@@ -40,7 +40,7 @@
 		  (lambda (map)
 		    (invert-hit-tile map x y))))
 
-(defun boolp (b)
+(defun boolp (b &rest rst)
   (typep b 'boolean))
 
 (defcppclass Map
@@ -80,6 +80,8 @@
 	       hAnchor)
 	      ;; TODO IMPLEMENT
 	      (error "Don't call Map-resize yet!")))))
+
+
 
 (defun-export! make-map-with-layers (doc name w h layer-count)
   (let* ((layers (repeatedly (lambda (i)

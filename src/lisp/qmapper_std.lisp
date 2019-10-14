@@ -435,6 +435,10 @@
 
 (defvar-export! *validators* (map))
 
+(defun create-symbol (sym)
+  (assert (stringp sym))
+  (read-from-string sym))
+
 (defmacro-export! defcppclass (classname &rest rst)
   (let* ((visibility-stripped (apply #'append
 				     (mapcan #'cdr rst)))
@@ -515,12 +519,29 @@
 				      map))
 				(mapcar (lambda (prop)
 					  (cons (car prop) (third prop)))
-					',props) :initial-value (empty-map)))))
+					',props) :initial-value (empty-map))))
+	 (validate-fn `(defun-export! ,(create-symbol (format nil "validate-~a" classname)) (obj)
+			 (let* ((type (q-type-of obj))
+				(validator-map (convert 'list (get-prop *validators* type))))
+			   (reduce (lambda (last-result
+					    validator-kv)
+				     (let* ((key (car validator-kv))
+					    (validator (cdr validator-kv))
+					    (validator (if (consp validator)
+							   (eval validator)
+							   validator)))
+				       (if validator
+					   (and last-result
+						(funcall validator (get-prop obj key) obj))
+					   last-result)))
+				   validator-map :initial-value t ))))
+	 )
     `(progn
        ,ctr
        ,fields-with-accessors
        ,@funcs
-
+       ,validate-fn
+       
        (setf *validators* (with *validators* (symbol-name ',classname) ,(convert 'map validators)))
 
        (defun-export! ,meta-name ()

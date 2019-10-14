@@ -28,7 +28,6 @@
       (loadingDone nil)
       (gl-key nil))))
 
-
 (defun-export! sprite-render (sprite)
   (let* ((angle (sprite-angle sprite))
 	 (gl-key (sprite-gl-key sprite))
