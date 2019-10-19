@@ -1,8 +1,7 @@
 (defpackage :qmapper.tile
   (:use :common-lisp
 	:cl-arrows
-	:qmapper.std
-	:qmapper.root))
+	:qmapper.std))
 
 (in-package :qmapper.tile)
 

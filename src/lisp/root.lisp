@@ -1,6 +1,7 @@
 (defpackage :qmapper.root
   (:use :common-lisp
 	:cl-arrows
+	:qmapper.layer
 	:rutils.abbr
 	:qmapper.std
 	:qmapper.export
@@ -15,6 +16,16 @@
 (defun-export! set-image-x (dst img x)
   (let ((i (get-prop img "GL-KEY")))
     (funcall set-img-x (symbol-name dst) i x)))
+
+(defun-export! true-map-width (*this*)
+  (let* ((layer-id (fset-first (get-prop *this* "LAYERS")))
+	 (layers (get-prop (root-layers *document*) layer-id)))
+    (Layer-width layers)))
+
+(defun-export! true-map-height (*this*)
+  (let* ((layer-id (fset-first (get-prop *this* "LAYERS")))
+	 (layer (get-prop (root-layers *document*) layer-id)))
+    (Layer-height layer)))
 
 (defun-export! set-image-y (dst img y)
   (funcall set-img-y (symbol-name dst) (get-prop img "GL-KEY") y))

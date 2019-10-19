@@ -770,7 +770,7 @@ void editorController::clearDrawQueues() {
 int editorController::chosenMapWidth() {
   cl_object get_chosen_map = makefn("qmapper.root:root-get-chosen-map"),
     chosen_map = cl_funcall(2, get_chosen_map, document.getValue()),
-    map_w = makefn("qmapper.map:map-width"),
+    map_w = makefn("qmapper.root:true-map-width"),
     w = cl_funcall(2, map_w, chosen_map);
 
   return ecl_to_int(w);
@@ -779,7 +779,7 @@ int editorController::chosenMapWidth() {
 int editorController::chosenMapHeight() {
   cl_object get_chosen_map = makefn("qmapper.root:root-get-chosen-map"),
     chosen_map = cl_funcall(2, get_chosen_map, document.getValue()),
-    map_h = makefn("qmapper.map:map-height"),
+    map_h = makefn("qmapper.root:true-map-height"),
     h = cl_funcall(2, map_h, chosen_map);
 
   return ecl_to_int(h);

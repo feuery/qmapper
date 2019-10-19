@@ -3,8 +3,7 @@
         :cl-arrows
 	:qmapper.export
 	:qmapper.std
-	:qmapper.tile
-   :qmapper.root)
+	:qmapper.tile)
   (:import-from :fset :size))
 
 (in-package :qmapper.layer)

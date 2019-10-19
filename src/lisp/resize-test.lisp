@@ -131,8 +131,8 @@
 	 (new-h (+ 3 (random 22)))
 	 (qmapper.root:*document* (resize-selected-map qmapper.root:*document* new-w new-h))
 	 (selected-map (get-prop-in qmapper.root:*document* (list "MAPS" (root-chosenmap qmapper.root:*document*)))))
-    (is (map-width selected-map) new-w)
-    (is (map-height selected-map) new-h)))
+    (is (true-map-width selected-map) new-w)
+    (is (true-map-height selected-map) new-h)))
 	 
 
 ;; (deftest testing-resize
@@ -140,13 +140,13 @@
 ;;     	   (qmapper.root:*document* test-root)
 ;;     	   (chosenmapid (root-chosenmap test-root))
 ;;     	   (map (assert-some? (get-prop-in test-root (list "MAPS" chosenmapid))))
-;;     	   (old-w (map-width map))
-;;     	   (old-h (map-height map))
+;;     	   (old-w (true-map-width map))
+;;     	   (old-h (true-map-height map))
 ;;     	   (test-root (assert-some? (resize-selected-map test-root grow-w grow-h)))
 ;;     	   (qmapper.root:*document* test-root)
 ;;     	   (map (assert-some? (get-prop-in test-root (list "MAPS" chosenmapid)))))
       
-;;       (is (+ old-w grow-w) (map-width map))
-;;       (is (+ old-h grow-h) (map-height map))))
+;;       (is (+ old-w grow-w) (true-map-width map))
+;;       (is (+ old-h grow-h) (true-map-height map))))
 
 ;; (run-tests)

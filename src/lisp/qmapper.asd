@@ -62,8 +62,8 @@
 			     "tile"))
 	       (:file "root"
 		      :depends-on ("script" 
-				      "export"
-				      ))
+				   "export"
+				   "layer"))
 	       (:file "editor_events"
 		      :depends-on ("qmapper_std"
 				   "export"))
@@ -80,7 +80,9 @@
   	       (:file "sprite"
 		:depends-on ("tileset"))
   	       (:file "tile"
-		:depends-on ("root"))
+		      :depends-on (;; "root"
+				   "qmapper_std"
+				   ))
   	       (:file "layer"
 		:depends-on ("tile"))
   	       (:file "tileset"

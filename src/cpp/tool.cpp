@@ -25,8 +25,8 @@ bool Tool::isHitTool() {
 
 bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 {
-  cl_object map_w = makefn("qmapper.map:Map-Width");
-  cl_object map_h = makefn("qmapper.map:Map-height");
+  cl_object map_w = makefn("qmapper.root:true-map-Width");
+  cl_object map_h = makefn("qmapper.root:true-map-height");
   cl_object map = getChosenMap();
   if(map == ECL_NIL) { puts("can't use tool, map is ECL_NIL"); return false; }
   
@@ -38,8 +38,8 @@ bool Tool::canUse(QMouseEvent *event, int tilex, int tiley, editorController *e)
 void Tool::mouseDown(QMouseEvent *e, editorController *ec) {
   cl_object drop_keys = makefn("qmapper.std:drop-alist-keys"),
     maps = makefn("qmapper.root:root-maps");
-  cl_object map_w = makefn("qmapper.map:Map-width");
-  cl_object map_h = makefn("qmapper.map:Map-height"),
+  cl_object map_w = makefn("qmapper.root:true-map-width");
+  cl_object map_h = makefn("qmapper.root:true-map-height"),
     nth = makefn("nth");
   cl_object root = ec->document.getValue(),
     map = getChosenMap(),

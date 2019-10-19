@@ -65,14 +65,12 @@
 						(get-prop (root-sprites *document*) sprite-id)
 						(get-prop (root-animatedSprites *document*) sprite-id)))))))
 		     (car (find-nearest x y lst))))
-      (width ()
-	     (let* ((layer-id (fset-first (Map-layers *this*)))
-		    (layers (get-prop (root-layers *document*) layer-id)))
-	       (Layer-width layers)))
       (height ()
-	      (let* ((layer-id (fset-first (Map-layers *this*)))
-		     (layer (get-prop (root-layers *document*) layer-id)))
-		(Layer-height layer)))
+	      (format t "Calling deprecated map-height~%")
+	      (qmapper.root:true-map-height *this*))
+      (width ()
+	     (format t "Calling deprecated map-width~%")
+	     (qmapper.root:true-map-width *this*))
       ;; this'll be fun
       (resize (w
 	       h
@@ -243,8 +241,8 @@
     (-> root
 	(update-prop-in (list "MAPS" map-index) (lambda (m)
 						 (let* ((layers (Map-layers m))
-							(w (Map-width m))
-							(h (Map-height m))
+							(w (true-map-width m))
+							(h (true-map-height m))
 							(ll (make-Layer :name (str (prin1-to-string (size layers)) "th layer")
 									:tiles
 												      (make-tiles w h))))
@@ -338,8 +336,8 @@
 				(let* ((root *local-document*)
 				       (map (get-prop (root-maps root) (root-chosenmap root)))
 				       (hitdata (map-hit-layer map))
-				       (w (map-width map))
-				       (h (map-height map))
+				       (w (true-map-width map))
+				       (h (true-map-height map))
 				       (x-coords (mapcar #'dec (range w)))
 				       (y-coords (mapcar #'dec (range h)))
 				       (layer-list (map-layers map))
@@ -444,7 +442,7 @@
 		 layer-ids :initial-value root)))
 
 (defun-export! selected-map-width (root)
-  (map-width (selected-map root)))
+  (true-map-width (selected-map root)))
 
 (defun-export! selected-map-height (root)
-  (map-height (selected-map root)))
+  (true-map-height (selected-map root)))

@@ -9,15 +9,22 @@
 
 (in-package :qmapper.sprite)
 
-(defun-export! validate-x (x &rest rr)
-  (< x 100))
+(defun-export! validate-x (x sprite)
+  (let ((map (get-prop-in *document* (list "MAPS" (root-chosenmap *document*))))
+	(sprite-w (funcall image-w (get-prop sprite "GL-KEY"))))
+    (< (+ sprite-w x) (* (true-map-width map) 50))))
+
+(defun-export! validate-y (y sprite)
+  (let ((map (get-prop-in *document* (list "MAPS" (root-chosenmap *document*))))
+	(sprite-h (funcall image-h (get-prop sprite "GL-KEY"))))
+    (< (+ sprite-h y) (* (true-map-height map) 50))))
+
 
 (defcppclass Sprite
     (public
      (properties
       (x 0 #'validate-x)
-      (y 0 (lambda (y old-obj)
-	     (< y 100)))
+      (y 0 #'validate-y)
       (angle 0.0)
       (gravity-vector #[0 1] ;; (lambda (g)
 			     ;;   (and (fset:seq? g)
