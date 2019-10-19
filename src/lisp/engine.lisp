@@ -35,10 +35,12 @@
 	  (if (or (not (zerop x))
 		  (not (zerop y)))
 	      (set-engine-doc
-	       (update-prop-in *engine-document* (list "SPRITES" id) (lambda (sprite)
-								       (-> sprite
-									   (update-prop "X" (partial #'+ x))
-									   (update-prop "Y" (partial #'+ y))))))))))
+	       (let ((*silence-validators* t))
+		 ;; (format t "*silence-validators*: ~a~%" *silence-validators*)
+		 (update-prop-in *engine-document* (list "SPRITES" id) (lambda (sprite)
+									 (-> sprite
+									     (update-prop "X" (partial #'+ x))
+									     (update-prop "Y" (partial #'+ y)))))))))))
     (ms-sleep 2)))
 
 (defun-export! start-gravity-loop! ()

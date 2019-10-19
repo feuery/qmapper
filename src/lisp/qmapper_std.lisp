@@ -350,6 +350,7 @@
 (defun-export! all? (fn coll)
   (not (any? (complement fn) coll)))
 
+(defvar-export! *silence-validators* nil)
 
 (defun-export! set-prop  (obj-alist key val)
   (let* ((obj-alist (if (or (listp obj-alist)
@@ -380,7 +381,8 @@
 		(format t "one of the event functions returned nil. You probably don't want that~%"))
 	      result)
 	    (progn
-	      (format t "validator failed on obj ~a, key ~a and val ~a~%" obj-alist key val)
+	      (unless *silence-validators*
+		(format t "validator failed on obj ~a, key ~a and val ~a~%" obj-alist key val))
 	      obj-alist))
 	  
     (let* ((new-obj (with (or obj-alist (empty-map)) key val))
